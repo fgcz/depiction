@@ -4,7 +4,6 @@ from contextlib import contextmanager
 from functools import cached_property
 from pathlib import Path
 from typing import Generator, Any, Optional
-from xml.etree.ElementTree import ElementTree
 
 import pyimzml.ImzMLParser
 from ionmapper.persistence.file_checksums import FileChecksums

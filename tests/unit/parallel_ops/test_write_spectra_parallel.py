@@ -6,7 +6,7 @@ from ionmapper.parallel_ops import (
     WriteSpectraParallel,
     ReadSpectraParallel,
 )
-from ionmapper.persistence import ImzmlModeEnum, ImzmlWriteFile, ImzmlReadFile
+from ionmapper.persistence import ImzmlModeEnum, ImzmlWriteFile
 from ionmapper.tools.merge_imzml import MergeImzml
 
 

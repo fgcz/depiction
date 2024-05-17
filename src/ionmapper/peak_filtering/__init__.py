@@ -6,3 +6,14 @@ from .filter_by_reference_peak_distance import FilterByReferencePeakDistance
 from .filter_n_highest_intensity import FilterNHighestIntensity
 from .filter_n_highest_intensity_partitioned import FilterNHighestIntensityPartitioned
 from .peak_filtering_type import PeakFilteringType
+
+__all__ = [
+    "ChainFilters",
+    "FilterByIntensity",
+    "FilterByIsotopeDistance",
+    "FilterByIsotopePattern",
+    "FilterByReferencePeakDistance",
+    "FilterNHighestIntensity",
+    "FilterNHighestIntensityPartitioned",
+    "PeakFilteringType",
+]

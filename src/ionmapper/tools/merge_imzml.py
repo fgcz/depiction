@@ -1,6 +1,6 @@
 from ionmapper.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
 from tqdm import tqdm
-from typing import Sequence
+from collections.abc import Sequence
 import argparse
 
 

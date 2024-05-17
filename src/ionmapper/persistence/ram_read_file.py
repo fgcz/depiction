@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from functools import cached_property
-from typing import Generator
+from collections.abc import Generator
 
 from ionmapper.persistence import ImzmlModeEnum
 from ionmapper.persistence.ram_reader import RamReader

@@ -76,3 +76,11 @@ plugins = "numpy.typing.mypy_plugin"
 [tool.licensecheck]
 using = "PEP631"
 
+[tool.ruff]
+line-length = 120
+indent-width = 4
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["ANN", "BLE", "D103", "E", "F", "PLW", "PTH", "SIM", "UP", "TCH"]
+ignore = ["ANN101", "ANN102"]

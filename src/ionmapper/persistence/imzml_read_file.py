@@ -3,7 +3,8 @@ from collections import defaultdict
 from contextlib import contextmanager
 from functools import cached_property
 from pathlib import Path
-from typing import Generator, Any, Optional
+from typing import Any, Optional
+from collections.abc import Generator
 
 import pyimzml.ImzMLParser
 from ionmapper.persistence.file_checksums import FileChecksums

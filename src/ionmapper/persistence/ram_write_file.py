@@ -1,7 +1,8 @@
 from __future__ import annotations
 from tqdm import tqdm
 from contextlib import contextmanager
-from typing import Sequence, Optional
+from typing import Optional
+from collections.abc import Sequence
 
 import numpy as np
 

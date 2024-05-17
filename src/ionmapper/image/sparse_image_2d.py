@@ -1,6 +1,7 @@
 from __future__ import annotations
 import math
-from typing import Optional, Callable, Union, Sequence
+from typing import Optional, Callable, Union
+from collections.abc import Sequence
 
 import h5py
 import matplotlib.pyplot
@@ -337,7 +338,7 @@ class SparseImage2d:
         return group.attrs["_type"] == "SparseImage2d"
 
     @classmethod
-    def combine_in_parallel(cls, images: list["SparseImage2d"]) -> SparseImage2d:
+    def combine_in_parallel(cls, images: list[SparseImage2d]) -> SparseImage2d:
         """Combines the individual images in parallel, i.e. it assumes that every image has the same dimensions and
         number of channels.
 

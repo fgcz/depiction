@@ -50,7 +50,7 @@ class LinearModel:
         return LinearModel(coef=[model.intercept_[0], model.coef_[0, 0]])
 
     @classmethod
-    def fit_siegelslopes(cls, x_arr: NDArray[float], y_arr: NDArray[float]) -> "LinearModel":
+    def fit_siegelslopes(cls, x_arr: NDArray[float], y_arr: NDArray[float]) -> LinearModel:
         """Fits a linear model to the given data using robust Siegel-Slopes regression."""
         slope, intercept = scipy.stats.siegelslopes(y=y_arr, x=x_arr)
         return LinearModel(coef=[intercept, slope])

@@ -41,7 +41,7 @@ class FlexImagingInfoFile:
     @classmethod
     def parse_in_directory(cls, directory: str) -> FlexImagingInfoFile:
         [match] = glob.glob(f"{directory}/*_info.txt")
-        with open(match, "r") as file:
+        with open(match) as file:
             return cls.parse_file(file=file)
 
     @classmethod

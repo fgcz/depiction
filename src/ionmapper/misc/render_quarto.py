@@ -68,7 +68,7 @@ class RenderQuarto:
 
         proc.wait()
         if proc.returncode != 0 or failed:
-            subprocess.run(["quarto", "check"], cwd=output_dir)
+            subprocess.run(["quarto", "check"], cwd=output_dir, check=False)
             raise RuntimeError(f"Rendering failed for {document=} ({proc.returncode=}, {failed=})")
 
         if delete_qmd:

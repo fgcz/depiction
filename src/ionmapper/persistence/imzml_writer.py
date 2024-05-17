@@ -1,4 +1,5 @@
-from typing import Optional, Sequence, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
+from collections.abc import Sequence
 
 import numpy as np
 import pyimzml

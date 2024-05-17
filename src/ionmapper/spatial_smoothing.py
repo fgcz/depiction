@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Sequence, Literal
+from typing import Literal
+from collections.abc import Sequence
 
 import numpy as np
 from numpy.typing import NDArray

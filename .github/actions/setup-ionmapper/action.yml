@@ -16,3 +16,6 @@ runs:
       run: |
         pip install uv
         uv pip install --system ".[dev,testing]"
+    - name: Print installed packages
+      shell: bash
+      run: pip freeze

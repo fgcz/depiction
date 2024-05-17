@@ -1,6 +1,7 @@
 .vscode
 .idea
 *.pyc
+*.egg-info
 __pycache__
 .DS_Store
 .hypothesis

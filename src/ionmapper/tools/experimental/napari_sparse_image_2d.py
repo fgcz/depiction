@@ -34,7 +34,7 @@ class GeneralMultiSelectionWidget(QWidget):
         entries_df: pd.DataFrame,
         dropdown_column: str = None,
         listeners: list[Callable] = None,
-    ):
+    ) -> None:
         super().__init__()
 
         self._entries_df = entries_df
@@ -69,7 +69,7 @@ class GeneralMultiSelectionWidget(QWidget):
 
         self.setLayout(layout)
 
-    def on_add(self):
+    def on_add(self) -> None:
         selected_idx = self._dropdown_widget.currentIndex()
         if self._selection[selected_idx]:
             return
@@ -77,7 +77,7 @@ class GeneralMultiSelectionWidget(QWidget):
         self._update_table()
         self._notify_listeners()
 
-    def on_remove(self):
+    def on_remove(self) -> None:
         selected_idx = self._dropdown_widget.currentIndex()
         if not self._selection[selected_idx]:
             return
@@ -85,13 +85,13 @@ class GeneralMultiSelectionWidget(QWidget):
         self._update_table()
         self._notify_listeners()
 
-    def add_listener(self, listener):
+    def add_listener(self, listener) -> None:
         self._listeners.append(listener)
 
-    def remove_listener(self, listener):
+    def remove_listener(self, listener) -> None:
         self._listeners.remove(listener)
 
-    def _notify_listeners(self):
+    def _notify_listeners(self) -> None:
         for listener in self._listeners:
             listener(self)
 
@@ -105,13 +105,13 @@ class GeneralMultiSelectionWidget(QWidget):
     def selected_rows(self) -> pd.DataFrame:
         return self._entries_df.iloc[self.selected_indices]
 
-    def _update_table(self):
+    def _update_table(self) -> None:
         for i, is_selected in enumerate(self._selection):
             self._table_model.item(i, 0).setCheckState(Qt.Checked if is_selected else Qt.Unchecked)
 
 
 class VisualizationSelectionWidget(QWidget):
-    def __init__(self, markers, file_variants):
+    def __init__(self, markers, file_variants) -> None:
         super().__init__()
 
         self._markers = markers
@@ -126,28 +126,27 @@ class VisualizationSelectionWidget(QWidget):
 
         self.setLayout(layout)
 
-    def on_update_selection(self, widget: GeneralMultiSelectionWidget):
+    def on_update_selection(self, widget: GeneralMultiSelectionWidget) -> None:
         # get the selected indices
-        marker_indices = self._marker_selection.selected_indices
-        file_variant_indices = self._file_variant_selection.selected_indices
+        pass
 
         # update the selection
         # TODO call main viewer
 
 
 class ChannelSelectorWidget(QComboBox):
-    def __init__(self, main_viewer: "NapariSparseImage2dViewer"):
+    def __init__(self, main_viewer: "NapariSparseImage2dViewer") -> None:
         super().__init__()
         self._main_viewer = main_viewer
         self.addItems(main_viewer.channel_names)
         self.currentIndexChanged.connect(self.on_update_selection)
 
-    def on_update_selection(self, new_index: int):
+    def on_update_selection(self, new_index: int) -> None:
         self._main_viewer.show_channel(new_index)
 
 
 class GeneralSelectorWidget(QWidget):
-    def __init__(self, main_viewer: "NapariSparseImage2dViewer"):
+    def __init__(self, main_viewer: "NapariSparseImage2dViewer") -> None:
         super().__init__()
         self._main_viewer = main_viewer
 
@@ -165,19 +164,19 @@ class GeneralSelectorWidget(QWidget):
 
         self.setLayout(layout)
 
-    def on_arrange_grid(self):
+    def on_arrange_grid(self) -> None:
         # TODO this could be more expected from users, but it could also mess up someone's manual selection
         # self._main_viewer.show_channel(self._channel_selector.currentIndex())
         self._main_viewer.arrange_visible_layers_in_grid()
 
 
 class NapariSparseImage2dViewer:
-    def __init__(self):
+    def __init__(self) -> None:
         self._images = []
         self._viewer = napari.Viewer()
         self._channel_data = pd.DataFrame({"image_name": [], "channel_name": []})
 
-    def add_image(self, image: SparseImage2d, name: str):
+    def add_image(self, image: SparseImage2d, name: str) -> None:
         self._images.append({"image": image, "name": name})
         self._channel_data = pd.concat(
             [
@@ -188,7 +187,7 @@ class NapariSparseImage2dViewer:
             ]
         ).reset_index()
 
-    def add_all_images(self, file: h5py.File):
+    def add_all_images(self, file: h5py.File) -> None:
         for group_name, group in file.items():
             if SparseImage2d.is_valid_hdf5(group):
                 self.add_image(SparseImage2d.load_from_hdf5(group), group_name)
@@ -197,9 +196,9 @@ class NapariSparseImage2dViewer:
     def channel_names(self) -> list[str]:
         return self._channel_data["channel_name"].unique().tolist()
 
-    def show_channel(self, channel_idx: int):
+    def show_channel(self, channel_idx: int) -> None:
         # identify the relevant channel indices
-        channel_name = self.channel_names[channel_idx]
+        self.channel_names[channel_idx]
         relevant_channels = self._channel_data.query("channel_name == @channel_name").index.tolist()
         print("relevant_channels", relevant_channels)
 
@@ -207,12 +206,12 @@ class NapariSparseImage2dViewer:
         for i_layer, layer in enumerate(self._viewer.layers):
             layer.visible = i_layer in relevant_channels
 
-    def arrange_visible_layers_in_grid(self):
+    def arrange_visible_layers_in_grid(self) -> None:
         visible_layers = [layer for layer in self._viewer.layers if layer.visible]
         n_visible_layers = len(visible_layers)
 
         n_per_row = 6
-        n_rows = math.ceil(n_visible_layers / n_per_row)
+        math.ceil(n_visible_layers / n_per_row)
         n_cols = min(n_per_row, n_visible_layers)
 
         # in principle, we would assume the same height and width for all images, but to make it slightly more
@@ -240,14 +239,14 @@ class NapariSparseImage2dViewer:
             # set the position
             layer.translate = [y, x]
 
-    def _setup_napari_viewer(self):
+    def _setup_napari_viewer(self) -> None:
         selector_widget = GeneralSelectorWidget(self)
         self._viewer.window.add_dock_widget(selector_widget, area="left")
         histogram_widget = HistogramWidget(self._viewer)
         histogram_widget.n_layers_input = range(1, 10)
         self._viewer.window.add_dock_widget(histogram_widget, area="right")
 
-    def run(self):
+    def run(self) -> None:
         self._setup_napari_viewer()
         cmap = vispy.color.Colormap(seaborn.color_palette("mako"))
 
@@ -264,7 +263,7 @@ class NapariSparseImage2dViewer:
         napari.run()
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("hdf5_file", type=str)
     args = parser.parse_args()

@@ -20,7 +20,7 @@ class SplitImzml:
         source_imzml_path: str,
         n_parts: Optional[int],
         n_spectra_per_part: Optional[int],
-    ):
+    ) -> None:
         self._source_imzml_path = source_imzml_path
         self._n_parts = n_parts
         self._n_spectra_per_part = n_spectra_per_part
@@ -30,10 +30,7 @@ class SplitImzml:
         n_spectra_file = len(pyimzml.ImzMLParser.ImzMLParser(self._source_imzml_path).coordinates)
         if self._n_parts and self._n_spectra_per_part:
             raise ValueError("Only one of n_parts and n_spectra can be provided.")
-        if self._n_parts:
-            n_parts = self._n_parts
-        else:
-            n_parts = max(n_spectra_file // self._n_spectra_per_part, 1)
+        n_parts = self._n_parts if self._n_parts else max(n_spectra_file // self._n_spectra_per_part, 1)
         return np.array_split(np.arange(n_spectra_file), n_parts)
 
     def write_splits(self, output_dir: str) -> dict:
@@ -68,7 +65,7 @@ class ImzmlSplitter:
         read_file: ImzmlReadFile,
         n_parts: Optional[int],
         n_spectra_per_part: Optional[int],
-    ):
+    ) -> None:
         self._read_file = read_file
         self._n_parts = n_parts
         self._n_spectra_per_part = n_spectra_per_part
@@ -77,10 +74,7 @@ class ImzmlSplitter:
         """Returns a list with the indices per split part."""
         if self._n_parts and self._n_spectra_per_part:
             raise ValueError("Only one of n_parts and n_spectra can be provided.")
-        if self._n_parts:
-            n_parts = self._n_parts
-        else:
-            n_parts = max(self._read_file.n_spectra // self._n_spectra_per_part, 1)
+        n_parts = self._n_parts if self._n_parts else max(self._read_file.n_spectra // self._n_spectra_per_part, 1)
         return np.array_split(np.arange(self._read_file.n_spectra), n_parts)
 
     def write_splits(self, output_dir: str) -> dict:

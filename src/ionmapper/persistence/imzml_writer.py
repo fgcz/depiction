@@ -19,7 +19,7 @@ class ImzmlWriter:
         *,
         wrapped_imzml_writer: pyimzml.ImzMLWriter.ImzMLWriter,
         imzml_alignment_tracker: Optional[ImzmlAlignmentTracker]
-    ):
+    ) -> None:
         self._imzml_writer = wrapped_imzml_writer
         self._imzml_alignment_tracker = imzml_alignment_tracker
 
@@ -37,10 +37,10 @@ class ImzmlWriter:
 
     # TODO this currently has a bug, when closing a reader to which not a single spectrum was added.
     #      it should be handled gracefully, since there are reasonable cases where this could occur with the use of "with" clauses.
-    def close(self):
+    def close(self) -> None:
         self._imzml_writer.close()
 
-    def deactivate_alignment_tracker(self):
+    def deactivate_alignment_tracker(self) -> None:
         self._imzml_alignment_tracker = None
 
     @property
@@ -66,7 +66,7 @@ class ImzmlWriter:
         mz_arr: np.ndarray,
         int_arr: np.ndarray,
         coordinates: tuple[int, int] | tuple[int, int, int],
-    ):
+    ) -> None:
         if len(mz_arr) != len(int_arr):
             raise ValueError(f"{len(mz_arr)=} and {len(int_arr)=} must be equal.")
         
@@ -88,16 +88,18 @@ class ImzmlWriter:
         reader: "ImzmlReader",
         spectra_indices: Sequence[int],
         tqdm_position: Optional[int] = None,
-    ):
+    ) -> None:
         """
         Copies spectra from an existing reader. Not optimized yet.
         :param reader: The reader to copy from.
         :param spectra_indices: The indices of the spectra to copy.
         """
         if tqdm_position is not None:
-            progress_fn = lambda x: tqdm(x, desc=" spectrum", position=tqdm_position)
+            def progress_fn(x):
+                return tqdm(x, desc=" spectrum", position=tqdm_position)
         else:
-            progress_fn = lambda x: x
+            def progress_fn(x):
+                return x
 
         for spectrum_index in progress_fn(spectra_indices):
             mz_arr, int_arr, coordinates = reader.get_spectrum_with_coords(spectrum_index)

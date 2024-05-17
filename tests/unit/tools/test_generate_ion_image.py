@@ -8,14 +8,14 @@ from ionmapper.tools.generate_ion_image import GenerateIonImage
 
 
 class TestGenerateIonImage(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_parallel_config = MagicMock(name="mock_parallel_config")
         self.mock_generate = GenerateIonImage(parallel_config=self.mock_parallel_config)
 
     @patch.object(GenerateIonImage, "_compute_channels_chunk")
     @patch.object(ReadSpectraParallel, "from_config")
     @patch("ionmapper.tools.generate_ion_image.SparseImage2d")
-    def test_generate_ion_images_for_file(self, mock_sparse_image, mock_from_config, method_compute_channels):
+    def test_generate_ion_images_for_file(self, mock_sparse_image, mock_from_config, method_compute_channels) -> None:
         mock_input_file = MagicMock(name="input_file", spec=["coordinates_2d"])
         mock_mz_values = MagicMock(name="mz_values", spec=[])
         mock_tol = MagicMock(name="tol", spec=[])
@@ -48,7 +48,7 @@ class TestGenerateIonImage(unittest.TestCase):
     @patch.object(GenerateIonImage, "_compute_for_mz_ranges")
     @patch.object(ReadSpectraParallel, "from_config")
     @patch("ionmapper.tools.generate_ion_image.SparseImage2d")
-    def test_generate_range_images_for_file(self, mock_sparse_image, mock_from_config, method_compute_for_mz_ranges):
+    def test_generate_range_images_for_file(self, mock_sparse_image, mock_from_config, method_compute_for_mz_ranges) -> None:
         mock_input_file = MagicMock(name="input_file", spec=["coordinates_2d"])
         mock_mz_ranges = MagicMock(name="mz_ranges", spec=[])
 
@@ -77,7 +77,7 @@ class TestGenerateIonImage(unittest.TestCase):
         )
         self.assertEqual(mock_sparse_image.return_value, result)
 
-    def test_compute_for_mz_ranges(self):
+    def test_compute_for_mz_ranges(self) -> None:
         mock_reader = MagicMock(name="reader")
         mock_reader.get_spectrum.side_effect = {
             7: (np.array([1, 2, 3, 4, 4.2]), np.array([0, 0, 1, 1, 1])),
@@ -91,7 +91,7 @@ class TestGenerateIonImage(unittest.TestCase):
         np.testing.assert_array_equal([1.0, 2.0], result[0])
         np.testing.assert_array_equal([3.0, 1.0], result[1])
 
-    def test_compute_channels_chunk(self):
+    def test_compute_channels_chunk(self) -> None:
         mock_reader = MagicMock(name="reader")
         mock_reader.get_spectrum.side_effect = {
             7: (np.array([1, 2, 3, 4, 4.2]), np.array([0, 0, 1, 1, 1])),

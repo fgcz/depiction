@@ -6,11 +6,11 @@ import sklearn.metrics
 
 
 class CalibrationModelLinear:
-    def __init__(self, intercept: Optional[float] = None, slope: Optional[float] = None):
+    def __init__(self, intercept: Optional[float] = None, slope: Optional[float] = None) -> None:
         self._intercept = intercept
         self._slope = slope
 
-    def fit(self, mz_match_ref, mz_match_sample):
+    def fit(self, mz_match_ref, mz_match_sample) -> None:
         """Fits a linear model to the provided m/z values."""
         # TODO consider robust regression like: siegelslopes
         self._slope, self._intercept, _, _, _ = scipy.stats.linregress(x=mz_match_ref, y=mz_match_sample)
@@ -41,7 +41,7 @@ class CalibrationModelLinear:
 
 
 class EvaluateCalibration:
-    def __init__(self, reference_mz: np.ndarray, max_assocation_distance: float):
+    def __init__(self, reference_mz: np.ndarray, max_assocation_distance: float) -> None:
         self._reference_mz = reference_mz
         self._max_assocation_distance = max_assocation_distance
         # TODO pass this as an argument once there are more options

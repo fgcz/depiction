@@ -6,7 +6,7 @@ from ionmapper.parallel_ops.parallel_config import ParallelConfig
 
 
 class TestParallelConfig(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_n_jobs = 4
         self.mock_task_size = None
         self.mock_verbose = 5
@@ -19,21 +19,21 @@ class TestParallelConfig(unittest.TestCase):
             verbose=self.mock_verbose,
         )
 
-    def test_n_jobs(self):
+    def test_n_jobs(self) -> None:
         self.assertEqual(self.mock_n_jobs, self.mock_parallel_config.n_jobs)
 
-    def test_task_size(self):
+    def test_task_size(self) -> None:
         self.assertEqual(self.mock_task_size, self.mock_parallel_config.task_size)
 
-    def test_verbose(self):
+    def test_verbose(self) -> None:
         self.assertEqual(self.mock_verbose, self.mock_parallel_config.verbose)
 
-    def test_get_splits_count_when_task_size(self):
+    def test_get_splits_count_when_task_size(self) -> None:
         self.mock_task_size = 10
         self.assertEqual(5, self.mock_parallel_config.get_splits_count(50))
         self.assertEqual(1, self.mock_parallel_config.get_splits_count(5))
 
-    def test_get_splits_count_when_no_task_size(self):
+    def test_get_splits_count_when_no_task_size(self) -> None:
         self.mock_task_size = None
         self.mock_n_jobs = 4
         self.assertEqual(4, self.mock_parallel_config.get_splits_count(50))
@@ -41,24 +41,24 @@ class TestParallelConfig(unittest.TestCase):
         self.assertEqual(2, self.mock_parallel_config.get_splits_count(2))
 
     @patch.object(ParallelConfig, "get_splits_count")
-    def test_get_task_splits_when_full_range(self, method_get_splits_count):
+    def test_get_task_splits_when_full_range(self, method_get_splits_count) -> None:
         method_get_splits_count.return_value = 3
         splits = self.mock_parallel_config.get_task_splits(n_items=10, item_indices=None)
         self.assertListEqual([[0, 1, 2, 3], [4, 5, 6], [7, 8, 9]], splits)
         method_get_splits_count.assert_called_once_with(10)
 
     @patch.object(ParallelConfig, "get_splits_count")
-    def test_get_task_splits_when_custom_selection(self, method_get_splits_count):
+    def test_get_task_splits_when_custom_selection(self, method_get_splits_count) -> None:
         method_get_splits_count.return_value = 3
         splits = self.mock_parallel_config.get_task_splits(n_items=None, item_indices=[0, 10, 20, 30, 50])
         self.assertListEqual([[0, 10], [20, 30], [50]], splits)
         method_get_splits_count.assert_called_once_with(5)
 
-    def test_get_task_splits_expect_failure_when_both_parameters(self):
+    def test_get_task_splits_expect_failure_when_both_parameters(self) -> None:
         with self.assertRaises(ValueError):
             self.mock_parallel_config.get_task_splits(n_items=10, item_indices=[0, 10, 20, 30, 50])
 
-    def test_no_parallelism(self):
+    def test_no_parallelism(self) -> None:
         parallel_config = ParallelConfig.no_parallelism()
         self.assertEqual(1, parallel_config.n_jobs)
         self.assertIsNone(parallel_config.task_size)

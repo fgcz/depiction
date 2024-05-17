@@ -13,12 +13,12 @@ from ionmapper.persistence import ImzmlReadFile, ImzmlWriteFile
 class CreateImzmlPool:
     """Combines randomly sampled spectra from several files into a pool, which can be used for further processing."""
 
-    def __init__(self, source_files: list[ImzmlReadFile], n_spectra_per_file: int, random_seed: int = 0):
+    def __init__(self, source_files: list[ImzmlReadFile], n_spectra_per_file: int, random_seed: int = 0) -> None:
         self._source_files = sorted(source_files, key=lambda x: x.imzml_file)
         self._n_spectra_per_file = n_spectra_per_file
         self._random_seed = random_seed
 
-    def write_pool(self, write_file: ImzmlWriteFile):
+    def write_pool(self, write_file: ImzmlWriteFile) -> None:
         self._create_output_directory(write_file=write_file)
         self._write_metadata(write_file=write_file)
         self._write_imzml_file(write_file=write_file)
@@ -49,22 +49,22 @@ class CreateImzmlPool:
             offset += len(source_spectrum_ids)
         return pd.DataFrame(collect)
 
-    def _create_output_directory(self, write_file: ImzmlWriteFile):
+    def _create_output_directory(self, write_file: ImzmlWriteFile) -> None:
         output_directory = os.path.dirname(write_file.imzml_file)
         os.makedirs(output_directory, exist_ok=True)
 
-    def _write_metadata(self, write_file: ImzmlWriteFile):
+    def _write_metadata(self, write_file: ImzmlWriteFile) -> None:
         pool_source_path = os.path.splitext(write_file.imzml_file)[0] + "_source.json"
         pool_content_path = os.path.splitext(write_file.imzml_file)[0] + "_content.json"
         self.pool_source_df.to_json(pool_source_path, index=False, indent=2)
         self.pool_content_df.to_json(pool_content_path, index=False, indent=2)
 
-    def _write_imzml_file(self, write_file: ImzmlWriteFile):
+    def _write_imzml_file(self, write_file: ImzmlWriteFile) -> None:
         """Writes the pooled spectra to the .imzML file."""
         with write_file.writer() as writer:
             for imzml_file in tqdm(self._source_files, desc="Copying file"):
                 with imzml_file.reader() as reader:
-                    imzml_path = os.path.abspath(imzml_file.imzml_file)
+                    os.path.abspath(imzml_file.imzml_file)
                     spectrum_ids = self.pool_source_df.query("abs_path == @imzml_path").iloc[0]["source_spectrum_id"]
                     writer.copy_spectra(reader, spectrum_ids)
 

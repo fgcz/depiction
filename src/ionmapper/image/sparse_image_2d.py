@@ -1,15 +1,17 @@
 from __future__ import annotations
 import math
-from typing import Optional, Callable, Union
-from collections.abc import Sequence
+from typing import Callable, TYPE_CHECKING
 
-import h5py
 import matplotlib.pyplot
 import numpy as np
 import seaborn
 from matplotlib import pyplot as plt
-from numpy.typing import NDArray
 import xarray
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+    from collections.abc import Sequence
+    import h5py
 
 
 class SparseImage2d:
@@ -24,14 +26,14 @@ class SparseImage2d:
         self,
         values: NDArray[float],
         coordinates: NDArray[int],
-        channel_names: Optional[list[str]] = None,
-    ):
+        channel_names: list[str] | None = None,
+    ) -> None:
         self._values = values
         self._coordinates = coordinates
         self._channel_names = channel_names
         self._validate()
 
-    def _validate(self):
+    def _validate(self) -> None:
         """Validates the fields of this class and raises a ``ValueError`` if any violations are found."""
         if self._values.ndim != 2:
             raise ValueError(f"values must have two dimensions, but it has shape {self._values.shape}")
@@ -103,7 +105,7 @@ class SparseImage2d:
             # TODO unit test that it is indeed a list and not a numpy array (which can happen with pandas dataframes and has different semantics)
             return list(self._channel_names)
 
-    def get_dense_array(self, bg_value: Union[float, int] = 0) -> NDArray[float]:
+    def get_dense_array(self, bg_value: float | int = 0) -> NDArray[float]:
         """
         Returns a dense representation of the image.
         The result will be casted, if necessary to accommodate the bg_value, e.g. int to float when bg_value is nan.
@@ -132,7 +134,7 @@ class SparseImage2d:
         cls,
         dense_values: NDArray[float],
         offset: NDArray[int],
-        channel_names: Optional[list[str]] = None,
+        channel_names: list[str] | None = None,
     ) -> SparseImage2d:
         """Creates an instance of SparseImage2d from a dense array and an offset.
         Note that the current implementation will not attempt to remove zero values from the dense array, and treat
@@ -173,8 +175,8 @@ class SparseImage2d:
         i_channel: int,
         path: str,
         cmap: str = "mako",
-        transform_int: Optional[Callable] = None,
-    ):
+        transform_int: Callable | None = None,
+    ) -> None:
         """
         Saves a single channel as an image.
         :param i_channel: the index of the channel to save
@@ -195,16 +197,16 @@ class SparseImage2d:
     def plot_single_channel_image(
         self,
         i_channel: int,
-        ax: Optional[plt.Axes] = None,
+        ax: plt.Axes | None = None,
         cmap: str = "mako",
-        transform_int: Optional[Callable] = None,
-        vmin: Optional[float] = None,
-        vmax: Optional[float] = None,
-        vmin_fn: Optional[Callable] = None,
-        vmax_fn: Optional[Callable] = None,
-        interpolation: Optional[str] = None,
+        transform_int: Callable | None = None,
+        vmin: float | None = None,
+        vmax: float | None = None,
+        vmin_fn: Callable | None = None,
+        vmax_fn: Callable | None = None,
+        interpolation: str | None = None,
         mask_background: bool = False,
-    ):
+    ) -> None:
         if ax is None:
             ax = plt.gca()
 
@@ -237,17 +239,17 @@ class SparseImage2d:
         self,
         n_per_row: int = 5,
         cmap: str = "mako",
-        transform_int: Optional[Callable] = None,
+        transform_int: Callable | None = None,
         single_im_width: float = 2.0,
-        single_im_height: Optional[float] = None,
+        single_im_height: float | None = None,
         # TODO consider if this can be handled better (i.e. the parameter interface mainly)
-        vmin: Optional[float] = None,
-        vmax: Optional[float] = None,
-        vmin_fn: Optional[Callable] = None,
-        vmax_fn: Optional[Callable] = None,
-        interpolation: Optional[str] = None,
+        vmin: float | None = None,
+        vmax: float | None = None,
+        vmin_fn: Callable | None = None,
+        vmax_fn: Callable | None = None,
+        interpolation: str | None = None,
         mask_background: bool = False,
-        axs: Optional[NDArray[plt.Axes]] = None,
+        axs: NDArray[plt.Axes] | None = None,
     ) -> tuple[plt.Figure, plt.Axes]:
         # determine plots layout
         n_channels = self.n_channels
@@ -311,10 +313,10 @@ class SparseImage2d:
 
     @classmethod
     def from_dense_xarray(cls, xarray_data: xarray.DataArray) -> SparseImage2d:
-        data = xarray_data.transpose(("y", "x", "c"))
+        xarray_data.transpose(("y", "x", "c"))
         raise NotImplementedError("This method is not implemented yet.")
 
-    def save_to_hdf5(self, group: h5py.Group):
+    def save_to_hdf5(self, group: h5py.Group) -> None:
         """Saves this instance to an HDF5 group."""
         group.create_dataset("values", data=self._values)
         group.create_dataset("coordinates", data=self._coordinates)
@@ -402,7 +404,7 @@ class SparseImage2d:
             channel_names=channel_names,
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             "SparseImage2d with "
             f"n_nonzero={self.n_nonzero}, n_channels={self.n_channels}, offset={tuple(self.offset)}"

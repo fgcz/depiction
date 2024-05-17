@@ -6,7 +6,7 @@ from numpy.typing import NDArray
 
 def _generic_baseline_correction(method):
     class GenericBaselineCorrection:
-        def __init__(self, **kwargs):
+        def __init__(self, **kwargs) -> None:
             self._kwargs = kwargs
 
         def evaluate_baseline(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:

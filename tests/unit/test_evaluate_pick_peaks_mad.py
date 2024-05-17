@@ -6,7 +6,7 @@ from ionmapper.evaluate_pick_peaks import EvaluatePickPeaksMAD
 
 
 class TestEvaluatePickPeaksMAD(unittest.TestCase):
-    def test_evaluate_sample(self):
+    def test_evaluate_sample(self) -> None:
         # note: this unit test is not really ideal right now
         n_points = 20
         # deterministic noise

@@ -7,7 +7,7 @@ class ModelIO:
     In the future it would make sense to make the data a bit more long term usable."""
 
     @staticmethod
-    def save_models_pickle(models: list[GenericModel], file_path: str, file_mode="wb"):
+    def save_models_pickle(models: list[GenericModel], file_path: str, file_mode="wb") -> None:
         with open(file_path, file_mode) as file:
             pickle.dump(models, file)
 

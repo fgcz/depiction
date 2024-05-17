@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, NoReturn
 
 import numpy as np
 from numpy._typing import NDArray
@@ -7,23 +7,23 @@ from ionmapper.persistence import ImzmlModeEnum
 
 
 class RamReader:
-    def __init__(self, mz_arr_list, int_arr_list, coordinates):
+    def __init__(self, mz_arr_list, int_arr_list, coordinates) -> None:
         self._mz_arr_list = mz_arr_list
         self._int_arr_list = int_arr_list
         self._coordinates = coordinates
 
     @property
-    def imzml_path(self):
+    def imzml_path(self) -> str:
         print("Warning: imzml_path is not available for RamReadFile")
         return "/dev/null"
 
     @property
-    def ibd_path(self):
+    def ibd_path(self) -> str:
         print("Warning: ibd_path is not available for RamReadFile")
         return "/dev/null"
 
     @property
-    def ibd_mmap(self):
+    def ibd_mmap(self) -> NoReturn:
         # TODO a problem, right?
         raise NotImplementedError
 
@@ -33,7 +33,7 @@ class RamReader:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def close(self):
+    def close(self) -> None:
         # do nothing
         pass
 

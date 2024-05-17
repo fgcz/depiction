@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import copy
 from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.ndimage
 import scipy.signal
-from numpy.typing import NDArray
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
     from ionmapper.peak_filtering import PeakFilteringType
 
 
@@ -27,11 +27,11 @@ class BasicPeakPicker:
     :param min_distance_unit: units for the minimal distance between peaks, either "index" or "mz"
     """
 
-    smooth_sigma: Optional[float]
+    smooth_sigma: float | None
     min_prominence: float
-    min_distance: Optional[int | float] = None
-    min_distance_unit: Optional[str] = None
-    peak_filtering: Optional[PeakFilteringType] = None
+    min_distance: int | float | None = None
+    min_distance_unit: str | None = None
+    peak_filtering: PeakFilteringType | None = None
 
     def get_smoothed_intensities(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
         """Returns the smoothed intensities of the provided spectrum, as it will be used for pick picking."""
@@ -88,8 +88,8 @@ class BasicPeakPicker:
 
     @staticmethod
     def get_min_distance_indices(
-        min_distance: Optional[float], min_distance_unit: Optional[str], mz_arr: NDArray[float]
-    ) -> Optional[int]:
+        min_distance: float | None, min_distance_unit: str | None, mz_arr: NDArray[float]
+    ) -> int | None:
         """
         Returns the minimal distance in terms of indices to use for peak picking,
         based on the configuration and the provided m/z array (as for some units it has an influence).

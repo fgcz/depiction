@@ -8,7 +8,7 @@ from ionmapper.image.sparse_image_2d import SparseImage2d
 
 
 class GenerateIsotopicImages:
-    def __init__(self, max_ref_peak_distance: float, parallel_config: ParallelConfig):
+    def __init__(self, max_ref_peak_distance: float, parallel_config: ParallelConfig) -> None:
         self._peak_picker = BasicPeakPicker(smooth_sigma=1.0, min_prominence=0.1)
         self._max_ref_peak_distance = max_ref_peak_distance
         self._parallel_config = parallel_config

@@ -19,7 +19,7 @@ class EvaluateMeanSpectrum:
         self,
         parallel_config: Optional[ParallelConfig] = None,
         eval_bins: Optional[EvaluateBins] = None,
-    ):
+    ) -> None:
         self._parallel_config = parallel_config
         self._eval_bins = eval_bins
 

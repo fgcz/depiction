@@ -9,7 +9,7 @@ from ionmapper.parallel_ops import ReadSpectraParallel, ParallelConfig
 
 class TestEstimatePPMError(unittest.TestCase):
     @patch.object(ReadSpectraParallel, "from_config")
-    def test_estimate(self, mock_from_config):
+    def test_estimate(self, mock_from_config) -> None:
         mock_read_file = MagicMock(name="mock_read_file", spec=[])
         mock_from_config.return_value.map_chunked.return_value = [
             (np.array([1000, np.nan, 1003, np.nan]), 1000, 1003),
@@ -27,7 +27,7 @@ class TestEstimatePPMError(unittest.TestCase):
 
         mock_from_config.assert_called_once_with(config=parallel_config)
 
-    def test_get_ppm_values(self):
+    def test_get_ppm_values(self) -> None:
         mock_reader = MagicMock(name="mock_reader")
         mock_reader.get_spectrum_mz.side_effect = [
             np.array([1000, 1001, 1002, 1003]),
@@ -42,7 +42,7 @@ class TestEstimatePPMError(unittest.TestCase):
         self.assertEqual(1000, result_min)
         self.assertEqual(1055, result_max)
 
-    def test_ppm_to_mz_values(self):
+    def test_ppm_to_mz_values(self) -> None:
         ppm_error = 500
         mz_min = 100
         mz_max = 101

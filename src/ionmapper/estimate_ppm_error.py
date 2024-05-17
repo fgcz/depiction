@@ -11,7 +11,7 @@ from ionmapper.persistence import ImzmlReader, ImzmlReadFile
 class EstimatePPMError:
     """Estimates PPM error for a given imzML file, which can be used as a reference for aligning imzML files."""
 
-    def __init__(self, parallel_config: Optional[ParallelConfig] = None):
+    def __init__(self, parallel_config: Optional[ParallelConfig] = None) -> None:
         if parallel_config is None:
             parallel_config = ParallelConfig.no_parallelism()
         self._parallel_config = parallel_config

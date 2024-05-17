@@ -24,7 +24,7 @@ class ResampleMassAxis:
         write_file: ImzmlWriteFile,
         parallel_config: ParallelConfig,
         allow_processed: bool = False,
-    ):
+    ) -> None:
         if not allow_processed and write_file.imzml_mode != ImzmlModeEnum.CONTINUOUS:
             raise ValueError("Interpolation is only supported for continuous imzML/profile spectra.")
 
@@ -41,7 +41,7 @@ class ResampleMassAxis:
     @classmethod
     def _evaluate_file_chunk(
         cls, reader: ImzmlReader, spectra_ids: list[int], writer: ImzmlWriter, target_mz_arr: NDArray[float]
-    ):
+    ) -> None:
         resampler = ResampleMassAxis(target_mz_arr=target_mz_arr)
 
         for spectrum_id in spectra_ids:

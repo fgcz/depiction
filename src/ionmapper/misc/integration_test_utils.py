@@ -14,7 +14,7 @@ class IntegrationTestUtils:
         int_arr_list: list[ArrayLike] | ArrayLike,
         imzml_mode: ImzmlModeEnum,
         coordinates_list: Optional[list[tuple[int, ...]]] = None,
-    ):
+    ) -> None:
         if coordinates_list is None:
             coordinates_list = [(0, i) for i in range(len(mz_arr_list))]
         with ImzmlWriteFile(path, imzml_mode).writer() as writer:
@@ -22,7 +22,7 @@ class IntegrationTestUtils:
                 writer.add_spectrum(mz_arr, int_arr, coordinates)
 
     @staticmethod
-    def treat_warnings_as_error(test_case):
+    def treat_warnings_as_error(test_case) -> None:
         """To be called from setUp."""
         # TODO reuse or refactor
         warnings_ctx = warnings.catch_warnings()

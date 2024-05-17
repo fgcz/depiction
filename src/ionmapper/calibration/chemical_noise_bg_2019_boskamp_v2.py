@@ -33,7 +33,7 @@ class ChemicalNoiseCalibration:
         interpolation_mode: Literal["linear", "cubic_spline", "refit_linear"],
         parallel_config: ParallelConfig,
         use_ppm_space: bool,
-    ):
+    ) -> None:
         self._n_mass_intervals = n_mass_intervals
         self._interpolation_mode = interpolation_mode
         self._parallel_config = parallel_config
@@ -57,7 +57,7 @@ class ChemicalNoiseCalibration:
         ax: Optional[matplotlib.axes.Axes] = None,
         scatter_kwargs: Optional[dict[str, Any]] = None,
         robust_regression: bool = True,
-    ):
+    ) -> None:
         scatter_kwargs = {"s": 1} | (scatter_kwargs or {})
         kendrick_shifts = np.array([self.get_kendrick_shift(mz) for mz in peak_mz_arr])
 
@@ -143,11 +143,11 @@ class ChemicalNoiseCalibration:
         self,
         read_file: ImzmlReadFile,
         write_file: ImzmlWriteFile,
-    ):
+    ) -> None:
         """Applies `align_masses` to all spectra in the given file and writes the results to the output file."""
         parallelize = WriteSpectraParallel.from_config(self._parallel_config)
 
-        def chunk_operation(reader, spectra_indices, writer):
+        def chunk_operation(reader, spectra_indices, writer) -> None:
             for spectrum_id in spectra_indices:
                 mz_arr, int_arr = reader.get_spectrum(spectrum_id)
                 mz_arr = self.align_masses(mz_arr, int_arr)

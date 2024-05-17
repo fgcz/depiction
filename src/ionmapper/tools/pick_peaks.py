@@ -7,11 +7,11 @@ from ionmapper.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, Im
 
 
 class PickPeaks:
-    def __init__(self, peak_picker, parallel_config: ParallelConfig):
+    def __init__(self, peak_picker, parallel_config: ParallelConfig) -> None:
         self._peak_picker = peak_picker
         self._parallel_config = parallel_config
 
-    def evaluate_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile):
+    def evaluate_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile) -> None:
         parallel = WriteSpectraParallel.from_config(self._parallel_config)
         parallel.map_chunked_to_file(
             read_file=read_file,
@@ -27,7 +27,7 @@ class PickPeaks:
         spectra_ids: list[int],
         writer: ImzmlWriter,
         peak_picker,
-    ):
+    ) -> None:
         for spectrum_index in spectra_ids:
             mz_arr, int_arr, coords = reader.get_spectrum_with_coords(spectrum_index)
             peak_mz, peak_int = peak_picker.pick_peaks(mz_arr, int_arr)
@@ -39,7 +39,7 @@ def debug_diagnose_threshold_correspondence(
     peak_picker: BasicInterpolatedPeakPicker,
     input_imzml: ImzmlReadFile,
     n_points: int,
-):
+) -> None:
     unfiltered_peak_picker = BasicInterpolatedPeakPicker(
         min_prominence=peak_picker.min_prominence,
         min_distance=peak_picker.min_distance,
@@ -67,7 +67,7 @@ def pick_peaks(
     min_distance_unit: str,
     min_peak_intensity: float,
     min_peak_intensity_unit: str,
-):
+) -> None:
     parallel_config = ParallelConfig(n_jobs=n_jobs, task_size=None)
     if peak_picker != "basic_interpolated":
         raise ValueError(f"Unknown peak picker: {peak_picker}")
@@ -95,7 +95,7 @@ def pick_peaks(
     )
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=str, required=True, dest="input_imzml_path")
     parser.add_argument("--output", type=str, required=True, dest="output_imzml_path")

@@ -13,7 +13,7 @@ from ionmapper.tools.merge_imzml import MergeImzml
 class TestWriteSpectraParallel(unittest.TestCase):
     maxDiff = None
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_config = MagicMock(name="mock_config", n_jobs=2, task_size=None, verbose=0)
         self.mock_split_modes_and_paths = [
             (
@@ -50,7 +50,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
         mock_write_transformed_chunked_operation,
         mock_get_split_modes_and_paths,
         mock_temporary_directory,
-    ):
+    ) -> None:
         mock_temporary_directory.return_value.__enter__.return_value = "/dev/null/tmpdir"
         mock_get_split_modes_and_paths.return_value = self.mock_split_modes_and_paths
 
@@ -96,7 +96,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
     @patch.object(WriteSpectraParallel, "map_chunked_to_files")
     def test_map_chunked_external_to_files(
         self, mock_map_chunked_to_files, mock_imzml_write_file, mock_temporary_directory
-    ):
+    ) -> None:
         mock_read_file = MagicMock(name="mock_read_file", spec=[])
         mock_write_files = [
             MagicMock(name="mock_write_files_0", imzml_file="test1.imzML"),
@@ -135,7 +135,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
             "/dev/null/tmpdir/tmp_file.imzML", imzml_mode=mock_reader.imzml_mode
         )
 
-    def test_get_split_modes_and_paths_when_spectra_indices_none(self):
+    def test_get_split_modes_and_paths_when_spectra_indices_none(self) -> None:
         self.mock_config.get_splits_count.return_value = 3
         split_modes_and_paths = self.mock_parallel._get_split_modes_and_paths(
             work_directory="/dev/null/mock",
@@ -171,7 +171,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
         )
         self.mock_config.get_splits_count.assert_called_once_with(n_items=20)
 
-    def test_get_split_modes_and_paths_when_spectra_indices_present(self):
+    def test_get_split_modes_and_paths_when_spectra_indices_present(self) -> None:
         self.mock_config.get_splits_count.return_value = 3
         split_modes_and_paths = self.mock_parallel._get_split_modes_and_paths(
             work_directory="/dev/null/mock",
@@ -207,7 +207,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
         )
         self.mock_config.get_splits_count.assert_called_once_with(n_items=5)
 
-    def test_write_transformed_chunked_operation_when_not_open_write_files(self):
+    def test_write_transformed_chunked_operation_when_not_open_write_files(self) -> None:
         mock_reader = MagicMock(name="mock_reader")
         mock_operation = MagicMock(name="mock_operation")
         mock_spectra_indices = MagicMock(name="mock_spectra_indices")
@@ -240,7 +240,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
         self.assertIsInstance(mock_operation.mock_calls[0].args[2][1], ImzmlWriteFile)
 
     @patch.object(ImzmlWriteFile, "writer")
-    def test_write_transformed_chunked_operation_when_open_write_files(self, mock_writer):
+    def test_write_transformed_chunked_operation_when_open_write_files(self, mock_writer) -> None:
         mock_writer_instances = [MagicMock(name=f"mock_writer_{i}") for i in range(2)]
         mock_writer.return_value.__enter__.side_effect = mock_writer_instances
         mock_reader = MagicMock(name="mock_reader")
@@ -266,7 +266,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
 
     @patch.object(MergeImzml, "merge")
     @patch("ionmapper.parallel_ops.write_spectra_parallel.ImzmlReadFile")
-    def test_merge_results(self, mock_read_file, method_merge):
+    def test_merge_results(self, mock_read_file, method_merge) -> None:
         mock_read_file.side_effect = lambda path: {"read_file": path}
         mock_write_file_0 = MagicMock(
             name="mock_write_file_0",

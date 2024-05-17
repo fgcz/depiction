@@ -189,7 +189,7 @@ class IsotopePatternMatcher:
         else:
             return None
 
-    def _ensure_cache_size(self):
+    def _ensure_cache_size(self) -> None:
         """Removes the least recently used cache entries if the cache size is exceeded such that the cache size is
         within the specified limit again."""
         if not self.cache_size > 0:

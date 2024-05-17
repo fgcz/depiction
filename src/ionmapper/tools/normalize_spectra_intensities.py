@@ -18,7 +18,7 @@ class NormalizeSpectraIntensitiesVariant:
 class NormalizeSpectraIntensities:
     variant: NormalizeSpectraIntensitiesVariant
 
-    def process_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, parallel_config: ParallelConfig):
+    def process_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, parallel_config: ParallelConfig) -> None:
         write_parallel = WriteSpectraParallel.from_config(parallel_config)
         write_parallel.map_chunked_to_file(
             read_file=read_file,
@@ -28,7 +28,7 @@ class NormalizeSpectraIntensities:
         )
 
     @classmethod
-    def _process_chunk(cls, reader: ImzmlReader, indices: list[int], writer: ImzmlWriter, variant: str):
+    def _process_chunk(cls, reader: ImzmlReader, indices: list[int], writer: ImzmlWriter, variant: str) -> None:
         method = cls._get_operation(variant=variant)
         for id_spectrum in indices:
             mz_arr, int_arr, coords = reader.get_spectrum_with_coords(id_spectrum)
@@ -65,7 +65,7 @@ def _normalize_vec_norm(int_arr):
 
 def main_normalize_intensities(
     input_imzml: str, output_imzml: str, variant: NormalizeSpectraIntensitiesVariant, n_jobs: int
-):
+) -> None:
     parallel_config = ParallelConfig(n_jobs=n_jobs, task_size=None)
     with ImzmlReadFile(input_imzml) as read_file:
         with ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode) as write_file:
@@ -75,7 +75,7 @@ def main_normalize_intensities(
             )
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-imzml", required=True)
     parser.add_argument("--output-imzml", required=True)

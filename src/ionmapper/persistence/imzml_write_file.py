@@ -16,7 +16,7 @@ class ImzmlWriteFile:
             Other values are not supported.
     """
 
-    def __init__(self, path: str | Path, imzml_mode: ImzmlModeEnum, write_mode: str = "x"):
+    def __init__(self, path: str | Path, imzml_mode: ImzmlModeEnum, write_mode: str = "x") -> None:
         self._path = str(path)
         self._imzml_mode = imzml_mode
         self._write_mode = write_mode

@@ -17,7 +17,7 @@ class CutoutRectangularRegionImzml:
         x_range_abs: tuple[int, int],
         y_range_abs: tuple[int, int],
         verbose: bool,
-    ):
+    ) -> None:
         self._read_file = read_file
         self._x_range_abs = x_range_abs
         self._y_range_abs = y_range_abs
@@ -91,7 +91,7 @@ class CutoutRectangularRegionImzml:
         )
         return x_range_abs, y_range_abs
 
-    def write_imzml(self, write_file: ImzmlWriteFile):
+    def write_imzml(self, write_file: ImzmlWriteFile) -> None:
         """Writes the result to the specified file."""
         if self._verbose:
             print(f"Copying range: x = {self._x_range_abs}, y = {self._y_range_abs}")
@@ -116,7 +116,7 @@ class CutoutRectangularRegionImzml:
             # copy the relevant spectra
             writer.copy_spectra(reader=reader, spectra_indices=spectra_indices)
 
-    def write_operation_info(self):
+    def write_operation_info(self) -> None:
         """Writes information about the operation performed into an additional JSON file."""
         information = {
             "input_imzml": self._read_file.imzml_file,
@@ -136,7 +136,7 @@ def main_cutout_rectangular_region_imzml(
     ymin: float,
     ymax: float,
     relative: bool,
-):
+) -> None:
     """Cuts out a rectangular region from an imzML file.
     :param input_imzml: the input imzML file
     :param output_imzml: the output imzML file
@@ -169,7 +169,7 @@ def main_cutout_rectangular_region_imzml(
     cutout.write_operation_info()
 
 
-def main():
+def main() -> None:
     """Provides CLI for main_cutout_rectangular_region_imzml."""
     parser = argparse.ArgumentParser()
     parser.add_argument("input_imzml", type=str, help="The input imzML file.")

@@ -11,10 +11,11 @@ from ionmapper.calibration.models.polynomial_model import PolynomialModel
 from ionmapper.calibration.deprecated.reference_distance_estimator import (
     ReferenceDistanceEstimator,
 )
+from typing import NoReturn
 
 
 class TestCalibrateSpectrum(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_reference_mz = np.array([100, 200, 300])
         self.mock_detect_smooth_sigma = MagicMock(name="mock_detect_smooth_sigma")
         self.mock_detect_prominence = MagicMock(name="mock_detect_prominence")
@@ -47,7 +48,7 @@ class TestCalibrateSpectrum(unittest.TestCase):
 
     @patch.object(LinearModel, "zero")
     @patch.object(CalibrateSpectrum, "_get_mz_distance_pairs")
-    def test_calibrate_spectrum_when_zero_points(self, mock_get_mz_distance_pairs, mock_zero):
+    def test_calibrate_spectrum_when_zero_points(self, mock_get_mz_distance_pairs, mock_zero) -> None:
         self.mock_problem_mz.__len__.return_value = 0
         mock_get_mz_distance_pairs.return_value = (
             self.mock_problem_mz,
@@ -60,7 +61,7 @@ class TestCalibrateSpectrum(unittest.TestCase):
 
     @patch.object(LinearModel, "zero")
     @patch.object(CalibrateSpectrum, "_get_mz_distance_pairs")
-    def test_calibrate_spectrum_when_too_few_points(self, mock_get_mz_distance_pairs, mock_zero):
+    def test_calibrate_spectrum_when_too_few_points(self, mock_get_mz_distance_pairs, mock_zero) -> None:
         self.mock_problem_mz.__len__.return_value = 2
         mock_get_mz_distance_pairs.return_value = (
             self.mock_problem_mz,
@@ -73,7 +74,7 @@ class TestCalibrateSpectrum(unittest.TestCase):
 
     @patch.object(LinearModel, "fit_lsq")
     @patch.object(CalibrateSpectrum, "_get_mz_distance_pairs")
-    def test_calibrate_spectrum_when_linear(self, mock_get_mz_distance_pairs, mock_fit_linear):
+    def test_calibrate_spectrum_when_linear(self, mock_get_mz_distance_pairs, mock_fit_linear) -> None:
         self.mock_problem_mz.__len__.return_value = 3
         mock_get_mz_distance_pairs.return_value = (
             self.mock_problem_mz,
@@ -88,7 +89,7 @@ class TestCalibrateSpectrum(unittest.TestCase):
     @patch.object(CalibrateSpectrum, "_get_mz_distance_pairs")
     def test_calibrate_spectrum_when_linear_siegelslopes(
         self, mock_get_mz_distance_pairs, mock_fit_linear_siegelslopes
-    ):
+    ) -> None:
         self.mock_problem_mz.__len__.return_value = 3
         self.mock_compute._model_type = "linear_siegelslopes"
         mock_get_mz_distance_pairs.return_value = (
@@ -102,7 +103,7 @@ class TestCalibrateSpectrum(unittest.TestCase):
 
     @patch.object(PolynomialModel, "fit_lsq")
     @patch.object(CalibrateSpectrum, "_get_mz_distance_pairs")
-    def test_calibrate_spectrum_when_polynomial(self, mock_get_mz_distance_pairs, mock_fit_polynomial):
+    def test_calibrate_spectrum_when_polynomial(self, mock_get_mz_distance_pairs, mock_fit_polynomial) -> None:
         self.mock_problem_mz.__len__.return_value = 3
         self.mock_compute._model_type = "poly_2"
         mock_get_mz_distance_pairs.return_value = (
@@ -115,10 +116,10 @@ class TestCalibrateSpectrum(unittest.TestCase):
         self.assertEqual(mock_fit_polynomial.return_value, model)
 
     @unittest.skip
-    def test_get_mz_distance_pairs(self):
+    def test_get_mz_distance_pairs(self) -> NoReturn:
         raise NotImplementedError()
 
-    def test_get_mz_distance_pairs_when_no_peaks(self):
+    def test_get_mz_distance_pairs_when_no_peaks(self) -> None:
         self.mock_basic_peak_picker.pick_peaks_mz.return_value = np.array([])
         problem_mz, problem_dist = self.mock_compute._get_mz_distance_pairs(
             mz_arr=self.mock_mz_arr, int_arr=self.mock_int_arr

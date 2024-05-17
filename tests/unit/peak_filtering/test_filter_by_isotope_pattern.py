@@ -9,7 +9,7 @@ from ionmapper.peak_filtering.filter_by_isotope_pattern import (
 
 
 class TestFilterByIsotopeDistance(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_agreement_threshold = 0.8
         self.mock_n_isotopic_peaks_max = 5
         self.mock_mass_distance_tolerance = 0.2
@@ -23,7 +23,7 @@ class TestFilterByIsotopeDistance(unittest.TestCase):
             mass_distance_tolerance=self.mock_mass_distance_tolerance,
         )
 
-    def test_when_averagine(self):
+    def test_when_averagine(self) -> None:
         mz_pat = np.array(
             [
                 200.11793518,
@@ -52,7 +52,7 @@ class TestFilterByIsotopeDistance(unittest.TestCase):
         )
         np.testing.assert_array_equal([0, 1, 2, 3], idx_peaks)
 
-    def test_when_empty_input(self):
+    def test_when_empty_input(self) -> None:
         mz_arr = np.array([])
         int_arr = np.array([])
         peak_idx_arr = np.array([])

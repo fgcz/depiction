@@ -6,10 +6,10 @@ from ionmapper.evaluate_baseline_correction import EvaluateMWMVBaselineCorrectio
 
 
 class TestEvaluateMWMVBaselineCorrection(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.eval_baseline = EvaluateMWMVBaselineCorrection()
 
-    def test_subtract_baseline_basic(self):
+    def test_subtract_baseline_basic(self) -> None:
         mz_arr = np.arange(20)
         int_arr = np.full(20, 0.5)
         int_arr[10] += 2
@@ -18,7 +18,7 @@ class TestEvaluateMWMVBaselineCorrection(unittest.TestCase):
         expected[10] = 2
         np.testing.assert_array_equal(expected, result)
 
-    def test_subtract_baseline_exact(self):
+    def test_subtract_baseline_exact(self) -> None:
         int_arr = 0.1 * np.arange(11)
         result = self.eval_baseline.subtract_baseline(mz_arr=None, int_arr=int_arr)
         expected = np.array(
@@ -38,14 +38,14 @@ class TestEvaluateMWMVBaselineCorrection(unittest.TestCase):
         )
         np.testing.assert_array_almost_equal(expected, result)
 
-    def test_subtract_baseline_when_no_mz_values(self):
+    def test_subtract_baseline_when_no_mz_values(self) -> None:
         mz_arr = np.arange(20) * 0.1
         int_arr = np.arange(20)
         result_with_mz = self.eval_baseline.subtract_baseline(mz_arr=mz_arr, int_arr=int_arr)
         result_without_mz = self.eval_baseline.subtract_baseline(mz_arr=None, int_arr=int_arr)
         np.testing.assert_array_equal(result_with_mz, result_without_mz)
 
-    def test_subtract_baseline_small_spec(self):
+    def test_subtract_baseline_small_spec(self) -> None:
         mz_values = np.array([1, 2, 3])
         int_values = np.array([1, 2, 1])
         result = self.eval_baseline.subtract_baseline(mz_values, int_values)

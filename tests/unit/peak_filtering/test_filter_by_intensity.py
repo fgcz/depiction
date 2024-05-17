@@ -8,7 +8,7 @@ from ionmapper.peak_filtering.filter_by_intensity import FilterByIntensity
 
 
 class TestFilterByIntensity(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_intensity_threshold = 25
         self.mock_normalization = None
 
@@ -19,7 +19,7 @@ class TestFilterByIntensity(unittest.TestCase):
             normalization=self.mock_normalization,
         )
 
-    def test_filter_index_peaks_when_no_normalization(self):
+    def test_filter_index_peaks_when_no_normalization(self) -> None:
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
         spectrum_int_arr = np.linspace(10, 100, 50)
         peak_idx_arr = np.array([2, 5, 45, 48])
@@ -31,7 +31,7 @@ class TestFilterByIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal(np.array([45, 48]), indices)
 
-    def test_filter_peaks_when_no_normalization(self):
+    def test_filter_peaks_when_no_normalization(self) -> None:
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
         spectrum_int_arr = np.linspace(10, 100, 50)
         peak_mz_arr = np.array([10, 20, 30, 40])
@@ -45,7 +45,7 @@ class TestFilterByIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal(np.array([30, 40]), result_mz)
 
-    def test_filter_index_peaks_when_tic_normalization(self):
+    def test_filter_index_peaks_when_tic_normalization(self) -> None:
         self.mock_normalization = "tic"
         self.mock_intensity_threshold = 0.02
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -59,7 +59,7 @@ class TestFilterByIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal(np.array([45, 48]), indices)
 
-    def test_filter_peaks_when_tic_normalization(self):
+    def test_filter_peaks_when_tic_normalization(self) -> None:
         self.mock_normalization = "tic"
         self.mock_intensity_threshold = 0.02
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -75,7 +75,7 @@ class TestFilterByIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal(np.array([30, 40]), result_mz)
 
-    def test_filter_index_peaks_when_median_normalization(self):
+    def test_filter_index_peaks_when_median_normalization(self) -> None:
         self.mock_normalization = "median"
         self.mock_intensity_threshold = 0.5
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -89,7 +89,7 @@ class TestFilterByIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal(np.array([45, 48]), indices)
 
-    def test_filter_peaks_when_median_normalization(self):
+    def test_filter_peaks_when_median_normalization(self) -> None:
         self.mock_normalization = "median"
         self.mock_intensity_threshold = 0.5
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -105,7 +105,7 @@ class TestFilterByIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal(np.array([30, 40]), result_mz)
 
-    def test_filter_index_peaks_when_median_normalization_and_zero(self):
+    def test_filter_index_peaks_when_median_normalization_and_zero(self) -> None:
         self.mock_normalization = "median"
         self.mock_intensity_threshold = 0.5
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -118,7 +118,7 @@ class TestFilterByIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal(np.array([2, 5, 8]), indices)
 
-    def test_filter_peaks_when_median_normalization_and_zero(self):
+    def test_filter_peaks_when_median_normalization_and_zero(self) -> None:
         self.mock_normalization = "median"
         self.mock_intensity_threshold = 0.5
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -134,7 +134,7 @@ class TestFilterByIntensity(unittest.TestCase):
         np.testing.assert_array_equal(np.array([10, 20, 30]), result_mz)
         np.testing.assert_array_equal(np.array([10, 10, 10]), result_int)
 
-    def test_filter_peaks_when_vec_norm_normalization(self):
+    def test_filter_peaks_when_vec_norm_normalization(self) -> None:
         self.mock_normalization = "vec_norm"
         self.mock_intensity_threshold = 0.5
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -150,7 +150,7 @@ class TestFilterByIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal(np.array([30, 40]), result_mz)
 
-    def test_filter_peaks_when_vec_norm_normalization_and_zero(self):
+    def test_filter_peaks_when_vec_norm_normalization_and_zero(self) -> None:
         self.mock_normalization = "vec_norm"
         self.mock_intensity_threshold = 0.5
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -167,7 +167,7 @@ class TestFilterByIntensity(unittest.TestCase):
         np.testing.assert_array_equal(np.array([10, 20, 30]), result_mz)
         np.testing.assert_array_equal(np.array([10, 10, 10]), result_int)
 
-    def test_filter_peaks_when_vec_norm_normalization_and_all_zero(self):
+    def test_filter_peaks_when_vec_norm_normalization_and_all_zero(self) -> None:
         self.mock_normalization = "vec_norm"
         self.mock_intensity_threshold = 0.5
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -184,7 +184,7 @@ class TestFilterByIntensity(unittest.TestCase):
         np.testing.assert_array_equal(np.array([]), result_mz)
         np.testing.assert_array_equal(np.array([]), result_int)
 
-    def test_filter_index_peaks_when_empty_input(self):
+    def test_filter_index_peaks_when_empty_input(self) -> None:
         mz_arr = np.array([])
         int_arr = np.array([])
         peak_idx_arr = np.array([])
@@ -197,7 +197,7 @@ class TestFilterByIntensity(unittest.TestCase):
 
         np.testing.assert_array_equal(np.array([]), indices)
 
-    def test_filter_peaks_when_empty_input(self):
+    def test_filter_peaks_when_empty_input(self) -> None:
         mz_arr = np.array([])
         int_arr = np.array([])
         peak_mz_arr = np.array([])
@@ -213,7 +213,7 @@ class TestFilterByIntensity(unittest.TestCase):
         np.testing.assert_array_equal(np.array([]), result_mz)
         np.testing.assert_array_equal(np.array([]), result_int)
 
-    def test_filter_index_peaks_when_empty_result(self):
+    def test_filter_index_peaks_when_empty_result(self) -> None:
         mz_arr = np.array([2])
         int_arr = np.array([1])
         peak_idx_arr = np.array([0])
@@ -227,7 +227,7 @@ class TestFilterByIntensity(unittest.TestCase):
 
         np.testing.assert_array_equal(np.array([]), indices)
 
-    def test_filter_peaks_when_empty_result(self):
+    def test_filter_peaks_when_empty_result(self) -> None:
         mz_arr = np.array([2])
         int_arr = np.array([1])
         peak_mz_arr = np.array([2])

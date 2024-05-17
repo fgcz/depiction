@@ -6,7 +6,7 @@ from ionmapper.parallel_ops import WriteSpectraParallel, ParallelConfig
 
 
 class DeisotopeSpectra:
-    def __init__(self, parallel_config: ParallelConfig):
+    def __init__(self, parallel_config: ParallelConfig) -> None:
         self._deisotope_config = dict(
             fragment_tolerance=0.1,
             fragment_unit_ppm=False,
@@ -24,7 +24,7 @@ class DeisotopeSpectra:
         )
         self._parallel_config = parallel_config
 
-    def process_file(self, input_file: ImzmlReadFile, output_file: ImzmlWriteFile):
+    def process_file(self, input_file: ImzmlReadFile, output_file: ImzmlWriteFile) -> None:
         parallelize = WriteSpectraParallel.from_config(self._parallel_config)
         parallelize.map_chunked_to_file(
             read_file=input_file,
@@ -43,7 +43,7 @@ class DeisotopeSpectra:
         spectra_ids: list[int],
         writer: ImzmlWriter,
         deisotope_config: dict,
-    ):
+    ) -> None:
         picker = BasicPeakPicker()
         for spectrum_id in spectra_ids:
             mz_arr_in, int_arr_in = reader.get_spectrum(spectrum_id)

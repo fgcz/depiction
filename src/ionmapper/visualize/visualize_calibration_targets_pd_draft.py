@@ -6,16 +6,19 @@ import numpy as np
 import pandas as pd
 import seaborn
 from matplotlib import pyplot as plt
-from numpy.typing import NDArray
 
 from ion_mapper.evaluate_bins import EvaluateBins
 from ion_mapper.evaluate_mean_spectrum import EvaluateMeanSpectrum
-from ion_mapper.parallel_ops import ParallelConfig
-from ion_mapper.persistence import ImzmlReadFile
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ion_mapper.persistence import ImzmlReadFile
+    from ion_mapper.parallel_ops import ParallelConfig
+    from numpy.typing import NDArray
 
 
 class VisualizeCalibrationTargets:
-    def __init__(self, *, mean_mz_arr: NDArray[float], mean_int_arr: NDArray[float]):
+    def __init__(self, *, mean_mz_arr: NDArray[float], mean_int_arr: NDArray[float]) -> None:
         self._mean_mz_arr = mean_mz_arr
         self._mean_int_arr = mean_int_arr
 
@@ -65,7 +68,7 @@ class VisualizeCalibrationTargets:
         vis_tol: float,
         ax: plt.Axes,
         title: str,
-    ):
+    ) -> None:
         data = self.get_peak_surrounding_series(mz_center=mz_center, vis_tol=vis_tol).explode(["m/z", "intensity"])
 
         seaborn.lineplot(data=data, x="m/z", y="intensity", ax=ax, label="mean spectrum")

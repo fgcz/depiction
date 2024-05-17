@@ -6,16 +6,19 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from numpy.typing import NDArray
 
 from ionmapper.evaluate_mean_spectrum import EvaluateMeanSpectrum
 from ionmapper.evaluate_bins import EvaluateBins
-from ionmapper.parallel_ops import ParallelConfig
-from ionmapper.persistence import ImzmlReadFile
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ionmapper.persistence import ImzmlReadFile
+    from ionmapper.parallel_ops import ParallelConfig
+    from numpy.typing import NDArray
 
 
 class VisualizeCalibrationTargets:
-    def __init__(self, *, mean_mz_arr: NDArray[float], mean_int_arr: NDArray[float]):
+    def __init__(self, *, mean_mz_arr: NDArray[float], mean_int_arr: NDArray[float]) -> None:
         self._mean_mz_arr = mean_mz_arr
         self._mean_int_arr = mean_int_arr
 
@@ -67,7 +70,7 @@ class VisualizeCalibrationTargets:
         ax: plt.Axes,
         title: str,
         log_scale: bool = True,
-    ):
+    ) -> None:
         mean_mz = self._mean_mz_arr
         mean_int = self._mean_int_arr
 

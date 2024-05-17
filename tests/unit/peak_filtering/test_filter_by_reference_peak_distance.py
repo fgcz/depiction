@@ -9,7 +9,7 @@ from ionmapper.peak_filtering.filter_by_reference_peak_distance import (
 
 
 class TestFilterByReferencePeakDistance(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_max_distance = 3.0
         self.mock_reference_mz = np.array([100.0, 150.0, 2000.0])
         self.mock_baseline_value = 0.2
@@ -63,7 +63,7 @@ class TestFilterByReferencePeakDistance(unittest.TestCase):
     def mock_filter(self) -> FilterByReferencePeakDistance:
         return FilterByReferencePeakDistance(max_distance=self.mock_max_distance, reference_mz=self.mock_reference_mz)
 
-    def test(self):
+    def test(self) -> None:
         candidates = self.mock_filter.filter_index_peaks(
             spectrum_mz_arr=self.mock_data["spectrum_mz_arr"],
             spectrum_int_arr=self.mock_data["spectrum_int_arr"],
@@ -74,7 +74,7 @@ class TestFilterByReferencePeakDistance(unittest.TestCase):
             candidates,
         )
 
-    def test_when_empty_input(self):
+    def test_when_empty_input(self) -> None:
         mz_arr = np.array([])
         int_arr = np.array([])
         peak_idx_arr = np.array([])

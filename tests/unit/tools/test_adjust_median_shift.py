@@ -5,10 +5,11 @@ from unittest.mock import MagicMock
 import numpy as np
 
 from ionmapper.tools.experimental.adjust_median_shift import AdjustMedianShift
+from typing import NoReturn
 
 
 class TestAdjustMedianShift(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_peak_picker = MagicMock(name="mock_peak_picker")
         self.mock_ref_mz_arr = MagicMock(name="mock_ref_mz_arr")
         self.mock_parallel_config = MagicMock(name="mock_parallel_config")
@@ -21,7 +22,7 @@ class TestAdjustMedianShift(unittest.TestCase):
             parallel_config=self.mock_parallel_config,
         )
 
-    def test_compute_median_shift_ppm(self):
+    def test_compute_median_shift_ppm(self) -> None:
         self.mock_ref_mz_arr = np.array([100.0, 150.0, 200.0, 300, 400])
         mock_int_arr = np.ones(5)
         ppm_error_arr = np.array([200, 400, 200, 700, 700])
@@ -35,15 +36,15 @@ class TestAdjustMedianShift(unittest.TestCase):
         self.assertAlmostEqual(200.0, median_shift, places=7)
 
     @unittest.skip
-    def test_compute_median_shifts(self):
+    def test_compute_median_shifts(self) -> NoReturn:
         raise NotImplementedError
 
     @unittest.skip
-    def test_smooth_median_shifts(self):
+    def test_smooth_median_shifts(self) -> NoReturn:
         raise NotImplementedError
 
     @unittest.skip
-    def test_apply_correction(self):
+    def test_apply_correction(self) -> NoReturn:
         raise NotImplementedError
 
 

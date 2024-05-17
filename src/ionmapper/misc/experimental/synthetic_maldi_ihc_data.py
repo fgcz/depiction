@@ -13,7 +13,7 @@ from ionmapper.image.sparse_image_2d import SparseImage2d
 class SyntheticMaldiIhcData:
     """Helper that creates synthetic MALDI IHC data."""
 
-    def __init__(self, seed: int = 0):
+    def __init__(self, seed: int = 0) -> None:
         self.rng = np.random.default_rng(seed)
 
     def generate_label_image_circles(
@@ -60,7 +60,7 @@ class SyntheticMaldiIhcData:
         bin_width_ppm: float = 50,
         baseline_strength: float = 2.0,
         background_noise_strength: float = 0.05,
-    ):
+    ) -> None:
         mz_arr = self.get_mz_arr(round(min(label_masses) - 10), round(max(label_masses) + 10), bin_width_ppm)
         with write_file.writer() as writer:
             sparse_values = label_image.sparse_values

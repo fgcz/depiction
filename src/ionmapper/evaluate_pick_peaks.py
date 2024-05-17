@@ -6,7 +6,7 @@ import scipy.signal
 class EvaluatePickPeaksMAD:
     """TODO this is currently a port of the approach implemented by Cardinal, but in the future it would make more sense to use a different approach."""
 
-    def __init__(self, snr_threshold: float = 6.0, window: int = 5, blocks: int = 100):
+    def __init__(self, snr_threshold: float = 6.0, window: int = 5, blocks: int = 100) -> None:
         self._snr_threshold = snr_threshold
         self._window = window
         self._blocks = blocks
@@ -49,7 +49,7 @@ class EvaluatePickPeaksWellDistributed:
     Currently used to select reference peaks for the calibration.
     """
 
-    def __init__(self, n_peaks_per_region: int, n_regions: int):
+    def __init__(self, n_peaks_per_region: int, n_regions: int) -> None:
         self._n_peaks_per_region = n_peaks_per_region
         self._n_regions = n_regions
 

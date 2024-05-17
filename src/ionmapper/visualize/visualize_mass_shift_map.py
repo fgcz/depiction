@@ -8,7 +8,7 @@ from ionmapper.image.sparse_image_2d import SparseImage2d
 
 
 class VisualizeMassShiftMap:
-    def __init__(self, *, models: list[GenericModel], coordinates: NDArray[int]):
+    def __init__(self, *, models: list[GenericModel], coordinates: NDArray[int]) -> None:
         self._models = models
         self._coordinates = coordinates
 
@@ -64,10 +64,7 @@ class VisualizeMassShiftMap:
         n_masses = len(test_masses)
 
         fig, axs = plt.subplots(n_masses, 2, figsize=(n_masses * 6, 12), sharex="col" if same_scale else False)
-        if same_scale:
-            hist_bins = np.histogram(correction_image.sparse_values.ravel(), bins=n_bins)[1]
-        else:
-            hist_bins = n_bins
+        hist_bins = np.histogram(correction_image.sparse_values.ravel(), bins=n_bins)[1] if same_scale else n_bins
 
         for i_mass, test_mass in enumerate(test_masses):
             self._plot_row(
@@ -92,7 +89,7 @@ class VisualizeMassShiftMap:
         same_scale: bool,
         scale_percentile: float,
         unit: str,
-    ):
+    ) -> None:
         # get the data
         values = correction_image.sparse_values.ravel()
         name = correction_image.channel_names[0]
@@ -118,8 +115,5 @@ class VisualizeMassShiftMap:
         ax_hist.grid(True)
 
         # center histogram at zero
-        if same_scale:
-            abs_max = np.max(np.abs(correction_image.sparse_values.ravel()))
-        else:
-            abs_max = np.max(np.abs(values))
+        abs_max = np.max(np.abs(correction_image.sparse_values.ravel())) if same_scale else np.max(np.abs(values))
         ax_hist.set_xlim(-abs_max, abs_max)

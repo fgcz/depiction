@@ -1,16 +1,18 @@
 from __future__ import annotations
 from tqdm import tqdm
 from contextlib import contextmanager
-from typing import Optional
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-import numpy as np
 
 from ionmapper.persistence import ImzmlModeEnum, RamReadFile
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    import numpy as np
+
 
 class RamWriteFile:
-    def __init__(self, imzml_mode: ImzmlModeEnum):
+    def __init__(self, imzml_mode: ImzmlModeEnum) -> None:
         self._mz_arr_list = []
         self._int_arr_list = []
         self._coordinates_list = []
@@ -45,20 +47,22 @@ class RamWriteFile:
 
 
 class _Writer:
-    def __init__(self, file: RamWriteFile):
+    def __init__(self, file: RamWriteFile) -> None:
         self._file = file
 
-    def add_spectrum(self, mz_arr: np.ndarray, int_arr: np.ndarray, coordinates):
+    def add_spectrum(self, mz_arr: np.ndarray, int_arr: np.ndarray, coordinates) -> None:
         self._file._mz_arr_list.append(mz_arr)
         self._file._int_arr_list.append(int_arr)
         self._file._coordinates_list.append(coordinates)
 
-    def copy_spectra(self, reader, spectra_indices: Sequence[int], tqdm_position: Optional[int] = None):
+    def copy_spectra(self, reader, spectra_indices: Sequence[int], tqdm_position: int | None = None) -> None:
         # TODO reuse the implementation from ImzmlWriter as this is 100% identical
         if tqdm_position is not None:
-            progress_fn = lambda x: tqdm(x, desc=" spectrum", position=tqdm_position)
+            def progress_fn(x):
+                return tqdm(x, desc=" spectrum", position=tqdm_position)
         else:
-            progress_fn = lambda x: x
+            def progress_fn(x):
+                return x
 
         for i_spectrum in progress_fn(spectra_indices):
             mz_arr, int_arr = reader.get_spectrum(i_spectrum)

@@ -4,7 +4,7 @@ from typing import Optional
 import shutil
 
 
-def copy_imzml_file(source_imzml: str, target_imzml: str):
+def copy_imzml_file(source_imzml: str, target_imzml: str) -> None:
     """
     Copies the imzML file and the corresponding ibd file to the target file.
     :param source_imzml: the source imzML file (including the .imzML extension)

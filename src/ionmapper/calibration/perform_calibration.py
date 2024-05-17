@@ -32,7 +32,7 @@ class PerformCalibration:
         output_store: h5py.Group | None = None,
         # TODO this should be deprecated (even though it might currently have some perf benefits)
         peak_picker: Optional[BasicInterpolatedPeakPicker] = None,
-    ):
+    ) -> None:
         self._calibration = calibration
         self._parallel_config = parallel_config
         self._peak_picker = peak_picker
@@ -40,7 +40,7 @@ class PerformCalibration:
 
     def calibrate_image(
         self, read_peaks: ImzmlReadFile, write_file: ImzmlWriteFile, read_full: Optional[ImzmlReadFile] = None
-    ):
+    ) -> None:
         read_parallel = ReadSpectraParallel.from_config(self._parallel_config)
         logger = logging.getLogger(__name__)
         logger.info("Computing initial coefficients...")
@@ -95,7 +95,7 @@ class PerformCalibration:
         writer: ImzmlWriter,
         calibration: CalibrationType,
         coefficients: NDArray[float],
-    ):
+    ) -> None:
         for spectrum_id in spectra_indices:
             mz_arr, int_arr, coords = reader.get_spectrum_with_coords(spectrum_id)
             calibrated_mz_arr = calibration.calibrate_spectrum(

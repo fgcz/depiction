@@ -31,10 +31,10 @@ class MsiHdf5:
     /int_arr/values: (n_data_points,) array of intensity values
     """
 
-    def __init__(self, path: str):
+    def __init__(self, path: str) -> None:
         self._path = path
 
-    def write_imzml(self, imzml_reader: ImzmlReader):
+    def write_imzml(self, imzml_reader: ImzmlReader) -> None:
         self.write_coordinates(imzml_reader.coordinates)
         batch_size = 1000
         n_spectra = imzml_reader.n_spectra
@@ -57,7 +57,7 @@ class MsiHdf5:
         """Returns the total number of data points in the imzML file."""
         return sum(imzml_reader.get_spectrum_n_points(i_spectrum) for i_spectrum in range(imzml_reader.n_spectra))
 
-    def write_coordinates(self, coordinates: np.ndarray):
+    def write_coordinates(self, coordinates: np.ndarray) -> None:
         with h5py.File(self._path, "a") as file:
             file.create_dataset("coordinates", data=coordinates)
 
@@ -65,7 +65,7 @@ class MsiHdf5:
         with h5py.File(self._path, "r") as file:
             return np.asarray(file["coordinates"][:])
 
-    def append_awkward_2d(self, array: awkward.Array, group_name: str):
+    def append_awkward_2d(self, array: awkward.Array, group_name: str) -> None:
         offsets, values = self._encode_awkward_2d(array)
         with h5py.File(self._path, "a") as file:
             if f"{group_name}/offsets" not in file:
@@ -83,7 +83,7 @@ class MsiHdf5:
             file[f"{group_name}/values"].resize((values_len_new,))
             file[f"{group_name}/values"][values_len_old:] = values
 
-    def write_awkward_2d(self, array: awkward.Array, group_name: str):
+    def write_awkward_2d(self, array: awkward.Array, group_name: str) -> None:
         offsets, values = self._encode_awkward_2d(array)
         with h5py.File(self._path, "a") as file:
             file.create_dataset(f"{group_name}/offsets", data=offsets, chunks=True, maxshape=(None,))
@@ -103,13 +103,13 @@ class MsiHdf5:
             return awkward.Array([values[offsets[i] : offsets[i + 1]] for i in range(len(offsets) - 1)])
 
 
-def main_imzml_to_hdf5(input_file: str, output_file: str):
+def main_imzml_to_hdf5(input_file: str, output_file: str) -> None:
     with ImzmlReadFile(input_file).reader() as reader:
         writer = MsiHdf5(output_file)
         writer.write_imzml(reader)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="command")
     sub.required = True

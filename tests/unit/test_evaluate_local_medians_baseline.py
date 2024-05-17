@@ -9,7 +9,7 @@ import unittest
 
 @patch.dict(os.environ, {"NUMBA_DEBUGINFO": "1"})
 class TestEvaluateLocalMediansBaseline(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_window_unit = "index"
         self.mock_window_size = 5
         IntegrationTestUtils.treat_warnings_as_error(self)
@@ -18,7 +18,7 @@ class TestEvaluateLocalMediansBaseline(unittest.TestCase):
     def mock_evaluate(self) -> EvaluateLocalMediansBaseline:
         return EvaluateLocalMediansBaseline(window_size=self.mock_window_size, window_unit=self.mock_window_unit)
 
-    def test_evaluate_baseline_when_unit_index(self):
+    def test_evaluate_baseline_when_unit_index(self) -> None:
         mock_mz_arr = MagicMock(name="mock_mz_arr")
         mock_int_arr = np.array([0, 0, 10, 10, 10, 10, 0, 0, 0, 10, 10])
         int_baseline = self.mock_evaluate.evaluate_baseline(mz_arr=mock_mz_arr, int_arr=mock_int_arr)
@@ -29,14 +29,14 @@ class TestEvaluateLocalMediansBaseline(unittest.TestCase):
         int_baseline_rev = self.mock_evaluate.evaluate_baseline(mz_arr=mock_mz_arr, int_arr=mock_int_arr_rev)
         np.testing.assert_array_equal([0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10], int_baseline_rev)
 
-    def test_evaluate_baseline_when_unit_ppm(self):
+    def test_evaluate_baseline_when_unit_ppm(self) -> None:
         self.mock_window_unit = "ppm"
         mock_mz_arr = np.linspace(10, 100, 20)
         mock_int_arr = np.ones(20)
         int_baseline = self.mock_evaluate.evaluate_baseline(mz_arr=mock_mz_arr, int_arr=mock_int_arr)
         np.testing.assert_array_equal(np.ones(20), int_baseline)
 
-    def test_evaluate_baseline_when_unit_ppm_correct_left(self):
+    def test_evaluate_baseline_when_unit_ppm_correct_left(self) -> None:
         self.mock_window_unit = "ppm"
         self.mock_window_size = 500
         # to keep it simple, construct to have an almost constant ppm error and then count
@@ -55,7 +55,7 @@ class TestEvaluateLocalMediansBaseline(unittest.TestCase):
         expected_arr[:3] = 0
         np.testing.assert_array_equal(expected_arr, int_baseline)
 
-    def test_evaluate_baseline_when_unit_ppm_correct_right(self):
+    def test_evaluate_baseline_when_unit_ppm_correct_right(self) -> None:
         self.mock_window_unit = "ppm"
         self.mock_window_size = 500
         # to keep it simple, construct to have an almost constant ppm error and then count
@@ -75,7 +75,7 @@ class TestEvaluateLocalMediansBaseline(unittest.TestCase):
         np.testing.assert_array_equal(expected_arr, int_baseline)
 
     @patch.object(EvaluateLocalMediansBaseline, "evaluate_baseline")
-    def test_subtract_baseline(self, method_evaluate_baseline):
+    def test_subtract_baseline(self, method_evaluate_baseline) -> None:
         method_evaluate_baseline.return_value = np.array([20, 20, 30, 30, 30])
         mock_int_arr = np.array([50, 10, 10, 10, 50])
         mock_mz_arr = MagicMock(name="mock_mz_arr")

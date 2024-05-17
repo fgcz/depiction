@@ -1,6 +1,5 @@
 from __future__ import annotations
 import enum
-from pathlib import Path
 
 import numpy as np
 import typer
@@ -15,7 +14,11 @@ from ionmapper.persistence import (
     ImzmlWriter,
     ImzmlReader,
 )
-from numpy.typing import NDArray
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+    from pathlib import Path
 
 
 class BaselineVariants(str, enum.Enum):
@@ -36,7 +39,7 @@ class CorrectBaseline:
     ) -> CorrectBaseline:
         return cls(parallel_config=parallel_config, variant=variant)
 
-    def evaluate_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile):
+    def evaluate_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile) -> None:
         """Evaluates the baseline correction for ``read_file`` and writes the results to ``write_file``."""
         parallel = WriteSpectraParallel.from_config(self._parallel_config)
         parallel.map_chunked_to_file(
@@ -61,7 +64,7 @@ class CorrectBaseline:
         spectra_ids: list[int],
         writer: ImzmlWriter,
         baseline_correction,
-    ):
+    ) -> None:
         correct = cls(
             parallel_config=ParallelConfig.no_parallelism(),
             baseline_correction=baseline_correction,
@@ -86,7 +89,7 @@ def main(
     output_imzml: Path,
     n_jobs: int = 20,
     baseline_variant: BaselineVariants = BaselineVariants.tophat,
-):
+) -> None:
     """Corrects the baseline of `input_imzml` and writes the results to `output_imzml`."""
     parallel_config = ParallelConfig(n_jobs=n_jobs, task_size=None)
     input_file = ImzmlReadFile(input_imzml)

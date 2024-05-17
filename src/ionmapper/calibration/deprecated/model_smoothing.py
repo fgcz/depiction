@@ -11,7 +11,7 @@ class ModelSmoothing:
     Performs some smoothing of the model parameters obtained for a full image.
     """
 
-    def __init__(self, sigma: float):
+    def __init__(self, sigma: float) -> None:
         self._sigma = sigma
 
     def smooth_spatial(

@@ -6,7 +6,7 @@ from ionmapper.tools.image_channel_statistics import ImageChannelStatistics
 
 
 class TestImageChannelStatistics(unittest.TestCase):
-    def test_compute_xarray(self):
+    def test_compute_xarray(self) -> None:
         # dummy image with channel (x, y, c) shape
         image = xarray.DataArray(
             data=[[[1, 2], [3, 4]], [[5, 6], [7, 8]]],

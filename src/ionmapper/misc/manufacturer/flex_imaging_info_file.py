@@ -11,7 +11,7 @@ class FlexImagingInfoFile:
     This file is usually found in the same directory as the .d directory and named `*_info.txt`.
     """
 
-    def __init__(self, attributes: dict[str, str]):
+    def __init__(self, attributes: dict[str, str]) -> None:
         self._attributes = attributes
 
     def keys(self) -> set[str]:

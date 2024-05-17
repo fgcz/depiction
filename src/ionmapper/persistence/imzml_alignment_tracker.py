@@ -9,7 +9,7 @@ class ImzmlAlignmentTracker:
     once a native implementaiton of the imzml parser is available.
     """
 
-    def __init__(self, first_mz_arr: Optional[np.ndarray] = None, is_aligned: bool = False):
+    def __init__(self, first_mz_arr: Optional[np.ndarray] = None, is_aligned: bool = False) -> None:
         self._first_mz_arr = first_mz_arr
         self._is_aligned = is_aligned
 
@@ -18,7 +18,7 @@ class ImzmlAlignmentTracker:
         """Returns True if the spectra are aligned."""
         return self._is_aligned
 
-    def track_mz_array(self, mz_arr: np.ndarray):
+    def track_mz_array(self, mz_arr: np.ndarray) -> None:
         if self._first_mz_arr is None:
             self._first_mz_arr = mz_arr
             self._is_aligned = True

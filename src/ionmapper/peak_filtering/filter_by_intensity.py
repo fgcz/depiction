@@ -69,7 +69,7 @@ class FilterByIntensity:
         self,
         spectrum_int_arr: NDArray[float],
         peak_int_arr: NDArray[float],
-    ):
+    ) -> None:
         input_threshold = self.min_intensity
         input_threshold_unit = self.normalization
         min_val = np.finfo(float).eps

@@ -173,7 +173,7 @@ class ImzmlReadFile:
             f"{mz_range_line}"
         )
 
-    def print_summary(self, checksums: bool = True):
+    def print_summary(self, checksums: bool = True) -> None:
         print(self.summary(checksums=checksums))
 
     @cached_property

@@ -5,7 +5,7 @@ import argparse
 
 
 class MergeImzml:
-    def merge(self, input_files: Sequence[ImzmlReadFile], output_file: ImzmlWriteFile):
+    def merge(self, input_files: Sequence[ImzmlReadFile], output_file: ImzmlWriteFile) -> None:
         with output_file.writer() as writer:
             for input_file in tqdm(input_files, desc=" input file", position=0):
                 with input_file.reader() as reader:

@@ -2,9 +2,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from numpy.typing import NDArray
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
     from ionmapper.peak_filtering import PeakFilteringType
 
 

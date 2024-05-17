@@ -32,6 +32,6 @@ class CalibratePeptideMassClustersV1:
     def get_nominal_mass(self, monoisotopic_mass: float) -> float:
         return monoisotopic_mass / self.wavelength_lambda
 
-    def get_peptide_mass_cluster_center(self):
+    def get_peptide_mass_cluster_center(self) -> None:
         # formula (25) in the paper
-        mass_mono_none = 0
+        pass

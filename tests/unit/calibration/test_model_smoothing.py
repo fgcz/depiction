@@ -5,10 +5,11 @@ from unittest.mock import MagicMock
 import numpy as np
 
 from ionmapper.calibration.deprecated.model_smoothing import ModelSmoothing
+from typing import NoReturn
 
 
 class TestModelSmoothing(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_sigma = 1.0
 
     @cached_property
@@ -16,16 +17,16 @@ class TestModelSmoothing(unittest.TestCase):
         return ModelSmoothing(sigma=self.mock_sigma)
 
     @unittest.skip
-    def test_smooth_spatial(self):
+    def test_smooth_spatial(self) -> NoReturn:
         raise NotImplementedError()
 
     @unittest.skip
-    def test_smooth_sequential(self):
+    def test_smooth_sequential(self) -> NoReturn:
         raise NotImplementedError()
 
-    def test_get_model_type_and_values_when_valid(self):
+    def test_get_model_type_and_values_when_valid(self) -> None:
         class MockModel:
-            def __init__(self, coef):
+            def __init__(self, coef) -> None:
                 self.coef = coef
 
         mock_models = [MockModel(coef=[0, 1]), MockModel(coef=[0, 2])]
@@ -33,7 +34,7 @@ class TestModelSmoothing(unittest.TestCase):
         self.assertEqual(model_type, MockModel)
         np.testing.assert_array_equal([[0, 1], [0, 2]], values)
 
-    def test_get_model_type_and_values_when_invalid(self):
+    def test_get_model_type_and_values_when_invalid(self) -> None:
         mock_models = [MagicMock(), MagicMock()]
         with self.assertRaises(ValueError) as error:
             self.mock_smoothing.get_model_type_and_values(models=mock_models)

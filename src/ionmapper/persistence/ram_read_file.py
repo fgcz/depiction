@@ -7,7 +7,7 @@ from ionmapper.persistence.ram_reader import RamReader
 
 
 class RamReadFile:
-    def __init__(self, mz_arr_list, int_arr_list, coordinates):
+    def __init__(self, mz_arr_list, int_arr_list, coordinates) -> None:
         self._mz_arr_list = mz_arr_list
         self._int_arr_list = int_arr_list
         self._coordinates = coordinates

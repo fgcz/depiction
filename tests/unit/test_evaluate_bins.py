@@ -7,7 +7,7 @@ from ionmapper.evaluate_bins import BinStatistic, EvaluateBins
 
 
 class TestEvaluateBins(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_bin_edges = [1, 2, 3, 4]
         self.mock_statistic = BinStatistic.MEAN
 
@@ -15,7 +15,7 @@ class TestEvaluateBins(unittest.TestCase):
     def mock_evaluate_bins(self):
         return EvaluateBins(bin_edges=self.mock_bin_edges, statistic=self.mock_statistic)
 
-    def test_evaluate(self):
+    def test_evaluate(self) -> None:
         mz_values = np.array([0.5, 1.5, 1.5, 1.5, 3.5, 4.5])
         int_values = np.array([9, 2, 4, 6, 8, 7])
         binned_values = self.mock_evaluate_bins.evaluate(mz_values, int_values)
@@ -32,18 +32,18 @@ class TestEvaluateBins(unittest.TestCase):
     #    binned = self.mock_evaluate_bins.evaluate_all(mz_values, int_values, n_jobs=1)
     #    np.testing.assert_array_equal(np.array([[1.0, 3], [0, 6]]), binned)
 
-    def test_mz_values(self):
+    def test_mz_values(self) -> None:
         np.testing.assert_array_equal(np.array([1.5, 2.5, 3.5]), self.mock_evaluate_bins.mz_values)
 
-    def test_bin_edges(self):
+    def test_bin_edges(self) -> None:
         np.testing.assert_array_equal(np.array([1, 2, 3, 4]), self.mock_evaluate_bins.bin_edges)
 
-    def test_from_mz_values_when_center(self):
+    def test_from_mz_values_when_center(self) -> None:
         mz_values = np.array([10.0, 160, 310, 460])
         eval_bins = EvaluateBins.from_mz_values(mz_values)
         np.testing.assert_array_equal(np.array([10.0, 160, 310, 460]), eval_bins.mz_values)
 
-    def test_from_mz_values_when_not_center(self):
+    def test_from_mz_values_when_not_center(self) -> None:
         mz_values = np.array([1, 10, 100, 1000], dtype=float)
         eval_bins = EvaluateBins.from_mz_values(mz_values)
         np.testing.assert_array_equal(np.array([1, 30.25, 302.5, 1000]), eval_bins.mz_values)

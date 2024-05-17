@@ -9,7 +9,7 @@ from ionmapper.tools.align_imzml import main_align_imzml
 from pathlib import Path
 
 
-def align_profile_data(input_imzml_path: str, output_imzml_path: str):
+def align_profile_data(input_imzml_path: str, output_imzml_path: str) -> None:
     aligned_path = main_align_imzml(
         input_imzml=input_imzml_path, output_imzml=output_imzml_path, method="FIRST_MZ_ARR", n_jobs=20
     )
@@ -18,7 +18,7 @@ def align_profile_data(input_imzml_path: str, output_imzml_path: str):
         shutil.copy(Path(input_imzml_path).with_suffix(".ibd"), Path(output_imzml_path).with_suffix(".ibd"))
 
 
-def main(input_imzml_path: Path, output_imzml_path: Path, ppm_res: int = 100, n_jobs: int = 20):
+def main(input_imzml_path: Path, output_imzml_path: Path, ppm_res: int = 100, n_jobs: int = 20) -> None:
     input_imzml = ImzmlReadFile(input_imzml_path)
     output_imzml = ImzmlWriteFile(output_imzml_path, imzml_mode=ImzmlModeEnum.CONTINUOUS)
     parallel_config = ParallelConfig(n_jobs=n_jobs, task_size=None)

@@ -22,10 +22,10 @@ class IonvizLabeledOutputs:
 
 
 class CompareOutputs:
-    def __init__(self, outputs: dict[str, SparseImage2d]):
+    def __init__(self, outputs: dict[str, SparseImage2d]) -> None:
         self._outputs = outputs
 
-    def check_channel_names(self):
+    def check_channel_names(self) -> None:
         channel_names = [set(output.channel_names) for output in self._outputs.values()]
         if any(channel_names[0] != channel_name for channel_name in channel_names):
             raise ValueError("Channel names are not the same across all outputs", channel_names)

@@ -3,12 +3,12 @@ from tqdm import tqdm
 
 
 class GenerateRandomData:
-    def __init__(self, write_file, seed: int = 0):
+    def __init__(self, write_file, seed: int = 0) -> None:
         self._write_file = write_file
         self._rng = np.random.default_rng(seed=seed)
         self._coordinate_index = 0
 
-    def generate_random_data(self, n_spectra: int, n_mz: int, continuous: bool):
+    def generate_random_data(self, n_spectra: int, n_mz: int, continuous: bool) -> None:
         """Generates random uniform data and writes it into spectra."""
         if continuous:
             mz_arr = np.sort(self._rng.uniform(low=0, high=1000, size=n_mz))

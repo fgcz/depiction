@@ -7,7 +7,7 @@ from ionmapper.image.image_normalization import ImageNormalizationVariant, Image
 
 
 class TestImageNormalization(unittest.TestCase):
-    def test_normalize_xarray_single_vec_norm(self):
+    def test_normalize_xarray_single_vec_norm(self) -> None:
         images = xarray.DataArray(
             data=[[[2, 0], [0, 2]], [[1, 1], [4, 1]], [[0, 0], [0, 0]]],
             dims=["y", "x", "c"],
@@ -20,7 +20,7 @@ class TestImageNormalization(unittest.TestCase):
         )
         xarray.testing.assert_allclose(expected, norm_vec)
 
-    def test_normalize_xarray_multiple_vec_norm(self):
+    def test_normalize_xarray_multiple_vec_norm(self) -> None:
         images = xarray.DataArray(
             data=[[[[2, 0]]], [[[0, 3]]]],
             dims=["whatever", "y", "x", "c"],

@@ -22,7 +22,7 @@ class EvaluateBins:
     Evaluates the binning of spectra, for specific m/z values.
     """
 
-    def __init__(self, bin_edges: NDArray[float], statistic: BinStatistic = BinStatistic.MEAN):
+    def __init__(self, bin_edges: NDArray[float], statistic: BinStatistic = BinStatistic.MEAN) -> None:
         """
         :param bin_edges: The bin edges to use for binning the spectra, including the lower and upper bounds.
         :param statistic: The statistic to use for evaluating the bins.
@@ -46,7 +46,7 @@ class EvaluateBins:
             self._statistic.value,
         )
 
-    def evaluate_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, parallel_config: ParallelConfig):
+    def evaluate_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, parallel_config: ParallelConfig) -> None:
         write_parallel = WriteSpectraParallel.from_config(parallel_config)
         write_parallel.map_chunked_to_file(
             read_file=read_file,

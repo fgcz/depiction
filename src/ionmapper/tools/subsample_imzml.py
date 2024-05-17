@@ -32,7 +32,7 @@ class SubsampleMode(enum.Enum):
 
 
 class SubsampleImzml:
-    def __init__(self, ratio: float, mode: SubsampleMode, seed: int = 0):
+    def __init__(self, ratio: float, mode: SubsampleMode, seed: int = 0) -> None:
         self._ratio = ratio
         self._mode = mode
         self._seed = seed
@@ -43,7 +43,7 @@ class SubsampleImzml:
         n_keep = int(read_file.n_spectra * self._ratio)
         return self._mode.sample(all_spectra, n_keep, seed=self._seed)
 
-    def subsample(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile):
+    def subsample(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile) -> None:
         spectra_to_keep = self.determine_spectra_to_keep(read_file)
         with read_file.reader() as reader, write_file.writer() as writer:
             writer.copy_spectra(reader=reader, spectra_indices=spectra_to_keep)

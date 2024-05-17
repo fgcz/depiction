@@ -33,7 +33,7 @@ def get_sample_spec_data(read_file: ImzmlReadFile, n_specs: int):
     return pl.DataFrame(collect).explode(["mz", "intensity"])
 
 
-def main(input_imzml: Path, output_pdf: str, n_jobs: int = 20):
+def main(input_imzml: Path, output_pdf: str, n_jobs: int = 20) -> None:
     read_file = ImzmlReadFile(input_imzml)
     parallel_config = ParallelConfig(n_jobs=n_jobs, task_size=None)
     mean_data = get_mean_spectrum(read_file, parallel_config=parallel_config)

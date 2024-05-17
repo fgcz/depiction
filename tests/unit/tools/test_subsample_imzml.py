@@ -8,14 +8,14 @@ from ionmapper.tools.subsample_imzml import SubsampleMode, SubsampleImzml
 
 
 class TestSubsampleMode(unittest.TestCase):
-    def test_randomized(self):
+    def test_randomized(self) -> None:
         samples = SubsampleMode.randomized.sample(np.arange(10), 5)
         self.assertEqual(5, len(samples))
         self.assertEqual(5, len(set(samples)))
         for sample in samples:
             self.assertTrue(0 <= sample < 10)
 
-    def test_linspaced(self):
+    def test_linspaced(self) -> None:
         np.testing.assert_array_equal(np.array([0, 3, 6, 9]), SubsampleMode.linspaced.sample(np.arange(10), 4))
         np.testing.assert_array_equal(np.array([0, 2, 4, 7, 9]), SubsampleMode.linspaced.sample(np.arange(10), 5))
         np.testing.assert_array_equal(np.array([0, 2, 4, 5, 7, 9]), SubsampleMode.linspaced.sample(np.arange(10), 6))
@@ -23,7 +23,7 @@ class TestSubsampleMode(unittest.TestCase):
 
 # TODO consider renaming this test class
 class TestSubsampleImzml(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_ratio = 0.5
         self.mock_mode = SubsampleMode.randomized
         self.mock_seed = 0
@@ -39,7 +39,7 @@ class TestSubsampleImzml(unittest.TestCase):
     @patch.object(SubsampleImzml, "determine_spectra_to_keep")
     @patch("builtins.open")
     @patch("json.dump")
-    def test_dump_subsample_info(self, mock_json_dump, mock_open, method_determine_spectra_to_keep):
+    def test_dump_subsample_info(self, mock_json_dump, mock_open, method_determine_spectra_to_keep) -> None:
         mock_read_file = MagicMock(name="mock_read_file", imzml_file="dummy_input.imzML")
         output_path = "dummy_output.imzML"
         method_determine_spectra_to_keep.return_value = np.array([1, 50, 100])

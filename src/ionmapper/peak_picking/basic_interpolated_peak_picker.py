@@ -1,23 +1,23 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy
-from numpy.typing import NDArray
 
 from ionmapper.peak_picking.basic_peak_picker import BasicPeakPicker
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
     from ionmapper.peak_filtering import PeakFilteringType
 
 
 @dataclass
 class BasicInterpolatedPeakPicker:
     min_prominence: float
-    min_distance: Optional[int | float] = None
-    min_distance_unit: Optional[str] = None
-    peak_filtering: Optional[PeakFilteringType] = None
+    min_distance: int | float | None = None
+    min_distance_unit: str | None = None
+    peak_filtering: PeakFilteringType | None = None
 
     # TODO note unlike the BasicPeakPicker, this one does not support pick_peaks_index and is something that might have
     #      to be considered in the rest of the code before it can be used

@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import mmap
 from functools import cached_property
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 import numpy as np
-import pyimzml.ImzMLParser
-from numpy.typing import NDArray
 
 from ionmapper.persistence.imzml_mode_enum import ImzmlModeEnum
+
+if TYPE_CHECKING:
+    import pyimzml.ImzMLParser
+    from numpy.typing import NDArray
 
 
 class ImzmlReader:
@@ -23,7 +25,7 @@ class ImzmlReader:
         self,
         portable_reader: pyimzml.ImzMLParser.PortableSpectrumReader,
         imzml_path: str,
-    ):
+    ) -> None:
         self._portable_reader = portable_reader
         self._imzml_path = imzml_path
         self._ibd_file = None
@@ -66,7 +68,7 @@ class ImzmlReader:
             self._open_ibd_mmap()
         return self._ibd_mmap
 
-    def _open_ibd_mmap(self):
+    def _open_ibd_mmap(self) -> None:
         # TODO maybe this can be converted into cached_property too
         self._ibd_file = open(self.ibd_path, "rb")
         self._ibd_mmap = mmap.mmap(
@@ -81,7 +83,7 @@ class ImzmlReader:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def close(self):
+    def close(self) -> None:
         """Closes the .ibd file handles, if open."""
         if self._ibd_mmap is not None:
             self._ibd_mmap.close()

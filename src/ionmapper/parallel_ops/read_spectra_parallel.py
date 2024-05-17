@@ -2,20 +2,18 @@ from __future__ import annotations
 from typing import (
     Any,
     Callable,
-    Optional,
     TypeVar,
-    Union,
     TYPE_CHECKING,
 )
 
 import numpy as np
-from numpy.typing import NDArray
 
 from ionmapper.parallel_ops.parallel_config import ParallelConfig
 from ionmapper.parallel_ops.parallel_map import ParallelMap
-from ionmapper.persistence import ImzmlReadFile, ImzmlReader
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+    from ionmapper.persistence import ImzmlReadFile, ImzmlReader
     T = TypeVar("T")
     V = TypeVar("V")
 
@@ -25,7 +23,7 @@ class ReadSpectraParallel:
     Enables parallelized processing of spectra in a given input file.
     """
 
-    def __init__(self, config: ParallelConfig):
+    def __init__(self, config: ParallelConfig) -> None:
         self._config = config
 
     @classmethod
@@ -33,7 +31,7 @@ class ReadSpectraParallel:
         return cls(config=config)
 
     @classmethod
-    def from_params(cls, n_jobs: int, task_size: Optional[int], verbose: int = 1):
+    def from_params(cls, n_jobs: int, task_size: int | None, verbose: int = 1):
         """In general, try to use from_config and pass the configuration throughout the application as appropriate."""
         return cls(config=ParallelConfig(n_jobs=n_jobs, task_size=task_size, verbose=verbose))
 
@@ -47,12 +45,9 @@ class ReadSpectraParallel:
     def map_chunked(
         self,
         read_file: ImzmlReadFile,
-        operation: Union[
-            Callable[[ImzmlReader, list[int], ...], T],
-            Callable[[ImzmlReader, list[int], int, ...], T],
-        ],
-        spectra_indices: Optional[NDArray[int]] = None,
-        bind_args: Optional[dict[str, Any]] = None,
+        operation: Callable[[ImzmlReader, list[int], ...], T] | Callable[[ImzmlReader, list[int], int, ...], T],
+        spectra_indices: NDArray[int] | None = None,
+        bind_args: dict[str, Any] | None = None,
         reduce_fn: Callable[[list[T]], V] = list,
         pass_task_index: bool = False,
     ) -> V:

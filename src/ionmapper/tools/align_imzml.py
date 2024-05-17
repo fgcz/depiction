@@ -36,7 +36,7 @@ class AlignImzml:
         output_file_path: str,
         method: AlignImzmlMethod,
         parallel_config: ParallelConfig = None,
-    ):
+    ) -> None:
         self._input_file = input_file
         self._output_file_path = output_file_path
         self._method = method
@@ -65,7 +65,7 @@ class AlignImzml:
         output_file: ImzmlWriteFile,
         bin_eval: EvaluateBins,
     ) -> None:
-        def chunk_operation(reader: ImzmlReader, spectra_ids: list[int], writer: ImzmlWriter):
+        def chunk_operation(reader: ImzmlReader, spectra_ids: list[int], writer: ImzmlWriter) -> None:
             mz_arr_new = bin_eval.mz_values
             for spectrum_id in tqdm(spectra_ids):
                 mz_arr_orig, int_arr_orig = reader.get_spectrum(spectrum_id)

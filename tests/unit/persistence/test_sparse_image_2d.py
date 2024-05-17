@@ -9,7 +9,7 @@ from ionmapper.image.sparse_image_2d import SparseImage2d
 
 
 class TestSparseImage2d(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         warnings.filterwarnings("error")
         self.mock_values = np.array([[2], [4], [6]], dtype=float)
         self.mock_coordinates = np.array([[0, 0], [1, 1], [1, 0]])
@@ -18,30 +18,30 @@ class TestSparseImage2d(unittest.TestCase):
     def mock_image(self) -> SparseImage2d:
         return SparseImage2d(values=self.mock_values, coordinates=self.mock_coordinates)
 
-    def test_n_nonzero(self):
+    def test_n_nonzero(self) -> None:
         self.assertEqual(3, self.mock_image.n_nonzero)
 
-    def test_n_channels(self):
+    def test_n_channels(self) -> None:
         self.assertEqual(1, self.mock_image.n_channels)
 
-    def test_sparse_values(self):
+    def test_sparse_values(self) -> None:
         np.testing.assert_array_equal(self.mock_values, self.mock_image.sparse_values)
 
-    def test_sparse_coordinates(self):
+    def test_sparse_coordinates(self) -> None:
         np.testing.assert_array_equal(self.mock_coordinates, self.mock_image.sparse_coordinates)
 
-    def test_dtype(self):
+    def test_dtype(self) -> None:
         self.assertEqual(float, self.mock_image.dtype)
 
-    def test_offset(self):
+    def test_offset(self) -> None:
         self.mock_coordinates += [3, 5]
         np.testing.assert_array_equal([3, 5], self.mock_image.offset)
 
-    def test_dimensions(self):
+    def test_dimensions(self) -> None:
         self.mock_coordinates = np.array([[0, 0], [4, 1], [1, 7]])
         self.assertEqual((5, 8), self.mock_image.dimensions)
 
-    def test_channel_names_when_provided(self):
+    def test_channel_names_when_provided(self) -> None:
         self.mock_values = np.array([[2, 3], [4, 5], [6, 7]])
         mock_image = SparseImage2d(
             values=self.mock_values,
@@ -50,42 +50,42 @@ class TestSparseImage2d(unittest.TestCase):
         )
         self.assertListEqual(["A", "B"], mock_image.channel_names)
 
-    def test_channel_names_when_default(self):
+    def test_channel_names_when_default(self) -> None:
         self.mock_values = np.array([[2, 3], [4, 5], [6, 7]])
         self.assertListEqual(["Channel 0", "Channel 1"], self.mock_image.channel_names)
 
-    def test_get_dense_array(self):
+    def test_get_dense_array(self) -> None:
         dense_values = self.mock_image.get_dense_array()
         np.testing.assert_array_equal(np.array([[[0], [4]], [[2], [6]]]), dense_values)
 
-    def test_get_dense_array_when_offset(self):
+    def test_get_dense_array_when_offset(self) -> None:
         self.mock_coordinates[:, 0] += 3
         self.mock_coordinates[:, 1] += 5
         dense_values = self.mock_image.get_dense_array()
         np.testing.assert_array_equal(np.array([[[0], [4]], [[2], [6]]]), dense_values)
 
-    def test_get_dense_array_when_multichannel(self):
+    def test_get_dense_array_when_multichannel(self) -> None:
         self.mock_values = np.array([[2, 3], [4, 5], [6, 7]])
         dense_values = self.mock_image.get_dense_array()
         np.testing.assert_array_equal(np.array([[[0, 0], [4, 5]], [[2, 3], [6, 7]]]), dense_values)
 
-    def test_get_dense_array_when_bg_value(self):
+    def test_get_dense_array_when_bg_value(self) -> None:
         dense_array = self.mock_image.get_dense_array(bg_value=1234)
         np.testing.assert_array_equal(np.array([[[1234], [4]], [[2], [6]]]), dense_array)
 
-    def test_get_dense_array_when_bg_value_and_offset(self):
+    def test_get_dense_array_when_bg_value_and_offset(self) -> None:
         self.mock_coordinates[:, 0] += 3
         self.mock_coordinates[:, 1] += 5
         dense_array = self.mock_image.get_dense_array(bg_value=1234)
         np.testing.assert_array_equal(np.array([[[1234], [4]], [[2], [6]]]), dense_array)
 
-    def test_get_single_channel_dense_array_when_dtype_float(self):
+    def test_get_single_channel_dense_array_when_dtype_float(self) -> None:
         for bg_value in (0, 2.5, np.nan):
             with self.subTest(bg_value=bg_value):
                 dense_values = self.mock_image.get_single_channel_dense_array(i_channel=0, bg_value=bg_value)
                 np.testing.assert_array_equal(np.array([[bg_value, 4], [2, 6]]), dense_values)
 
-    def test_get_single_channel_dense_array_when_dtype_int(self):
+    def test_get_single_channel_dense_array_when_dtype_int(self) -> None:
         for bg_value in (0, 2, np.nan):
             with self.subTest(bg_value=bg_value):
                 self.mock_values = self.mock_values.astype(int)
@@ -94,7 +94,7 @@ class TestSparseImage2d(unittest.TestCase):
                     self.assertEqual(np.dtype(int), dense_values.dtype)
                 np.testing.assert_array_equal(np.array([[bg_value, 4], [2, 6]]), dense_values)
 
-    def test_retain_channels(self):
+    def test_retain_channels(self) -> None:
         sparse_values_full = np.array([[4.0, 5, 6, 7], [4, 5, 6, 7], [8, 8, 8, 8], [9, 9, 9, 9]])
         coordinates = np.array([[1, 2], [3, 4], [5, 6], [7, 8]])
         channel_names = ["A", "B", "C", "D"]
@@ -112,7 +112,7 @@ class TestSparseImage2d(unittest.TestCase):
 
     @patch("ionmapper.image.sparse_image_2d.matplotlib.pyplot")
     @patch("seaborn.color_palette")
-    def test_save_single_channel_image(self, mock_color_palette, mock_matplotlib_pyplot):
+    def test_save_single_channel_image(self, mock_color_palette, mock_matplotlib_pyplot) -> None:
         self.mock_image.save_single_channel_image(0, "path")
         mock_matplotlib_pyplot.imsave.assert_called_once_with(
             "path", ANY, cmap=mock_color_palette.return_value, origin="lower"
@@ -122,7 +122,7 @@ class TestSparseImage2d(unittest.TestCase):
             mock_matplotlib_pyplot.imsave.call_args[0][1],
         )
 
-    def test_to_dense_xarray(self):
+    def test_to_dense_xarray(self) -> None:
         result = self.mock_image.to_dense_xarray()
         self.assertListEqual(["Channel 0"], list(result.coords["c"]))
         np.testing.assert_array_equal(np.array([[[0], [4]], [[2], [6]]]), result.values)
@@ -130,7 +130,7 @@ class TestSparseImage2d(unittest.TestCase):
         self.assertListEqual([0, 1], list(result.coords["x"]))
         self.assertListEqual([0, 1], list(result.coords["y"]))
 
-    def test_to_dense_xarray_when_bg_value_nan(self):
+    def test_to_dense_xarray_when_bg_value_nan(self) -> None:
         result = self.mock_image.to_dense_xarray(bg_value=np.nan)
         np.testing.assert_array_equal(np.array([[[np.nan], [4]], [[2], [6]]]), result.values)
         self.assertListEqual(["Channel 0"], list(result.coords["c"]))
@@ -138,7 +138,7 @@ class TestSparseImage2d(unittest.TestCase):
         self.assertListEqual([0, 1], list(result.coords["x"]))
         self.assertListEqual([0, 1], list(result.coords["y"]))
 
-    def test_combine_in_parallel(self):
+    def test_combine_in_parallel(self) -> None:
         coordinates = np.array([[0, 0], [1, 1], [1, 0]])
         image1 = SparseImage2d(
             values=np.array([[2, 3], [2, 4], [2, 5]]),
@@ -162,7 +162,7 @@ class TestSparseImage2d(unittest.TestCase):
             combined.sparse_values,
         )
 
-    def test_from_dense_array(self):
+    def test_from_dense_array(self) -> None:
         dense_array = np.array([[[1], [2], [3]], [[4], [5], [6]]])
         image = SparseImage2d.from_dense_array(dense_values=dense_array, offset=np.array([0, 0, 0]))
         np.testing.assert_array_equal(np.array([[1], [2], [3], [4], [5], [6]]), image.sparse_values)
@@ -172,7 +172,7 @@ class TestSparseImage2d(unittest.TestCase):
             strict=True,
         )
 
-    def test_from_dense_array_when_offset(self):
+    def test_from_dense_array_when_offset(self) -> None:
         dense_array = np.array([[[1], [2], [3]], [[4], [5], [6]]])
         image = SparseImage2d.from_dense_array(dense_values=dense_array, offset=np.array([3, 5, 0]))
         np.testing.assert_array_equal(np.array([[1], [2], [3], [4], [5], [6]]), image.sparse_values)
@@ -182,7 +182,7 @@ class TestSparseImage2d(unittest.TestCase):
             strict=True,
         )
 
-    def test_from_dense_array_when_offset_is_float_array_of_ints(self):
+    def test_from_dense_array_when_offset_is_float_array_of_ints(self) -> None:
         dense_array = np.array([[[1], [2], [3]], [[4], [5], [6]]])
         image = SparseImage2d.from_dense_array(dense_values=dense_array, offset=np.array([3.0, 5.0, 0.0]))
         np.testing.assert_array_equal(np.array([[1], [2], [3], [4], [5], [6]]), image.sparse_values)
@@ -193,20 +193,20 @@ class TestSparseImage2d(unittest.TestCase):
             strict=True,
         )
 
-    def test_from_dense_array_when_channel_names(self):
+    def test_from_dense_array_when_channel_names(self) -> None:
         dense_array = np.array([[[1], [2], [3]], [[4], [5], [6]]])
         image = SparseImage2d.from_dense_array(
             dense_values=dense_array, offset=np.array([0, 0, 0]), channel_names=["A"]
         )
         self.assertListEqual(["A"], image.channel_names)
 
-    def test_with_channel_names(self):
+    def test_with_channel_names(self) -> None:
         image = self.mock_image.with_channel_names(["X"])
         self.assertListEqual(["X"], image.channel_names)
         np.testing.assert_array_equal(self.mock_image.sparse_values, image.sparse_values)
         np.testing.assert_array_equal(self.mock_image.sparse_coordinates, image.sparse_coordinates)
 
-    def test_str(self):
+    def test_str(self) -> None:
         self.assertEqual(
             "SparseImage2d with n_nonzero=3, n_channels=1, offset=(0, 0)",
             str(self.mock_image),

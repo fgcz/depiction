@@ -1,6 +1,5 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -8,7 +7,7 @@ import numpy as np
 @dataclass
 class ParallelConfig:
     n_jobs: int
-    task_size: Optional[int]
+    task_size: int | None
     verbose: int = 1
 
     def get_splits_count(self, n_items: int) -> int:
@@ -20,7 +19,7 @@ class ParallelConfig:
         else:
             return min(self.n_jobs, n_items)
 
-    def get_task_splits(self, n_items: Optional[int] = None, item_indices: Optional[np.ndarray] = None) -> list[list[int]]:
+    def get_task_splits(self, n_items: int | None = None, item_indices: np.ndarray | None = None) -> list[list[int]]:
         """
         Returns a list of the indices of the spectra to process in each task.
         Either n_items or item_indices must be provided, but not both.

@@ -56,7 +56,7 @@ class CalibrateImageTargeted:
         distance_unit: str = "mz",
         max_distance: float = 2.0,
         accept_processed_data: bool = False,
-    ):
+    ) -> None:
         self._reference_mz = np.asarray(reference_mz)
         self._model_type = model_type
         self._parallel_config = parallel_config
@@ -69,7 +69,7 @@ class CalibrateImageTargeted:
         self._max_distance = max_distance
         self._accept_processed_data = accept_processed_data
 
-    def calibrate_image(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile):
+    def calibrate_image(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile) -> None:
         print("Computing distance vectors...")
         signed_distance_vectors, median_shifts = self._compute_reference_distance_vectors_for_file(read_file=read_file)
         self._save_results(signed_distance_vectors=signed_distance_vectors, median_shifts=median_shifts)
@@ -245,11 +245,11 @@ class CalibrateImageTargeted:
         read_file: ImzmlReadFile,
         models: list[LinearModel | PolynomialModel],
         write_file: ImzmlWriteFile,
-    ):
+    ) -> None:
         parallelize = WriteSpectraParallel.from_config(self._parallel_config)
         unit = self._distance_unit
 
-        def chunk_operation(reader: ImzmlReader, spectra_indices: list[int], writer: ImzmlWriter):
+        def chunk_operation(reader: ImzmlReader, spectra_indices: list[int], writer: ImzmlWriter) -> None:
             for spectrum_id in spectra_indices:
                 mz_arr, int_arr = reader.get_spectrum(spectrum_id)
                 model = models[spectrum_id]
@@ -267,12 +267,12 @@ class CalibrateImageTargeted:
             operation=chunk_operation,
         )
 
-    def _save_attrs(self, **kwargs):
+    def _save_attrs(self, **kwargs) -> None:
         if self._output_store is not None:
             for key, value in kwargs.items():
                 self._output_store.attrs[key] = value
 
-    def _save_results(self, **kwargs):
+    def _save_results(self, **kwargs) -> None:
         """Write datasets according to the given kwargs to the output HDF5 store."""
         if self._output_store is not None:
             for key, value in kwargs.items():

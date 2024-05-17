@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import os
 import pandas as pd
@@ -18,10 +18,10 @@ class GutenTagLabeledOutputs:
     panel_df: pd.DataFrame
 
     # TODO consider ideal naming
-    expanded_correspondence_df: Optional[pd.DataFrame]
-    untargeted_correspondence_df: Optional[pd.DataFrame]
+    expanded_correspondence_df: pd.DataFrame | None
+    untargeted_correspondence_df: pd.DataFrame | None
 
-    intensities: Optional[SparseImage2d] = None
+    intensities: SparseImage2d | None = None
 
     @classmethod
     def from_rdata_file(cls, path: str) -> GutenTagLabeledOutputs:

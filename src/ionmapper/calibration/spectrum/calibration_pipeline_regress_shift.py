@@ -33,7 +33,7 @@ class CalibrationPipelineRegressShift:
         input_smoothing_kernel_size: int = 27,
         input_smoothing_kernel_std: float = 10.0,
         min_points: int = 3,
-    ):
+    ) -> None:
         self._ref_mz_arr = ref_mz_arr
         self._max_distance = max_distance
         self._max_distance_unit = max_distance_unit

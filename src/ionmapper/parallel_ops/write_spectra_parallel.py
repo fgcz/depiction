@@ -18,7 +18,7 @@ from ionmapper.tools.merge_imzml import MergeImzml
 
 
 class WriteSpectraParallel:
-    def __init__(self, config: ParallelConfig):
+    def __init__(self, config: ParallelConfig) -> None:
         self._config = config
 
     @classmethod
@@ -40,7 +40,7 @@ class WriteSpectraParallel:
         spectra_indices: Optional[NDArray[int]] = None,
         bind_args: Optional[dict[str, Any]] = None,
         open_write_files: bool = True,
-    ):
+    ) -> None:
         """Maps an operation over a file, in chunks, writing the results to a list of files.
         :param read_file: the file to read the spectra from
         :param write_files: the list of files to write the results to
@@ -87,13 +87,13 @@ class WriteSpectraParallel:
         operation: Callable[[str, list[str]], None],
         spectra_indices: Optional[NDArray[int]] = None,
         bind_args: Optional[dict[str, Any]] = None,
-    ):
+    ) -> None:
         def op(
             reader: ImzmlReader,
             spectra_ids: list[int],
             write_files: list[ImzmlWriteFile],
             **kwargs,
-        ):
+        ) -> None:
             # TODO maybe kwarg handling could be done a bit more clean here in the future
             # TODO also it's currently untested
             # copy the relevant spectra to a temporary file
@@ -152,7 +152,7 @@ class WriteSpectraParallel:
         ],
         open_write_files: bool,
         split_modes_and_paths: list[tuple[ImzmlModeEnum, list[str]]],
-    ):
+    ) -> None:
         """Performs the operation for a chunk of spectra. To be called in a parallel context.
         :param reader: the reader to read the spectra from
         :param spectra_indices: the indices of the spectra to process
@@ -180,7 +180,7 @@ class WriteSpectraParallel:
         self,
         split_modes_and_paths: list[tuple[ImzmlModeEnum, list[str]]],
         write_files: list[ImzmlWriteFile],
-    ):
+    ) -> None:
         """Merges the results of the parallel operations
         :param split_modes_and_paths: the split modes and paths
         :param write_files: the write files to write the merged results to

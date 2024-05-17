@@ -10,7 +10,7 @@ from ionmapper.peak_filtering.filter_n_highest_intensity import (
 
 
 class TestfilterNHighestIntensity(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_max_count = 3
         self.mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
 
@@ -18,7 +18,7 @@ class TestfilterNHighestIntensity(unittest.TestCase):
     def mock_filter(self) -> FilterNHighestIntensity:
         return FilterNHighestIntensity(max_count=self.mock_max_count)
 
-    def test_filter_index_peaks_when_actually_filtering(self):
+    def test_filter_index_peaks_when_actually_filtering(self) -> None:
         spectrum_int_arr = np.array([1, 2, 0, 0, 3, 4, 0, 0, 7, 8, 1])
         peak_idx_array = np.array([0, 1, 4, 5, 8, 9, 10])
         remaining_indices = self.mock_filter.filter_index_peaks(
@@ -28,7 +28,7 @@ class TestfilterNHighestIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal([5, 8, 9], remaining_indices)
 
-    def test_filter_peaks_when_actually_filtering(self):
+    def test_filter_peaks_when_actually_filtering(self) -> None:
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr", spec=[])
         mock_spectrum_int_arr = MagicMock(name="mock_spectrum_int_arr", spec=[])
         peak_mz_arr = np.array([1, 2, 3, 5, 8, 13])
@@ -42,7 +42,7 @@ class TestfilterNHighestIntensity(unittest.TestCase):
         np.testing.assert_array_equal([2, 8, 13], mz_arr)
         np.testing.assert_array_equal([2, 8, 7], int_arr)
 
-    def test_filter_index_peaks_when_exactly_all_peaks_are_valid(self):
+    def test_filter_index_peaks_when_exactly_all_peaks_are_valid(self) -> None:
         self.mock_max_count = 4
         spectrum_int_arr = np.array([1, 2, 0, 3, 4])
         peak_idx_array = np.array([0, 1, 3, 4])
@@ -53,7 +53,7 @@ class TestfilterNHighestIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal([0, 1, 3, 4], remaining_indices)
 
-    def test_filter_peaks_when_exactly_all_peaks_are_valid(self):
+    def test_filter_peaks_when_exactly_all_peaks_are_valid(self) -> None:
         self.mock_max_count = 4
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr", spec=[])
         mock_spectrum_int_arr = MagicMock(name="mock_spectrum_int_arr", spec=[])
@@ -68,7 +68,7 @@ class TestfilterNHighestIntensity(unittest.TestCase):
         np.testing.assert_array_equal([1, 2, 3, 4], mz_arr)
         np.testing.assert_array_equal([1, 2, 3, 4], int_arr)
 
-    def test_filter_index_peaks_when_not_enough(self):
+    def test_filter_index_peaks_when_not_enough(self) -> None:
         self.mock_max_count = 5
         spectrum_int_arr = np.array([1, 2, 0, 3, 4])
         peak_idx_array = np.array([0, 1, 3, 4])
@@ -79,7 +79,7 @@ class TestfilterNHighestIntensity(unittest.TestCase):
         )
         np.testing.assert_array_equal([0, 1, 3, 4], remaining_indices)
 
-    def test_filter_peaks_when_not_enough(self):
+    def test_filter_peaks_when_not_enough(self) -> None:
         self.mock_max_count = 5
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr", spec=[])
         mock_spectrum_int_arr = MagicMock(name="mock_spectrum_int_arr", spec=[])
@@ -94,7 +94,7 @@ class TestfilterNHighestIntensity(unittest.TestCase):
         np.testing.assert_array_equal([1, 2, 3, 4], mz_arr)
         np.testing.assert_array_equal([1, 2, 3, 4], int_arr)
 
-    def test_filter_index_peaks_when_empty_input(self):
+    def test_filter_index_peaks_when_empty_input(self) -> None:
         mz_arr = np.array([])
         int_arr = np.array([])
         peak_idx_arr = np.array([])
@@ -107,7 +107,7 @@ class TestfilterNHighestIntensity(unittest.TestCase):
 
         np.testing.assert_array_equal(np.array([]), indices)
 
-    def test_filter_peaks_when_empty_input(self):
+    def test_filter_peaks_when_empty_input(self) -> None:
         mz_arr = np.array([])
         int_arr = np.array([])
         peak_mz_arr = np.array([])

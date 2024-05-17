@@ -27,13 +27,13 @@ class CalibrateImage:
         model_type: str,
         parallel_config: ParallelConfig,
         output_store: Optional[h5py.Group] = None,
-    ):
+    ) -> None:
         self._reference_mz = reference_mz
         self._model_type = model_type
         self._parallel_config = parallel_config
         self._output_store = output_store
 
-    def calibrate_image(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile):
+    def calibrate_image(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile) -> None:
         print("Computing models...")
         models_original = self._compute_models(read_file=read_file)
         print("Smoothing models...")
@@ -90,7 +90,7 @@ class CalibrateImage:
         smoothed_models: list[LinearModel | PolynomialModel],
         write_file: ImzmlWriteFile,
         mz_center: float = 0,
-    ):
+    ) -> None:
         # TODO full support for mz_center in this class
         parallelize = WriteSpectraParallel.from_config(self._parallel_config)
         parallelize.map_chunked_to_file(
@@ -107,7 +107,7 @@ class CalibrateImage:
         writer: ImzmlWriter,
         smoothed_models: list[LinearModel | PolynomialModel],
         mz_center: float,
-    ):
+    ) -> None:
         for spectrum_id in spectra_indices:
             mz_arr, int_arr = reader.get_spectrum(spectrum_id)
             mz_arr = mz_arr - mz_center
@@ -132,7 +132,7 @@ class CalibrateImage:
                 )
                 writer.add_spectrum(mz_arr, int_arr, coordinates)
 
-    def _save_results(self, **kwargs):
+    def _save_results(self, **kwargs) -> None:
         """Write datasets according to the given kwargs to the output HDF5 store."""
         if self._output_store is not None:
             for key, value in kwargs.items():

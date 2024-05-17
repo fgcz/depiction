@@ -36,13 +36,13 @@ class CalibrateImageTargeted:
         model_type: str,
         parallel_config: ParallelConfig,
         output_store: Optional[h5py.Group] = None,
-    ):
+    ) -> None:
         self._reference_mz = reference_mz
         self._model_type = model_type
         self._parallel_config = parallel_config
         self._output_store = output_store
 
-    def calibrate_image(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile):
+    def calibrate_image(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile) -> None:
         print("Compute median shift per spectrum...")
         median_shifts_ppm, smooth_median_shifts_ppm = self._compute_median_shifts(read_file=read_file)
         self._save_attrs(model_type=self._model_type)
@@ -145,10 +145,10 @@ class CalibrateImageTargeted:
         read_file: ImzmlReadFile,
         models: list[LinearModel | PolynomialModel],
         write_file: ImzmlWriteFile,
-    ):
+    ) -> None:
         parallelize = WriteSpectraParallel.from_config(self._parallel_config)
 
-        def chunk_operation(reader, spectra_indices, writer):
+        def chunk_operation(reader, spectra_indices, writer) -> None:
             for spectrum_id in spectra_indices:
                 mz_arr, int_arr = reader.get_spectrum(spectrum_id)
                 model = models[spectrum_id]
@@ -161,12 +161,12 @@ class CalibrateImageTargeted:
             operation=chunk_operation,
         )
 
-    def _save_attrs(self, **kwargs):
+    def _save_attrs(self, **kwargs) -> None:
         if self._output_store is not None:
             for key, value in kwargs.items():
                 self._output_store.attrs[key] = value
 
-    def _save_results(self, **kwargs):
+    def _save_results(self, **kwargs) -> None:
         """Write datasets according to the given kwargs to the output HDF5 store."""
         if self._output_store is not None:
             for key, value in kwargs.items():

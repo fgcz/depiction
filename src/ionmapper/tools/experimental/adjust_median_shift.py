@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING
 
 import numpy as np
-from numpy.typing import NDArray
 
-from ionmapper.peak_picking.basic_peak_picker import BasicPeakPicker
 from ionmapper.calibration.deprecated.reference_distance_estimator import (
     ReferenceDistanceEstimator,
 )
@@ -15,13 +13,17 @@ from ionmapper.parallel_ops import (
     ReadSpectraParallel,
     WriteSpectraParallel,
 )
-from ionmapper.persistence import (
-    ImzmlReadFile,
-    ImzmlReader,
-    ImzmlWriteFile,
-    ImzmlWriter,
-)
 from ionmapper.spatial_smoothing import SpatialSmoothing
+
+if TYPE_CHECKING:
+    from ionmapper.peak_picking.basic_peak_picker import BasicPeakPicker
+    from numpy.typing import NDArray
+    from ionmapper.persistence import (
+        ImzmlReadFile,
+        ImzmlReader,
+        ImzmlWriteFile,
+        ImzmlWriter,
+    )
 
 
 @dataclass(frozen=True)
@@ -66,7 +68,7 @@ class AdjustMedianShift:
         return np.median(signed_distances_ppm)
 
     def compute_median_shifts(
-        self, read_file: ImzmlReadFile, spectra_indices: Optional[list[int]] = None
+        self, read_file: ImzmlReadFile, spectra_indices: list[int] | None = None
     ) -> NDArray[float]:
         parallelize = ReadSpectraParallel.from_config(self.parallel_config)
         values = parallelize.map_chunked(
@@ -127,7 +129,7 @@ class AdjustMedianShift:
         spectra_ids: list[int],
         writer: ImzmlWriter,
         median_shifts: NDArray[float],
-    ):
+    ) -> None:
         for spectrum_id in spectra_ids:
             mz_arr, int_arr = reader.get_spectrum(spectrum_id)
             shift_ppm = median_shifts[spectrum_id]

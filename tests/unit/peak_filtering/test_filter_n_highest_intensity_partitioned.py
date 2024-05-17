@@ -10,7 +10,7 @@ from ionmapper.peak_filtering.filter_n_highest_intensity_partitioned import (
 
 
 class TestfilterNHighestIntensityPartitioned(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_max_count = 5
         self.mock_n_partitions = 2
         self.mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -20,7 +20,7 @@ class TestfilterNHighestIntensityPartitioned(unittest.TestCase):
         return FilterNHighestIntensityPartitioned(max_count=self.mock_max_count, n_partitions=self.mock_n_partitions)
 
     @patch("ionmapper.peak_filtering.filter_n_highest_intensity_partitioned.FilterNHighestIntensity")
-    def test_filter_index_peaks(self, mock_filter_n_highest_intensity):
+    def test_filter_index_peaks(self, mock_filter_n_highest_intensity) -> None:
         mock_filter_n_highest_intensity.return_value.filter_index_peaks.side_effect = [
             np.array([10, 20, 30]),
             np.array([200, 210]),
@@ -61,7 +61,7 @@ class TestfilterNHighestIntensityPartitioned(unittest.TestCase):
             mock_filter_n_highest_intensity.return_value.filter_index_peaks.call_args_list[1][1]["peak_idx_arr"],
         )
 
-    def test_filter_index_peaks_when_empty_input(self):
+    def test_filter_index_peaks_when_empty_input(self) -> None:
         mz_arr = np.array([])
         int_arr = np.array([])
         peak_idx_arr = np.array([])

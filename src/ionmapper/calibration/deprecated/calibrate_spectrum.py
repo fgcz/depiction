@@ -31,7 +31,7 @@ class CalibrateSpectrum:
         n_candidates: int = 3,
         model_type: str = "linear",
         distance_limit: float = 2.0,
-    ):
+    ) -> None:
         self._ref_estimator = ReferenceDistanceEstimator(reference_mz=reference_mz, n_candidates=n_candidates)
         self._model_type = model_type
         self._model_class = PolynomialModel if model_type.startswith("poly_") else LinearModel

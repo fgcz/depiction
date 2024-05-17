@@ -9,11 +9,11 @@ from ionmapper.tools.cutout_rectangular_region_imzml import (
 
 
 class TestCutoutRectangularRegionImzml(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_read_file = MagicMock(name="mock_read_file")
 
     @patch.object(CutoutRectangularRegionImzml, "from_absolute_ranges")
-    def test_from_relative_ranges(self, method_from_absolute_ranges):
+    def test_from_relative_ranges(self, method_from_absolute_ranges) -> None:
         self.mock_read_file.coordinates_2d = np.array([[x, y] for x in range(100) for y in range(3, 100)])
         mock_x_range_rel = (0.2, 0.8)
         mock_y_range_rel = (0.3, 0.7)
@@ -32,7 +32,7 @@ class TestCutoutRectangularRegionImzml(unittest.TestCase):
         )
         self.assertEqual(method_from_absolute_ranges.return_value, instance)
 
-    def test_from_absolute_ranges(self):
+    def test_from_absolute_ranges(self) -> None:
         mock_x_range_abs = MagicMock(name="mock_x_range_abs")
         mock_y_range_abs = MagicMock(name="mock_y_range_abs")
 
@@ -44,7 +44,7 @@ class TestCutoutRectangularRegionImzml(unittest.TestCase):
 
         self.assertIsInstance(instance, CutoutRectangularRegionImzml)
 
-    def test_write_imzml(self):
+    def test_write_imzml(self) -> None:
         mock_write_file = MagicMock(name="mock_write_file")
         mock_writer = MagicMock(name="mock_writer")
         mock_write_file.writer.return_value.__enter__.return_value = mock_writer

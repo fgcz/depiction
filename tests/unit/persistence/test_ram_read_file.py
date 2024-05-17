@@ -9,7 +9,7 @@ from ionmapper.persistence.ram_read_file import RamReadFile
 
 
 class TestRamReadFile(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_mz_arr_list = np.array([[1.0, 2.0, 3.0], [1.0, 2.0, 3.0]])
         self.mock_int_arr_list = np.array([[500.0, 600.0, 700.0], [800.0, 900.0, 1000.0]])
         self.mock_coordinates = np.array([[0, 1, 2], [3, 4, 5]])
@@ -23,7 +23,7 @@ class TestRamReadFile(unittest.TestCase):
         )
 
     @patch.object(RamReadFile, "get_reader")
-    def test_reader(self, method_get_reader):
+    def test_reader(self, method_get_reader) -> None:
         mock_reader = MagicMock(name="mock_reader")
         method_get_reader.return_value = mock_reader
 
@@ -35,7 +35,7 @@ class TestRamReadFile(unittest.TestCase):
         method_get_reader.assert_called_once_with()
 
     @patch("ionmapper.persistence.ram_read_file.RamReader")
-    def test_get_reader(self, construct_ram_reader):
+    def test_get_reader(self, construct_ram_reader) -> None:
         reader = self.mock_read_file.get_reader()
         construct_ram_reader.assert_called_once_with(
             mz_arr_list=self.mock_mz_arr_list,
@@ -44,20 +44,20 @@ class TestRamReadFile(unittest.TestCase):
         )
         self.assertEqual(construct_ram_reader.return_value, reader)
 
-    def test_n_spectra(self):
+    def test_n_spectra(self) -> None:
         self.assertEqual(2, self.mock_read_file.n_spectra)
 
-    def test_imzml_mode_when_continuous(self):
+    def test_imzml_mode_when_continuous(self) -> None:
         self.assertEqual(ImzmlModeEnum.CONTINUOUS, self.mock_read_file.imzml_mode)
 
-    def test_imzml_mode_when_processed(self):
+    def test_imzml_mode_when_processed(self) -> None:
         self.mock_mz_arr_list = np.array([[1.0, 2.0, 3.0], [1.2, 2.5, 3.0]])
         self.assertEqual(ImzmlModeEnum.PROCESSED, self.mock_read_file.imzml_mode)
 
-    def test_coordinates(self):
+    def test_coordinates(self) -> None:
         np.testing.assert_array_equal(self.mock_coordinates, self.mock_read_file.coordinates)
 
-    def test_coordinates_2d(self):
+    def test_coordinates_2d(self) -> None:
         np.testing.assert_array_equal(np.array([[0, 1], [3, 4]]), self.mock_read_file.coordinates_2d)
 
 

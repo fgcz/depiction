@@ -13,7 +13,7 @@ from ionmapper.persistence import (
 
 
 class LimitMzRange:
-    def __init__(self, mz_range: tuple[float, float]):
+    def __init__(self, mz_range: tuple[float, float]) -> None:
         self._mz_range = mz_range
 
     def evaluate_spectrum(
@@ -26,8 +26,8 @@ class LimitMzRange:
         read_file: ImzmlReadFile,
         write_file: ImzmlWriteFile,
         parallel_config: ParallelConfig,
-    ):
-        def chunk_operation(reader: ImzmlReader, spectra_ids: list[int], writer: ImzmlWriter, mz_range):
+    ) -> None:
+        def chunk_operation(reader: ImzmlReader, spectra_ids: list[int], writer: ImzmlWriter, mz_range) -> None:
             for spectrum_id in spectra_ids:
                 mz_arr, int_arr = reader.get_spectrum(spectrum_id)
                 mz_arr_new, int_arr_new = self._evaluate_spectrum(mz_arr, int_arr, mz_range)
@@ -50,7 +50,7 @@ class LimitMzRange:
         return mz_arr[left_index:right_index], int_arr[left_index:right_index]
 
 
-def main_limit_mz_range(input_file: str, output_file: str, mz_range: tuple[float, float], n_jobs: int):
+def main_limit_mz_range(input_file: str, output_file: str, mz_range: tuple[float, float], n_jobs: int) -> None:
     # check the input file
     print("Checking the input file:")
     read_file = ImzmlReadFile(input_file)
@@ -67,7 +67,7 @@ def main_limit_mz_range(input_file: str, output_file: str, mz_range: tuple[float
     ImzmlReadFile(output_file).print_summary()
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-file", type=str, help="The input imzML file to read.")
     parser.add_argument("--output-file", type=str, help="The output imzML file to write.")

@@ -8,7 +8,7 @@ class EvaluateTICNormalization:
     Since some software does not normalize to 1, this can be specified with the target_value parameter.
     """
 
-    def __init__(self, target_value: float = 1.0):
+    def __init__(self, target_value: float = 1.0) -> None:
         """
         :param target_value: The target value to normalize to. Default is 1, i.e. the sum of all intensities is 1.
         """
@@ -24,7 +24,7 @@ class EvaluateTICNormalization:
 class EvaluateMedianNormalization:
     """Evaluates the median normalization of spectra."""
 
-    def __init__(self, target_value: float = 1.0):
+    def __init__(self, target_value: float = 1.0) -> None:
         """
         :param target_value: The target value to normalize to. Default is 1, i.e. the median of all intensities is 1.
         """

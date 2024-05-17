@@ -1,0 +1,12 @@
+.vscode
+.idea
+*.pyc
+__pycache__
+.DS_Store
+.hypothesis
+.task
+.ipynb_checkpoints
+.snakemake
+
+*.ibd
+*.imzML

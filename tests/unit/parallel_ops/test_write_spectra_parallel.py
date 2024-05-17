@@ -6,11 +6,13 @@ from ionmapper.parallel_ops import (
     WriteSpectraParallel,
     ReadSpectraParallel,
 )
-from ionmapper.persistence import ImzmlModeEnum, ImzmlWriteFile
+from ionmapper.persistence import ImzmlModeEnum, ImzmlWriteFile, ImzmlReadFile
 from ionmapper.tools.merge_imzml import MergeImzml
 
 
 class TestWriteSpectraParallel(unittest.TestCase):
+    maxDiff = None
+
     def setUp(self):
         self.mock_config = MagicMock(name="mock_config", n_jobs=2, task_size=None, verbose=0)
         self.mock_split_modes_and_paths = [
@@ -262,45 +264,44 @@ class TestWriteSpectraParallel(unittest.TestCase):
         self.assertEqual(mock_writer_instances[0], mock_operation.mock_calls[0].args[2][0])
         self.assertEqual(mock_writer_instances[1], mock_operation.mock_calls[0].args[2][1])
 
-    @patch.object(MergeImzml, "merge_paths")
-    def test_merge_results(self, method_merge_paths):
+    @patch.object(MergeImzml, "merge")
+    @patch("ionmapper.parallel_ops.write_spectra_parallel.ImzmlReadFile")
+    def test_merge_results(self, mock_read_file, method_merge):
+        mock_read_file.side_effect = lambda path: {"read_file": path}
+        mock_write_file_0 = MagicMock(
+            name="mock_write_file_0",
+            imzml_file="outputC.imzML",
+            imzml_mode=ImzmlModeEnum.CONTINUOUS,
+        )
+        mock_write_file_1 = MagicMock(
+            name="mock_write_file_1",
+            imzml_file="outputP.imzML",
+            imzml_mode=ImzmlModeEnum.PROCESSED,
+        )
         self.mock_parallel._merge_results(
             split_modes_and_paths=self.mock_split_modes_and_paths,
-            write_files=[
-                MagicMock(
-                    name="mock_write_file_0",
-                    imzml_file="outputC.imzML",
-                    imzml_mode=ImzmlModeEnum.CONTINUOUS,
-                ),
-                MagicMock(
-                    name="mock_write_file_1",
-                    imzml_file="outputP.imzML",
-                    imzml_mode=ImzmlModeEnum.PROCESSED,
-                ),
-            ],
+            write_files=[mock_write_file_0, mock_write_file_1],
         )
         self.assertListEqual(
             [
                 call(
                     input_files=[
-                        "/dev/null/mock/continuous_0.imzML",
-                        "/dev/null/mock/continuous_1.imzML",
-                        "/dev/null/mock/continuous_2.imzML",
+                        {"read_file": "/dev/null/mock/continuous_0.imzML"},
+                        {"read_file": "/dev/null/mock/continuous_1.imzML"},
+                        {"read_file": "/dev/null/mock/continuous_2.imzML"},
                     ],
-                    output_file="outputC.imzML",
-                    imzml_mode=ImzmlModeEnum.CONTINUOUS,
+                    output_file=mock_write_file_0,
                 ),
                 call(
                     input_files=[
-                        "/dev/null/mock/processed_0.imzML",
-                        "/dev/null/mock/processed_1.imzML",
-                        "/dev/null/mock/processed_2.imzML",
+                        {"read_file": "/dev/null/mock/processed_0.imzML"},
+                        {"read_file": "/dev/null/mock/processed_1.imzML"},
+                        {"read_file": "/dev/null/mock/processed_2.imzML"},
                     ],
-                    output_file="outputP.imzML",
-                    imzml_mode=ImzmlModeEnum.PROCESSED,
+                    output_file=mock_write_file_1,
                 ),
             ],
-            method_merge_paths.mock_calls,
+            method_merge.mock_calls,
         )
 
 

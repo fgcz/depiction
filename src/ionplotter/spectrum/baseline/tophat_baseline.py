@@ -5,7 +5,7 @@ import numpy as np
 from numba import njit
 from numpy.typing import NDArray
 
-from ionplotter.baseline.baseline import Baseline
+from ionplotter.spectrum.baseline.baseline import Baseline
 from ionplotter.persistence import ImzmlReadFile
 
 

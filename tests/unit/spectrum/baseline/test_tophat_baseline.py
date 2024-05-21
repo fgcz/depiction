@@ -5,8 +5,8 @@ from unittest.mock import patch, MagicMock
 
 import numpy as np
 
-import ionplotter.baseline.tophat_baseline as test_module
-from ionplotter.baseline import TophatBaseline
+import ionplotter.spectrum.baseline.tophat_baseline as test_module
+from ionplotter.spectrum.baseline import TophatBaseline
 from ionplotter.misc.integration_test_utils import IntegrationTestUtils
 
 

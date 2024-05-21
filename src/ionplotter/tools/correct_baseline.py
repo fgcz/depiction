@@ -4,8 +4,8 @@ import enum
 import numpy as np
 import typer
 
-from ionplotter.baseline.local_medians_baseline import LocalMediansBaseline
-from ionplotter.baseline.tophat_baseline import TophatBaseline
+from ionplotter.spectrum.baseline.local_medians_baseline import LocalMediansBaseline
+from ionplotter.spectrum.baseline.tophat_baseline import TophatBaseline
 from ionplotter.parallel_ops.parallel_config import ParallelConfig
 from ionplotter.parallel_ops.write_spectra_parallel import WriteSpectraParallel
 from ionplotter.persistence import (

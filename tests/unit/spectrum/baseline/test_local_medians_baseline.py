@@ -1,6 +1,6 @@
 from functools import cached_property
 
-from ionplotter.baseline import LocalMediansBaseline
+from ionplotter.spectrum.baseline import LocalMediansBaseline
 from ionplotter.misc.integration_test_utils import IntegrationTestUtils
 from unittest.mock import MagicMock, patch
 import numpy as np

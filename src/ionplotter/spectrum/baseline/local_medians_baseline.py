@@ -6,7 +6,7 @@ from numba import njit
 from numpy.typing import NDArray
 from dataclasses import dataclass
 
-from ionplotter.baseline.baseline import Baseline
+from ionplotter.spectrum.baseline.baseline import Baseline
 from ionplotter.misc import numpy_util
 
 

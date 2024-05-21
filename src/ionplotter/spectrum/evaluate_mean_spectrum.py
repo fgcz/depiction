@@ -1,10 +1,11 @@
+# TODO this might need to be refactored in the future, especially how binning is mixed into this
 import functools
 from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
 
-from ionplotter.evaluate_bins import EvaluateBins
+from ionplotter.spectrum.evaluate_bins import EvaluateBins
 from ionplotter.parallel_ops import ParallelConfig
 from ionplotter.parallel_ops.read_spectra_parallel import ReadSpectraParallel
 from ionplotter.persistence import ImzmlReader, ImzmlReadFile, ImzmlModeEnum

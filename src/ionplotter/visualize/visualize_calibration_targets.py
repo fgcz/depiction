@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from ionplotter.evaluate_mean_spectrum import EvaluateMeanSpectrum
-from ionplotter.evaluate_bins import EvaluateBins
+from ionplotter.spectrum.evaluate_mean_spectrum import EvaluateMeanSpectrum
+from ionplotter.spectrum.evaluate_bins import EvaluateBins
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

@@ -8,7 +8,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 from ionplotter.estimate_ppm_error import EstimatePPMError
-from ionplotter.evaluate_bins import EvaluateBins
+from ionplotter.spectrum.evaluate_bins import EvaluateBins
 from ionplotter.parallel_ops.parallel_config import ParallelConfig
 from ionplotter.parallel_ops.write_spectra_parallel import WriteSpectraParallel
 from ionplotter.persistence import (

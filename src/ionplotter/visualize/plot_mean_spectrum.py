@@ -4,8 +4,8 @@ import altair as alt
 import polars as pl
 import typer
 
-from ionplotter.evaluate_bins import EvaluateBins
-from ionplotter.evaluate_mean_spectrum import EvaluateMeanSpectrum
+from ionplotter.spectrum.evaluate_bins import EvaluateBins
+from ionplotter.spectrum.evaluate_mean_spectrum import EvaluateMeanSpectrum
 from ionplotter.parallel_ops import ParallelConfig
 from ionplotter.persistence import ImzmlReadFile
 

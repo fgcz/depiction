@@ -2,7 +2,7 @@ import shutil
 import typer
 
 from ionplotter.estimate_ppm_error import EstimatePPMError
-from ionplotter.evaluate_bins import EvaluateBins
+from ionplotter.spectrum.evaluate_bins import EvaluateBins
 from ionplotter.parallel_ops import ParallelConfig
 from ionplotter.persistence import ImzmlModeEnum, ImzmlWriteFile, ImzmlReadFile
 from ionplotter.tools.align_imzml import main_align_imzml

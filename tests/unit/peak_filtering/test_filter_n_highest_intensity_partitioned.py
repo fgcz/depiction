@@ -19,7 +19,7 @@ class TestfilterNHighestIntensityPartitioned(unittest.TestCase):
     def mock_filter(self) -> FilterNHighestIntensityPartitioned:
         return FilterNHighestIntensityPartitioned(max_count=self.mock_max_count, n_partitions=self.mock_n_partitions)
 
-    @patch("ionplotter.peak_filtering.filter_n_highest_intensity_partitioned.FilterNHighestIntensity")
+    @patch("ionplotter.spectrum.peak_filtering.filter_n_highest_intensity_partitioned.FilterNHighestIntensity")
     def test_filter_index_peaks(self, mock_filter_n_highest_intensity) -> None:
         mock_filter_n_highest_intensity.return_value.filter_index_peaks.side_effect = [
             np.array([10, 20, 30]),

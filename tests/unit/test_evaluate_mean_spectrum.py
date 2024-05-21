@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from ionplotter.evaluate_mean_spectrum import EvaluateMeanSpectrum
+from ionplotter.spectrum.evaluate_mean_spectrum import EvaluateMeanSpectrum
 from ionplotter.parallel_ops import ReadSpectraParallel
 from ionplotter.persistence import ImzmlModeEnum
 

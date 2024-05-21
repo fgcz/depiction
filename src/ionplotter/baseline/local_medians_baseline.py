@@ -10,7 +10,7 @@ from ionplotter.misc import numpy_util
 
 
 @dataclass(frozen=True)
-class EvaluateLocalMediansBaseline:
+class LocalMediansBaseline:
     """Implementation of local medians [1] baseline removal, as described in [2] with their choice for handling edges.
     [1]: https://doi.org/10.1007/BF00208805
     [2]: https://doi.org/10.1366/000370210792434350

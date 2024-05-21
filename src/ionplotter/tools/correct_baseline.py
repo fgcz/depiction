@@ -4,8 +4,8 @@ import enum
 import numpy as np
 import typer
 
-from ionplotter.evaluate_local_medians_baseline import EvaluateLocalMediansBaseline
-from ionplotter.evaluate_tophat_baseline import EvaluateTophatBaseline
+from ionplotter.baseline.local_medians_baseline import LocalMediansBaseline
+from ionplotter.baseline.tophat_baseline import TophatBaseline
 from ionplotter.parallel_ops.parallel_config import ParallelConfig
 from ionplotter.parallel_ops.write_spectra_parallel import WriteSpectraParallel
 from ionplotter.persistence import (
@@ -77,9 +77,9 @@ class CorrectBaseline:
     @staticmethod
     def _get_baseline_correction(variant: BaselineVariants):
         if variant == BaselineVariants.tophat:
-            return EvaluateTophatBaseline(window_size=5000, window_unit="ppm")
+            return TophatBaseline(window_size=5000, window_unit="ppm")
         elif variant == BaselineVariants.loc_medians:
-            return EvaluateLocalMediansBaseline(window_size=5000, window_unit="ppm")
+            return LocalMediansBaseline(window_size=5000, window_unit="ppm")
         else:
             raise ValueError(f"Unknown baseline variant: {variant}")
 

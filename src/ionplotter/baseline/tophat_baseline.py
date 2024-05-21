@@ -9,7 +9,7 @@ from ionplotter.persistence import ImzmlReadFile
 
 
 @dataclass(frozen=True)
-class EvaluateTophatBaseline:
+class TophatBaseline:
     """
     Implements the approach described in [1] for baseline removal.
     Optimization is not built in but has to be done, with the optimize_window_size method, if needed.

@@ -5,11 +5,12 @@ import numpy as np
 from numba import njit
 from numpy.typing import NDArray
 
+from ionplotter.baseline.baseline import Baseline
 from ionplotter.persistence import ImzmlReadFile
 
 
 @dataclass(frozen=True)
-class TophatBaseline:
+class TophatBaseline(Baseline):
     """
     Implements the approach described in [1] for baseline removal.
     Optimization is not built in but has to be done, with the optimize_window_size method, if needed.
@@ -32,11 +33,6 @@ class TophatBaseline:
         int_arr_opened = _compute_opening(int_arr, element_size)
         int_arr_approx = (_compute_dilation(int_arr, element_size) + _compute_erosion(int_arr, element_size)) / 2
         return np.minimum(int_arr_approx, int_arr_opened)
-
-    def subtract_baseline(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
-        # TODO (refactor): avoid code duplication
-        baseline = self.evaluate_baseline(mz_arr=mz_arr, int_arr=int_arr)
-        return np.maximum(int_arr - baseline, 0)
 
     def get_element_size(self, mz_arr: NDArray[float]) -> int:
         if self.window_unit == "ppm":

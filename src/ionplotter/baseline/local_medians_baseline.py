@@ -6,11 +6,12 @@ from numba import njit
 from numpy.typing import NDArray
 from dataclasses import dataclass
 
+from ionplotter.baseline.baseline import Baseline
 from ionplotter.misc import numpy_util
 
 
 @dataclass(frozen=True)
-class LocalMediansBaseline:
+class LocalMediansBaseline(Baseline):
     """Implementation of local medians [1] baseline removal, as described in [2] with their choice for handling edges.
     [1]: https://doi.org/10.1007/BF00208805
     [2]: https://doi.org/10.1366/000370210792434350
@@ -31,10 +32,6 @@ class LocalMediansBaseline:
             return _eval_fast_unit_ppm(mz_arr=mz_arr, int_arr=int_arr, window_size=float(self.window_size))
         else:
             raise ValueError(f"Unsupported window_unit: {self.window_unit}")
-
-    def subtract_baseline(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
-        baseline = self.evaluate_baseline(mz_arr=mz_arr, int_arr=int_arr)
-        return np.maximum(int_arr - baseline, 0)
 
 
 @njit("float64[:](float64[:], int64)")

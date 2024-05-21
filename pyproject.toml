@@ -84,3 +84,10 @@ target-version = "py39"
 [tool.ruff.lint]
 select = ["ANN", "BLE", "D103", "E", "F", "PLW", "PTH", "SIM", "UP", "TCH"]
 ignore = ["ANN101", "ANN102"]
+
+[tool.coverage.report]
+# TODO make it work?
+exclude_also = [
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    ]

@@ -1,4 +1,3 @@
-import os
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -42,14 +41,14 @@ class ImzmlWriteFile:
     def writer(self):
         """Opens the .imzML file for writing and yields an `ImzmlWriter` instance."""
         if self._write_mode == "x":
-            if os.path.exists(self.imzml_file):
+            if self.imzml_file.exists():
                 raise ValueError(f"File {self.imzml_file} already exists.")
         elif self._write_mode == "w":
-            if os.path.exists(self.imzml_file):
+            if self.imzml_file.exists():
                 # TODO make the handling more robust, analogous to the changes in ImzmlReadFile, however there might
                 #      need to be a bigger refactoring in the future anyhow.
-                os.remove(self.imzml_file)
-                os.remove(self.ibd_file)
+                self.imzml_file.unlink()
+                self.ibd_file.unlink()
         else:
             raise ValueError(f"Invalid write mode: {self._write_mode!r}")
 

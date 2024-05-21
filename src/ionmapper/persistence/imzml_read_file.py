@@ -1,17 +1,16 @@
-import os
 from collections import defaultdict
+from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from pathlib import Path
 from typing import Any, Optional
-from collections.abc import Generator
 
 import pyimzml.ImzMLParser
+from numpy.typing import NDArray
+
 from ionmapper.persistence.file_checksums import FileChecksums
 from ionmapper.persistence.imzml_mode_enum import ImzmlModeEnum
 from ionmapper.persistence.imzml_reader import ImzmlReader
-from numpy.typing import NDArray
-
 from ionmapper.persistence.pixel_size import PixelSize
 
 

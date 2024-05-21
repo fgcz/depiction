@@ -1,8 +1,6 @@
 import enum
 
-import numpy as np
 import xarray
-from ionmapper.image.sparse_image_2d import SparseImage2d
 
 
 # TODO experimental code, untested etc
@@ -45,30 +43,3 @@ class ImageNormalization:
             keep_attrs=True,
         )
         return normalized.to_array(dim=index_dim)
-
-    def normalize_sparse_image_2d(self, image: SparseImage2d, variant: ImageNormalizationVariant) -> SparseImage2d:
-        if variant == ImageNormalizationVariant.VEC_NORM:
-            return self.normalize_vec_norm(image)
-        elif variant == ImageNormalizationVariant.STD:
-            return self.normalize_std(image)
-        else:
-            raise ValueError(f"Unknown variant: {variant}")
-
-    # TODO Deprecate
-    def normalize_vec_norm(self, image: SparseImage2d) -> SparseImage2d:
-        values = image.sparse_values
-        norm = np.linalg.norm(values, axis=1)
-        values = values / np.repeat(norm, values.shape[1]).reshape(values.shape)
-        values[norm == 0] = 0
-        return SparseImage2d(values, image.sparse_coordinates, image.channel_names)
-
-    # TODO Deprecate
-    def normalize_std(self, image: SparseImage2d) -> SparseImage2d:
-        values = image.sparse_values
-        std = np.std(values, axis=1)
-        mean = np.mean(values, axis=1)
-        values = (values - np.repeat(mean, values.shape[1]).reshape(values.shape)) / np.repeat(
-            std, values.shape[1]
-        ).reshape(values.shape)
-        values[np.isnan(values)] = 0
-        return SparseImage2d(values, image.sparse_coordinates, image.channel_names)

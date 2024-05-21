@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import mmap
 from functools import cached_property
+from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
 import numpy as np
@@ -24,7 +25,7 @@ class ImzmlReader:
     def __init__(
         self,
         portable_reader: pyimzml.ImzMLParser.PortableSpectrumReader,
-        imzml_path: str,
+        imzml_path: Path,
     ) -> None:
         self._portable_reader = portable_reader
         self._imzml_path = imzml_path
@@ -52,14 +53,14 @@ class ImzmlReader:
         self._int_bytes = state["int_bytes"]
 
     @property
-    def imzml_path(self) -> str:
+    def imzml_path(self) -> Path:
         """The path to the .imzML file."""
         return self._imzml_path
 
     @property
-    def ibd_path(self) -> str:
+    def ibd_path(self) -> Path:
         """The path to the .ibd file."""
-        return self._imzml_path.replace(".imzML", ".ibd")
+        return self._imzml_path.with_suffix(".ibd")
 
     @property
     def ibd_mmap(self) -> mmap.mmap:

@@ -4,6 +4,7 @@ For now, I give a summary of the modules which are somewhat stable already:
 
 | Module                      | Description                                                                 |
 |-----------------------------|-----------------------------------------------------------------------------| 
+| `ionplotter.baseline`       | Estimate spectrum baseline curve.                                           |
 | `ionplotter.calibration`    | Calibration specific functionality.                                         |
 | `ionplotter.image`          | Image specific functionality.                                               |
 | `ionplotter.parallel_ops`   | Basic building blocks for parallelization of operations accross *ReadFiles. |

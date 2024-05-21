@@ -104,7 +104,7 @@ class AdjustMedianShift:
             sigma=self.smooth_sigma,
             background_fill_mode="nearest",
             background_value=np.nan,
-        ).smooth_values_flat(values=median_shifts, coordinates=coordinates_2d)
+        ).smooth_sparse(sparse_values=median_shifts, coordinates=coordinates_2d)
 
     def apply_correction(
         self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile

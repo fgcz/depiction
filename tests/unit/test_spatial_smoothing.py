@@ -14,13 +14,13 @@ class TestSpatialSmoothing(unittest.TestCase):
 
     def test_smooth_values(self) -> None:
         smoothing = SpatialSmoothing(sigma=1000)
-        smoothed_values = smoothing.smooth_values_flat(values=np.ones(5), coordinates=self.coordinates)
+        smoothed_values = smoothing.smooth_sparse(sparse_values=np.ones(5), coordinates=self.coordinates)
         np.testing.assert_allclose(5 / 6, smoothed_values)
         self.assertTupleEqual((5,), smoothed_values.shape)
 
     def test_flat_to_grid_when_2d(self) -> None:
         values_spatial = SpatialSmoothing(sigma=1.0).flat_to_grid(
-            values=self.values_flat, coordinates=self.coordinates, background_value=0
+            sparse_values=self.values_flat, coordinates=self.coordinates, background_value=0
         )
         np.testing.assert_array_equal(self.values_spatial, values_spatial)
 

@@ -31,7 +31,7 @@ class SpatialSmoothingSparseAware:
         Internally, this currently creates a dense image so it cannot be used to avoid memory limitations right now.
         """
         image_2d = SpatialSmoothing.flat_to_grid(
-            values=sparse_values,
+            sparse_values=sparse_values,
             coordinates=coordinates,
             background_value=np.nan,
         )

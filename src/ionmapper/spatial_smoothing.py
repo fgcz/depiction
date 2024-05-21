@@ -15,15 +15,19 @@ class SpatialSmoothing:
     background_fill_mode: Literal[None, "nearest"] = None
     background_value: float = 0.0
 
-    def smooth_values(self, values: NDArray[float], coordinates: NDArray[int]) -> NDArray[float]:
+    def smooth_values_flat(self, values: NDArray[float], coordinates: NDArray[int]) -> NDArray[float]:
+        """Returns a spatiall-smoothed copy of the values, provided in flat/"""
         values_spatial = self.flat_to_grid(
             values=values,
             coordinates=coordinates,
             background_value=self.background_value,
         )
         values_spatial = self.fill_background(values_spatial=values_spatial)
-        smoothed_spatial = scipy.ndimage.gaussian_filter(values_spatial, sigma=self.sigma)
+        smoothed_spatial = self.smooth_values_grid(values_grid=values_spatial)
         return self.grid_to_flat(values_grid=smoothed_spatial, coordinates=coordinates)
+
+    def smooth_values_grid(self, values_grid: NDArray[float]) -> NDArray[float]:
+        return scipy.ndimage.gaussian_filter(values_grid, sigma=self.sigma)
 
     @staticmethod
     def flat_to_grid(values: NDArray[float], coordinates: NDArray[int], background_value: float) -> NDArray[float]:

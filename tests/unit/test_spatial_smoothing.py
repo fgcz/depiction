@@ -14,7 +14,7 @@ class TestSpatialSmoothing(unittest.TestCase):
 
     def test_smooth_values(self) -> None:
         smoothing = SpatialSmoothing(sigma=1000)
-        smoothed_values = smoothing.smooth_values(values=np.ones(5), coordinates=self.coordinates)
+        smoothed_values = smoothing.smooth_values_flat(values=np.ones(5), coordinates=self.coordinates)
         np.testing.assert_allclose(5 / 6, smoothed_values)
         self.assertTupleEqual((5,), smoothed_values.shape)
 

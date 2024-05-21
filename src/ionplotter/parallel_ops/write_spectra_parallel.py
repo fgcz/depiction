@@ -25,10 +25,6 @@ class WriteSpectraParallel:
     def from_config(cls, config: ParallelConfig):
         return cls(config)
 
-    @classmethod
-    def from_params(cls, n_jobs: int, task_size: Optional[int], verbose: int = 1):
-        return cls(ParallelConfig(n_jobs=n_jobs, task_size=task_size, verbose=verbose))
-
     def map_chunked_to_files(
         self,
         read_file: ImzmlReadFile,

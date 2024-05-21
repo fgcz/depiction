@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from ionmapper.estimate_ppm_error import EstimatePPMError
-from ionmapper.parallel_ops import ReadSpectraParallel, ParallelConfig
+from ionplotter.estimate_ppm_error import EstimatePPMError
+from ionplotter.parallel_ops import ReadSpectraParallel, ParallelConfig
 
 
 class TestEstimatePPMError(unittest.TestCase):

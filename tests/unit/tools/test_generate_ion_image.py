@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, patch, ANY
 
 import numpy as np
 
-from ionmapper.parallel_ops.read_spectra_parallel import ReadSpectraParallel
-from ionmapper.tools.generate_ion_image import GenerateIonImage
+from ionplotter.parallel_ops.read_spectra_parallel import ReadSpectraParallel
+from ionplotter.tools.generate_ion_image import GenerateIonImage
 
 
 class TestGenerateIonImage(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestGenerateIonImage(unittest.TestCase):
 
     @patch.object(GenerateIonImage, "_compute_channels_chunk")
     @patch.object(ReadSpectraParallel, "from_config")
-    @patch("ionmapper.tools.generate_ion_image.SparseImage2d")
+    @patch("ionplotter.tools.generate_ion_image.SparseImage2d")
     def test_generate_ion_images_for_file(self, mock_sparse_image, mock_from_config, method_compute_channels) -> None:
         mock_input_file = MagicMock(name="input_file", spec=["coordinates_2d"])
         mock_mz_values = MagicMock(name="mz_values", spec=[])
@@ -47,7 +47,7 @@ class TestGenerateIonImage(unittest.TestCase):
 
     @patch.object(GenerateIonImage, "_compute_for_mz_ranges")
     @patch.object(ReadSpectraParallel, "from_config")
-    @patch("ionmapper.tools.generate_ion_image.SparseImage2d")
+    @patch("ionplotter.tools.generate_ion_image.SparseImage2d")
     def test_generate_range_images_for_file(self, mock_sparse_image, mock_from_config, method_compute_for_mz_ranges) -> None:
         mock_input_file = MagicMock(name="input_file", spec=["coordinates_2d"])
         mock_mz_ranges = MagicMock(name="mz_ranges", spec=[])

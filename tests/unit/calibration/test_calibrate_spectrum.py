@@ -4,11 +4,11 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from ionmapper.peak_picking.basic_peak_picker import BasicPeakPicker
-from ionmapper.calibration.deprecated.calibrate_spectrum import CalibrateSpectrum
-from ionmapper.calibration.models.linear_model import LinearModel
-from ionmapper.calibration.models.polynomial_model import PolynomialModel
-from ionmapper.calibration.deprecated.reference_distance_estimator import (
+from ionplotter.peak_picking.basic_peak_picker import BasicPeakPicker
+from ionplotter.calibration.deprecated.calibrate_spectrum import CalibrateSpectrum
+from ionplotter.calibration.models.linear_model import LinearModel
+from ionplotter.calibration.models.polynomial_model import PolynomialModel
+from ionplotter.calibration.deprecated.reference_distance_estimator import (
     ReferenceDistanceEstimator,
 )
 from typing import NoReturn
@@ -33,8 +33,8 @@ class TestCalibrateSpectrum(unittest.TestCase):
         self.mock_problem_dist = MagicMock(name="mock_problem_dist")
 
     @cached_property
-    @patch("ionmapper.calibration.deprecated.calibrate_spectrum.ReferenceDistanceEstimator")
-    @patch("ionmapper.calibration.deprecated.calibrate_spectrum.BasicPeakPicker")
+    @patch("ionplotter.calibration.deprecated.calibrate_spectrum.ReferenceDistanceEstimator")
+    @patch("ionplotter.calibration.deprecated.calibrate_spectrum.BasicPeakPicker")
     def mock_compute(self, mock_basic_peak_picker, mock_reference_distance_estimator) -> CalibrateSpectrum:
         mock_basic_peak_picker.return_value = self.mock_basic_peak_picker
         mock_reference_distance_estimator.return_value = self.mock_reference_distance_estimator

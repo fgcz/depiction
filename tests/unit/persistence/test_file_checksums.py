@@ -4,7 +4,7 @@ from functools import cached_property
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from ionmapper.persistence.file_checksums import FileChecksums
+from ionplotter.persistence.file_checksums import FileChecksums
 
 
 class TestFileChecksums(unittest.TestCase):

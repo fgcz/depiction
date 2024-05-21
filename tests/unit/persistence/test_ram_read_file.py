@@ -4,8 +4,8 @@ from unittest.mock import patch, MagicMock
 
 import numpy as np
 
-from ionmapper.persistence import ImzmlModeEnum
-from ionmapper.persistence.ram_read_file import RamReadFile
+from ionplotter.persistence import ImzmlModeEnum
+from ionplotter.persistence.ram_read_file import RamReadFile
 
 
 class TestRamReadFile(unittest.TestCase):
@@ -34,7 +34,7 @@ class TestRamReadFile(unittest.TestCase):
         mock_reader.close.assert_called_once_with()
         method_get_reader.assert_called_once_with()
 
-    @patch("ionmapper.persistence.ram_read_file.RamReader")
+    @patch("ionplotter.persistence.ram_read_file.RamReader")
     def test_get_reader(self, construct_ram_reader) -> None:
         reader = self.mock_read_file.get_reader()
         construct_ram_reader.assert_called_once_with(

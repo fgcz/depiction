@@ -3,8 +3,8 @@ from functools import cached_property
 
 from hypothesis import given, strategies, settings
 
-from ionmapper.misc.integration_test_utils import IntegrationTestUtils
-from ionmapper.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
+from ionplotter.misc.integration_test_utils import IntegrationTestUtils
+from ionplotter.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 import numpy as np
 import unittest
 

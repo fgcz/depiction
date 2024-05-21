@@ -1,5 +1,5 @@
-name: "Setup ionmapper"
-description: "Set up ionmapper for use in GitHub Actions"
+name: "Setup ionplotter"
+description: "Set up ionplotter for use in GitHub Actions"
 inputs:
   python-version:
     description: "Python version to use"

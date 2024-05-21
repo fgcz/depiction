@@ -3,7 +3,7 @@ from functools import cached_property
 
 import numpy as np
 
-from ionmapper.calibration.deprecated.reference_distance_estimator import (
+from ionplotter.calibration.deprecated.reference_distance_estimator import (
     ReferenceDistanceEstimator,
 )
 

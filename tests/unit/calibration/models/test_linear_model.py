@@ -3,7 +3,7 @@ from functools import cached_property
 
 import numpy as np
 
-from ionmapper.calibration.models.linear_model import LinearModel
+from ionplotter.calibration.models.linear_model import LinearModel
 
 
 class TestLinearModel(unittest.TestCase):

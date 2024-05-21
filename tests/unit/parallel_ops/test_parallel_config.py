@@ -2,7 +2,7 @@ import unittest
 from functools import cached_property
 from unittest.mock import patch
 
-from ionmapper.parallel_ops.parallel_config import ParallelConfig
+from ionplotter.parallel_ops.parallel_config import ParallelConfig
 
 
 class TestParallelConfig(unittest.TestCase):

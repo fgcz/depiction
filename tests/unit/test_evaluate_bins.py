@@ -3,7 +3,7 @@ from functools import cached_property
 
 import numpy as np
 
-from ionmapper.evaluate_bins import BinStatistic, EvaluateBins
+from ionplotter.evaluate_bins import BinStatistic, EvaluateBins
 
 
 class TestEvaluateBins(unittest.TestCase):

@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from ionmapper.evaluate_pick_peaks import EvaluatePickPeaksMAD
+from ionplotter.evaluate_pick_peaks import EvaluatePickPeaksMAD
 
 
 class TestEvaluatePickPeaksMAD(unittest.TestCase):

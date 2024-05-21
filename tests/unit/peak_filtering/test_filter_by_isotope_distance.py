@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
-from ionmapper.peak_filtering.filter_by_isotope_distance import (
+from ionplotter.peak_filtering.filter_by_isotope_distance import (
     FilterByIsotopeDistance,
 )
 

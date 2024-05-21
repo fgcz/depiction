@@ -5,9 +5,9 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 
-from ionmapper.parallel_ops.parallel_config import ParallelConfig
-from ionmapper.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
-from ionmapper.tools.align_imzml import AlignImzml, AlignImzmlMethod
+from ionplotter.parallel_ops.parallel_config import ParallelConfig
+from ionplotter.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
+from ionplotter.tools.align_imzml import AlignImzml, AlignImzmlMethod
 
 
 class TestAlignImzmlIntegration(unittest.TestCase):

@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
-from ionmapper.peak_filtering.filter_n_highest_intensity import (
+from ionplotter.peak_filtering.filter_n_highest_intensity import (
     FilterNHighestIntensity,
 )
 

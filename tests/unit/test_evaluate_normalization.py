@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
-from ionmapper.evaluate_normalization import (
+from ionplotter.evaluate_normalization import (
     EvaluateMedianNormalization,
     EvaluateTICNormalization,
 )

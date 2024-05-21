@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
-from ionmapper.tools.experimental.adjust_median_shift import AdjustMedianShift
+from ionplotter.tools.experimental.adjust_median_shift import AdjustMedianShift
 from typing import NoReturn
 
 

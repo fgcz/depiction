@@ -3,7 +3,7 @@ from functools import cached_property
 
 import numpy as np
 
-from ionmapper.tools.limit_mz_range import LimitMzRange
+from ionplotter.tools.limit_mz_range import LimitMzRange
 
 
 class TestLimitMzRange(unittest.TestCase):

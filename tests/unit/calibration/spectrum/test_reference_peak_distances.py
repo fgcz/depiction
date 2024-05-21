@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from ionmapper.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
+from ionplotter.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
 
 
 class TestReferencePeakDistances(unittest.TestCase):

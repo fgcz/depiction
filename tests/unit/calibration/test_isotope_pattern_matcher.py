@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import numpy as np
 
-from ionmapper.calibration.isotope_pattern_matcher import IsotopePatternMatcher
+from ionplotter.calibration.isotope_pattern_matcher import IsotopePatternMatcher
 from typing import NoReturn
 
 

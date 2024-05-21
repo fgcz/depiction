@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from ionmapper.evaluate_baseline_correction import EvaluateMWMVBaselineCorrection
+from ionplotter.evaluate_baseline_correction import EvaluateMWMVBaselineCorrection
 
 
 class TestEvaluateMWMVBaselineCorrection(unittest.TestCase):

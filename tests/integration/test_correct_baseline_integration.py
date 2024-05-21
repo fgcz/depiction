@@ -5,13 +5,13 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 
-from ionmapper.evaluate_baseline_correction import (
+from ionplotter.evaluate_baseline_correction import (
     EvaluateMWMVBaselineCorrection,
 )
-from ionmapper.misc.integration_test_utils import IntegrationTestUtils
-from ionmapper.parallel_ops.parallel_config import ParallelConfig
-from ionmapper.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
-from ionmapper.tools.correct_baseline import CorrectBaseline
+from ionplotter.misc.integration_test_utils import IntegrationTestUtils
+from ionplotter.parallel_ops.parallel_config import ParallelConfig
+from ionplotter.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
+from ionplotter.tools.correct_baseline import CorrectBaseline
 
 
 # TODO: move to a common test utilities file (and use it also in the other integration tests)

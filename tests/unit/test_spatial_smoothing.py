@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from ionmapper.spatial_smoothing import SpatialSmoothing
+from ionplotter.spatial_smoothing import SpatialSmoothing
 
 
 class TestSpatialSmoothing(unittest.TestCase):

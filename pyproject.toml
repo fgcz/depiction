@@ -1,5 +1,5 @@
 [project]
-name = "ionmapper"
+name = "ionplotter"
 version = "0.1.0"
 description = ""
 authors = [{name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"}]

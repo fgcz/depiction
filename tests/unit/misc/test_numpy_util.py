@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-import ionmapper.misc.numpy_util as numpy_util
-from ionmapper.misc.numpy_util import NumpyUtil
+import ionplotter.misc.numpy_util as numpy_util
+from ionplotter.misc.numpy_util import NumpyUtil
 
 
 class TestNumpyUtil(unittest.TestCase):

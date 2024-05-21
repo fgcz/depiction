@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import xarray
 
-from ionmapper.image.image_normalization import ImageNormalizationVariant, ImageNormalization
+from ionplotter.image.image_normalization import ImageNormalizationVariant, ImageNormalization
 
 
 class TestImageNormalization(unittest.TestCase):

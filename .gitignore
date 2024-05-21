@@ -1,13 +1,14 @@
-.vscode
-.idea
-*.pyc
 *.egg-info
-__pycache__
+*.pyc
 .DS_Store
 .hypothesis
-.task
+.idea
 .ipynb_checkpoints
 .snakemake
+.task
+.venv
+.vscode
+__pycache__
 
 *.ibd
 *.imzML

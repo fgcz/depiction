@@ -18,7 +18,7 @@ from ionplotter.tools.correct_baseline import CorrectBaseline
 
 
 class TestCorrectBaselineIntegration(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.tmp_dir = TemporaryDirectory()
         self.addCleanup(self.tmp_dir.cleanup)
         self.mock_input_file_path = os.path.join(self.tmp_dir.name, "input.imzML")
@@ -42,7 +42,7 @@ class TestCorrectBaselineIntegration(unittest.TestCase):
         )
         return ImzmlReadFile(self.mock_input_file_path)
 
-    def test_evaluate_file(self):
+    def test_evaluate_file(self) -> None:
         correct_baseline = CorrectBaseline(
             parallel_config=ParallelConfig(n_jobs=2, task_size=2),
             baseline_correction=EvaluateMWMVBaselineCorrection(),

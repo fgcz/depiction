@@ -10,14 +10,14 @@ from ionplotter.tools.merge_imzml import MergeImzml
 
 
 class TestMergeImzmlIntegration(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.tmp_dir = TemporaryDirectory()
         self.addCleanup(self.tmp_dir.cleanup)
         self.mock_input_file_1_path = os.path.join(self.tmp_dir.name, "input_1.imzML")
         self.mock_input_file_2_path = os.path.join(self.tmp_dir.name, "input_2.imzML")
         self.mock_output_file_path = os.path.join(self.tmp_dir.name, "output.imzML")
 
-    def test_merge_continuous(self):
+    def test_merge_continuous(self) -> None:
         IntegrationTestUtils.populate_test_file(
             path=self.mock_input_file_1_path,
             mz_arr_list=[[100, 200, 300], [100, 200, 300]],
@@ -46,7 +46,7 @@ class TestMergeImzmlIntegration(unittest.TestCase):
         np.testing.assert_array_equal(np.array([[1, 2, 3], [2, 2, 2], [4, 5, 6]]), spectra[1])
         np.testing.assert_array_equal(np.array([[0, 0, 1], [0, 1, 1], [5, 1, 1]]), coordinates)
 
-    def test_merge_processed(self):
+    def test_merge_processed(self) -> None:
         IntegrationTestUtils.populate_test_file(
             path=self.mock_input_file_1_path,
             mz_arr_list=[[100, 200, 300], [200, 300]],

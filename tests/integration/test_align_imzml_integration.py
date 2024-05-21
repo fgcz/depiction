@@ -11,7 +11,7 @@ from ionplotter.tools.align_imzml import AlignImzml, AlignImzmlMethod
 
 
 class TestAlignImzmlIntegration(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.tmp_dir = TemporaryDirectory()
         self.addCleanup(self.tmp_dir.cleanup)
         self.mock_input_file_path = os.path.join(self.tmp_dir.name, "input.imzML")
@@ -25,7 +25,7 @@ class TestAlignImzmlIntegration(unittest.TestCase):
                 writer.add_spectrum(mz_arr, np.repeat(0.5, len(mz_arr)), (i, 0))
         return ImzmlReadFile(self.mock_input_file_path)
 
-    def test_already_aligned(self):
+    def test_already_aligned(self) -> None:
         input_file = self.mock_input_file(
             [[100, 200, 300], [100, 200, 300], [100, 200, 300]],
             imzml_mode=ImzmlModeEnum.CONTINUOUS,
@@ -39,7 +39,7 @@ class TestAlignImzmlIntegration(unittest.TestCase):
         aligned_file = align.evaluate()
         self.assertEqual(Path(self.mock_input_file_path), aligned_file.imzml_file)
 
-    def test_perform_alignment(self):
+    def test_perform_alignment(self) -> None:
         input_file = self.mock_input_file(
             [[100, 200, 300], [200, 250, 300, 310], [200, 250, 300], [200, 250, 300]],
             imzml_mode=ImzmlModeEnum.PROCESSED,

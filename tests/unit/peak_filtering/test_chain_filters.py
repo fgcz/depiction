@@ -5,7 +5,7 @@ from ionplotter.peak_filtering import ChainFilters
 
 
 class TestChainFilters(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_filter_1 = MagicMock(name="mock_filter_1")
         self.mock_filter_2 = MagicMock(name="mock_filter_2")
         self.chain_filters = ChainFilters(
@@ -15,7 +15,7 @@ class TestChainFilters(unittest.TestCase):
             ]
         )
 
-    def test_filter_index_peaks(self):
+    def test_filter_index_peaks(self) -> None:
         self.mock_filter_1.filter_index_peaks.return_value = [1, 2, 3]
         self.mock_filter_2.filter_index_peaks.return_value = [2, 3]
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")
@@ -40,7 +40,7 @@ class TestChainFilters(unittest.TestCase):
             [1, 2, 3],
         )
 
-    def test_filter_peaks(self):
+    def test_filter_peaks(self) -> None:
         self.mock_filter_1.filter_peaks.return_value = ([1, 2, 3], [4, 5, 6])
         self.mock_filter_2.filter_peaks.return_value = ([2, 3], [5, 6])
         mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr")

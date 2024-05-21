@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import mmap
 from functools import cached_property
-from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
 import numpy as np
@@ -10,6 +9,7 @@ import numpy as np
 from ionplotter.persistence.imzml_mode_enum import ImzmlModeEnum
 
 if TYPE_CHECKING:
+    from pathlib import Path
     import pyimzml.ImzMLParser
     from numpy.typing import NDArray
 

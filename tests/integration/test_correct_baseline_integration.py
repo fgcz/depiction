@@ -8,7 +8,7 @@ import numpy as np
 from ionmapper.evaluate_baseline_correction import (
     EvaluateMWMVBaselineCorrection,
 )
-from tests.integration.integration_test_utils import IntegrationTestUtils
+from ionmapper.misc.integration_test_utils import IntegrationTestUtils
 from ionmapper.parallel_ops.parallel_config import ParallelConfig
 from ionmapper.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
 from ionmapper.tools.correct_baseline import CorrectBaseline

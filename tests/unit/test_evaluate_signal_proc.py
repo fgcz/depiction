@@ -5,6 +5,7 @@ import numpy as np
 from ionplotter.evaluate_signal_proc import EvaluateGaussianSmoothing
 from ionplotter.misc.integration_test_utils import IntegrationTestUtils
 
+
 class TestEvaluateGaussianSmoothing(unittest.TestCase):
     def setUp(self) -> None:
         IntegrationTestUtils.treat_warnings_as_error(self)

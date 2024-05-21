@@ -48,7 +48,9 @@ class TestGenerateIonImage(unittest.TestCase):
     @patch.object(GenerateIonImage, "_compute_for_mz_ranges")
     @patch.object(ReadSpectraParallel, "from_config")
     @patch("ionplotter.tools.generate_ion_image.SparseImage2d")
-    def test_generate_range_images_for_file(self, mock_sparse_image, mock_from_config, method_compute_for_mz_ranges) -> None:
+    def test_generate_range_images_for_file(
+        self, mock_sparse_image, mock_from_config, method_compute_for_mz_ranges
+    ) -> None:
         mock_input_file = MagicMock(name="input_file", spec=["coordinates_2d"])
         mock_mz_ranges = MagicMock(name="mz_ranges", spec=[])
 

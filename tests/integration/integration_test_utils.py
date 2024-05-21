@@ -24,7 +24,7 @@ class IntegrationTestUtils:
     @staticmethod
     def treat_warnings_as_error(test_case) -> None:
         """To be called from setUp."""
-        # TODO reuse or refactor
+        # TODO reuse or refactor (and move out of integration_test_utils and rather a more general test_utils?)
         warnings_ctx = warnings.catch_warnings()
         warnings_ctx.__enter__()
         warnings.simplefilter("error")

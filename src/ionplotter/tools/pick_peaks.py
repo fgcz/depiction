@@ -1,8 +1,8 @@
 import argparse
 
 from ionplotter.parallel_ops import ParallelConfig, WriteSpectraParallel
-from ionplotter.peak_filtering import FilterByIntensity
-from ionplotter.peak_picking import BasicInterpolatedPeakPicker
+from ionplotter.spectrum.peak_filtering import FilterByIntensity
+from ionplotter.spectrum.peak_picking import BasicInterpolatedPeakPicker
 from ionplotter.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader, ImzmlModeEnum
 
 

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import NDArray
 
-from ionplotter.peak_filtering.filter_n_highest_intensity import (
+from ionplotter.spectrum.peak_filtering.filter_n_highest_intensity import (
     FilterNHighestIntensity,
 )
 

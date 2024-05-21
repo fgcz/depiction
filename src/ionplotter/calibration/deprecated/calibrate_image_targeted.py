@@ -4,14 +4,14 @@ import h5py
 import numpy as np
 from numpy.typing import NDArray
 
-from ionplotter.peak_picking.basic_peak_picker import BasicPeakPicker
+from ionplotter.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 from ionplotter.calibration.deprecated.calibrate_spectrum import CalibrateSpectrum
 from ionplotter.calibration.models.linear_model import LinearModel
 from ionplotter.calibration.models.polynomial_model import PolynomialModel
 from ionplotter.parallel_ops.parallel_config import ParallelConfig
 from ionplotter.parallel_ops.read_spectra_parallel import ReadSpectraParallel
 from ionplotter.parallel_ops.write_spectra_parallel import WriteSpectraParallel
-from ionplotter.peak_filtering import FilterByIntensity
+from ionplotter.spectrum.peak_filtering import FilterByIntensity
 from ionplotter.persistence import (
     ImzmlReadFile,
     ImzmlWriteFile,

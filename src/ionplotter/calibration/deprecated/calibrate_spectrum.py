@@ -5,13 +5,13 @@ from typing import Any, Union
 import numpy as np
 from numpy.typing import NDArray
 
-from ionplotter.peak_picking.basic_peak_picker import BasicPeakPicker
+from ionplotter.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 from ionplotter.calibration.models.linear_model import LinearModel
 from ionplotter.calibration.models.polynomial_model import PolynomialModel
 from ionplotter.calibration.deprecated.reference_distance_estimator import (
     ReferenceDistanceEstimator,
 )
-from ionplotter.peak_filtering import PeakFilteringType
+from ionplotter.spectrum.peak_filtering import PeakFilteringType
 
 # TODO refactor this code once development is more advanced
 class CalibrateSpectrum:

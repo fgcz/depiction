@@ -5,7 +5,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from ionplotter.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
-from ionplotter.peak_picking.basic_peak_picker import BasicPeakPicker
+from ionplotter.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 from ionplotter.calibration.deprecated.calibrate_spectrum import CalibrateSpectrum
 from ionplotter.calibration.models.linear_model import LinearModel
 from ionplotter.calibration.models.polynomial_model import PolynomialModel

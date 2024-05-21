@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from ionplotter.peak_picking.basic_peak_picker import BasicPeakPicker
+from ionplotter.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 from ionplotter.calibration.deprecated.calibrate_spectrum import CalibrateSpectrum
 from ionplotter.calibration.models.linear_model import LinearModel
 from ionplotter.calibration.models.polynomial_model import PolynomialModel

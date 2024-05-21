@@ -8,7 +8,7 @@ import alphapept.constants
 import numpy as np
 from numpy.typing import NDArray
 
-from ionplotter.peak_picking.basic_peak_picker import BasicPeakPicker
+from ionplotter.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 from ionplotter.misc.numpy_util import NumpyUtil
 from ionplotter.parallel_ops import ParallelConfig, ReadSpectraParallel
 from ionplotter.persistence import ImzmlReadFile, ImzmlReader

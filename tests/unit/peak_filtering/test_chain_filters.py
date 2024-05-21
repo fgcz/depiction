@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from ionplotter.peak_filtering import ChainFilters
+from ionplotter.spectrum.peak_filtering import ChainFilters
 
 
 class TestChainFilters(unittest.TestCase):

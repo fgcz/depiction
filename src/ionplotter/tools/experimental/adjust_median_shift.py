@@ -16,7 +16,7 @@ from ionplotter.parallel_ops import (
 from ionplotter.spatial_smoothing import SpatialSmoothing
 
 if TYPE_CHECKING:
-    from ionplotter.peak_picking.basic_peak_picker import BasicPeakPicker
+    from ionplotter.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
     from numpy.typing import NDArray
     from ionplotter.persistence import (
         ImzmlReadFile,

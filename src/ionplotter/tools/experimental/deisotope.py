@@ -1,4 +1,4 @@
-from ionplotter.peak_picking.basic_peak_picker import BasicPeakPicker
+from ionplotter.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 import pyopenms
 from numpy.typing import NDArray
 from ionplotter.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter

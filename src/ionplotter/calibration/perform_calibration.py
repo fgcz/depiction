@@ -7,7 +7,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from ionplotter.parallel_ops import ParallelConfig, ReadSpectraParallel, WriteSpectraParallel
-from ionplotter.peak_picking import BasicInterpolatedPeakPicker
+from ionplotter.spectrum.peak_picking import BasicInterpolatedPeakPicker
 from ionplotter.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
 
 

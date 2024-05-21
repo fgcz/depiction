@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 import numpy as np
 import scipy
 
-from ionplotter.peak_picking.basic_peak_picker import BasicPeakPicker
+from ionplotter.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
-    from ionplotter.peak_filtering import PeakFilteringType
+    from ionplotter.spectrum.peak_filtering import PeakFilteringType
 
 
 @dataclass

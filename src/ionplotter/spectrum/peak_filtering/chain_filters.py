@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
-    from ionplotter.peak_filtering import PeakFilteringType
+    from ionplotter.spectrum.peak_filtering import PeakFilteringType
 
 
 @dataclass

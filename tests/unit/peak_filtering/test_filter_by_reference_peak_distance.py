@@ -3,7 +3,7 @@ from functools import cached_property
 
 import numpy as np
 
-from ionplotter.peak_filtering.filter_by_reference_peak_distance import (
+from ionplotter.spectrum.peak_filtering import (
     FilterByReferencePeakDistance,
 )
 

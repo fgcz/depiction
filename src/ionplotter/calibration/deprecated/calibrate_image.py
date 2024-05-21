@@ -4,7 +4,7 @@ import h5py
 import numpy as np
 from numpy.typing import NDArray
 
-from ionplotter.peak_picking.basic_peak_picker import BasicPeakPicker
+from ionplotter.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 from ionplotter.calibration.deprecated.calibrate_spectrum import CalibrateSpectrum
 from ionplotter.calibration.deprecated.model_smoothing import ModelSmoothing
 from ionplotter.calibration.models.linear_model import LinearModel

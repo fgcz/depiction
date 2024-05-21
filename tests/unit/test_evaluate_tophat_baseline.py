@@ -1,6 +1,6 @@
 from functools import cached_property
 from ionmapper.evaluate_tophat_baseline import EvaluateTophatBaseline
-from ionmapper.misc.integration_test_utils import IntegrationTestUtils
+from tests.integration.integration_test_utils import IntegrationTestUtils
 from unittest.mock import patch, MagicMock
 import ionmapper.evaluate_tophat_baseline as test_module
 import numpy as np

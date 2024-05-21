@@ -1,6 +1,6 @@
 from functools import cached_property
 from ionmapper.evaluate_local_medians_baseline import EvaluateLocalMediansBaseline
-from ionmapper.misc.integration_test_utils import IntegrationTestUtils
+from tests.integration.integration_test_utils import IntegrationTestUtils
 from unittest.mock import MagicMock, patch
 import numpy as np
 import os

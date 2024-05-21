@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from ionmapper.evaluate_signal_proc import EvaluateGaussianSmoothing
-from ionmapper.misc.integration_test_utils import IntegrationTestUtils
+from tests.integration.integration_test_utils import IntegrationTestUtils
 
 class TestEvaluateGaussianSmoothing(unittest.TestCase):
     def setUp(self) -> None:

@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 
-from ionmapper.misc.integration_test_utils import IntegrationTestUtils
+from tests.integration.integration_test_utils import IntegrationTestUtils
 from ionmapper.persistence import ImzmlReadFile, ImzmlModeEnum, ImzmlWriteFile
 from ionmapper.tools.merge_imzml import MergeImzml
 

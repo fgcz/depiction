@@ -1,5 +1,6 @@
 import unittest
 from functools import cached_property
+from pathlib import Path
 from unittest.mock import MagicMock, ANY, patch, call
 
 from ionmapper.parallel_ops import (
@@ -227,13 +228,13 @@ class TestWriteSpectraParallel(unittest.TestCase):
         )
         self.assertEqual(2, len(mock_operation.mock_calls[0].args[2]))
         self.assertEqual(
-            "/dev/null/mock/continuous_1.imzML",
+            Path("/dev/null/mock/continuous_1.imzML"),
             mock_operation.mock_calls[0].args[2][0].imzml_file,
         )
         self.assertEqual(ImzmlModeEnum.CONTINUOUS, mock_operation.mock_calls[0].args[2][0].imzml_mode)
         self.assertIsInstance(mock_operation.mock_calls[0].args[2][1], ImzmlWriteFile)
         self.assertEqual(
-            "/dev/null/mock/processed_1.imzML",
+            Path("/dev/null/mock/processed_1.imzML"),
             mock_operation.mock_calls[0].args[2][1].imzml_file,
         )
         self.assertEqual(ImzmlModeEnum.PROCESSED, mock_operation.mock_calls[0].args[2][1].imzml_mode)

@@ -17,21 +17,21 @@ class ImzmlWriteFile:
     """
 
     def __init__(self, path: str | Path, imzml_mode: ImzmlModeEnum, write_mode: str = "x") -> None:
-        self._path = str(path)
+        self._path = Path(path)
         self._imzml_mode = imzml_mode
         self._write_mode = write_mode
 
     @property
-    def imzml_file(self) -> str:
+    def imzml_file(self) -> Path:
         """The path to the underlying .imzML file."""
-        if not self._path.lower().endswith(".imzml"):
+        if self._path.suffix.lower() != ".imzml":
             raise ValueError(f"Expected .imzML file, got {self._path}")
         return self._path
 
     @property
-    def ibd_file(self) -> str:
+    def ibd_file(self) -> Path:
         """The path to the accompanying .ibd file."""
-        return self._path.replace(".imzML", ".ibd")
+        return self._path.with_suffix(".ibd")
 
     @property
     def imzml_mode(self) -> ImzmlModeEnum:

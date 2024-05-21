@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional, TYPE_CHECKING
 from collections.abc import Sequence
 
@@ -24,12 +25,12 @@ class ImzmlWriter:
         self._imzml_alignment_tracker = imzml_alignment_tracker
 
     @classmethod
-    def open(cls, path: str, imzml_mode: ImzmlModeEnum, imzml_alignment_tracking: bool = True):
+    def open(cls, path: str | Path, imzml_mode: ImzmlModeEnum, imzml_alignment_tracking: bool = True):
         """Opens an imzML file."""
         imzml_alignment_tracker = ImzmlAlignmentTracker() if imzml_alignment_tracking else None
         return cls(
             wrapped_imzml_writer=pyimzml.ImzMLWriter.ImzMLWriter(
-                path,
+                str(path),
                 mode=ImzmlModeEnum.as_pyimzml_str(imzml_mode),
             ),
             imzml_alignment_tracker=imzml_alignment_tracker,
@@ -49,12 +50,12 @@ class ImzmlWriter:
         return ImzmlModeEnum.from_pyimzml_str(self._imzml_writer.mode)
 
     @property
-    def imzml_path(self) -> str:
-        return self._imzml_writer.filename
+    def imzml_path(self) -> Path:
+        return Path(self._imzml_writer.filename)
 
     @property
-    def ibd_path(self) -> str:
-        return self._imzml_writer.ibd_filename
+    def ibd_path(self) -> Path:
+        return Path(self._imzml_writer.ibd_filename)
 
     @property
     def is_aligned(self) -> bool:

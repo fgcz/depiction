@@ -1,6 +1,7 @@
 import os
 import unittest
 from functools import cached_property
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, patch, call
 
@@ -29,14 +30,14 @@ class TestImzmlWriter(unittest.TestCase):
         with TemporaryDirectory() as tmpdir:
             mock_path = os.path.join(tmpdir, "test.imzML")
             writer = ImzmlWriter.open(path=mock_path, imzml_mode=ImzmlModeEnum.CONTINUOUS)
-            self.assertEqual(mock_path, writer.imzml_path)
+            self.assertEqual(Path(mock_path), writer.imzml_path)
             self.assertEqual(ImzmlModeEnum.CONTINUOUS, writer.imzml_mode)
 
     def test_open_when_processed(self) -> None:
         with TemporaryDirectory() as tmpdir:
             mock_path = os.path.join(tmpdir, "test.imzML")
             writer = ImzmlWriter.open(path=mock_path, imzml_mode=ImzmlModeEnum.PROCESSED)
-            self.assertEqual(mock_path, writer.imzml_path)
+            self.assertEqual(Path(mock_path), writer.imzml_path)
             self.assertEqual(ImzmlModeEnum.PROCESSED, writer.imzml_mode)
 
     def test_close(self) -> None:
@@ -54,10 +55,12 @@ class TestImzmlWriter(unittest.TestCase):
         self.assertEqual(mock_from_pyimzml_str.return_value, mode)
 
     def test_imzml_path(self) -> None:
-        self.assertEqual(self.mock_wrapped_imzml_writer.filename, self.mock_imzml_writer.imzml_path)
+        self.mock_wrapped_imzml_writer.filename = "test.imzML"
+        self.assertEqual(Path("test.imzML"), self.mock_imzml_writer.imzml_path)
 
     def test_ibd_path(self) -> None:
-        self.assertEqual(self.mock_wrapped_imzml_writer.ibd_filename, self.mock_imzml_writer.ibd_path)
+        self.mock_wrapped_imzml_writer.ibd_filename = "test.ibd"
+        self.assertEqual(Path("test.ibd"), self.mock_imzml_writer.ibd_path)
 
     def test_is_aligned(self) -> None:
         self.assertEqual(self.mock_imzml_alignment_tracker.is_aligned, self.mock_imzml_writer.is_aligned)

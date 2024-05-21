@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from functools import cached_property
 from collections.abc import Generator
+from pathlib import Path
 
 from ionmapper.persistence import ImzmlModeEnum
 from ionmapper.persistence.ram_reader import RamReader
@@ -13,14 +14,14 @@ class RamReadFile:
         self._coordinates = coordinates
 
     @property
-    def imzml_file(self) -> str:
+    def imzml_file(self) -> Path:
         print("Warning: imzml_file is not available for RamReadFile")
-        return "/dev/null"
+        return Path("/dev/null")
 
     @property
-    def ibd_file(self) -> str:
+    def ibd_file(self) -> Path:
         print("Warning: ibd_file is not available for RamReadFile")
-        return "/dev/null"
+        return Path("/dev/null")
 
     @contextmanager
     def reader(self) -> Generator[RamReader, None, None]:

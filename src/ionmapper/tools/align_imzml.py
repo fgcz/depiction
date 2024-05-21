@@ -3,6 +3,7 @@
 import argparse
 import enum
 import logging
+from pathlib import Path
 
 from tqdm import tqdm
 
@@ -97,7 +98,7 @@ class AlignImzml:
             raise ValueError(f"Unknown method: {self._method}")
 
 
-def main_align_imzml(input_imzml: str, output_imzml: str, method: str, n_jobs: int) -> str:
+def main_align_imzml(input_imzml: str, output_imzml: str, method: str, n_jobs: int) -> Path:
     align = AlignImzml(
         input_file=ImzmlReadFile(input_imzml),
         output_file_path=output_imzml,

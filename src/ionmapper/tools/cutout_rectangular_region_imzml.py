@@ -123,8 +123,8 @@ class CutoutRectangularRegionImzml:
             "x_range_abs": self._x_range_abs,
             "y_range_abs": self._y_range_abs,
         }
-        output_path = os.path.splitext(self._read_file.imzml_file)[0] + ".cutout_rectangular_region.json"
-        with open(output_path, "w") as f:
+        output_path = self._read_file.imzml_file.with_suffix(".cutout_rectangular_region.json")
+        with output_path.open("w") as f:
             json.dump(information, f, indent=1)
 
 

@@ -1,10 +1,11 @@
 import os
 import glob
+from pathlib import Path
 from typing import Optional
 import shutil
 
 
-def copy_imzml_file(source_imzml: str, target_imzml: str) -> None:
+def copy_imzml_file(source_imzml: Path, target_imzml: str) -> None:
     """
     Copies the imzML file and the corresponding ibd file to the target file.
     :param source_imzml: the source imzML file (including the .imzML extension)
@@ -12,7 +13,7 @@ def copy_imzml_file(source_imzml: str, target_imzml: str) -> None:
     """
     shutil.copyfile(source_imzml, target_imzml)
     shutil.copyfile(
-        source_imzml.replace(".imzML", ".ibd"),
+        source_imzml.with_suffix(".ibd"),
         target_imzml.replace(".imzML", ".ibd"),
     )
 

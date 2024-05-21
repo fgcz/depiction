@@ -13,7 +13,7 @@ def align_profile_data(input_imzml_path: str, output_imzml_path: str) -> None:
     aligned_path = main_align_imzml(
         input_imzml=input_imzml_path, output_imzml=output_imzml_path, method="FIRST_MZ_ARR", n_jobs=20
     )
-    if Path(aligned_path) == Path(input_imzml_path):
+    if aligned_path == Path(input_imzml_path):
         shutil.copy(input_imzml_path, output_imzml_path)
         shutil.copy(Path(input_imzml_path).with_suffix(".ibd"), Path(output_imzml_path).with_suffix(".ibd"))
 

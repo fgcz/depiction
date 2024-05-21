@@ -1,6 +1,7 @@
 import hashlib
 import unittest
 from functools import cached_property
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from ionmapper.persistence.file_checksums import FileChecksums
@@ -8,7 +9,7 @@ from ionmapper.persistence.file_checksums import FileChecksums
 
 class TestFileChecksums(unittest.TestCase):
     def setUp(self) -> None:
-        self.mock_file_path = MagicMock(name="file_path", spec=[])
+        self.mock_file_path = MagicMock(name="file_path", spec=Path)
 
     @cached_property
     def mock_checksums(self) -> FileChecksums:
@@ -38,11 +39,12 @@ class TestFileChecksums(unittest.TestCase):
         mock_shutil_which.return_value = "some/path"
         mock_subprocess_run.return_value.stdout = "checksum"
         mock_hashlib_method = MagicMock(name="mock_hashlib_method")
+        self.mock_file_path = Path("/dev/null/hello")
         self.assertEqual(
             "checksum", self.mock_checksums._compute_checksum(native_tool="tool", hashlib_method=mock_hashlib_method)
         )
         mock_subprocess_run.assert_called_once_with(
-            ["some/path", self.mock_file_path],
+            ["some/path", "/dev/null/hello"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -50,11 +52,10 @@ class TestFileChecksums(unittest.TestCase):
         )
         mock_shutil_which.assert_called_once_with("tool")
 
-    @patch("builtins.open")
     @patch("shutil.which")
-    def test_checksum_when_native_tool_not_available(self, mock_shutil_which, mock_open) -> None:
+    def test_checksum_when_native_tool_not_available(self, mock_shutil_which) -> None:
         mock_shutil_which.return_value = None
-        mock_open.return_value.__enter__.return_value.read.return_value = b"content"
+        self.mock_file_path.read_bytes.return_value = b"content"
         mock_hashlib_method = MagicMock(name="mock_hashlib_method")
 
         self.assertEqual(
@@ -63,7 +64,7 @@ class TestFileChecksums(unittest.TestCase):
         )
 
         mock_shutil_which.assert_called_once_with("tool")
-        mock_open.assert_called_once_with(self.mock_file_path, "rb")
+        self.mock_file_path.read_bytes.assert_called_once_with()
         mock_hashlib_method.assert_called_once_with(b"content")
         mock_hashlib_method.return_value.hexdigest.assert_called_once_with()
 

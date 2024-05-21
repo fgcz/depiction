@@ -1,5 +1,6 @@
 import unittest
 from functools import cached_property
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import numpy as np
@@ -17,11 +18,11 @@ class TestImzmlReadFile(unittest.TestCase):
         return ImzmlReadFile(path=self.mock_path)
 
     def test_imzml_file(self) -> None:
-        self.assertEqual(self.mock_path, self.mock_read_file.imzml_file)
+        self.assertEqual(Path(self.mock_path), self.mock_read_file.imzml_file)
 
     def test_imzml_file_when_case_insensitive(self) -> None:
         self.mock_path = "/dev/null/mock_path.IMZML"
-        self.assertEqual(self.mock_path, self.mock_read_file.imzml_file)
+        self.assertEqual(Path(self.mock_path), self.mock_read_file.imzml_file)
 
     def test_imzml_file_when_invalid_path(self) -> None:
         self.mock_path = "/dev/null/mock_path.txt"
@@ -30,11 +31,11 @@ class TestImzmlReadFile(unittest.TestCase):
         self.assertIn("Expected .imzML file, got", str(error.exception))
 
     def test_ibd_file(self) -> None:
-        self.assertEqual("/dev/null/mock_path.ibd", self.mock_read_file.ibd_file)
+        self.assertEqual(Path("/dev/null/mock_path.ibd"), self.mock_read_file.ibd_file)
 
     def test_ibd_file_when_case_insensitive(self) -> None:
         self.mock_path = "/dev/null/mock_path.IMZML"
-        self.assertEqual("/dev/null/mock_path.ibd", self.mock_read_file.ibd_file)
+        self.assertEqual(Path("/dev/null/mock_path.ibd"), self.mock_read_file.ibd_file)
 
     def test_ibd_file_when_invalid_path(self) -> None:
         self.mock_path = "/dev/null/mock_path.txt"
@@ -67,9 +68,9 @@ class TestImzmlReadFile(unittest.TestCase):
         mock_reader = MagicMock(name="mock_reader", mzPrecision="d", intensityPrecision="i")
         mock_imzml_parser.return_value.__enter__.return_value.portable_spectrum_reader.return_value = mock_reader
         reader = self.mock_read_file.get_reader()
-        mock_imzml_parser.assert_called_once_with(self.mock_path)
+        mock_imzml_parser.assert_called_once_with(Path(self.mock_path))
         self.assertEqual(mock_reader, reader._portable_reader)
-        self.assertEqual(self.mock_path, reader._imzml_path)
+        self.assertEqual(Path(self.mock_path), reader._imzml_path)
         self.assertEqual(8, reader._mz_bytes)
         self.assertEqual(4, reader._int_bytes)
 
@@ -161,20 +162,18 @@ class TestImzmlReadFile(unittest.TestCase):
         mock_ibd_checksums.checksum_md5 = "1234"
         self.assertTrue(self.mock_read_file.is_checksum_valid)
 
-    @patch("os.path.getsize")
-    def test_file_sizes_bytes(self, mock_get_size) -> None:
-        mock_get_size.side_effect = {
-            "/dev/null/mock_path.imzML": 1234,
-            "/dev/null/mock_path.ibd": 5678,
-        }.__getitem__
+    @patch.object(ImzmlReadFile, "imzml_file")
+    @patch.object(ImzmlReadFile, "ibd_file")
+    def test_file_sizes_bytes(self, mock_ibd_file, mock_imzml_file) -> None:
+        mock_imzml_file.stat.return_value.st_size = 1234
+        mock_ibd_file.stat.return_value.st_size = 5678
         self.assertDictEqual({"imzml": 1234, "ibd": 5678}, self.mock_read_file.file_sizes_bytes)
 
-    @patch("os.path.getsize")
-    def test_get_file_sizes_mb(self, mock_get_size) -> None:
-        mock_get_size.side_effect = {
-            "/dev/null/mock_path.imzML": round(2.5 * 1024**2),
-            "/dev/null/mock_path.ibd": round(3.5 * 1024**2),
-        }.__getitem__
+    @patch.object(ImzmlReadFile, "imzml_file")
+    @patch.object(ImzmlReadFile, "ibd_file")
+    def test_get_file_sizes_mb(self, mock_ibd_file, mock_imzml_file) -> None:
+        mock_imzml_file.stat.return_value.st_size = round(2.5 * 1024**2)
+        mock_ibd_file.stat.return_value.st_size = round(3.5 * 1024**2)
         self.assertEqual({"imzml", "ibd"}, self.mock_read_file.file_sizes_mb.keys())
         self.assertAlmostEqual(2.5, self.mock_read_file.file_sizes_mb["imzml"], places=8)
         self.assertAlmostEqual(3.5, self.mock_read_file.file_sizes_mb["ibd"], places=8)

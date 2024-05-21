@@ -23,21 +23,21 @@ class ImzmlReadFile:
     """
 
     def __init__(self, path: str | Path) -> None:
-        self._path = str(path)
+        self._path = Path(path)
 
     @property
-    def imzml_file(self) -> str:
+    def imzml_file(self) -> Path:
         """Returns the path to the underlying .imzML file."""
-        if not self._path.lower().endswith(".imzml"):
+        if not self._path.suffix.lower() == ".imzml":
             raise ValueError(f"Expected .imzML file, got {self._path}")
         return self._path
 
     @property
-    def ibd_file(self) -> str:
+    def ibd_file(self) -> Path:
         """Returns the path to the accompanying .ibd file."""
-        if not self._path.lower().endswith(".imzml"):
+        if not self._path.suffix.lower() == ".imzml":
             raise ValueError(f"Expected .imzML file, got {self._path}")
-        return self._path[:-6] + ".ibd"
+        return self._path.with_suffix(".ibd")
 
     @contextmanager
     def reader(self) -> Generator[ImzmlReader, None, None]:
@@ -91,8 +91,8 @@ class ImzmlReadFile:
             "n_spectra": self.n_spectra,
             "imzml_mode": self.imzml_mode.name,
             "coordinate_extent": list(self.coordinates.max(0) - self.coordinates.min(0) + 1),
-            "imzml_file": self.imzml_file,
-            "ibd_file": self.ibd_file,
+            "imzml_file": str(self.imzml_file),
+            "ibd_file": str(self.ibd_file),
         }
 
     @cached_property
@@ -135,8 +135,8 @@ class ImzmlReadFile:
     def file_sizes_bytes(self) -> dict[str, int]:
         """Returns the sizes of the .imzML and .ibd files in bytes."""
         return {
-            "imzml": os.path.getsize(self.imzml_file),
-            "ibd": os.path.getsize(self.ibd_file),
+            "imzml": self.imzml_file.stat().st_size,
+            "ibd": self.ibd_file.stat().st_size,
         }
 
     @cached_property
@@ -204,4 +204,4 @@ class ImzmlReadFile:
             }
 
     def __repr__(self) -> str:
-        return f"ImzmlReadFile({self._path!r})"
+        return f"ImzmlReadFile({str(self._path)!r})"

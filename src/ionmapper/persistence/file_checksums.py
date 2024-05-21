@@ -2,15 +2,16 @@ import hashlib
 import shutil
 import subprocess
 from functools import cached_property
+from pathlib import Path
 from typing import Any, Optional
 
 
 class FileChecksums:
-    def __init__(self, file_path: str) -> None:
+    def __init__(self, file_path: Path) -> None:
         self._file_path = file_path
 
     @property
-    def file_path(self) -> str:
+    def file_path(self) -> Path:
         return self._file_path
 
     @cached_property
@@ -40,10 +41,9 @@ class FileChecksums:
             return checksum
 
         # fallback to the hashlib method
-        with open(self.file_path, "rb") as f:
-            return hashlib_method(f.read()).hexdigest()
+        return hashlib_method(self._file_path.read_bytes()).hexdigest()
 
-    def _compute_checksum_native_tool(self, binary_name: str, file: str) -> Optional[str]:
+    def _compute_checksum_native_tool(self, binary_name: str, file: Path) -> Optional[str]:
         """Returns the checksum of the file using the native tool, or None if the tool is not available.
         The checksum is returned as a string in lower case.
         :param binary_name: the name of the binary tool to use
@@ -54,7 +54,7 @@ class FileChecksums:
             return None
         else:
             result = subprocess.run(
-                [binary_path, file],
+                [binary_path, str(file)],
                 capture_output=True,
                 text=True,
                 encoding="utf-8",

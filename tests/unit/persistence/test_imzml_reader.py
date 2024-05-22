@@ -39,13 +39,21 @@ class TestImzmlReader(unittest.TestCase):
             offsets.append(offsets[-1] * n_bytes + len(arr))
         return offsets[:-1], lengths
 
-    # TODO figure out how to test
     def test_pickle(self) -> None:
         """Checks getstate and setstate are implemented correctly."""
         obj_original = self.mock_reader
         obj_reread = pickle.loads(pickle.dumps(obj_original))
         self.assertEqual(obj_original.imzml_path, obj_reread.imzml_path)
         self.assertEqual(obj_original.ibd_path, obj_reread.ibd_path)
+        np.testing.assert_array_equal(self.mock_mz_arr_offsets, obj_reread._mz_arr_offsets)
+        np.testing.assert_array_equal(self.mock_mz_arr_lengths, obj_reread._mz_arr_lengths)
+        np.testing.assert_array_equal(self.mock_int_arr_offsets, obj_reread._int_arr_offsets)
+        np.testing.assert_array_equal(self.mock_int_arr_lengths, obj_reread._int_arr_lengths)
+        np.testing.assert_array_equal(self.mock_coordinates, obj_reread._coordinates)
+        self.assertEqual(self.mock_mz_arr_dtype, obj_reread._mz_arr_dtype)
+        self.assertEqual(self.mock_int_arr_dtype, obj_reread._int_arr_dtype)
+        self.assertEqual(self.mock_reader._mz_bytes, obj_reread._mz_bytes)
+        self.assertEqual(self.mock_reader._int_bytes, obj_reread._int_bytes)
 
     def test_imzml_path(self) -> None:
         self.assertEqual(Path("/dev/null/test.imzML"), self.mock_reader.imzml_path)
@@ -77,7 +85,14 @@ class TestImzmlReader(unittest.TestCase):
             self.mock_reader.close()
 
     def test_imzml_mode_when_continuous(self):
-        self.mock_mz_arr_offsets = [()]
+        self.mock_mz_arr_offsets = [7, 7, 7]
+        self.assertEqual(ImzmlModeEnum.CONTINUOUS, self.mock_reader.imzml_mode)
+
+    def test_imzml_mode_when_processed(self):
+        self.assertEqual(ImzmlModeEnum.PROCESSED, self.mock_reader.imzml_mode)
+
+    def test_n_spectra(self) -> None:
+        self.assertEqual(3, self.mock_reader.n_spectra)
 
     def test_coordinates(self):
         self.mock_coordinates = np.array([(1, 2, 3), (4, 5, 6)])
@@ -170,8 +185,8 @@ class TestImzmlReader(unittest.TestCase):
 
     def test_get_spectrum_coordinates(self):
         self.mock_coordinates = np.array([(1, 2, 3), (4, 5, 6)])
-        self.assertEqual((1, 2, 3), self.mock_reader.get_spectrum_coordinates(0))
-        self.assertEqual((4, 5, 6), self.mock_reader.get_spectrum_coordinates(1))
+        np.testing.assert_array_equal([1, 2, 3], self.mock_reader.get_spectrum_coordinates(0))
+        np.testing.assert_array_equal([4, 5, 6], self.mock_reader.get_spectrum_coordinates(1))
 
     def test_get_spectrum_n_points(self):
         self.assertEqual(2, self.mock_reader.get_spectrum_n_points(0))
@@ -194,6 +209,10 @@ class TestImzmlReader(unittest.TestCase):
             mz_range = self.mock_reader.get_spectra_mz_range(i_spectra=None)
         self.assertTupleEqual((0.5, 6), mz_range)
         self.assertListEqual([call(0), call(1), call(2)], mock_get_spectrum_mz.mock_calls)
+
+    def test_str(self) -> None:
+        self.assertEqual("ImzmlReader[/dev/null/test.imzML, n_spectra=3, int_arr_dtype=f, mz_arr_dtype=i]",
+                         str(self.mock_reader))
 
 
 if __name__ == "__main__":

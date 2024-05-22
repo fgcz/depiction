@@ -45,13 +45,18 @@ class ImzmlReader:
         self._mz_bytes = np.dtype(mz_arr_dtype).itemsize
         self._int_bytes = np.dtype(int_arr_dtype).itemsize
 
-    # TODO
     def __getstate__(self) -> dict[str, Any]:
         return {
-            # "portable_reader": self._portable_reader,
             "imzml_path": self._imzml_path,
+            "mz_arr_offsets": self._mz_arr_offsets,
+            "mz_arr_lengths": self._mz_arr_lengths,
+            "mz_arr_dtype": self._mz_arr_dtype,
+            "int_arr_offsets": self._int_arr_offsets,
+            "int_arr_lengths": self._int_arr_lengths,
+            "int_arr_dtype": self._int_arr_dtype,
             "mz_bytes": self._mz_bytes,
             "int_bytes": self._int_bytes,
+            "coordinates": self._coordinates
         }
 
     # TODO
@@ -60,8 +65,15 @@ class ImzmlReader:
         self._imzml_path = state["imzml_path"]
         self._ibd_file = None
         self._ibd_mmap = None
+        self._mz_arr_offsets = state["mz_arr_offsets"]
+        self._mz_arr_lengths = state["mz_arr_lengths"]
+        self._mz_arr_dtype = state["mz_arr_dtype"]
+        self._int_arr_offsets = state["int_arr_offsets"]
+        self._int_arr_lengths = state["int_arr_lengths"]
+        self._int_arr_dtype = state["int_arr_dtype"]
         self._mz_bytes = state["mz_bytes"]
         self._int_bytes = state["int_bytes"]
+        self._coordinates = state["coordinates"]
 
     @property
     def imzml_path(self) -> Path:
@@ -107,7 +119,8 @@ class ImzmlReader:
     @cached_property
     def imzml_mode(self) -> ImzmlModeEnum:
         """Returns the mode of the imzML file."""
-        # TODO this is quite inefficient
+        # maybe this can be solved more elegantly in the future, but right now this works (if all offsets are identical,
+        # then we know it's CONTINUOUS)
         if len({*self._mz_arr_offsets}) == 1:
             return ImzmlModeEnum.CONTINUOUS
         else:
@@ -115,6 +128,7 @@ class ImzmlReader:
 
     @property
     def n_spectra(self) -> int:
+        """The number of spectra available in the .imzML file."""
         return len(self._int_arr_lengths)
 
     @cached_property
@@ -141,8 +155,7 @@ class ImzmlReader:
     def get_spectra(
         self, i_spectra: list[int]
     ) -> tuple[NDArray[float] | list[NDArray[float]], NDArray[float] | list[NDArray[float]]]:
-        """
-        Returns the m/z and intensity arrays of the specified spectra.
+        """Returns the m/z and intensity arrays of the specified spectra.
         For continuous mode, the arrays are stacked into a single array, whereas
         for processed mode, a list of arrays is returned as they might not have
         the same shape.
@@ -206,5 +219,5 @@ class ImzmlReader:
         )
 
     def __str__(self) -> str:
-        return (f"ImzmlReader({self._imzml_path}) with n_spectra={self.n_spectra},"
-                f" int_arr_dtype={self._int_arr_dtype}, mz_arr_dtype={self._mz_arr_dtype}")
+        return (f"ImzmlReader[{self._imzml_path}, n_spectra={self.n_spectra},"
+                f" int_arr_dtype={self._int_arr_dtype}, mz_arr_dtype={self._mz_arr_dtype}]")

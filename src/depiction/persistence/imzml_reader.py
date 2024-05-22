@@ -129,13 +129,13 @@ class ImzmlReader:
 
     def get_spectrum(self, i_spectrum: int) -> tuple[NDArray[float], NDArray[float]]:
         """Returns the m/z and intensity arrays of the i-th spectrum."""
-        return self.get_spectrum_mz(i_spectrum), self.get_spectrum_int(i_spectrum)
+        return self.get_spectrum_mz(i_spectrum=i_spectrum), self.get_spectrum_int(i_spectrum=i_spectrum)
 
     def get_spectrum_with_coords(self, i_spectrum: int) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
         """Returns the m/z, intensity and v arrays of the i-th spectrum."""
-        mz_arr = self.get_spectrum_mz(i_spectrum)
-        int_arr = self.get_spectrum_int(i_spectrum)
-        coords = self.get_spectrum_coordinates(i_spectrum)
+        mz_arr = self.get_spectrum_mz(i_spectrum=i_spectrum)
+        int_arr = self.get_spectrum_int(i_spectrum=i_spectrum)
+        coords = self.get_spectrum_coordinates(i_spectrum=i_spectrum)
         return mz_arr, int_arr, coords
 
     def get_spectra(
@@ -148,12 +148,12 @@ class ImzmlReader:
         the same shape.
         """
         if self.imzml_mode == ImzmlModeEnum.CONTINUOUS:
-            mz_arr = self.get_spectrum_mz(i_spectra[0])
+            mz_arr = self.get_spectrum_mz(i_spectrum=i_spectra[0])
             mz_arr_list = np.repeat(mz_arr[np.newaxis, :], len(i_spectra), axis=0)
-            int_arr_list = np.stack([self.get_spectrum_int(i) for i in i_spectra], axis=0)
+            int_arr_list = np.stack([self.get_spectrum_int(i_spectrum=i) for i in i_spectra], axis=0)
             return mz_arr_list, int_arr_list
         else:
-            return tuple(zip(*[self.get_spectrum(i) for i in i_spectra]))
+            return tuple(zip(*[self.get_spectrum(i_spectrum=i) for i in i_spectra]))
 
     def get_spectrum_mz(self, i_spectrum: int) -> NDArray[float]:
         """Returns the m/z values of the i-th spectrum."""

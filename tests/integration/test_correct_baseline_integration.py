@@ -5,12 +5,10 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 
-from depiction.evaluate_baseline_correction import (
-    EvaluateMWMVBaselineCorrection,
-)
 from depiction.misc.integration_test_utils import IntegrationTestUtils
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
+from depiction.spectrum.baseline import LocalMediansBaseline
 from depiction.tools.correct_baseline import CorrectBaseline
 
 
@@ -45,7 +43,7 @@ class TestCorrectBaselineIntegration(unittest.TestCase):
     def test_evaluate_file(self) -> None:
         correct_baseline = CorrectBaseline(
             parallel_config=ParallelConfig(n_jobs=2, task_size=2),
-            baseline_correction=EvaluateMWMVBaselineCorrection(),
+            baseline_correction=LocalMediansBaseline(window_size=5, window_unit="index"),
         )
         correct_baseline.evaluate_file(
             read_file=self.mock_input_file,

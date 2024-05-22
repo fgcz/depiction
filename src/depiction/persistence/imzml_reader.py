@@ -89,17 +89,13 @@ class ImzmlReader:
     def ibd_mmap(self) -> mmap.mmap:
         """The mmap object for the .ibd file. This will open a file handle if necessary."""
         if self._ibd_mmap is None:
-            self._open_ibd_mmap()
+            self._ibd_file = self.ibd_path.open("rb")
+            self._ibd_mmap = mmap.mmap(
+                fileno=self._ibd_file.fileno(),
+                length=0,
+                access=mmap.ACCESS_READ,
+            )
         return self._ibd_mmap
-
-    def _open_ibd_mmap(self) -> None:
-        # TODO maybe this can be converted into cached_property too
-        self._ibd_file = open(self.ibd_path, "rb")
-        self._ibd_mmap = mmap.mmap(
-            fileno=self._ibd_file.fileno(),
-            length=0,
-            access=mmap.ACCESS_READ,
-        )
 
     def __enter__(self) -> ImzmlReader:
         return self

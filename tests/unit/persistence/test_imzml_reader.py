@@ -1,3 +1,4 @@
+import mmap
 import pickle
 import unittest
 from functools import cached_property
@@ -61,7 +62,26 @@ class TestImzmlReader(unittest.TestCase):
     def test_ibd_path(self) -> None:
         self.assertEqual(Path("/dev/null/test.ibd"), self.mock_reader.ibd_path)
 
-    # TODO ibd_mmap, open_ibd_mmap
+    @patch.object(ImzmlReader, "ibd_path", new_callable=PropertyMock)
+    @patch("mmap.mmap")
+    def test_ibd_mmap_when_none(self, mock_mmap, prop_ibd_path) -> None:
+        mock_ibd_path = MagicMock(name="mock_ibd_path")
+        prop_ibd_path.return_value = mock_ibd_path
+        result = self.mock_reader.ibd_mmap
+        self.assertEqual(mock_mmap.return_value, result)
+        mock_mmap.assert_called_once_with(
+            fileno=mock_ibd_path.open.return_value.fileno.return_value,
+            length=0,
+            access=mmap.ACCESS_READ
+        )
+        mock_ibd_path.open.assert_called_once_with("rb")
+        mock_ibd_path.open.return_value.fileno.assert_called_once_with()
+        self.assertEqual(mock_ibd_path.open.return_value, self.mock_reader._ibd_file)
+
+    def test_ibd_mmap_when_present(self):
+        mock_mmap = MagicMock(name="mock_mmap")
+        self.mock_reader._ibd_mmap = mock_mmap
+        self.assertEqual(mock_mmap, self.mock_reader.ibd_mmap)
 
     def test_enter(self) -> None:
         self.assertEqual(self.mock_reader, self.mock_reader.__enter__())

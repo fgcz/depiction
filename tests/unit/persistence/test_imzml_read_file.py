@@ -69,7 +69,6 @@ class TestImzmlReadFile(unittest.TestCase):
         mock_imzml_parser.return_value.__enter__.return_value.portable_spectrum_reader.return_value = mock_reader
         reader = self.mock_read_file.get_reader()
         mock_imzml_parser.assert_called_once_with(Path(self.mock_path))
-        self.assertEqual(mock_reader, reader._portable_reader)
         self.assertEqual(Path(self.mock_path), reader._imzml_path)
         self.assertEqual(8, reader._mz_bytes)
         self.assertEqual(4, reader._int_bytes)

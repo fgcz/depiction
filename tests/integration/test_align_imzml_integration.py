@@ -30,6 +30,7 @@ class TestAlignImzmlIntegration(unittest.TestCase):
             [[100, 200, 300], [100, 200, 300], [100, 200, 300]],
             imzml_mode=ImzmlModeEnum.CONTINUOUS,
         )
+        print(str(input_file.get_reader()))
         align = AlignImzml(
             input_file=input_file,
             output_file_path=self.mock_output_file_path,

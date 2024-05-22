@@ -5,47 +5,58 @@ from functools import cached_property
 from typing import Any, TYPE_CHECKING
 
 import numpy as np
+import pyimzml
 
 from depiction.persistence.imzml_mode_enum import ImzmlModeEnum
 
 if TYPE_CHECKING:
     from pathlib import Path
-    import pyimzml.ImzMLParser
     from numpy.typing import NDArray
 
 
 class ImzmlReader:
     """
     Memmap based reader for imzML files, that can be pickled.
-    TODO: Consider whether to decouple the implementation even further from pyimzml by not using PortableSpectrumReader
-          except for conversion. At the moment it is not necessary, but it might be useful for optimizing further in
-          the future.
     """
 
     def __init__(
         self,
-        portable_reader: pyimzml.ImzMLParser.PortableSpectrumReader,
+        mz_arr_offsets: list[int],
+        mz_arr_lengths: list[int],
+        mz_arr_dtype: str,
+        int_arr_offsets: list[int],
+        int_arr_lengths: list[int],
+        int_arr_dtype: str,
+        coordinates,
         imzml_path: Path,
     ) -> None:
-        self._portable_reader = portable_reader
         self._imzml_path = imzml_path
         self._ibd_file = None
         self._ibd_mmap = None
 
-        size_dict = {"f": 4, "d": 8, "i": 4, "l": 8}
-        self._mz_bytes = size_dict[portable_reader.mzPrecision]
-        self._int_bytes = size_dict[portable_reader.intensityPrecision]
+        self._mz_arr_offsets = mz_arr_offsets
+        self._mz_arr_lengths = mz_arr_lengths
+        self._mz_arr_dtype = mz_arr_dtype
+        self._int_arr_offsets = int_arr_offsets
+        self._int_arr_lengths = int_arr_lengths
+        self._int_arr_dtype = int_arr_dtype
+        self._coordinates = coordinates
 
+        self._mz_bytes = np.dtype(mz_arr_dtype).itemsize
+        self._int_bytes = np.dtype(int_arr_dtype).itemsize
+
+    # TODO
     def __getstate__(self) -> dict[str, Any]:
         return {
-            "portable_reader": self._portable_reader,
+            # "portable_reader": self._portable_reader,
             "imzml_path": self._imzml_path,
             "mz_bytes": self._mz_bytes,
             "int_bytes": self._int_bytes,
         }
 
+    # TODO
     def __setstate__(self, state: dict[str, Any]):
-        self._portable_reader = state["portable_reader"]
+        # self._portable_reader = state["portable_reader"]
         self._imzml_path = state["imzml_path"]
         self._ibd_file = None
         self._ibd_mmap = None
@@ -96,19 +107,20 @@ class ImzmlReader:
     @cached_property
     def imzml_mode(self) -> ImzmlModeEnum:
         """Returns the mode of the imzML file."""
-        if len({*self._portable_reader.mzOffsets}) == 1:
+        # TODO this is quite inefficient
+        if len({*self._mz_arr_offsets}) == 1:
             return ImzmlModeEnum.CONTINUOUS
         else:
             return ImzmlModeEnum.PROCESSED
 
     @property
     def n_spectra(self) -> int:
-        return len(self._portable_reader.mzOffsets)
+        return len(self._int_arr_lengths)
 
     @cached_property
     def coordinates(self) -> NDArray[int]:
         """Returns the coordinates of the spectra in the imzML file, shape (n_spectra, n_dim)."""
-        return np.asarray(self._portable_reader.coordinates)
+        return self._coordinates
 
     @cached_property
     def coordinates_2d(self) -> NDArray[int]:
@@ -117,13 +129,14 @@ class ImzmlReader:
 
     def get_spectrum(self, i_spectrum: int) -> tuple[NDArray[float], NDArray[float]]:
         """Returns the m/z and intensity arrays of the i-th spectrum."""
-        return self._portable_reader.read_spectrum_from_file(self.ibd_mmap, i_spectrum)
+        return self.get_spectrum_mz(i_spectrum), self.get_spectrum_int(i_spectrum)
 
     def get_spectrum_with_coords(self, i_spectrum: int) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
         """Returns the m/z, intensity and v arrays of the i-th spectrum."""
-        mz_arr, int_arr = self.get_spectrum(i_spectrum)
-        coordinates = self.get_spectrum_coordinates(i_spectrum)
-        return mz_arr, int_arr, coordinates
+        mz_arr = self.get_spectrum_mz(i_spectrum)
+        int_arr = self.get_spectrum_int(i_spectrum)
+        coords = self.get_spectrum_coordinates(i_spectrum)
+        return mz_arr, int_arr, coords
 
     def get_spectra(
         self, i_spectra: list[int]
@@ -145,16 +158,16 @@ class ImzmlReader:
     def get_spectrum_mz(self, i_spectrum: int) -> NDArray[float]:
         """Returns the m/z values of the i-th spectrum."""
         file = self.ibd_mmap
-        file.seek(self._portable_reader.mzOffsets[i_spectrum])
-        mz_bytes = file.read(self._portable_reader.mzLengths[i_spectrum] * self._mz_bytes)
-        return np.frombuffer(mz_bytes, dtype=self._portable_reader.mzPrecision)
+        file.seek(self._mz_arr_offsets[i_spectrum])
+        mz_bytes = file.read(self._mz_arr_lengths[i_spectrum] * self._mz_bytes)
+        return np.frombuffer(mz_bytes, dtype=self._mz_arr_dtype)
 
     def get_spectrum_int(self, i_spectrum: int) -> NDArray[float]:
         """Returns the intensity values of the i-th spectrum."""
         file = self.ibd_mmap
-        file.seek(self._portable_reader.intensityOffsets[i_spectrum])
-        int_bytes = file.read(self._portable_reader.intensityLengths[i_spectrum] * self._int_bytes)
-        return np.frombuffer(int_bytes, dtype=self._portable_reader.intensityPrecision)
+        file.seek(self._int_arr_offsets[i_spectrum])
+        int_bytes = file.read(self._int_arr_lengths[i_spectrum] * self._int_bytes)
+        return np.frombuffer(int_bytes, dtype=self._int_arr_dtype)
 
     def get_spectrum_coordinates(self, i_spectrum: int) -> NDArray[int]:
         """Returns the coordinates of the i-th spectrum."""
@@ -162,10 +175,12 @@ class ImzmlReader:
 
     def get_spectrum_n_points(self, i_spectrum: int) -> int:
         """Returns the number of data points in the i-th spectrum."""
-        return self._portable_reader.intensityLengths[i_spectrum]
+        return self._int_arr_lengths[i_spectrum]
 
-    def get_spectra_mz_range(self, i_spectra: list[int]) -> tuple[float, float]:
+    def get_spectra_mz_range(self, i_spectra: list[int] | None) -> tuple[float, float]:
         """Returns the m/z range of the given spectra, returning the global min and max m/z value."""
+        if i_spectra is None:
+            i_spectra = range(self.n_spectra)
         mz_min = np.inf
         mz_max = -np.inf
         for i_spectrum in i_spectra:
@@ -173,3 +188,23 @@ class ImzmlReader:
             mz_min = mz_arr[0] if mz_arr[0] < mz_min else mz_min
             mz_max = mz_arr[-1] if mz_arr[-1] > mz_max else mz_max
         return mz_min, mz_max
+
+    @classmethod
+    def parse_imzml(cls, path: Path) -> ImzmlReader:
+        """Parses an imzML file and returns an ImzmlReader."""
+        with pyimzml.ImzMLParser.ImzMLParser(path) as parser:
+            portable_reader = parser.portable_spectrum_reader()
+        return ImzmlReader(
+            mz_arr_offsets=portable_reader.mzOffsets,
+            mz_arr_lengths=portable_reader.mzLengths,
+            mz_arr_dtype=portable_reader.mzPrecision,
+            int_arr_offsets=portable_reader.intensityOffsets,
+            int_arr_lengths=portable_reader.intensityLengths,
+            int_arr_dtype=portable_reader.intensityPrecision,
+            coordinates=portable_reader.coordinates,
+            imzml_path=path,
+        )
+
+    def __str__(self) -> str:
+        return (f"ImzmlReader({self._imzml_path}) with n_spectra={self.n_spectra},"
+                f" int_arr_dtype={self._int_arr_dtype}, mz_arr_dtype={self._mz_arr_dtype}")

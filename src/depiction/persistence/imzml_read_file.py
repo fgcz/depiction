@@ -1,7 +1,7 @@
 from collections import defaultdict
 from collections.abc import Generator
 from contextlib import contextmanager
-from functools import cached_property
+from functools import cached_property, cache
 from pathlib import Path
 from typing import Any, Optional
 
@@ -48,15 +48,7 @@ class ImzmlReadFile:
             reader.close()
 
     def get_reader(self) -> ImzmlReader:
-        portable_reader = self._get_pyimzml_portable_reader
-        return ImzmlReader(portable_reader=portable_reader, imzml_path=self._path)
-
-    @cached_property
-    def _get_pyimzml_portable_reader(
-        self,
-    ) -> pyimzml.ImzMLParser.PortableSpectrumReader:
-        with pyimzml.ImzMLParser.ImzMLParser(self._path) as parser:
-            return parser.portable_spectrum_reader()
+        return ImzmlReader.parse_imzml(path=self._path)
 
     @cached_property
     def n_spectra(self) -> int:

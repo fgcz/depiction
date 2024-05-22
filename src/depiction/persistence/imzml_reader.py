@@ -27,7 +27,7 @@ class ImzmlReader:
         int_arr_offsets: list[int],
         int_arr_lengths: list[int],
         int_arr_dtype: str,
-        coordinates,
+        coordinates: NDArray[int],
         imzml_path: Path,
     ) -> None:
         self._imzml_path = imzml_path
@@ -201,7 +201,7 @@ class ImzmlReader:
             int_arr_offsets=portable_reader.intensityOffsets,
             int_arr_lengths=portable_reader.intensityLengths,
             int_arr_dtype=portable_reader.intensityPrecision,
-            coordinates=portable_reader.coordinates,
+            coordinates=np.asarray(portable_reader.coordinates),
             imzml_path=path,
         )
 

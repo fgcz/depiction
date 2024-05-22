@@ -5,7 +5,7 @@ from functools import cached_property
 from typing import Any, TYPE_CHECKING
 
 import numpy as np
-import pyimzml
+import pyimzml.ImzMLParser
 
 from depiction.persistence.imzml_mode_enum import ImzmlModeEnum
 

@@ -1,7 +1,7 @@
 from functools import cached_property
 
-from ionplotter.spectrum.baseline import LocalMediansBaseline
-from ionplotter.misc.integration_test_utils import IntegrationTestUtils
+from depiction.spectrum.baseline import LocalMediansBaseline
+from depiction.misc.integration_test_utils import IntegrationTestUtils
 from unittest.mock import MagicMock, patch
 import numpy as np
 import os

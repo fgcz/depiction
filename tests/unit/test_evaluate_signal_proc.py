@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from ionplotter.evaluate_signal_proc import EvaluateGaussianSmoothing
-from ionplotter.misc.integration_test_utils import IntegrationTestUtils
+from depiction.evaluate_signal_proc import EvaluateGaussianSmoothing
+from depiction.misc.integration_test_utils import IntegrationTestUtils
 
 
 class TestEvaluateGaussianSmoothing(unittest.TestCase):

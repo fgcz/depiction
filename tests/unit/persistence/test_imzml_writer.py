@@ -5,7 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, patch, call
 
-from ionplotter.persistence import ImzmlWriter, ImzmlModeEnum
+from depiction.persistence import ImzmlWriter, ImzmlModeEnum
 
 
 class TestImzmlWriter(unittest.TestCase):

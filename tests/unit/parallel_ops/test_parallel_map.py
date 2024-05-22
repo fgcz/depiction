@@ -2,8 +2,8 @@ import unittest
 from functools import cached_property
 from unittest.mock import MagicMock
 
-from ionplotter.parallel_ops import ParallelConfig
-from ionplotter.parallel_ops.parallel_map import ParallelMap
+from depiction.parallel_ops import ParallelConfig
+from depiction.parallel_ops.parallel_map import ParallelMap
 
 
 class TestParallelMap(unittest.TestCase):

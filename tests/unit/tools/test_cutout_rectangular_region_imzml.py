@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock, call, ANY
 
 import numpy as np
 
-from ionplotter.tools.cutout_rectangular_region_imzml import (
+from depiction.tools.cutout_rectangular_region_imzml import (
     CutoutRectangularRegionImzml,
 )
 

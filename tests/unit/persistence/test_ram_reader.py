@@ -4,8 +4,8 @@ from unittest.mock import ANY
 
 import numpy as np
 
-from ionplotter.persistence import ImzmlModeEnum
-from ionplotter.persistence.ram_reader import RamReader
+from depiction.persistence import ImzmlModeEnum
+from depiction.persistence.ram_reader import RamReader
 
 
 class TestRamReader(unittest.TestCase):

@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 
 import numpy as np
 
-from ionplotter.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
+from depiction.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 
 
 class TestBasicPeakPicker(unittest.TestCase):

@@ -3,7 +3,7 @@ from functools import cached_property
 
 import numpy as np
 
-from ionplotter.spectrum.evaluate_bins import BinStatistic, EvaluateBins
+from depiction.spectrum.evaluate_bins import BinStatistic, EvaluateBins
 
 
 class TestEvaluateBins(unittest.TestCase):

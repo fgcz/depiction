@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from ionplotter.calibration.models.constant_model import ConstantModel
+from depiction.calibration.models.constant_model import ConstantModel
 
 
 class TestConstantModel(unittest.TestCase):

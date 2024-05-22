@@ -2,7 +2,7 @@ import unittest
 import xarray
 import polars as pl
 import polars.testing
-from ionplotter.tools.image_channel_statistics import ImageChannelStatistics
+from depiction.tools.image_channel_statistics import ImageChannelStatistics
 
 
 class TestImageChannelStatistics(unittest.TestCase):

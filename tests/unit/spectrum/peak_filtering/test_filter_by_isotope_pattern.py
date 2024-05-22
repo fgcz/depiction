@@ -3,7 +3,7 @@ from functools import cached_property
 
 import numpy as np
 
-from ionplotter.spectrum.peak_filtering.filter_by_isotope_pattern import (
+from depiction.spectrum.peak_filtering.filter_by_isotope_pattern import (
     FilterByIsotopePattern,
 )
 

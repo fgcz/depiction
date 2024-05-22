@@ -5,7 +5,7 @@ from unittest.mock import patch, ANY
 
 import numpy as np
 
-from ionplotter.image.sparse_image_2d import SparseImage2d
+from depiction.image.sparse_image_2d import SparseImage2d
 
 
 class TestSparseImage2d(unittest.TestCase):
@@ -110,7 +110,7 @@ class TestSparseImage2d(unittest.TestCase):
         np.testing.assert_array_equal(coordinates, retained.sparse_coordinates)
         np.testing.assert_array_equal(np.array([[4.0, 6], [4, 6], [8, 8], [9, 9]]), retained.sparse_values)
 
-    @patch("ionplotter.image.sparse_image_2d.matplotlib.pyplot")
+    @patch("depiction.image.sparse_image_2d.matplotlib.pyplot")
     @patch("seaborn.color_palette")
     def test_save_single_channel_image(self, mock_color_palette, mock_matplotlib_pyplot) -> None:
         self.mock_image.save_single_channel_image(0, "path")

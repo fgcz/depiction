@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
-from ionplotter.parallel_ops import ReadSpectraParallel
-from ionplotter.persistence import RamReadFile
+from depiction.parallel_ops import ReadSpectraParallel
+from depiction.persistence import RamReadFile
 
 
 class TestReadSpectraParallel(unittest.TestCase):

@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 
 import numpy as np
 
-from ionplotter.persistence import ImzmlReadFile, ImzmlModeEnum
+from depiction.persistence import ImzmlReadFile, ImzmlModeEnum
 from typing import NoReturn
 
 

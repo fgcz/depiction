@@ -3,7 +3,7 @@ from functools import cached_property
 
 import numpy as np
 
-from ionplotter.misc.experimental.resample_mass_axis import ResampleMassAxis
+from depiction.misc.experimental.resample_mass_axis import ResampleMassAxis
 
 
 class TestResampleMassAxis(unittest.TestCase):

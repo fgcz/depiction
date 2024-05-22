@@ -5,9 +5,9 @@ from unittest.mock import patch, MagicMock
 
 import numpy as np
 
-import ionplotter.spectrum.baseline.tophat_baseline as test_module
-from ionplotter.spectrum.baseline import TophatBaseline
-from ionplotter.misc.integration_test_utils import IntegrationTestUtils
+import depiction.spectrum.baseline.tophat_baseline as test_module
+from depiction.spectrum.baseline import TophatBaseline
+from depiction.misc.integration_test_utils import IntegrationTestUtils
 
 
 @patch.dict(os.environ, {"NUMBA_DEBUGINFO": "1"})

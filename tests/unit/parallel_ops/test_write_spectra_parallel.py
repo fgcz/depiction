@@ -3,12 +3,12 @@ from functools import cached_property
 from pathlib import Path
 from unittest.mock import MagicMock, ANY, patch, call
 
-from ionplotter.parallel_ops import (
+from depiction.parallel_ops import (
     WriteSpectraParallel,
     ReadSpectraParallel,
 )
-from ionplotter.persistence import ImzmlModeEnum, ImzmlWriteFile
-from ionplotter.tools.merge_imzml import MergeImzml
+from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile
+from depiction.tools.merge_imzml import MergeImzml
 
 
 class TestWriteSpectraParallel(unittest.TestCase):
@@ -39,7 +39,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
     def mock_parallel(self) -> WriteSpectraParallel:
         return WriteSpectraParallel.from_config(self.mock_config)
 
-    @patch("ionplotter.parallel_ops.write_spectra_parallel.TemporaryDirectory")
+    @patch("depiction.parallel_ops.write_spectra_parallel.TemporaryDirectory")
     @patch.object(WriteSpectraParallel, "_get_split_modes_and_paths")
     @patch.object(WriteSpectraParallel, "_write_transformed_chunked_operation")
     @patch.object(WriteSpectraParallel, "_merge_results")
@@ -92,8 +92,8 @@ class TestWriteSpectraParallel(unittest.TestCase):
             write_files=mock_write_files,
         )
 
-    @patch("ionplotter.parallel_ops.write_spectra_parallel.TemporaryDirectory")
-    @patch("ionplotter.parallel_ops.write_spectra_parallel.ImzmlWriteFile")
+    @patch("depiction.parallel_ops.write_spectra_parallel.TemporaryDirectory")
+    @patch("depiction.parallel_ops.write_spectra_parallel.ImzmlWriteFile")
     @patch.object(WriteSpectraParallel, "map_chunked_to_files")
     def test_map_chunked_external_to_files(
         self, mock_map_chunked_to_files, mock_imzml_write_file, mock_temporary_directory
@@ -266,7 +266,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
         self.assertEqual(mock_writer_instances[1], mock_operation.mock_calls[0].args[2][1])
 
     @patch.object(MergeImzml, "merge")
-    @patch("ionplotter.parallel_ops.write_spectra_parallel.ImzmlReadFile")
+    @patch("depiction.parallel_ops.write_spectra_parallel.ImzmlReadFile")
     def test_merge_results(self, mock_read_file, method_merge) -> None:
         mock_read_file.side_effect = lambda path: {"read_file": path}
         mock_write_file_0 = MagicMock(

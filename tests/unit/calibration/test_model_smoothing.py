@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
-from ionplotter.calibration.deprecated.model_smoothing import ModelSmoothing
+from depiction.calibration.deprecated.model_smoothing import ModelSmoothing
 from typing import NoReturn
 
 

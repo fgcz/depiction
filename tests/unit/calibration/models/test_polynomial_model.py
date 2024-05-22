@@ -4,7 +4,7 @@ from unittest.mock import patch, ANY
 
 import numpy as np
 
-from ionplotter.calibration.models.polynomial_model import PolynomialModel
+from depiction.calibration.models.polynomial_model import PolynomialModel
 
 
 class TestPolynomialModel(unittest.TestCase):

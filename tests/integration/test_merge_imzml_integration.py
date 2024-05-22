@@ -4,9 +4,9 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 
-from ionplotter.misc.integration_test_utils import IntegrationTestUtils
-from ionplotter.persistence import ImzmlReadFile, ImzmlModeEnum, ImzmlWriteFile
-from ionplotter.tools.merge_imzml import MergeImzml
+from depiction.misc.integration_test_utils import IntegrationTestUtils
+from depiction.persistence import ImzmlReadFile, ImzmlModeEnum, ImzmlWriteFile
+from depiction.tools.merge_imzml import MergeImzml
 
 
 class TestMergeImzmlIntegration(unittest.TestCase):

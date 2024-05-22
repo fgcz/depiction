@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
-from ionplotter.spectrum.peak_filtering.filter_by_intensity import FilterByIntensity
+from depiction.spectrum.peak_filtering.filter_by_intensity import FilterByIntensity
 
 
 class TestFilterByIntensity(unittest.TestCase):

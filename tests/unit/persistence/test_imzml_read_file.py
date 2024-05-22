@@ -1,12 +1,12 @@
 import unittest
 from functools import cached_property
 from pathlib import Path
+from typing import NoReturn
 from unittest.mock import patch, MagicMock
 
 import numpy as np
 
 from depiction.persistence import ImzmlReadFile, ImzmlModeEnum
-from typing import NoReturn
 
 
 class TestImzmlReadFile(unittest.TestCase):
@@ -125,12 +125,22 @@ class TestImzmlReadFile(unittest.TestCase):
         self.assertEqual({"sha1": "abcd"}, self.mock_read_file.metadata_checksums)
 
     @patch("pyimzml.ImzMLParser.ImzMLParser")
+    def test_metadata_checksums_when_sha256_available(self, mock_pyimzml_parser) -> None:
+        mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {"ibd SHA-256": "ABCD"}
+        self.assertEqual({"sha256": "abcd"}, self.mock_read_file.metadata_checksums)
+
+    @patch("pyimzml.ImzMLParser.ImzMLParser")
     def test_metadata_checksums_when_both_checksums_available(self, mock_pyimzml_parser) -> None:
         mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {
             "ibd MD5": "ABCD",
             "ibd SHA-1": "EF00",
         }
         self.assertEqual({"md5": "abcd", "sha1": "ef00"}, self.mock_read_file.metadata_checksums)
+
+    @patch("depiction.persistence.imzml_read_file.FileChecksums")
+    def test_ibd_checksums(self, mock_file_checksums):
+        self.assertEqual(mock_file_checksums.return_value, self.mock_read_file.ibd_checksums)
+        mock_file_checksums.assert_called_once_with(file_path=self.mock_read_file.ibd_file)
 
     @patch.object(ImzmlReadFile, "metadata_checksums", new={})
     def test_is_checksum_valid_when_no_checksums_available(self) -> None:
@@ -161,6 +171,12 @@ class TestImzmlReadFile(unittest.TestCase):
         mock_ibd_checksums.checksum_md5 = "1234"
         self.assertTrue(self.mock_read_file.is_checksum_valid)
 
+    @patch.object(ImzmlReadFile, "metadata_checksums", new={"abc": "1234"})
+    def test_is_checksum_valid_when_invalid_metadata_checksums(self) -> None:
+        with self.assertRaises(ValueError) as error:
+            _ = self.mock_read_file.is_checksum_valid
+        self.assertIn("Invalid metadata_checksums", str(error.exception))
+
     @patch.object(ImzmlReadFile, "imzml_file")
     @patch.object(ImzmlReadFile, "ibd_file")
     def test_file_sizes_bytes(self, mock_ibd_file, mock_imzml_file) -> None:
@@ -171,8 +187,8 @@ class TestImzmlReadFile(unittest.TestCase):
     @patch.object(ImzmlReadFile, "imzml_file")
     @patch.object(ImzmlReadFile, "ibd_file")
     def test_get_file_sizes_mb(self, mock_ibd_file, mock_imzml_file) -> None:
-        mock_imzml_file.stat.return_value.st_size = round(2.5 * 1024**2)
-        mock_ibd_file.stat.return_value.st_size = round(3.5 * 1024**2)
+        mock_imzml_file.stat.return_value.st_size = round(2.5 * 1024 ** 2)
+        mock_ibd_file.stat.return_value.st_size = round(3.5 * 1024 ** 2)
         self.assertEqual({"imzml", "ibd"}, self.mock_read_file.file_sizes_mb.keys())
         self.assertAlmostEqual(2.5, self.mock_read_file.file_sizes_mb["imzml"], places=8)
         self.assertAlmostEqual(3.5, self.mock_read_file.file_sizes_mb["ibd"], places=8)

@@ -230,6 +230,23 @@ class TestImzmlReader(unittest.TestCase):
         self.assertTupleEqual((0.5, 6), mz_range)
         self.assertListEqual([call(0), call(1), call(2)], mock_get_spectrum_mz.mock_calls)
 
+    @patch("depiction.persistence.imzml_reader.pyimzml.ImzMLParser.ImzMLParser")
+    def test_parse_imzml(self, module_imzml_parser):
+        mock_path = MagicMock(name="mock_path", spec=[])
+        mock_portable_spectrum_reader = MagicMock(name="mock_portable_spectrum_reader")
+        module_imzml_parser.return_value.__enter__.return_value.portable_spectrum_reader.return_value = mock_portable_spectrum_reader
+        mock_portable_spectrum_reader.mzPrecision = "f"
+        mock_portable_spectrum_reader.intensityPrecision = "i"
+        result = ImzmlReader.parse_imzml(path=mock_path)
+        self.assertEqual(mock_path, result.imzml_path)
+        self.assertEqual("f", result._mz_arr_dtype)
+        self.assertEqual("i", result._int_arr_dtype)
+        self.assertEqual(mock_portable_spectrum_reader.mzOffsets, result._mz_arr_offsets)
+        self.assertEqual(mock_portable_spectrum_reader.mzLengths, result._mz_arr_lengths)
+        self.assertEqual(mock_portable_spectrum_reader.intensityOffsets, result._int_arr_offsets)
+        self.assertEqual(mock_portable_spectrum_reader.intensityLengths, result._int_arr_lengths)
+        np.testing.assert_array_equal(mock_portable_spectrum_reader.coordinates, result._coordinates)
+
     def test_str(self) -> None:
         self.assertEqual("ImzmlReader[/dev/null/test.imzML, n_spectra=3, int_arr_dtype=f, mz_arr_dtype=i]",
                          str(self.mock_reader))

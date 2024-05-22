@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from depiction.spatial_smoothing import SpatialSmoothing
+from depiction.image.spatial_smoothing import SpatialSmoothing
 
 
 class TestSpatialSmoothing(unittest.TestCase):

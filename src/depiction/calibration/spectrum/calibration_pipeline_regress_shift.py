@@ -3,7 +3,7 @@ from numpy.typing import NDArray
 
 from depiction.calibration.models.fit_model import fit_model
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
-from depiction.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
+from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
 class CalibrationPipelineRegressShift:

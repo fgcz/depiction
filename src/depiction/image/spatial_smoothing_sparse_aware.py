@@ -6,7 +6,7 @@ import numpy as np
 from numpy.typing import NDArray
 import scipy
 
-from depiction.spatial_smoothing import SpatialSmoothing
+from depiction.image.spatial_smoothing import SpatialSmoothing
 
 
 @dataclass(frozen=True)

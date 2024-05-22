@@ -20,7 +20,7 @@ from depiction.persistence import (
     ImzmlWriter,
     ImzmlModeEnum,
 )
-from depiction.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
+from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
 class CalibrateImageTargeted:

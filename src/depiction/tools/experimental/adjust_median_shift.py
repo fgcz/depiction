@@ -13,7 +13,7 @@ from depiction.parallel_ops import (
     ReadSpectraParallel,
     WriteSpectraParallel,
 )
-from depiction.spatial_smoothing import SpatialSmoothing
+from depiction.image.spatial_smoothing import SpatialSmoothing
 
 if TYPE_CHECKING:
     from depiction.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker

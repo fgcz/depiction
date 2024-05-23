@@ -56,36 +56,10 @@ class SparseRepresentation:
         else:
             # select the background
             if np.isnan(bg_value):
-                mask = np.all(np.isnan(grid_values), axis=-1)
+                mask_coords = np.where(~np.all(np.isnan(grid_values), axis=-1))
             else:
-                mask = np.all(grid_values == bg_value, axis=-1)
-            sparse_values = grid_values[~mask]
-            coordinates = np.array(list(np.ndindex(grid_values.shape[:-1])))[~mask]
+                mask_coords = np.where(~np.all(grid_values == bg_value, axis=-1))
+            sparse_values = grid_values[mask_coords]
+            coordinates = np.stack(mask_coords, axis=1)
 
         return DataArray(sparse_values, dims=("i", "c")), DataArray(coordinates, dims=("i", "d"))
-
-    ## TODO extract into dedicated module
-    # @staticmethod
-    # def flat_to_grid_old_numpy(sparse_values: NDArray[float], coordinates: NDArray[int], background_value: float) -> \
-    # NDArray[
-    #    float]:
-    #    """
-    #    values: shape (n_values,) or (n_values, n_channels)
-    #    coordinates: shape (n_values, n_dims)
-    #    """
-    #    coordinates_min = coordinates.min(axis=0)
-    #    coordinates_extent = coordinates.max(axis=0) - coordinates_min + 1
-    #    coordinates_shifted = coordinates - coordinates_min
-
-    #    dtype = np.promote_types(sparse_values.dtype, np.obj2sctype(type(background_value)))
-    #    values_grid = np.full(coordinates_extent, fill_value=background_value, dtype=dtype)
-    #    values_grid[tuple(coordinates_shifted.T)] = sparse_values
-
-    #    return values_grid
-
-    ## TODO extract into dedicated module
-    # @staticmethod
-    # def grid_to_flat_old_numpy(values_grid: NDArray[float], coordinates: NDArray[int]) -> NDArray[float]:
-    #    coordinates_min = coordinates.min(axis=0)
-    #    coordinates_offset = coordinates - coordinates_min
-    #    return values_grid[tuple(coordinates_offset.T)]

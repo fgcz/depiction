@@ -23,7 +23,6 @@ class SparseRepresentation:
         :return: DataArray with "y", "x", and "c" dimensions
         """
         n_channels = sparse_values.sizes["c"]
-        print(f"{n_channels=}")
         sparse_values = sparse_values.transpose("i", "c").values
         coordinates = coordinates.transpose("i", "d").values
 
@@ -33,7 +32,6 @@ class SparseRepresentation:
         dtype = np.promote_types(sparse_values.dtype, np.obj2sctype(type(background_value)))
         values_grid = np.full((coordinates_extent[0], coordinates_extent[1], n_channels), fill_value=background_value,
                               dtype=dtype)
-        print(values_grid.shape)
         for i_channel in range(n_channels):
             values_grid[tuple(coordinates_shifted.T) + (i_channel,)] = sparse_values[:, i_channel]
 

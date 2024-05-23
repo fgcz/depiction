@@ -55,7 +55,7 @@ class TestSparseRepresentation(unittest.TestCase):
 
     def test_round_trip(self):
         # NOTE: This is not really a unit test (TODO keep it?)
-        sparse_values = DataArray([[2, 3], [4, 5], [6, 7]], dims=["c", "i"])
+        sparse_values = DataArray([[2, 3], [4, 5], [6, 7]], dims=["i", "c"])
         coordinates = DataArray([[0, 0], [1, 0], [2, 1]], dims=["i", "d"])
 
         dense_values = SparseRepresentation.flat_to_grid(sparse_values, coordinates, background_value=0)

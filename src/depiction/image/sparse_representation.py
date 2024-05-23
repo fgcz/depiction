@@ -30,8 +30,9 @@ class SparseRepresentation:
         coordinates_shifted = coordinates - coordinates.min(axis=0)
 
         dtype = np.promote_types(sparse_values.dtype, np.obj2sctype(type(background_value)))
-        values_grid = np.full((coordinates_extent[0], coordinates_extent[1], n_channels), fill_value=background_value,
-                              dtype=dtype)
+        values_grid = np.full(
+            (coordinates_extent[0], coordinates_extent[1], n_channels), fill_value=background_value, dtype=dtype
+        )
         for i_channel in range(n_channels):
             values_grid[tuple(coordinates_shifted.T) + (i_channel,)] = sparse_values[:, i_channel]
 

@@ -38,7 +38,9 @@ class SpatialSmoothing:
 
     # TODO extract into dedicated module
     @staticmethod
-    def flat_to_grid(sparse_values: NDArray[float], coordinates: NDArray[int], background_value: float) -> NDArray[float]:
+    def flat_to_grid(
+        sparse_values: NDArray[float], coordinates: NDArray[int], background_value: float
+    ) -> NDArray[float]:
         """
         values: shape (n_values,) or (n_values, n_channels)
         coordinates: shape (n_values, n_dims)

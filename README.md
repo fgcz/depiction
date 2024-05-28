@@ -1,26 +1,40 @@
 ## Status
+
 A lot of the files and folders are in a early development state or may require some serious refactoring.
 For now, I give a summary of the modules which are somewhat stable already:
 
-| Module                               | Description                                                                 |
-|--------------------------------------|-----------------------------------------------------------------------------|
-| `ionplotter.spectrum`                | Collection of spectra processing functionality.                             |
-| `ionplotter.spectrum.baseline`       | Estimate spectrum baseline curve.                                           |
-| `ionplotter.spectrum.peak_picking`   |                                                                             |
-| `ionplotter.spectrum.peak_filtering` |                                                                             |
-| `ionplotter.calibration`             | Calibration specific functionality.                                         |
-| `ionplotter.image`                   | Image specific functionality.                                               |
-| `ionplotter.parallel_ops`            | Basic building blocks for parallelization of operations accross *ReadFiles. |
-| `ionplotter.persistence`             | Persistence specific code, including reader and writer for Imzml files.     |
-| `ionplotter.peak_filtering`          | Peak filtering specific code.                                               |
-| `ionplotter.peak_picking`            | Peak picking specific code.                                                 |
-| `ionplotter.visualize`               | Visualization specific code.                                                |
-
+| Module                               | Description                                                                |
+|--------------------------------------|----------------------------------------------------------------------------|
+| `ionplotter.spectrum`                | Collection of spectra processing functionality.                            |
+| `ionplotter.spectrum.baseline`       | Estimate spectrum baseline curve.                                          |
+| `ionplotter.spectrum.peak_picking`   |                                                                            |
+| `ionplotter.spectrum.peak_filtering` |                                                                            |
+| `ionplotter.calibration`             | Calibration specific functionality.                                        |
+| `ionplotter.image`                   | Image specific functionality.                                              |
+| `ionplotter.parallel_ops`            | Basic building blocks for parallelization of operations across *ReadFiles. |
+| `ionplotter.persistence`             | Persistence specific code, including reader and writer for Imzml files.    |
+| `ionplotter.peak_filtering`          | Peak filtering specific code.                                              |
+| `ionplotter.peak_picking`            | Peak picking specific code.                                                |
+| `ionplotter.visualize`               | Visualization specific code.                                               |
 
 ## Setup dev environment
+
 Install the `pyproject.toml` in editable mode, tested with [uv](https://github.com/astral-sh/uv):
 
 ```bash
 uv venv # <- if not using anaconda
 uv pip install -e ".[dev,testing]"
 ```
+
+## Geometry Conventions
+
+TODO these are not used consistently everywhere yet
+
+### Dimension names
+
+- (2D) Points: (x, y)
+- (2D) Images: (y, x, c)
+- Sparse images: (i, c)
+- Coordinates: (i, d) and each row corresponds to point ordering (i.e. (x, y))
+
+TODO: y-axis direction

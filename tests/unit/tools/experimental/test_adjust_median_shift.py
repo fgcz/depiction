@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import numpy as np
 
-from depiction.tools.experimental.adjust_median_shift import AdjustMedianShift
+from depiction.calibration.deprecated.adjust_median_shift import AdjustMedianShift
 from typing import NoReturn
 
 

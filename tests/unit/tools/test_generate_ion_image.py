@@ -14,8 +14,8 @@ class TestGenerateIonImage(unittest.TestCase):
 
     @patch.object(GenerateIonImage, "_compute_channels_chunk")
     @patch.object(ReadSpectraParallel, "from_config")
-    @patch("depiction.tools.generate_ion_image.SparseImage2d")
-    def test_generate_ion_images_for_file(self, mock_sparse_image, mock_from_config, method_compute_channels) -> None:
+    @patch("depiction.tools.generate_ion_image.MultiChannelImage")
+    def test_generate_ion_images_for_file(self, mock_multi_channel_image, mock_from_config, method_compute_channels) -> None:
         mock_input_file = MagicMock(name="input_file", spec=["coordinates_2d"])
         mock_mz_values = MagicMock(name="mz_values", spec=[])
         mock_tol = MagicMock(name="tol", spec=[])
@@ -38,18 +38,19 @@ class TestGenerateIonImage(unittest.TestCase):
         reduced = reduce_fn([np.array([[1], [2]]), np.array([[3], [4]])])
         np.testing.assert_array_equal(np.array([[1], [2], [3], [4]]), reduced)
 
-        mock_sparse_image.assert_called_once_with(
+        mock_multi_channel_image.from_numpy_sparse.assert_called_once_with(
             values=mock_parallelize.map_chunked.return_value,
             coordinates=mock_input_file.coordinates_2d,
             channel_names=None,
+            bg_value=np.nan,
         )
-        self.assertEqual(mock_sparse_image.return_value, result)
+        self.assertEqual(mock_multi_channel_image.from_numpy_sparse.return_value, result)
 
     @patch.object(GenerateIonImage, "_compute_for_mz_ranges")
     @patch.object(ReadSpectraParallel, "from_config")
-    @patch("depiction.tools.generate_ion_image.SparseImage2d")
+    @patch("depiction.tools.generate_ion_image.MultiChannelImage")
     def test_generate_range_images_for_file(
-        self, mock_sparse_image, mock_from_config, method_compute_for_mz_ranges
+        self, mock_multi_channel_image, mock_from_config, method_compute_for_mz_ranges
     ) -> None:
         mock_input_file = MagicMock(name="input_file", spec=["coordinates_2d"])
         mock_mz_ranges = MagicMock(name="mz_ranges", spec=[])
@@ -72,12 +73,13 @@ class TestGenerateIonImage(unittest.TestCase):
         reduced = reduce_fn([np.array([[1], [2]]), np.array([[3], [4]])])
         np.testing.assert_array_equal(np.array([[1], [2], [3], [4]]), reduced)
 
-        mock_sparse_image.assert_called_once_with(
+        mock_multi_channel_image.from_numpy_sparse.assert_called_once_with(
             values=mock_parallelize.map_chunked.return_value,
             coordinates=mock_input_file.coordinates_2d,
             channel_names=None,
+            bg_value=np.nan,
         )
-        self.assertEqual(mock_sparse_image.return_value, result)
+        self.assertEqual(mock_multi_channel_image.from_numpy_sparse.return_value, result)
 
     def test_compute_for_mz_ranges(self) -> None:
         mock_reader = MagicMock(name="reader")

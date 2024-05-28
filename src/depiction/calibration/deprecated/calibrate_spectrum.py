@@ -13,6 +13,7 @@ from depiction.calibration.deprecated.reference_distance_estimator import (
 )
 from depiction.spectrum.peak_filtering import PeakFilteringType
 
+
 # TODO refactor this code once development is more advanced
 class CalibrateSpectrum:
     """

@@ -1,14 +1,13 @@
 import argparse
+from collections.abc import Sequence
 from pprint import pprint
 from typing import Optional
-from collections.abc import Sequence
 
 import numpy as np
 import polars as pl
-import xarray
 from numpy.typing import NDArray
 
-from depiction.image.sparse_image_2d import SparseImage2d
+from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
 from depiction.persistence import ImzmlReadFile, ImzmlReader
@@ -32,7 +31,7 @@ class GenerateIonImage:
         mz_values: Sequence[float],
         tol: float | Sequence[float],
         channel_names: Optional[list[str]] = None,
-    ) -> SparseImage2d:
+    ) -> MultiChannelImage:
         """
         Generates an ion image for each of the provided mz values, and returns a multi-channel `SparseImage2d`.
         Multiple peaks will be summed to obtain the intensity.
@@ -50,34 +49,21 @@ class GenerateIonImage:
             bind_args=dict(mz_values=mz_values, tol_values=tol),
             reduce_fn=lambda chunks: np.concatenate(chunks, axis=0),
         )
-        return SparseImage2d(
+        return MultiChannelImage.from_numpy_sparse(
             values=channel_values,
             coordinates=input_file.coordinates_2d,
             channel_names=channel_names,
+            # TODO clarify
+            bg_value=np.nan,
         )
-
-    def generate_ion_images_xarray_for_file(
-        self,
-        input_file: ImzmlReadFile,
-        mz_values: Sequence[float],
-        tol: float | Sequence[float],
-        channel_names: Optional[list[str]] = None,
-    ) -> xarray.DataArray:
-        return self.generate_ion_images_for_file(
-            input_file=input_file,
-            mz_values=mz_values,
-            tol=tol,
-            channel_names=channel_names,
-        ).to_dense_xarray(bg_value=np.nan)
 
     def generate_range_images_for_file(
         self,
         input_file: ImzmlReadFile,
         mz_ranges: list[tuple[float, float]],
         channel_names: Optional[list[str]] = None,
-    ) -> SparseImage2d:
-        """
-        Generates an image for each of the provided mz ranges, and returns a multi-channel `SparseImage2d` with
+    ) -> MultiChannelImage:
+        """Generates an image for each of the provided mz ranges, and returns a multi-channel `SparseImage2d` with
         the summed intensities.
         :param input_file: the input file
         :param mz_ranges: the mz ranges
@@ -90,10 +76,12 @@ class GenerateIonImage:
             bind_args=dict(mz_ranges=mz_ranges),
             reduce_fn=lambda chunks: np.concatenate(chunks, axis=0),
         )
-        return SparseImage2d(
+        return MultiChannelImage.from_numpy_sparse(
             values=channel_values,
             coordinates=input_file.coordinates_2d,
             channel_names=channel_names,
+            # TODO clarfiy (see above)
+            bg_value=np.nan,
         )
 
     @classmethod

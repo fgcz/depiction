@@ -28,11 +28,13 @@ dependencies = [
     "scipy>=1.11.4",
     "seaborn>=0.13.0",
     "snakemake>=8.10.7",
+    "sparse>=0.15.4",
     "statsmodels>=0.14.0",
     "tqdm>=4.66.1",
     "typer>=0.12.3",
     "vegafusion[embed]>=1.6.5",
-
+    "xarray",
+    "netCDF4",
     # TODO actually figure out which is the most useful, there is also tifffile and ome-types
     "pyometiff>=1.0.0",
     "ome-types>=0.5.1"

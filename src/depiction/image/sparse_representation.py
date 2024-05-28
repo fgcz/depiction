@@ -2,6 +2,10 @@ import numpy as np
 from xarray import DataArray
 
 
+# TODO consider removing grid/flat terminology and only use dense/sparse
+# TODO in many cases the logic can be abstracted, by simply allowing to pass a `sparse` object
+
+
 class SparseRepresentation:
     """Utility to convert to and from sparse representation. Even when memory usage is not a concern, some operations
     can be simpler or require the sparse format, so this utility can be useful.
@@ -15,11 +19,11 @@ class SparseRepresentation:
     """
 
     @classmethod
-    def flat_to_grid(cls, sparse_values: DataArray, coordinates: DataArray, background_value: float) -> DataArray:
+    def sparse_to_dense(cls, sparse_values: DataArray, coordinates: DataArray, bg_value: float) -> DataArray:
         """Converts the sparse image representation into a dense image representation.
         :param sparse_values: DataArray with "i" (index of value) and "c" (channel) dimensions
         :param coordinates: DataArray with "i" (index of value) and "d" (dimension) dimensions
-        :param background_value: the value to use for the background
+        :param bg_value: the value to use for the background
         :return: DataArray with "y", "x", and "c" dimensions
         """
         n_channels = sparse_values.sizes["c"]
@@ -29,9 +33,9 @@ class SparseRepresentation:
         coordinates_extent = coordinates.max(axis=0) - coordinates.min(axis=0) + 1
         coordinates_shifted = coordinates - coordinates.min(axis=0)
 
-        dtype = np.promote_types(sparse_values.dtype, np.obj2sctype(type(background_value)))
+        dtype = np.promote_types(sparse_values.dtype, np.obj2sctype(type(bg_value)))
         values_grid = np.full(
-            (coordinates_extent[0], coordinates_extent[1], n_channels), fill_value=background_value, dtype=dtype
+            (coordinates_extent[0], coordinates_extent[1], n_channels), fill_value=bg_value, dtype=dtype
         )
         for i_channel in range(n_channels):
             values_grid[tuple(coordinates_shifted.T) + (i_channel,)] = sparse_values[:, i_channel]
@@ -39,7 +43,7 @@ class SparseRepresentation:
         return DataArray(values_grid, dims=("y", "x", "c"))
 
     @classmethod
-    def grid_to_flat(cls, grid_values: DataArray, bg_value: float | None) -> tuple[DataArray, DataArray]:
+    def dense_to_sparse(cls, grid_values: DataArray, bg_value: float | None) -> tuple[DataArray, DataArray]:
         """Converts the dense image representation into a sparse image representation.
         :param grid_values: DataArray with "y", "x", and "c" dimensions
         :param bg_value: the value to use for the background, or None to use all values
@@ -47,7 +51,7 @@ class SparseRepresentation:
         :return: a tuple with two DataArrays, the first with "i" (index of value) and "c" (channel) dimensions,
             and the second with "i" (index of value) and "d" (dimension) dimensions
         """
-        grid_values = grid_values.transpose("y", "x", "c").values
+        grid_values = grid_values.transpose("x", "y", "c").values
         if bg_value is None:
             # use all values
             sparse_values = grid_values.reshape(-1, grid_values.shape[-1])
@@ -61,4 +65,14 @@ class SparseRepresentation:
             sparse_values = grid_values[mask_coords]
             coordinates = np.stack(mask_coords, axis=1)
 
-        return DataArray(sparse_values, dims=("i", "c")), DataArray(coordinates, dims=("i", "d"))
+        return DataArray(sparse_values, dims=("i", "c")), DataArray(
+            coordinates, dims=("i", "d"), coords={"d": ["x", "y"]}
+        )
+
+    @classmethod
+    def dense_to_sparse_coords(cls, grid_values: DataArray, coords: DataArray, is_shift_subtracted: bool) -> DataArray:
+        if not is_shift_subtracted:
+            coords = coords - coords.min(dim="i")
+        grid_values = grid_values.transpose("y", "x", "c").values
+        coords = coords.transpose("i", "d").values
+        return DataArray(grid_values[tuple(coords.T)], dims=["i", "c"])

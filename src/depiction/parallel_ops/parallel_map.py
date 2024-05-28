@@ -18,6 +18,10 @@ class ParallelMap:
     def __init__(self, config: ParallelConfig) -> None:
         self._config = config
 
+    @classmethod
+    def from_config(cls, config: ParallelConfig) -> ParallelMap:
+        return cls(config=config)
+
     @property
     def config(self) -> ParallelConfig:
         return self._config

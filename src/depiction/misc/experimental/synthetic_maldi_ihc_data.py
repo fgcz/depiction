@@ -4,10 +4,11 @@ import numpy as np
 import scipy
 from numpy.typing import NDArray
 from tqdm import tqdm
+from xarray import DataArray
 
 from depiction.estimate_ppm_error import EstimatePPMError
+from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.persistence import ImzmlWriteFile
-from depiction.image.sparse_image_2d import SparseImage2d
 
 
 class SyntheticMaldiIhcData:
@@ -23,7 +24,7 @@ class SyntheticMaldiIhcData:
         image_width: int,
         radius_mean: float = 15,
         radius_std: float = 5,
-    ) -> SparseImage2d:
+    ) -> MultiChannelImage:
         """Generates a label image with a circle for each specified label.
         Will generate a full rectangular image.
         :param n_labels: The number of labels to generate.
@@ -45,16 +46,14 @@ class SyntheticMaldiIhcData:
                     if distance < radius:
                         label_image[h, w, i_label] = 1
 
-        return SparseImage2d.from_dense_array(
-            dense_values=label_image,
-            offset=np.zeros(2, dtype=int),
-            channel_names=[f"synthetic_{i}" for i in range(n_labels)],
-        )
+        data = DataArray(label_image, dims=("y", "x", "c"), coords={"c": [f"synthetic_{i}" for i in range(n_labels)]})
+        data["bg_value"] = 0.
+        return MultiChannelImage(data)
 
     def generate_imzml_for_labels(
         self,
         write_file: ImzmlWriteFile,
-        label_image: SparseImage2d,
+        label_image: MultiChannelImage,
         label_masses: NDArray[float],
         n_isotopes: int,
         bin_width_ppm: float = 50,
@@ -63,8 +62,12 @@ class SyntheticMaldiIhcData:
     ) -> None:
         mz_arr = self.get_mz_arr(round(min(label_masses) - 10), round(max(label_masses) + 10), bin_width_ppm)
         with write_file.writer() as writer:
-            sparse_values = label_image.sparse_values
-            sparse_coordinates = label_image.sparse_coordinates
+            # TODO reimplement this by iterating over the xarray directly if possible
+            # sparse_values = label_image.sparse_values
+            # sparse_coordinates = label_image.sparse_coordinates
+            flat_data_array = label_image.get_channel_flat_array(label_image.channel_names)
+            sparse_values = flat_data_array.values
+            sparse_coordinates = flat_data_array.coords["c"].values
 
             for i, (x, y) in tqdm(enumerate(sparse_coordinates), total=len(sparse_coordinates)):
                 labels = sparse_values[i, :]

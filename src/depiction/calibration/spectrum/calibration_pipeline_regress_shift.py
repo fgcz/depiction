@@ -1,6 +1,8 @@
 import numpy as np
 from numpy.typing import NDArray
+from xarray import DataArray
 
+from depiction.calibration.models import LinearModel
 from depiction.calibration.models.fit_model import fit_model
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
 from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
@@ -44,7 +46,7 @@ class CalibrationPipelineRegressShift:
         self._input_smoothing_kernel_size = input_smoothing_kernel_size
         self._input_smoothing_kernel_std = input_smoothing_kernel_std
 
-    def preprocess_spectrum(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> NDArray[float]:
+    def extract_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
         distances_mz = ReferencePeakDistances.get_distances_max_peak_in_window(
             peak_mz_arr=peak_mz_arr,
             peak_int_arr=peak_int_arr,
@@ -54,7 +56,7 @@ class CalibrationPipelineRegressShift:
         )
         if np.sum(~np.isnan(distances_mz)) < self._min_points:
             # there are insufficient peaks in the window around the reference, so no model should be fitted
-            return np.full_like(distances_mz, fill_value=np.nan)
+            return DataArray(np.full_like(distances_mz, fill_value=np.nan), dims=["c"])
 
         median_shift_mz = np.nanmedian(distances_mz)
 
@@ -70,37 +72,49 @@ class CalibrationPipelineRegressShift:
         signed_distances += median_shift_mz
 
         if self._model_unit == "mz":
-            return signed_distances
+            return DataArray(signed_distances, dims=["c"])
         elif self._model_unit == "ppm":
             # convert the distances to ppm
-            return signed_distances / self._ref_mz_arr * 1e6
+            return DataArray(signed_distances / self._ref_mz_arr * 1e6, dims=["c"])
         else:
             raise ValueError(f"Unknown unit={self._model_unit}")
 
-    def process_coefficients(self, all_coefficients: NDArray[float], coordinates_2d: NDArray[int]) -> NDArray[float]:
-        # apply spatial smoothing if activated
+    def preprocess_features(self, all_features: DataArray) -> DataArray:
         if self._input_smoothing_activated:
+            features_flat = all_features.drop("i").set_xindex(["x", "y"])
+            features_2d = features_flat.unstack("i").transpose("y", "x", "c")
+
             smoother = SpatialSmoothingSparseAware(
                 kernel_size=self._input_smoothing_kernel_size,
                 kernel_std=self._input_smoothing_kernel_std,
             )
-            distance_vectors = smoother.smooth_sparse_multi_channel(
-                sparse_values=all_coefficients,
-                coordinates=coordinates_2d,
-            )
+            result = smoother.smooth(features_2d, bg_value=np.nan)
+
+            # TODO a bit ugly...
+            result = result.stack(i=("x", "y")).dropna("i", how="all")
+            x, y = result.x.values, result.y.values
+            result = result.drop_vars(["i", "x", "y"]).assign_coords(x=("i", x), y=("i", y), i=np.arange(len(result.i)))
+
+            return result
         else:
-            distance_vectors = all_coefficients
+            return all_features
 
-        return distance_vectors
-
-    def calibrate_spectrum(
-        self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], coefficients: NDArray[float]
-    ) -> NDArray[float]:
+    def fit_spectrum_model(self, features: DataArray) -> DataArray:
+        coefficients = features.values  # TODO make use of xarray
         x = self._ref_mz_arr[~np.isnan(coefficients)]
         y = coefficients[~np.isnan(coefficients)]
-
-        # TODO correct import
         model = fit_model(x=x, y=y, model_type=self._model_type)
+        return DataArray(model.coef, dims=["c"])
+
+    def apply_spectrum_model(
+        self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
+    ) -> tuple[NDArray[float], NDArray[float]]:
+        if not self._model_type.startswith("linear"):
+            # TODO this shouldn't be hard to implement, basically instead of strings we could use enums and provide some
+            #   helper methods. i think it would also make the code cleaner
+            raise NotImplementedError("proper model support")
+        model = LinearModel(model_coef.values)
+
         shifts_pred = model.predict(spectrum_mz_arr)
         if self._model_unit == "mz":
             shifts_mz = shifts_pred
@@ -108,4 +122,4 @@ class CalibrationPipelineRegressShift:
             shifts_mz = shifts_pred / 1e6 * spectrum_mz_arr
         else:
             raise ValueError(f"Unknown unit={self._model_unit}")
-        return spectrum_mz_arr - shifts_mz
+        return spectrum_mz_arr - shifts_mz, spectrum_int_arr

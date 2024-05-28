@@ -17,7 +17,7 @@ from depiction.persistence import (
     ImzmlWriteFile,
     ImzmlReader,
 )
-from depiction.tools.experimental.adjust_median_shift import AdjustMedianShift
+from depiction.calibration.deprecated.adjust_median_shift import AdjustMedianShift
 
 
 class CalibrateImageTargeted:

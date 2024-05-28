@@ -1,10 +1,10 @@
-
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 
 from depiction.calibration.models import GenericModel
-from depiction.image.sparse_image_2d import SparseImage2d
+from depiction.image.multi_channel_image import MultiChannelImage
+from depiction.visualize.plot_image import PlotImage
 
 
 class VisualizeMassShiftMap:
@@ -12,32 +12,23 @@ class VisualizeMassShiftMap:
         self._models = models
         self._coordinates = coordinates
 
-    def get_correction_image(self, test_masses: NDArray[float], unit: str = "m/z") -> SparseImage2d:
+    def get_correction_image(self, test_masses: NDArray[float], unit: str = "m/z") -> MultiChannelImage:
         """Returns a SparseImage2d with the correction values for the given test masses.
         Output channels will be named "test mass <mass>".
         :param test_masses: The test masses for which the correction values should be computed.
         :param unit: The unit of the test masses. Either "m/z" or "ppm".
         :return: A SparseImage2d with the correction values for the given test masses.
         """
-
-        def compute_error(model, test_mass):
-            if unit == "m/z":
-                return model.predict(test_mass)
-            elif unit == "ppm":
-                return model.predict(test_mass) / test_mass * 1e6
-            else:
-                raise ValueError(f"Unknown {unit=}")
-
         correction_values = np.concatenate(
             np.asarray(
                 [
-                    [compute_error(model=model, test_mass=test_mass) for model in self._models]
+                    [self._compute_error(model=model, test_mass=test_mass, unit=unit) for model in self._models]
                     for test_mass in test_masses
                 ]
             ),
             axis=1,
         )
-        return SparseImage2d(
+        return MultiChannelImage.from_numpy_sparse(
             values=correction_values,
             coordinates=self._coordinates,
             channel_names=[f"test mass {mass:.2f}" for mass in test_masses],
@@ -64,7 +55,8 @@ class VisualizeMassShiftMap:
         n_masses = len(test_masses)
 
         fig, axs = plt.subplots(n_masses, 2, figsize=(n_masses * 6, 12), sharex="col" if same_scale else False)
-        hist_bins = np.histogram(correction_image.sparse_values.ravel(), bins=n_bins)[1] if same_scale else n_bins
+        hist_bins = np.histogram(correction_image.get_channel_flat_array(correction_image.channel_names).values.ravel(),
+                                 bins=n_bins)[1]
 
         for i_mass, test_mass in enumerate(test_masses):
             self._plot_row(
@@ -80,29 +72,36 @@ class VisualizeMassShiftMap:
         fig.tight_layout()
         return fig, axs
 
+    @staticmethod
+    def _compute_error(model, test_mass, unit):
+        if unit == "m/z":
+            return model.predict(test_mass)
+        elif unit == "ppm":
+            return model.predict(test_mass) / test_mass * 1e6
+        else:
+            raise ValueError(f"Unknown {unit=}")
+
     def _plot_row(
         self,
         ax_map: plt.Axes,
         ax_hist: plt.Axes,
-        correction_image: SparseImage2d,
+        correction_image: MultiChannelImage,
         hist_bins: NDArray[float] | int,
-        same_scale: bool,
+        same_scale: bool,  # TODO this was already broken before but will probably be useful again
         scale_percentile: float,
         unit: str,
     ) -> None:
         # get the data
-        values = correction_image.sparse_values.ravel()
+        values = correction_image.get_channel_flat_array(correction_image.channel_names).values.ravel()
         name = correction_image.channel_names[0]
 
         # scaling value
-        if same_scale:
-            abs_perc = np.percentile(np.abs(correction_image.sparse_values.ravel()), scale_percentile)
-        else:
-            abs_perc = np.percentile(np.abs(values), scale_percentile)
+        abs_perc = np.percentile(np.abs(values), scale_percentile)
 
         # plot the map
-        correction_image.plot_single_channel_image(
-            i_channel=0, ax=ax_map, cmap="coolwarm", vmin=-abs_perc, vmax=abs_perc
+        PlotImage(correction_image).plot_single_channel_image(
+            correction_image.channel_names[0],
+            ax=ax_map, cmap="coolwarm", vmin=-abs_perc, vmax=abs_perc
         )
         ax_map.set_title(f"Error for {name}")
         ax_map.axis("off")
@@ -115,5 +114,5 @@ class VisualizeMassShiftMap:
         ax_hist.grid(True)
 
         # center histogram at zero
-        abs_max = np.max(np.abs(correction_image.sparse_values.ravel())) if same_scale else np.max(np.abs(values))
+        abs_max = np.max(np.abs(values))
         ax_hist.set_xlim(-abs_max, abs_max)

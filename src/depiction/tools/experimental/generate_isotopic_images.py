@@ -7,6 +7,9 @@ from depiction.persistence import ImzmlReadFile, ImzmlReader
 from depiction.image.sparse_image_2d import SparseImage2d
 
 
+# TODO this is currently not used but will need an update to use MultiChannelImage later
+
+
 class GenerateIsotopicImages:
     def __init__(self, max_ref_peak_distance: float, parallel_config: ParallelConfig) -> None:
         self._peak_picker = BasicPeakPicker(smooth_sigma=1.0, min_prominence=0.1)

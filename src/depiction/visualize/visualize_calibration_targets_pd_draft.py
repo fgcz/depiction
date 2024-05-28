@@ -24,14 +24,17 @@ class VisualizeCalibrationTargets:
 
     @classmethod
     def from_mean_spectrum(
-        cls, mean_mz_arr: NDArray[float], mean_int_arr: NDArray[float],
+        cls,
+        mean_mz_arr: NDArray[float],
+        mean_int_arr: NDArray[float],
     ) -> VisualizeCalibrationTargets:
         return cls(mean_mz_arr=mean_mz_arr, mean_int_arr=mean_int_arr)
 
     @classmethod
     def from_imzml_file(cls, read_file: ImzmlReadFile, parallel_config: ParallelConfig) -> VisualizeCalibrationTargets:
         mean_mz_arr, mean_int_arr = cls._get_mean_spectrum_for_file(
-            read_file=read_file, parallel_config=parallel_config,
+            read_file=read_file,
+            parallel_config=parallel_config,
         )
         return cls(mean_mz_arr=mean_mz_arr, mean_int_arr=mean_int_arr)
 
@@ -76,7 +79,9 @@ class VisualizeCalibrationTargets:
         ax.plot(*eval_range(mean_mz, mean_int, [mz_center - vis_tol, mz_center + vis_tol]))
         ax.set_title(title)
         ax.fill_between(
-            *eval_range(mean_mz, mean_int, [mz_center - mz_tol, mz_center + mz_tol]), alpha=0.5, label="signal",
+            *eval_range(mean_mz, mean_int, [mz_center - mz_tol, mz_center + mz_tol]),
+            alpha=0.5,
+            label="signal",
         )
         ax.axvline(mz_center, color="red", linestyle="-")
         ax.axvline(mz_center - mz_tol, color="gray", linestyle="--")
@@ -101,7 +106,11 @@ class VisualizeCalibrationTargets:
         grid_rows = int(np.ceil(len(target_mzs) / grid_cols))
 
         fig, axs = plt.subplots(
-            grid_rows, grid_cols, figsize=(grid_cols * 3, grid_rows * 3), sharey=True, squeeze=False,
+            grid_rows,
+            grid_cols,
+            figsize=(grid_cols * 3, grid_rows * 3),
+            sharey=True,
+            squeeze=False,
         )
         for i_row, i_col in itertools.product(range(grid_rows), range(grid_cols)):
             i_label = i_row * grid_cols + i_col
@@ -125,7 +134,9 @@ class VisualizeCalibrationTargets:
 
     @classmethod
     def _get_mean_spectrum_for_file(
-        cls, read_file: ImzmlReadFile, parallel_config: ParallelConfig,
+        cls,
+        read_file: ImzmlReadFile,
+        parallel_config: ParallelConfig,
     ) -> tuple[NDArray[float], NDArray[float]]:
         # TODO technically, this method does not really belong here, but for now it is fine.
         with read_file.reader() as reader:

@@ -1,27 +1,19 @@
 # TODO very experimental first version
 # TODO needs better name (but like this for easier distinguishing)
 import logging
-from typing import Protocol, Optional
+from pathlib import Path
+from typing import Optional
+
 import h5py
 import numpy as np
+import xarray
 from numpy.typing import NDArray
+from xarray import DataArray
 
+from depiction.calibration.calibration_type import CalibrationType
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel, WriteSpectraParallel
-from depiction.spectrum.peak_picking import BasicInterpolatedPeakPicker
+from depiction.parallel_ops.parallel_map import ParallelMap
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
-
-
-class CalibrationType(Protocol):
-    def preprocess_spectrum(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> NDArray[float]:
-        pass
-
-    def process_coefficients(self, all_coefficients: NDArray[float], coordinates_2d: NDArray[int]) -> NDArray[float]:
-        pass
-
-    def calibrate_spectrum(
-        self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], coefficients: NDArray[float]
-    ) -> NDArray[float]:
-        pass
 
 
 class PerformCalibration:
@@ -30,63 +22,144 @@ class PerformCalibration:
         calibration: CalibrationType,
         parallel_config: ParallelConfig,
         output_store: h5py.Group | None = None,
-        # TODO this should be deprecated (even though it might currently have some perf benefits)
-        peak_picker: Optional[BasicInterpolatedPeakPicker] = None,
+        coefficient_output_file: Path | None = None,
     ) -> None:
         self._calibration = calibration
         self._parallel_config = parallel_config
-        self._peak_picker = peak_picker
         self._output_store = output_store
+        self._coefficient_output_file = coefficient_output_file
+
+    # def _reshape(self, pattern: str, data: DataArray, coordinates) -> DataArray:
+    #    if pattern == "i,c->y,x,c":
+    #        data = data.copy()
+    #        # TODO fix the deprecation here!
+    #        data["i"] = pd.MultiIndex.from_arrays((coordinates[:, 1], coordinates[:, 0]), names=("y", "x"))
+    #        data = data.unstack("i")
+    #        return data.transpose("y", "x", "c")
+    #    elif pattern == "y,x,c->i,c":
+    #        data = data.transpose("y", "x", "c").copy()
+    #        data = data.stack(i=("y", "x")).drop_vars(["i", "x", "y"])
+    #        # convert to integers
+    #        data["i"] = np.arange(len(data["i"]))
+    #        return data.transpose("i", "c")
+    #    else:
+    #        raise ValueError(f"Unknown pattern={repr(pattern)}")
+
+    def _validate_per_spectra_array(self, array: DataArray, coordinates_2d) -> None:
+        """Checks the DataArray has the correct shapes and dimensions. Used for debugging. """
+        # TODO make it configurable in the future, whether this check is executed, during development it definitely
+        #      should be here since it can safe a ton of time
+        expected_coords = {"i", "x", "y"}
+        if set(array.coords) != expected_coords:
+            raise ValueError(f"Expected coords={expected_coords}, got={set(array.coords)}")
+        expected_dims = {"i", "c"}
+        if set(array.dims) != expected_dims:
+            raise ValueError(f"Expected dims={expected_dims}, got={set(array.dims)}")
+        if not np.array_equal(array.x.values, coordinates_2d[:, 0]):
+            logging.info(f"Expected x values={coordinates_2d[:, 0]}")
+            logging.info(f"Actual   x values={array.x.values}")
+            raise ValueError("Mismatch in x values")
+        if not np.array_equal(array.y.values, coordinates_2d[:, 1]):
+            logging.info(f"Expected y values={coordinates_2d[:, 1]}")
+            logging.info(f"Actual   y values={array.y.values}")
+            raise ValueError("Mismatch in y values")
+        if not np.array_equal(array.i.values, np.arange(len(array.i))):
+            raise ValueError("Mismatch in i values")
 
     def calibrate_image(
         self, read_peaks: ImzmlReadFile, write_file: ImzmlWriteFile, read_full: Optional[ImzmlReadFile] = None
     ) -> None:
-        read_parallel = ReadSpectraParallel.from_config(self._parallel_config)
+        if read_full is None:
+            read_full = read_peaks
+
         logger = logging.getLogger(__name__)
-        logger.info("Computing initial coefficients...")
-        coefficients = read_parallel.map_chunked(
+
+        logger.info("Extracting all features...")
+        all_features = self._extract_all_features(read_peaks)
+        self._validate_per_spectra_array(all_features, coordinates_2d=read_peaks.coordinates_2d)
+        self._write_data_array(all_features, group="features_raw")
+
+        logger.info("Preprocessing features...")
+        all_features = self._calibration.preprocess_features(all_features=all_features)
+        self._validate_per_spectra_array(all_features, coordinates_2d=read_peaks.coordinates_2d)
+        self._write_data_array(all_features, group="features_processed")
+
+        logger.info("Fitting models...")
+        model_coefs = self._fit_all_models(all_features=all_features)
+        self._validate_per_spectra_array(model_coefs, coordinates_2d=read_peaks.coordinates_2d)
+        self._write_data_array(model_coefs, group="model_coefs")
+
+        logger.info("Applying models...")
+        self._apply_all_models(read_file=read_full, write_file=write_file, all_model_coefs=model_coefs)
+
+    def _extract_all_features(self, read_peaks: ImzmlReadFile) -> DataArray:
+        read_parallel = ReadSpectraParallel.from_config(self._parallel_config)
+        all_features = read_parallel.map_chunked(
             read_file=read_peaks,
-            operation=self._get_initial_coefficients,
+            operation=self._extract_chunk_features,
             bind_args=dict(
                 calibration=self._calibration,
-                peak_picker=self._peak_picker,
             ),
-            reduce_fn=lambda chunks: np.concatenate(chunks, axis=0),
+            reduce_fn=lambda chunks: xarray.concat(chunks, dim="i"),
         )
-        self._register_coefficients(read_peaks.coordinates_2d, label="coordinates_2d")
-        self._register_coefficients(coefficients, label="coef_initial")
-        logger.info("Processing coefficients...")
-        coefficients = self._calibration.process_coefficients(
-            all_coefficients=coefficients, coordinates_2d=read_peaks.coordinates_2d
-        )
-        self._register_coefficients(coefficients, label="coef_processed")
-        logger.info("Calibrating spectra...")
+        all_features = all_features.assign_coords(x=("i", read_peaks.coordinates_2d[:, 0]),
+                                                  y=("i", read_peaks.coordinates_2d[:, 1]))
+        return all_features
+
+    def _apply_all_models(
+        self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, all_model_coefs: DataArray
+    ) -> None:
         write_parallel = WriteSpectraParallel.from_config(self._parallel_config)
         write_parallel.map_chunked_to_file(
-            read_file=read_full or read_peaks,
+            read_file=read_file,
             write_file=write_file,
             operation=self._calibrate_spectra,
             bind_args=dict(
                 calibration=self._calibration,
-                coefficients=coefficients,
+                all_model_coefs=all_model_coefs,
             ),
         )
 
+    def _fit_all_models(self, all_features: DataArray) -> DataArray:
+        parallel_map = ParallelMap.from_config(self._parallel_config)
+        result = parallel_map(
+            operation=self._fit_chunk_models,
+            tasks=np.array_split(all_features.coords["i"], self._parallel_config.n_jobs),
+            reduce_fn=lambda chunks: xarray.concat(chunks, dim="i"),
+            bind_kwargs={"all_features": all_features},
+        )
+        return result
+
+    def _fit_chunk_models(self, spectra_indices: NDArray[int], all_features: DataArray) -> DataArray:
+        collect = []
+        for spectrum_id in spectra_indices:
+            features = all_features.sel(i=spectrum_id)
+            model_coef = self._calibration.fit_spectrum_model(features=features)
+            collect.append(model_coef)
+        combined = xarray.concat(collect, dim="i")
+        combined.coords["i"] = spectra_indices
+        return combined
+
+    def _write_data_array(self, array: DataArray, group: str) -> None:
+        if not self._coefficient_output_file:
+            return
+        # TODO engine should not be necessary, but using it for debugging
+        array.to_netcdf(path=self._coefficient_output_file, group=group, format="NETCDF4", engine="netcdf4", mode="a")
+
     @staticmethod
-    def _get_initial_coefficients(
+    def _extract_chunk_features(
         reader: ImzmlReader,
         spectra_indices: list[int],
         calibration: CalibrationType,
-        peak_picker: Optional[BasicInterpolatedPeakPicker],
-    ):
+    ) -> DataArray:
         collect = []
         for spectrum_id in spectra_indices:
             mz_arr, int_arr = reader.get_spectrum(spectrum_id)
-            if peak_picker:
-                mz_arr, int_arr = peak_picker.pick_peaks(mz_arr, int_arr)
-            preprocessed = calibration.preprocess_spectrum(peak_mz_arr=mz_arr, peak_int_arr=int_arr)
-            collect.append(preprocessed)
-        return np.stack(collect, axis=0)
+            features = calibration.extract_features(peak_mz_arr=mz_arr, peak_int_arr=int_arr)
+            collect.append(features)
+        combined = xarray.concat(collect, dim="i")
+        combined.coords["i"] = spectra_indices
+        return combined
 
     @staticmethod
     def _calibrate_spectra(
@@ -94,16 +167,13 @@ class PerformCalibration:
         spectra_indices: list[int],
         writer: ImzmlWriter,
         calibration: CalibrationType,
-        coefficients: NDArray[float],
+        all_model_coefs: DataArray,
     ) -> None:
         for spectrum_id in spectra_indices:
+            # TODO sanity check the usage of i as spectrum_id (i.e. check the coords!)
             mz_arr, int_arr, coords = reader.get_spectrum_with_coords(spectrum_id)
-            calibrated_mz_arr = calibration.calibrate_spectrum(
-                spectrum_mz_arr=mz_arr, spectrum_int_arr=int_arr, coefficients=coefficients[spectrum_id]
+            features = all_model_coefs.sel(i=spectrum_id)
+            calib_mz_arr, calib_int_arr = calibration.apply_spectrum_model(
+                spectrum_mz_arr=mz_arr, spectrum_int_arr=int_arr, model_coef=features
             )
-            writer.add_spectrum(calibrated_mz_arr, int_arr, coords)
-
-    def _register_coefficients(self, coefficients: NDArray[float], label: str) -> None:
-        """Registers the coefficients, writing them to the output hdf5 group if configured."""
-        if self._output_store:
-            self._output_store.create_dataset(label, data=coefficients)
+            writer.add_spectrum(calib_mz_arr, calib_int_arr, coords)

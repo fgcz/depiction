@@ -3,10 +3,12 @@ from dataclasses import dataclass
 from functools import cached_property
 
 import numpy as np
-from numpy.typing import NDArray
 import scipy
+import xarray as xr
+from numpy.typing import NDArray
+from xarray import DataArray
 
-from depiction.image.spatial_smoothing import SpatialSmoothing
+from depiction.image.xarray_helper import XarrayHelper
 
 
 @dataclass(frozen=True)
@@ -24,28 +26,28 @@ class SpatialSmoothingSparseAware:
     kernel_std: float
     use_interpolation: bool = False
 
-    def smooth_sparse(self, sparse_values: NDArray[float], coordinates: NDArray[int]) -> NDArray[float]:
-        """
-        Applies the spatial smoothing to the provided image, and returns the smoothed image
-        (again in the sparse format).
-        Internally, this currently creates a dense image so it cannot be used to avoid memory limitations right now.
-        """
-        image_2d = SpatialSmoothing.flat_to_grid(
-            sparse_values=sparse_values,
-            coordinates=coordinates,
-            background_value=np.nan,
+    def smooth(self, image: DataArray, bg_value: float = 0.0) -> DataArray:
+        image = image.transpose("y", "x", "c")
+        image = image.astype(np.promote_types(image.dtype, np.obj2sctype(type(bg_value))))
+        image = XarrayHelper.ensure_dense(image)
+        image = xr.apply_ufunc(
+            self._smooth_dense,
+            image,
+            input_core_dims=[["y", "x"]],
+            output_core_dims=[["y", "x"]],
+            vectorize=True,
+            kwargs={"bg_value": bg_value},
         )
-        smoothed = self.smooth_dense(image_2d=image_2d)
-        return SpatialSmoothing.grid_to_flat(values_grid=smoothed, coordinates=coordinates)
+        return image.transpose("y", "x", "c")
 
-    def smooth_dense(self, image_2d: NDArray[float]) -> NDArray[float]:
+    def _smooth_dense(self, image_2d: NDArray[float], bg_value: float) -> NDArray[float]:
         """Applies the spatial smoothing to the provided 2D image."""
         if not np.issubdtype(image_2d.dtype, np.floating):
             raise ValueError("The input image must be a floating point array.")
 
         # Get an initial kernel, and mask of the missing values.
         kernel = self.gaussian_kernel
-        is_missing = np.isnan(image_2d)
+        is_missing = (image_2d == bg_value) | (np.isnan(bg_value) & np.isnan(image_2d))
 
         # Apply the kernel to the image.
         smoothed_image = scipy.signal.convolve(np.nan_to_num(image_2d), kernel, mode="same")
@@ -61,35 +63,10 @@ class SpatialSmoothingSparseAware:
         result_image = smoothed_image / kernel_sum_image
 
         if not self.use_interpolation:
-            result_image[is_missing] = np.nan
+            result_image[is_missing] = bg_value
 
         # Return the result.
         return result_image
-
-    def smooth_sparse_multi_channel(self, sparse_values: NDArray[float], coordinates: NDArray[int]) -> NDArray[float]:
-        """
-        Returns the result of a sparse array with multiple channels smoothed independently.
-        :param sparse_values: a 2D array with shape (n_values, n_channels)
-        :param coordinates: a 2D array with shape (n_values, 2)
-        """
-        _, n_channels = sparse_values.shape
-        return np.stack(
-            [
-                self.smooth_sparse(sparse_values=sparse_values[:, i_channel], coordinates=coordinates)
-                for i_channel in range(n_channels)
-            ],
-            axis=1,
-        )
-
-    def smooth_dense_multi_channel(self, image_2d: NDArray[float]) -> NDArray[float]:
-        """
-        Returns the result of a 2D array with multiple channels, with each channel smoothed independently.
-        :param image_2d: a 3D array with shape (n_rows, n_columns, n_channels)
-        """
-        return np.stack(
-            [self.smooth_dense(image_2d[:, :, i_channel]) for i_channel in range(image_2d.shape[2])],
-            axis=2,
-        )
 
     @cached_property
     def gaussian_kernel(self) -> NDArray[float]:

@@ -1,13 +1,18 @@
 from __future__ import annotations
+# file is deprecated, use MultiChannelImage instead!
 
+import warnings
+warnings.warn("This file is deprecated, use MultiChannelImage instead!", DeprecationWarning)
+
+import math
 from typing import Callable, TYPE_CHECKING
 
 import matplotlib.pyplot
 import numpy as np
 import seaborn
-from xarray import DataArray
+from matplotlib import pyplot as plt
+import xarray
 
-from depiction.image.sparse_representation import SparseRepresentation
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -108,40 +113,47 @@ class SparseImage2d:
 
     def get_dense_array(self, bg_value: float | int = 0) -> NDArray[float]:
         """
-        TODO outdated docstring (flipping was removed)
         Returns a dense representation of the image.
         The result will be casted, if necessary to accommodate the bg_value, e.g. int to float when bg_value is nan.
         :param bg_value: the value to use for the background (i.e. where no pixel information is present)
         Returns:
             - dense_values: (n_rows, n_cols, n_channels) the values of the pixels (i.e. [-y, x, channel])
         """
-        return SparseRepresentation.sparse_to_dense(
-            sparse_values=DataArray(self.sparse_values, dims=("i", "c")),
-            coordinates=DataArray(self.sparse_coordinates, dims=("i", "d")),
-            bg_value=bg_value,
+        dense_coordinates = self._coordinates - self.offset
+        # be aware: rows=y, cols=x
+        shape = (
+            dense_coordinates[:, 1].max() + 1,
+            dense_coordinates[:, 0].max() + 1,
+            self.n_channels,
         )
+        dtype = np.promote_types(self.dtype, np.obj2sctype(type(bg_value)))
+        dense_values = np.full(shape, bg_value, dtype=dtype)
+        dense_values[
+            # flipped y-axis (convention)
+            dense_coordinates[:, 1].max() - dense_coordinates[:, 1],
+            dense_coordinates[:, 0],
+        ] = self._values
+        return dense_values
 
     @classmethod
     def from_dense_array(
         cls,
-        dense_values: NDArray[float] | DataArray,
+        dense_values: NDArray[float],
         offset: NDArray[int],
         channel_names: list[str] | None = None,
-        bg_value: float | None = None,
     ) -> SparseImage2d:
         """Creates an instance of SparseImage2d from a dense array and an offset.
+        Note that the current implementation will not attempt to remove zero values from the dense array, and treat
+        them as values present.
         :param dense_values: (n_rows, n_cols, n_channels) the values of the pixels
         :param offset: (2,) the offset of the coordinates
         :param channel_names: (n_channels,) the names of the channels (optional)
-        :param bg_value: value to treat as background and remove from the sparse representation (optional)
-            TODO for backward compatibility this is currently default None
         """
-        if not isinstance(dense_values, DataArray):
-            dense_values = DataArray(dense_values, dims=("y", "x", "c"))
-        sparse_values, coordinates = SparseRepresentation.dense_to_sparse(grid_values=dense_values, bg_value=bg_value)
-        sparse_values = sparse_values.transpose("i", "c").values
-        coordinates = coordinates.transpose("i", "d").values + offset[:2]
-        return cls(values=sparse_values, coordinates=coordinates, channel_names=channel_names)
+        n_rows, n_cols, n_channels = dense_values.shape
+        x, y = np.meshgrid(np.arange(n_cols), np.arange(n_rows))
+        coordinates = np.stack([x, y], axis=-1).reshape(-1, 2) + offset[:2].astype(int)
+        values = dense_values.reshape(-1, n_channels)
+        return cls(values=values, coordinates=coordinates, channel_names=channel_names)
 
     def get_single_channel_dense_array(self, i_channel: int, bg_value: float = 0.0) -> NDArray[float]:
         """
@@ -188,134 +200,134 @@ class SparseImage2d:
     # TODO extract the grid logic into a grid layout class, since it would also be useful for cases where one wants to
     #      plot a sparse image and a non-sparse one together
 
-    # def plot_single_channel_image(
-    #    self,
-    #    i_channel: int,
-    #    ax: plt.Axes | None = None,
-    #    cmap: str = "mako",
-    #    transform_int: Callable | None = None,
-    #    vmin: float | None = None,
-    #    vmax: float | None = None,
-    #    vmin_fn: Callable | None = None,
-    #    vmax_fn: Callable | None = None,
-    #    interpolation: str | None = None,
-    #    mask_background: bool = False,
-    # ) -> None:
-    #    if ax is None:
-    #        ax = plt.gca()
+    def plot_single_channel_image(
+        self,
+        i_channel: int,
+        ax: plt.Axes | None = None,
+        cmap: str = "mako",
+        transform_int: Callable | None = None,
+        vmin: float | None = None,
+        vmax: float | None = None,
+        vmin_fn: Callable | None = None,
+        vmax_fn: Callable | None = None,
+        interpolation: str | None = None,
+        mask_background: bool = False,
+    ) -> None:
+        if ax is None:
+            ax = plt.gca()
 
-    #    ax.set_title(self.channel_names[i_channel])
-    #    ax.set_xticks([])
-    #    ax.set_yticks([])
+        ax.set_title(self.channel_names[i_channel])
+        ax.set_xticks([])
+        ax.set_yticks([])
 
-    #    if vmin_fn is not None:
-    #        vmin = vmin_fn(self._values[:, i_channel])
-    #    if vmax_fn is not None:
-    #        vmax = vmax_fn(self._values[:, i_channel])
+        if vmin_fn is not None:
+            vmin = vmin_fn(self._values[:, i_channel])
+        if vmax_fn is not None:
+            vmax = vmax_fn(self._values[:, i_channel])
 
-    #    bg_value = np.nan if mask_background else 0.0
-    #    dense_values = self.get_single_channel_dense_array(i_channel, bg_value=bg_value)
-    #    if transform_int is not None:
-    #        dense_values = transform_int(dense_values)
-    #    if mask_background:
-    #        dense_values = np.ma.masked_invalid(dense_values)
+        bg_value = np.nan if mask_background else 0.0
+        dense_values = self.get_single_channel_dense_array(i_channel, bg_value=bg_value)
+        if transform_int is not None:
+            dense_values = transform_int(dense_values)
+        if mask_background:
+            dense_values = np.ma.masked_invalid(dense_values)
 
-    #    ax.imshow(
-    #        dense_values,
-    #        cmap=cmap,
-    #        origin="lower",
-    #        vmin=vmin,
-    #        vmax=vmax,
-    #        interpolation=interpolation,
-    #    )
+        ax.imshow(
+            dense_values,
+            cmap=cmap,
+            origin="lower",
+            vmin=vmin,
+            vmax=vmax,
+            interpolation=interpolation,
+        )
 
-    # def plot_channels_grid(
-    #    self,
-    #    n_per_row: int = 5,
-    #    cmap: str = "mako",
-    #    transform_int: Callable | None = None,
-    #    single_im_width: float = 2.0,
-    #    single_im_height: float | None = None,
-    #    # TODO consider if this can be handled better (i.e. the parameter interface mainly)
-    #    vmin: float | None = None,
-    #    vmax: float | None = None,
-    #    vmin_fn: Callable | None = None,
-    #    vmax_fn: Callable | None = None,
-    #    interpolation: str | None = None,
-    #    mask_background: bool = False,
-    #    axs: NDArray[plt.Axes] | None = None,
-    # ) -> tuple[plt.Figure, plt.Axes]:
-    #    # determine plots layout
-    #    n_channels = self.n_channels
-    #    n_rows = math.ceil(n_channels / n_per_row)
-    #    n_cols = min(n_channels, n_per_row)
+    def plot_channels_grid(
+        self,
+        n_per_row: int = 5,
+        cmap: str = "mako",
+        transform_int: Callable | None = None,
+        single_im_width: float = 2.0,
+        single_im_height: float | None = None,
+        # TODO consider if this can be handled better (i.e. the parameter interface mainly)
+        vmin: float | None = None,
+        vmax: float | None = None,
+        vmin_fn: Callable | None = None,
+        vmax_fn: Callable | None = None,
+        interpolation: str | None = None,
+        mask_background: bool = False,
+        axs: NDArray[plt.Axes] | None = None,
+    ) -> tuple[plt.Figure, plt.Axes]:
+        # determine plots layout
+        n_channels = self.n_channels
+        n_rows = math.ceil(n_channels / n_per_row)
+        n_cols = min(n_channels, n_per_row)
 
-    #    # determine the figure size
-    #    im_width, im_height = self.dimensions
-    #    aspect_ratio = im_width / im_height
+        # determine the figure size
+        im_width, im_height = self.dimensions
+        aspect_ratio = im_width / im_height
 
-    #    # set up the grid
-    #    if single_im_height is None:
-    #        single_im_height = single_im_width
+        # set up the grid
+        if single_im_height is None:
+            single_im_height = single_im_width
 
-    #    if axs is None:
-    #        fig, axs = plt.subplots(
-    #            n_rows,
-    #            n_cols,
-    #            figsize=(
-    #                n_cols * single_im_width,
-    #                n_rows * single_im_height * aspect_ratio,
-    #            ),
-    #            squeeze=False,
-    #        )
-    #    else:
-    #        fig = axs.ravel()[0].get_figure()
+        if axs is None:
+            fig, axs = plt.subplots(
+                n_rows,
+                n_cols,
+                figsize=(
+                    n_cols * single_im_width,
+                    n_rows * single_im_height * aspect_ratio,
+                ),
+                squeeze=False,
+            )
+        else:
+            fig = axs.ravel()[0].get_figure()
 
-    #    # create the plots
-    #    for i_channel in range(n_channels):
-    #        # Get the axis
-    #        i_row = i_channel // n_per_row
-    #        i_col = i_channel % n_per_row
-    #        ax = axs[i_row, i_col]
+        # create the plots
+        for i_channel in range(n_channels):
+            # Get the axis
+            i_row = i_channel // n_per_row
+            i_col = i_channel % n_per_row
+            ax = axs[i_row, i_col]
 
-    #        self.plot_single_channel_image(
-    #            i_channel=i_channel,
-    #            ax=ax,
-    #            cmap=cmap,
-    #            transform_int=transform_int,
-    #            vmin=vmin,
-    #            vmax=vmax,
-    #            vmin_fn=vmin_fn,
-    #            vmax_fn=vmax_fn,
-    #            interpolation=interpolation,
-    #            mask_background=mask_background,
-    #        )
+            self.plot_single_channel_image(
+                i_channel=i_channel,
+                ax=ax,
+                cmap=cmap,
+                transform_int=transform_int,
+                vmin=vmin,
+                vmax=vmax,
+                vmin_fn=vmin_fn,
+                vmax_fn=vmax_fn,
+                interpolation=interpolation,
+                mask_background=mask_background,
+            )
 
-    #    # remove redundant axes
-    #    for i_row in range(n_rows):
-    #        for i_col in range(n_cols):
-    #            if i_row * n_per_row + i_col >= n_channels:
-    #                axs[i_row, i_col].set_axis_off()
+        # remove redundant axes
+        for i_row in range(n_rows):
+            for i_col in range(n_cols):
+                if i_row * n_per_row + i_col >= n_channels:
+                    axs[i_row, i_col].set_axis_off()
 
-    #    return fig, axs
+        return fig, axs
 
-    # def to_dense_xarray(self, bg_value: float = 0.0) -> xarray.DataArray:
-    #    """Returns a dense representation of the image as an `xarray.DataArray`."""
-    #    return xarray.DataArray(
-    #        self.get_dense_array(bg_value=bg_value), dims=("y", "x", "c"), coords={"c": self.channel_names}
-    #    )
+    def to_dense_xarray(self, bg_value: float = 0.0) -> xarray.DataArray:
+        """Returns a dense representation of the image as an `xarray.DataArray`."""
+        return xarray.DataArray(
+            self.get_dense_array(bg_value=bg_value), dims=("y", "x", "c"), coords={"c": self.channel_names}
+        )
 
-    # @classmethod
-    # def from_dense_xarray(cls, xarray_data: xarray.DataArray) -> SparseImage2d:
-    #    xarray_data.transpose(("y", "x", "c"))
-    #    raise NotImplementedError("This method is not implemented yet.")
+    @classmethod
+    def from_dense_xarray(cls, xarray_data: xarray.DataArray) -> SparseImage2d:
+        xarray_data.transpose(("y", "x", "c"))
+        raise NotImplementedError("This method is not implemented yet.")
 
-    # def save_to_hdf5(self, group: h5py.Group) -> None:
-    #    """Saves this instance to an HDF5 group."""
-    #    group.create_dataset("values", data=self._values)
-    #    group.create_dataset("coordinates", data=self._coordinates)
-    #    group.attrs["_type"] = "SparseImage2d"
-    #    group.attrs["channel_names"] = self._channel_names
+    def save_to_hdf5(self, group: h5py.Group) -> None:
+        """Saves this instance to an HDF5 group."""
+        group.create_dataset("values", data=self._values)
+        group.create_dataset("coordinates", data=self._coordinates)
+        group.attrs["_type"] = "SparseImage2d"
+        group.attrs["channel_names"] = self._channel_names
 
     @classmethod
     def load_from_hdf5(cls, group: h5py.Group) -> SparseImage2d:

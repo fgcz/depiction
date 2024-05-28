@@ -4,7 +4,6 @@ from numpy.typing import NDArray
 from depiction.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
 from depiction.persistence import ImzmlReadFile, ImzmlReader
-from depiction.image.sparse_image_2d import SparseImage2d
 
 
 # TODO this is currently not used but will need an update to use MultiChannelImage later

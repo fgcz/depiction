@@ -26,9 +26,21 @@ class CalibrationType(Protocol):
         return all_features
 
     def fit_spectrum_model(self, features: DataArray) -> DataArray:
-        pass
+        """Fits a model to the extracted features of a single spectrum and returns its coefficients.
+        If this is not applicable, the implementation can also be performed in the `apply_spectrum_model` method,
+        although it would be nicer to consider an adjustment of the interface.
+        :param features: a DataArray with the extracted features, with dimensions ["c"]
+        :return: a DataArray with the coefficients of the fitted model, with dimensions ["c"] (not necessarily the same)
+        """
+        return DataArray([], dims=["c"])
 
     def apply_spectrum_model(
         self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
     ) -> tuple[NDArray[float], NDArray[float]]:
-        pass
+        """Applies the fitted model to the spectrum and returns the calibrated spectrum.
+        :param spectrum_mz_arr: m/z values of the spectrum
+        :param spectrum_int_arr: intensity values of the spectrum
+        :param model_coef: a DataArray with the coefficients of the fitted model, with dimensions ["c"]
+        :return: a tuple with the calibrated m/z values and intensity values of the spectrum
+        """
+        ...

@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Sequence
 
 import numpy as np
+import xarray
 from xarray import DataArray
 
 from depiction.image.sparse_representation import SparseRepresentation
@@ -96,7 +97,7 @@ class MultiChannelImage:
     @classmethod
     def read_hdf5(cls, path: Path) -> MultiChannelImage:
         """Reads a MultiChannelImage from a HDF5 file (assuming it contains NETCDF data)."""
-        return cls(data=DataArray.from_netcdf(path))
+        return cls(data=xarray.open_dataarray(path))
 
     # TODO is_valid_hdf5
 

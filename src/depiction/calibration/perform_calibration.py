@@ -102,9 +102,8 @@ class PerformCalibration:
             ),
             reduce_fn=lambda chunks: xarray.concat(chunks, dim="i"),
         )
-        all_features = all_features.assign_coords(x=("i", read_peaks.coordinates_2d[:, 0]),
-                                                  y=("i", read_peaks.coordinates_2d[:, 1]))
-        return all_features
+        return all_features.assign_coords(x=("i", read_peaks.coordinates_2d[:, 0]),
+                                          y=("i", read_peaks.coordinates_2d[:, 1]))
 
     def _apply_all_models(
         self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, all_model_coefs: DataArray

@@ -46,7 +46,7 @@ class CalibrationPipelineRegressShift:
         self._input_smoothing_kernel_size = input_smoothing_kernel_size
         self._input_smoothing_kernel_std = input_smoothing_kernel_std
 
-    def extract_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
+    def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
         distances_mz = ReferencePeakDistances.get_distances_max_peak_in_window(
             peak_mz_arr=peak_mz_arr,
             peak_int_arr=peak_int_arr,

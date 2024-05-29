@@ -155,7 +155,7 @@ class PerformCalibration:
         collect = []
         for spectrum_id in spectra_indices:
             mz_arr, int_arr = reader.get_spectrum(spectrum_id)
-            features = calibration.extract_features(peak_mz_arr=mz_arr, peak_int_arr=int_arr)
+            features = calibration.extract_spectrum_features(peak_mz_arr=mz_arr, peak_int_arr=int_arr)
             collect.append(features)
         combined = xarray.concat(collect, dim="i")
         combined.coords["i"] = spectra_indices

@@ -5,9 +5,13 @@ from xarray import DataArray
 
 
 class CalibrationType(Protocol):
-    def extract_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
-        pass
+    def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
+        """Extracts a vector of features (dimension ["c"]) from a given, peak picked spectrum.
+        For calibration methods which do not involve a feature extraction, an empty DataArray should be returned.
+        """
+        return DataArray([], dims=["c"])
 
+    # TODO preprocess_image_features
     def preprocess_features(self, all_features: DataArray) -> DataArray:
         pass
 

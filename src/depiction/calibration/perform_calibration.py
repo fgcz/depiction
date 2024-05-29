@@ -80,7 +80,7 @@ class PerformCalibration:
         self._write_data_array(all_features, group="features_raw")
 
         logger.info("Preprocessing features...")
-        all_features = self._calibration.preprocess_features(all_features=all_features)
+        all_features = self._calibration.preprocess_image_features(all_features=all_features)
         self._validate_per_spectra_array(all_features, coordinates_2d=read_peaks.coordinates_2d)
         self._write_data_array(all_features, group="features_processed")
 

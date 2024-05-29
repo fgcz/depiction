@@ -42,7 +42,7 @@ class PlotImage:
         if vmax_fn is not None:
             vmax = vmax_fn(channel_values_flat.values)
 
-        dense_values = self._image.get_channel_array(channel).values
+        dense_values = self._image.data_spatial.sel(c=channel).values
         if transform_int is not None:
             dense_values = transform_int(dense_values)
         if mask_background:

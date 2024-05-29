@@ -33,7 +33,7 @@ class TestMultiChannelImage(unittest.TestCase):
             values=values, coordinates=coordinates, channel_names=["A", "B", "C"]
         )
         self.assertListEqual(["A", "B", "C"], image.channel_names)
-        values = image.get_channel_array("B")
+        values = image.data_spatial.sel(c="B")
         xarray.testing.assert_equal(
             DataArray([[2, 0], [0, 5]], dims=("y", "x"), coords={"c": "B"}, name="values"), values
         )
@@ -84,29 +84,6 @@ class TestMultiChannelImage(unittest.TestCase):
             attrs={"bg_value": 0}
         )
         xarray.testing.assert_identical(expected, self.mock_image.data_flat)
-
-    def test_get_channel_array_when_str_exists(self) -> None:
-        values = self.mock_image.get_channel_array("Channel A")
-        xarray.testing.assert_equal(
-            DataArray([[2.0, 4], [6, 8], [10, 12]], dims=("y", "x"), coords={"c": "Channel A"}), values
-        )
-
-    def test_get_channel_array_when_str_missing(self) -> None:
-        with self.assertRaises(KeyError):
-            self.mock_image.get_channel_array("Channel C")
-
-    def test_get_channel_array_when_list_size_1(self) -> None:
-        values = self.mock_image.get_channel_array(["Channel A"])
-        xarray.testing.assert_equal(self.mock_data, values)
-
-    def test_get_channel_array_when_list_multiple(self) -> None:
-        values = self.mock_image.get_channel_array(["Channel A", "Channel A"])
-        expected = DataArray(
-            [[[2.0, 2], [4, 4]], [[6, 6], [8, 8]], [[10, 10], [12, 12]]],
-            dims=("y", "x", "c"),
-            coords={"c": ["Channel A", "Channel A"]},
-        )
-        xarray.testing.assert_equal(expected, values)
 
     def test_with_channel_names(self) -> None:
         image = self.mock_image.with_channel_names(channel_names=["New Channel Name"])

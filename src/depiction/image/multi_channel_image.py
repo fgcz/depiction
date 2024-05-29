@@ -76,13 +76,6 @@ class MultiChannelImage:
         """Returns the underlying data, in its flat form, i.e. dimensions (i, c), omitting any background values."""
         return self._data.where(~self.bg_mask).stack(i=("y", "x")).dropna(dim="i")
 
-    # TODO replaces get_dense_array
-    def get_channel_array(self, name: str | list[str]) -> DataArray:
-        """Returns the channel with the specified name. If a list is supplied the result will contain a `c` dimension,
-        if not the `c` dimension will be omitted.
-        A KeyError will be raised in the event of missing values."""
-        return self._data.sel(c=name)
-
     # TODO from_dense_array
 
     # TODO get_single_channel_dense_array

@@ -2,6 +2,7 @@ import unittest
 from functools import cached_property
 
 import numpy as np
+import pandas as pd
 import xarray
 from xarray import DataArray
 
@@ -59,12 +60,30 @@ class TestMultiChannelImage(unittest.TestCase):
         expected_bg_mask = DataArray([[False, False], [True, True], [False, False]], dims=("y", "x"))
         xarray.testing.assert_equal(expected_bg_mask, bg_mask)
 
+    def test_dimensions(self):
+        self.assertEqual((2, 3), self.mock_image.dimensions)
+
     def test_channel_names_when_set(self) -> None:
         self.assertListEqual(["Channel A"], self.mock_image.channel_names)
 
     def test_channel_names_when_not_set(self) -> None:
         self.mock_coords = {}
         self.assertListEqual(["0"], self.mock_image.channel_names)
+
+    def test_data_spatial(self):
+        xarray.testing.assert_identical(self.mock_data, self.mock_image.data_spatial)
+
+    def test_data_flat(self):
+        self.mock_data[0, 0, 0] = 0
+        self.mock_data[1, 0, 0] = np.nan
+        expected = DataArray(
+            [[4., 8, 10, 12]],
+            dims=("c", "i"),
+            coords={"c": ["Channel A"],
+                    "i": pd.MultiIndex.from_tuples([(0, 1), (1, 1), (2, 0), (2, 1)], names=("y", "x"))},
+            attrs={"bg_value": 0}
+        )
+        xarray.testing.assert_identical(expected, self.mock_image.data_flat)
 
     def test_get_channel_array_when_str_exists(self) -> None:
         values = self.mock_image.get_channel_array("Channel A")

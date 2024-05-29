@@ -83,9 +83,6 @@ class MultiChannelImage:
         A KeyError will be raised in the event of missing values."""
         return self._data.sel(c=name)
 
-    def get_channel_flat_array(self, name: str | list[str]) -> DataArray:
-        return self.data_flat.sel(c=name)
-
     # TODO from_dense_array
 
     # TODO get_single_channel_dense_array

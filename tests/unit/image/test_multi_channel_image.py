@@ -108,25 +108,6 @@ class TestMultiChannelImage(unittest.TestCase):
         )
         xarray.testing.assert_equal(expected, values)
 
-    def test_get_channel_flat_array_when_str(self):
-        self.mock_data[0, 1, 0] = 0
-        self.mock_data[1, :, 0] = 0
-        values = self.mock_image.get_channel_flat_array("Channel A")
-        np.testing.assert_array_equal(np.array([2.0, 10, 12]), values.values)
-        np.testing.assert_array_equal([0, 2, 2], values.coords["y"])
-        np.testing.assert_array_equal([0, 0, 1], values.coords["x"])
-        self.assertListEqual([(0, 0), (2, 0), (2, 1)], values.coords["i"].values.tolist())
-
-    def test_get_channel_flat_array_when_list_multiple(self):
-        self.mock_data[0, 1, 0] = 0
-        self.mock_data[1, :, 0] = 0
-        values = self.mock_image.get_channel_flat_array(["Channel A", "Channel A"])
-        np.testing.assert_array_equal(np.array([[2.0, 10, 12], [2.0, 10, 12]]), values.values)
-        np.testing.assert_array_equal([0, 2, 2], values.coords["y"])
-        np.testing.assert_array_equal([0, 0, 1], values.coords["x"])
-        np.testing.assert_array_equal(["Channel A", "Channel A"], values.coords["c"].values)
-        self.assertListEqual([(0, 0), (2, 0), (2, 1)], values.coords["i"].values.tolist())
-
     def test_with_channel_names(self) -> None:
         image = self.mock_image.with_channel_names(channel_names=["New Channel Name"])
         self.assertListEqual(["New Channel Name"], image.channel_names)

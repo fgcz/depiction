@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from numpy._typing import NDArray
+from numpy.typing import NDArray
 from xarray import DataArray
 
 
@@ -32,7 +32,7 @@ class CalibrationType(Protocol):
         :param features: a DataArray with the extracted features, with dimensions ["c"]
         :return: a DataArray with the coefficients of the fitted model, with dimensions ["c"] (not necessarily the same)
         """
-        return DataArray([], dims=["c"])
+        ...
 
     def apply_spectrum_model(
         self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray

@@ -3,12 +3,12 @@ from typing import Literal
 from numpy.typing import NDArray
 from xarray import DataArray
 
-from depiction.calibration.calibration_type import CalibrationType
+from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.chemical_noise_bg_2019_boskamp_v2 import ChemicalNoiseCalibration
 from depiction.parallel_ops import ParallelConfig
 
 
-class CalibrationPipelineChemicalPeptideNoise(CalibrationType):
+class CalibrationPipelineChemicalPeptideNoise(CalibrationMethod):
     _lambda_averagine = 1.0 + 4.95e-4
 
     def __init__(

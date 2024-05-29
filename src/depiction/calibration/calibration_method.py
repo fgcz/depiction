@@ -4,7 +4,9 @@ from numpy.typing import NDArray
 from xarray import DataArray
 
 
-class CalibrationType(Protocol):
+class CalibrationMethod(Protocol):
+    """Defines the interface for a spectrum calibration method."""
+
     def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
         """Extracts a vector of features (dimension ["c"]) from a given, peak picked spectrum.
         For calibration methods which do not involve a feature extraction, an empty DataArray should be returned.

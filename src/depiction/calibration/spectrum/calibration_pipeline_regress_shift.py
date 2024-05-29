@@ -2,14 +2,14 @@ import numpy as np
 from numpy.typing import NDArray
 from xarray import DataArray
 
-from depiction.calibration.calibration_type import CalibrationType
+from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.models import LinearModel
 from depiction.calibration.models.fit_model import fit_model
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
 from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
-class CalibrationPipelineRegressShift(CalibrationType):
+class CalibrationPipelineRegressShift(CalibrationMethod):
     """
     Calibrates spectra in a targeted setting, by regression of a shift model mapping mass to shift,
     and then subtracting the predicted shift from the observed mass.0

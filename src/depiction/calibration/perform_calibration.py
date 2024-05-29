@@ -10,7 +10,7 @@ import xarray
 from numpy.typing import NDArray
 from xarray import DataArray
 
-from depiction.calibration.calibration_type import CalibrationType
+from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel, WriteSpectraParallel
 from depiction.parallel_ops.parallel_map import ParallelMap
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
@@ -19,7 +19,7 @@ from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, Im
 class PerformCalibration:
     def __init__(
         self,
-        calibration: CalibrationType,
+        calibration: CalibrationMethod,
         parallel_config: ParallelConfig,
         output_store: h5py.Group | None = None,
         coefficient_output_file: Path | None = None,
@@ -150,7 +150,7 @@ class PerformCalibration:
     def _extract_chunk_features(
         reader: ImzmlReader,
         spectra_indices: list[int],
-        calibration: CalibrationType,
+        calibration: CalibrationMethod,
     ) -> DataArray:
         collect = []
         for spectrum_id in spectra_indices:
@@ -166,7 +166,7 @@ class PerformCalibration:
         reader: ImzmlReader,
         spectra_indices: list[int],
         writer: ImzmlWriter,
-        calibration: CalibrationType,
+        calibration: CalibrationMethod,
         all_model_coefs: DataArray,
     ) -> None:
         for spectrum_id in spectra_indices:

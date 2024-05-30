@@ -26,7 +26,13 @@ uv venv # <- if not using anaconda
 uv pip install -e ".[dev,testing]"
 ```
 
-TODO conda install
+TODO conda install:
+
+```bash
+conda create -n exp-2024-05-depiction python=3.12 
+conda activate exp-2024-05-depiction
+pip install --system -e ".[dev,testing]" # rerun if this fails
+```
 
 ## Geometry Conventions
 

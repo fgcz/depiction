@@ -1,6 +1,5 @@
 from pathlib import Path
-import spectrum_utils.spectrum
-import spectrum_utils.plot
+
 from matplotlib import pyplot as plt
 from numpy.typing import NDArray
 from xarray import DataArray
@@ -53,7 +52,8 @@ def main() -> None:
     print("Applying models...")
     spectra_calib = []
     for (mz_arr, int_arr), features in zip(spectra_picked, all_features):
-        mz_arr, int_arr = calib.apply_spectrum_model(spectrum_mz_arr=mz_arr, spectrum_int_arr=int_arr, model_coef=features)
+        mz_arr, int_arr = calib.apply_spectrum_model(spectrum_mz_arr=mz_arr, spectrum_int_arr=int_arr,
+                                                     model_coef=features)
         spectra_calib.append((mz_arr, int_arr))
 
     # compare the spectra somehow...
@@ -76,6 +76,7 @@ def main() -> None:
     ax.set_xlim(mass_target - 5, mass_target + 5)
     ax.set_ylim(0, 1)
     plt.show()
+
 
 def create_data():
     original_file = "/Users/leo/code/msi/code/msi_targeted_preproc/example/data-work/menzha_20231208_s607930_64074-b20-30928-a/baseline_adj.imzML"

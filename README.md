@@ -26,6 +26,8 @@ uv venv # <- if not using anaconda
 uv pip install -e ".[dev,testing]"
 ```
 
+TODO conda install
+
 ## Geometry Conventions
 
 TODO these are not used consistently everywhere yet
@@ -37,4 +39,4 @@ TODO these are not used consistently everywhere yet
 - Sparse images: (i, c)
 - Coordinates: (i, d) and each row corresponds to point ordering (i.e. (x, y))
 
-TODO: y-axis direction
+TODO: y-axis direction, xarray conventions (dims, coords, etc.)

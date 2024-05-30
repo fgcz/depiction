@@ -61,7 +61,8 @@ dev = [
     "tifffile>=2024.2.12",
     "bfabric@git+https://github.com/fgcz/bfabricPy#0.13.8",
     "xmltodict",
-    "licensecheck"
+    "licensecheck",
+    "spectrum_utils[iplot]"
 ]
 
 # potentially relevant in the future again:

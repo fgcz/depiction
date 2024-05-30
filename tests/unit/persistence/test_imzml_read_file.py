@@ -187,8 +187,8 @@ class TestImzmlReadFile(unittest.TestCase):
     @patch.object(ImzmlReadFile, "imzml_file")
     @patch.object(ImzmlReadFile, "ibd_file")
     def test_get_file_sizes_mb(self, mock_ibd_file, mock_imzml_file) -> None:
-        mock_imzml_file.stat.return_value.st_size = round(2.5 * 1024 ** 2)
-        mock_ibd_file.stat.return_value.st_size = round(3.5 * 1024 ** 2)
+        mock_imzml_file.stat.return_value.st_size = round(2.5 * 1024**2)
+        mock_ibd_file.stat.return_value.st_size = round(3.5 * 1024**2)
         self.assertEqual({"imzml", "ibd"}, self.mock_read_file.file_sizes_mb.keys())
         self.assertAlmostEqual(2.5, self.mock_read_file.file_sizes_mb["imzml"], places=8)
         self.assertAlmostEqual(3.5, self.mock_read_file.file_sizes_mb["ibd"], places=8)

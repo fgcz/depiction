@@ -144,7 +144,9 @@ class TestImzmlReader(unittest.TestCase):
     @patch.object(ImzmlReader, "get_spectrum_mz")
     @patch.object(ImzmlReader, "get_spectrum_int")
     @patch.object(ImzmlReader, "get_spectrum_coordinates")
-    def test_get_spectrum_with_coords(self, mock_get_spectrum_coordinates, mock_get_spectrum_int, mock_get_spectrum_mz) -> None:
+    def test_get_spectrum_with_coords(
+        self, mock_get_spectrum_coordinates, mock_get_spectrum_int, mock_get_spectrum_mz
+    ) -> None:
         mock_i_spectrum = MagicMock(name="mock_i_spectrum", spec=[])
         mz_arr, int_arr, coords = self.mock_reader.get_spectrum_with_coords(i_spectrum=mock_i_spectrum)
         self.assertEqual(mock_get_spectrum_mz.return_value, mz_arr)

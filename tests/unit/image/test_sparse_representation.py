@@ -66,7 +66,7 @@ class TestSparseRepresentation(unittest.TestCase):
         xarray.testing.assert_equal(self.sparse_2_multi[1], coords)
         xarray.testing.assert_equal(self.sparse_2_multi[0], values)
 
-    #def test_dense_to_sparse_when_offset(self) -> None:
+    # def test_dense_to_sparse_when_offset(self) -> None:
     #    values, coords = SparseRepresentation.dense_to_sparse(grid_values=self.dense_3_offset, bg_value=np.nan)
     #    xarray.testing.assert_equal(self.sparse_3_offset[1], coords)
     #    xarray.testing.assert_equal(self.sparse_3_offset[0], values)

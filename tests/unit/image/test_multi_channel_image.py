@@ -77,11 +77,13 @@ class TestMultiChannelImage(unittest.TestCase):
         self.mock_data[0, 0, 0] = 0
         self.mock_data[1, 0, 0] = np.nan
         expected = DataArray(
-            [[4., 8, 10, 12]],
+            [[4.0, 8, 10, 12]],
             dims=("c", "i"),
-            coords={"c": ["Channel A"],
-                    "i": pd.MultiIndex.from_tuples([(0, 1), (1, 1), (2, 0), (2, 1)], names=("y", "x"))},
-            attrs={"bg_value": 0}
+            coords={
+                "c": ["Channel A"],
+                "i": pd.MultiIndex.from_tuples([(0, 1), (1, 1), (2, 0), (2, 1)], names=("y", "x")),
+            },
+            attrs={"bg_value": 0},
         )
         xarray.testing.assert_identical(expected, self.mock_image.data_flat)
 

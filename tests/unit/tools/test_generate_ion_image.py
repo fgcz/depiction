@@ -15,7 +15,9 @@ class TestGenerateIonImage(unittest.TestCase):
     @patch.object(GenerateIonImage, "_compute_channels_chunk")
     @patch.object(ReadSpectraParallel, "from_config")
     @patch("depiction.tools.generate_ion_image.MultiChannelImage")
-    def test_generate_ion_images_for_file(self, mock_multi_channel_image, mock_from_config, method_compute_channels) -> None:
+    def test_generate_ion_images_for_file(
+        self, mock_multi_channel_image, mock_from_config, method_compute_channels
+    ) -> None:
         mock_input_file = MagicMock(name="input_file", spec=["coordinates_2d"])
         mock_mz_values = MagicMock(name="mz_values", spec=[])
         mock_tol = MagicMock(name="tol", spec=[])

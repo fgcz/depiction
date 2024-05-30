@@ -2,6 +2,7 @@ from __future__ import annotations
 # file is deprecated, use MultiChannelImage instead!
 
 import warnings
+
 warnings.warn("This file is deprecated, use MultiChannelImage instead!", DeprecationWarning)
 
 import math
@@ -12,7 +13,6 @@ import numpy as np
 import seaborn
 from matplotlib import pyplot as plt
 import xarray
-
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray

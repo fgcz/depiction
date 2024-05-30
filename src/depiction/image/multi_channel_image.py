@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Sequence
 
 import numpy as np
+import xarray
 from xarray import DataArray
 
 from depiction.image.sparse_representation import SparseRepresentation
@@ -65,16 +66,15 @@ class MultiChannelImage:
         # TODO consider renaming to `channels`
         return [str(c) for c in self._data.coords["c"].values.tolist()]
 
-    # TODO replaces get_dense_array
-    def get_channel_array(self, name: str | list[str]) -> DataArray:
-        """Returns the channel with the specified name. If a list is supplied the result will contain a `c` dimension,
-        if not the `c` dimension will be omitted.
-        A KeyError will be raised in the event of missing values."""
-        return self._data.sel(c=name)
+    @property
+    def data_spatial(self) -> DataArray:
+        """Returns the underlying data, in its spatial form, i.e. dimensions (y, x, c)."""
+        return self._data
 
-    def get_channel_flat_array(self, name: str | list[str]) -> DataArray:
-        values = self._data.sel(c=name).where(~self.bg_mask)
-        return values.stack(i=("y", "x")).dropna(dim="i")
+    @property
+    def data_flat(self) -> DataArray:
+        """Returns the underlying data, in its flat form, i.e. dimensions (i, c), omitting any background values."""
+        return self._data.where(~self.bg_mask).stack(i=("y", "x")).dropna(dim="i")
 
     # TODO from_dense_array
 
@@ -96,7 +96,7 @@ class MultiChannelImage:
     @classmethod
     def read_hdf5(cls, path: Path) -> MultiChannelImage:
         """Reads a MultiChannelImage from a HDF5 file (assuming it contains NETCDF data)."""
-        return cls(data=DataArray.from_netcdf(path))
+        return cls(data=xarray.open_dataarray(path))
 
     # TODO is_valid_hdf5
 

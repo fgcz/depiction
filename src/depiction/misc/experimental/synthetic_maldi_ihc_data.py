@@ -65,12 +65,11 @@ class SyntheticMaldiIhcData:
             # TODO reimplement this by iterating over the xarray directly if possible
             # sparse_values = label_image.sparse_values
             # sparse_coordinates = label_image.sparse_coordinates
-            flat_data_array = label_image.get_channel_flat_array(label_image.channel_names)
-            sparse_values = flat_data_array.values
+            flat_data_array = label_image.data_flat
             sparse_coordinates = flat_data_array.coords["c"].values
 
             for i, (x, y) in tqdm(enumerate(sparse_coordinates), total=len(sparse_coordinates)):
-                labels = sparse_values[i, :]
+                labels = flat_data_array.sel(i=i).values
                 masses = label_masses[labels > 0]
                 intensities = labels[labels > 0]
                 int_arr = self.generate_single_spectrum(

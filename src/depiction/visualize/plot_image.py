@@ -35,14 +35,14 @@ class PlotImage:
         ax.set_xticks([])
         ax.set_yticks([])
 
-        channel_values_flat = self._image.get_channel_flat_array(name=channel)
+        channel_values_flat = self._image.data_flat.sel(c=channel)
 
         if vmin_fn is not None:
             vmin = vmin_fn(channel_values_flat.values)
         if vmax_fn is not None:
             vmax = vmax_fn(channel_values_flat.values)
 
-        dense_values = self._image.get_channel_array(channel).values
+        dense_values = self._image.data_spatial.sel(c=channel).values
         if transform_int is not None:
             dense_values = transform_int(dense_values)
         if mask_background:

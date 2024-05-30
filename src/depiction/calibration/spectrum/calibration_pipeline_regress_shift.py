@@ -2,13 +2,14 @@ import numpy as np
 from numpy.typing import NDArray
 from xarray import DataArray
 
+from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.models import LinearModel
 from depiction.calibration.models.fit_model import fit_model
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
 from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
-class CalibrationPipelineRegressShift:
+class CalibrationPipelineRegressShift(CalibrationMethod):
     """
     Calibrates spectra in a targeted setting, by regression of a shift model mapping mass to shift,
     and then subtracting the predicted shift from the observed mass.0
@@ -46,7 +47,7 @@ class CalibrationPipelineRegressShift:
         self._input_smoothing_kernel_size = input_smoothing_kernel_size
         self._input_smoothing_kernel_std = input_smoothing_kernel_std
 
-    def extract_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
+    def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
         distances_mz = ReferencePeakDistances.get_distances_max_peak_in_window(
             peak_mz_arr=peak_mz_arr,
             peak_int_arr=peak_int_arr,
@@ -79,7 +80,7 @@ class CalibrationPipelineRegressShift:
         else:
             raise ValueError(f"Unknown unit={self._model_unit}")
 
-    def preprocess_features(self, all_features: DataArray) -> DataArray:
+    def preprocess_image_features(self, all_features: DataArray) -> DataArray:
         if self._input_smoothing_activated:
             features_flat = all_features.drop("i").set_xindex(["x", "y"])
             features_2d = features_flat.unstack("i").transpose("y", "x", "c")

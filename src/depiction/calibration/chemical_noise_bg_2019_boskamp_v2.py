@@ -5,12 +5,13 @@ import matplotlib
 import numpy as np
 import pandas as pd
 import scipy.interpolate
+import scipy.stats
 import seaborn
 from numpy.typing import NDArray
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction.persistence import ImzmlWriteFile, ImzmlReadFile
-import scipy.stats
+
 
 # TODO experimental/non-prod
 

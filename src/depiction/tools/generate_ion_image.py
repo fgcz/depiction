@@ -13,7 +13,6 @@ from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
 from depiction.persistence import ImzmlReadFile, ImzmlReader
 from depiction.tools.image_channel_statistics import ImageChannelStatistics
 
-
 class GenerateIonImage:
     """Generates ion images from an imzML file.
 
@@ -22,7 +21,10 @@ class GenerateIonImage:
     it can be expected to be faster than calling the generate_*_for_file methods multiple times.
     """
 
+
     def __init__(self, parallel_config: ParallelConfig) -> None:
+        # TODO for peak picked data, it could be worth considering an option to only select the closest peak in case
+        #      multiple peaks would fall within the window of interest
         self._parallel_config = parallel_config
 
     def generate_ion_images_for_file(

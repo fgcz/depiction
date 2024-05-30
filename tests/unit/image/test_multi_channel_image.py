@@ -2,6 +2,7 @@ import unittest
 from functools import cached_property
 
 import numpy as np
+import pandas as pd
 import xarray
 from xarray import DataArray
 
@@ -32,7 +33,7 @@ class TestMultiChannelImage(unittest.TestCase):
             values=values, coordinates=coordinates, channel_names=["A", "B", "C"]
         )
         self.assertListEqual(["A", "B", "C"], image.channel_names)
-        values = image.get_channel_array("B")
+        values = image.data_spatial.sel(c="B")
         xarray.testing.assert_equal(
             DataArray([[2, 0], [0, 5]], dims=("y", "x"), coords={"c": "B"}, name="values"), values
         )
@@ -59,6 +60,9 @@ class TestMultiChannelImage(unittest.TestCase):
         expected_bg_mask = DataArray([[False, False], [True, True], [False, False]], dims=("y", "x"))
         xarray.testing.assert_equal(expected_bg_mask, bg_mask)
 
+    def test_dimensions(self):
+        self.assertEqual((2, 3), self.mock_image.dimensions)
+
     def test_channel_names_when_set(self) -> None:
         self.assertListEqual(["Channel A"], self.mock_image.channel_names)
 
@@ -66,47 +70,20 @@ class TestMultiChannelImage(unittest.TestCase):
         self.mock_coords = {}
         self.assertListEqual(["0"], self.mock_image.channel_names)
 
-    def test_get_channel_array_when_str_exists(self) -> None:
-        values = self.mock_image.get_channel_array("Channel A")
-        xarray.testing.assert_equal(
-            DataArray([[2.0, 4], [6, 8], [10, 12]], dims=("y", "x"), coords={"c": "Channel A"}), values
-        )
+    def test_data_spatial(self):
+        xarray.testing.assert_identical(self.mock_data, self.mock_image.data_spatial)
 
-    def test_get_channel_array_when_str_missing(self) -> None:
-        with self.assertRaises(KeyError):
-            self.mock_image.get_channel_array("Channel C")
-
-    def test_get_channel_array_when_list_size_1(self) -> None:
-        values = self.mock_image.get_channel_array(["Channel A"])
-        xarray.testing.assert_equal(self.mock_data, values)
-
-    def test_get_channel_array_when_list_multiple(self) -> None:
-        values = self.mock_image.get_channel_array(["Channel A", "Channel A"])
+    def test_data_flat(self):
+        self.mock_data[0, 0, 0] = 0
+        self.mock_data[1, 0, 0] = np.nan
         expected = DataArray(
-            [[[2.0, 2], [4, 4]], [[6, 6], [8, 8]], [[10, 10], [12, 12]]],
-            dims=("y", "x", "c"),
-            coords={"c": ["Channel A", "Channel A"]},
+            [[4., 8, 10, 12]],
+            dims=("c", "i"),
+            coords={"c": ["Channel A"],
+                    "i": pd.MultiIndex.from_tuples([(0, 1), (1, 1), (2, 0), (2, 1)], names=("y", "x"))},
+            attrs={"bg_value": 0}
         )
-        xarray.testing.assert_equal(expected, values)
-
-    def test_get_channel_flat_array_when_str(self):
-        self.mock_data[0, 1, 0] = 0
-        self.mock_data[1, :, 0] = 0
-        values = self.mock_image.get_channel_flat_array("Channel A")
-        np.testing.assert_array_equal(np.array([2.0, 10, 12]), values.values)
-        np.testing.assert_array_equal([0, 2, 2], values.coords["y"])
-        np.testing.assert_array_equal([0, 0, 1], values.coords["x"])
-        self.assertListEqual([(0, 0), (2, 0), (2, 1)], values.coords["i"].values.tolist())
-
-    def test_get_channel_flat_array_when_list_multiple(self):
-        self.mock_data[0, 1, 0] = 0
-        self.mock_data[1, :, 0] = 0
-        values = self.mock_image.get_channel_flat_array(["Channel A", "Channel A"])
-        np.testing.assert_array_equal(np.array([[2.0, 10, 12], [2.0, 10, 12]]), values.values)
-        np.testing.assert_array_equal([0, 2, 2], values.coords["y"])
-        np.testing.assert_array_equal([0, 0, 1], values.coords["x"])
-        np.testing.assert_array_equal(["Channel A", "Channel A"], values.coords["c"].values)
-        self.assertListEqual([(0, 0), (2, 0), (2, 1)], values.coords["i"].values.tolist())
+        xarray.testing.assert_identical(expected, self.mock_image.data_flat)
 
     def test_with_channel_names(self) -> None:
         image = self.mock_image.with_channel_names(channel_names=["New Channel Name"])

@@ -10,7 +10,7 @@ import xarray
 from numpy.typing import NDArray
 from xarray import DataArray
 
-from depiction.calibration.calibration_type import CalibrationType
+from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel, WriteSpectraParallel
 from depiction.parallel_ops.parallel_map import ParallelMap
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
@@ -19,7 +19,7 @@ from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, Im
 class PerformCalibration:
     def __init__(
         self,
-        calibration: CalibrationType,
+        calibration: CalibrationMethod,
         parallel_config: ParallelConfig,
         output_store: h5py.Group | None = None,
         coefficient_output_file: Path | None = None,
@@ -80,7 +80,7 @@ class PerformCalibration:
         self._write_data_array(all_features, group="features_raw")
 
         logger.info("Preprocessing features...")
-        all_features = self._calibration.preprocess_features(all_features=all_features)
+        all_features = self._calibration.preprocess_image_features(all_features=all_features)
         self._validate_per_spectra_array(all_features, coordinates_2d=read_peaks.coordinates_2d)
         self._write_data_array(all_features, group="features_processed")
 
@@ -102,9 +102,8 @@ class PerformCalibration:
             ),
             reduce_fn=lambda chunks: xarray.concat(chunks, dim="i"),
         )
-        all_features = all_features.assign_coords(x=("i", read_peaks.coordinates_2d[:, 0]),
-                                                  y=("i", read_peaks.coordinates_2d[:, 1]))
-        return all_features
+        return all_features.assign_coords(x=("i", read_peaks.coordinates_2d[:, 0]),
+                                          y=("i", read_peaks.coordinates_2d[:, 1]))
 
     def _apply_all_models(
         self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, all_model_coefs: DataArray
@@ -150,12 +149,12 @@ class PerformCalibration:
     def _extract_chunk_features(
         reader: ImzmlReader,
         spectra_indices: list[int],
-        calibration: CalibrationType,
+        calibration: CalibrationMethod,
     ) -> DataArray:
         collect = []
         for spectrum_id in spectra_indices:
             mz_arr, int_arr = reader.get_spectrum(spectrum_id)
-            features = calibration.extract_features(peak_mz_arr=mz_arr, peak_int_arr=int_arr)
+            features = calibration.extract_spectrum_features(peak_mz_arr=mz_arr, peak_int_arr=int_arr)
             collect.append(features)
         combined = xarray.concat(collect, dim="i")
         combined.coords["i"] = spectra_indices
@@ -166,7 +165,7 @@ class PerformCalibration:
         reader: ImzmlReader,
         spectra_indices: list[int],
         writer: ImzmlWriter,
-        calibration: CalibrationType,
+        calibration: CalibrationMethod,
         all_model_coefs: DataArray,
     ) -> None:
         for spectrum_id in spectra_indices:

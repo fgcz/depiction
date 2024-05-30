@@ -55,8 +55,7 @@ class VisualizeMassShiftMap:
         n_masses = len(test_masses)
 
         fig, axs = plt.subplots(n_masses, 2, figsize=(n_masses * 6, 12), sharex="col" if same_scale else False)
-        hist_bins = np.histogram(correction_image.get_channel_flat_array(correction_image.channel_names).values.ravel(),
-                                 bins=n_bins)[1]
+        hist_bins = np.histogram(correction_image.data_flat.values.ravel(), bins=n_bins)[1]
 
         for i_mass, test_mass in enumerate(test_masses):
             self._plot_row(
@@ -92,7 +91,7 @@ class VisualizeMassShiftMap:
         unit: str,
     ) -> None:
         # get the data
-        values = correction_image.get_channel_flat_array(correction_image.channel_names).values.ravel()
+        values = correction_image.data_flat.values.ravel()
         name = correction_image.channel_names[0]
 
         # scaling value

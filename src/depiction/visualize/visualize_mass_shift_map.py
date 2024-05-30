@@ -99,8 +99,7 @@ class VisualizeMassShiftMap:
 
         # plot the map
         PlotImage(correction_image).plot_single_channel_image(
-            correction_image.channel_names[0],
-            ax=ax_map, cmap="coolwarm", vmin=-abs_perc, vmax=abs_perc
+            correction_image.channel_names[0], ax=ax_map, cmap="coolwarm", vmin=-abs_perc, vmax=abs_perc
         )
         ax_map.set_title(f"Error for {name}")
         ax_map.axis("off")

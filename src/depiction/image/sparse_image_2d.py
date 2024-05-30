@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 # file is deprecated, use MultiChannelImage instead!
 
 import warnings

@@ -14,6 +14,7 @@ from depiction.parallel_ops.parallel_map import ParallelMap
 if TYPE_CHECKING:
     from numpy.typing import NDArray
     from depiction.persistence import ImzmlReadFile, ImzmlReader
+
     T = TypeVar("T")
     V = TypeVar("V")
 

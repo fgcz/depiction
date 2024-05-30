@@ -41,7 +41,8 @@ class CalibrationPipelineChemicalPeptideNoise(CalibrationMethod):
         #    us to provide the information about mz_arr, which also risks breaking the abstraction again
         return features
 
-    def apply_spectrum_model(self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float],
-                             model_coef: DataArray) -> tuple[NDArray[float], NDArray[float]]:
+    def apply_spectrum_model(
+        self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
+    ) -> tuple[NDArray[float], NDArray[float]]:
         res_mz_arr = self._calibration.align_masses(mz_arr=spectrum_mz_arr, int_arr=spectrum_int_arr)
         return res_mz_arr, spectrum_int_arr

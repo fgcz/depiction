@@ -9,6 +9,7 @@ from typing import TypeVar, TYPE_CHECKING, Callable, Any
 
 if TYPE_CHECKING:
     from depiction.parallel_ops import ParallelConfig
+
     S = TypeVar("S")
     T = TypeVar("T")
     U = TypeVar("U")

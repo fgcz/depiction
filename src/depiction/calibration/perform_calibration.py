@@ -46,7 +46,7 @@ class PerformCalibration:
     #        raise ValueError(f"Unknown pattern={repr(pattern)}")
 
     def _validate_per_spectra_array(self, array: DataArray, coordinates_2d) -> None:
-        """Checks the DataArray has the correct shapes and dimensions. Used for debugging. """
+        """Checks the DataArray has the correct shapes and dimensions. Used for debugging."""
         # TODO make it configurable in the future, whether this check is executed, during development it definitely
         #      should be here since it can safe a ton of time
         expected_coords = {"i", "x", "y"}
@@ -102,8 +102,9 @@ class PerformCalibration:
             ),
             reduce_fn=lambda chunks: xarray.concat(chunks, dim="i"),
         )
-        return all_features.assign_coords(x=("i", read_peaks.coordinates_2d[:, 0]),
-                                          y=("i", read_peaks.coordinates_2d[:, 1]))
+        return all_features.assign_coords(
+            x=("i", read_peaks.coordinates_2d[:, 0]), y=("i", read_peaks.coordinates_2d[:, 1])
+        )
 
     def _apply_all_models(
         self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, all_model_coefs: DataArray

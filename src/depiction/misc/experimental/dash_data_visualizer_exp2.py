@@ -50,13 +50,13 @@ app.layout = html.Div(
     [
         html.H3("Select a marker of interest"),
         dcc.Dropdown(df["Marker"].tolist(), id="marker-dropdown", value=df["Marker"].iloc[0], clearable=False),
-        #dash_table.DataTable(
+        # dash_table.DataTable(
         #    id="table",
         #    columns=[{"name": i, "id": i} for i in df.columns],
         #    data=df.to_dict("records"),
         #    style_table={"height": "300px", "overflowY": "auto"},
         #    active_cell={"row": 0, "column": 0},
-        #),
+        # ),
         html.H3("Visualization"),
         dvc.Vega(id="altair-chart", opt={"actions": False}),
     ],
@@ -70,12 +70,12 @@ app.layout = html.Div(
 ########    return [{"if": {"row_index": active_cell["row"]}, "backgroundColor": "#3D9970"}]
 
 
-#@callback(Output("altair-chart", "spec"), Input("table", "active_cell"))
-#def display_altair_chart(active_cell):
-@callback(Output("altair-chart","spec"), Input("marker-dropdown","value"))
+# @callback(Output("altair-chart", "spec"), Input("table", "active_cell"))
+# def display_altair_chart(active_cell):
+@callback(Output("altair-chart", "spec"), Input("marker-dropdown", "value"))
 def display_altair_chart(marker_name):
-    #i_channel = active_cell["row"]
-    i_channel = df[df["Marker"]==marker_name].index[0]
+    # i_channel = active_cell["row"]
+    i_channel = df[df["Marker"] == marker_name].index[0]
     coordinates_2d = ion_images.sparse_coordinates
     channel_df = pd.DataFrame(
         {
@@ -102,7 +102,6 @@ def display_altair_chart(marker_name):
         .properties(width=500, height=500 * im_aspect)
         .add_params(brush)
     )
-
 
     plot_hist = (
         alt.Chart(channel_df)

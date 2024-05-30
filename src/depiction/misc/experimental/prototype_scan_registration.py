@@ -125,7 +125,7 @@ def get_sd_img_channels(channel_img_path: Path, area_coords: NDArray) -> spatial
     # fill nan (TODO)
     flipped_img = flipped_img.copy()
     # TODO?
-    #flipped_img = flipped_img.fillna(-1.0)
+    # flipped_img = flipped_img.fillna(-1.0)
     # normalize (TODO reconsider)
     # flipped_img = ImageNormalization().normalize_xarray(flipped_img, ImageNormalizationVariant.VEC_NORM)
     return spatialdata.models.Image2DModel.parse(

@@ -99,7 +99,6 @@ def display_altair_chart(active_cell):
         .add_params(brush)
     )
 
-
     plot_hist = (
         alt.Chart(channel_df)
         .mark_bar()

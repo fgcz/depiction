@@ -46,7 +46,7 @@ class CorrectBaseline:
             read_file=read_file,
             write_file=write_file,
             operation=self._operation,
-            bind_args=dict(baseline_correction=self._baseline_correction)
+            bind_args=dict(baseline_correction=self._baseline_correction),
         )
 
     def evaluate_spectrum(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:

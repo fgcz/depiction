@@ -18,7 +18,9 @@ class NormalizeSpectraIntensitiesVariant:
 class NormalizeSpectraIntensities:
     variant: NormalizeSpectraIntensitiesVariant
 
-    def process_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, parallel_config: ParallelConfig) -> None:
+    def process_file(
+        self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, parallel_config: ParallelConfig
+    ) -> None:
         write_parallel = WriteSpectraParallel.from_config(parallel_config)
         write_parallel.map_chunked_to_file(
             read_file=read_file,

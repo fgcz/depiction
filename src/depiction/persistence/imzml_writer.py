@@ -19,7 +19,7 @@ class ImzmlWriter:
         self,
         *,
         wrapped_imzml_writer: pyimzml.ImzMLWriter.ImzMLWriter,
-        imzml_alignment_tracker: Optional[ImzmlAlignmentTracker]
+        imzml_alignment_tracker: Optional[ImzmlAlignmentTracker],
     ) -> None:
         self._imzml_writer = wrapped_imzml_writer
         self._imzml_alignment_tracker = imzml_alignment_tracker
@@ -70,7 +70,7 @@ class ImzmlWriter:
     ) -> None:
         if len(mz_arr) != len(int_arr):
             raise ValueError(f"{len(mz_arr)=} and {len(int_arr)=} must be equal.")
-        
+
         # Handle alignment check information.
         if self._imzml_alignment_tracker:
             self._imzml_alignment_tracker.track_mz_array(mz_arr)
@@ -96,9 +96,12 @@ class ImzmlWriter:
         :param spectra_indices: The indices of the spectra to copy.
         """
         if tqdm_position is not None:
+
             def progress_fn(x):
                 return tqdm(x, desc=" spectrum", position=tqdm_position)
+
         else:
+
             def progress_fn(x):
                 return x
 

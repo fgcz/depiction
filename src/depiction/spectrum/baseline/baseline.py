@@ -8,7 +8,7 @@ class Baseline(Protocol):
     """Baseline estimation and subtraction protocol."""
 
     def evaluate_baseline(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
-        """Returns the spectrum intensities of the baseline. """
+        """Returns the spectrum intensities of the baseline."""
         raise NotImplementedError()
 
     def subtract_baseline(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:

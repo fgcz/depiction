@@ -56,7 +56,7 @@ class ImzmlReader:
             "int_arr_dtype": self._int_arr_dtype,
             "mz_bytes": self._mz_bytes,
             "int_bytes": self._int_bytes,
-            "coordinates": self._coordinates
+            "coordinates": self._coordinates,
         }
 
     # TODO
@@ -215,5 +215,7 @@ class ImzmlReader:
         )
 
     def __str__(self) -> str:
-        return (f"ImzmlReader[{self._imzml_path}, n_spectra={self.n_spectra},"
-                f" int_arr_dtype={self._int_arr_dtype}, mz_arr_dtype={self._mz_arr_dtype}]")
+        return (
+            f"ImzmlReader[{self._imzml_path}, n_spectra={self.n_spectra},"
+            f" int_arr_dtype={self._int_arr_dtype}, mz_arr_dtype={self._mz_arr_dtype}]"
+        )

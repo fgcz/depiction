@@ -22,13 +22,13 @@ class RamWriteFile:
     def imzml_mode(self):
         return self._imzml_mode
 
-    #Just for the sake of a clean api this does not really belong here...
-    #def add_spectrum(
+    # Just for the sake of a clean api this does not really belong here...
+    # def add_spectrum(
     #    self,
     #    mz_arr: np.ndarray,
     #    int_arr: np.ndarray,
     #    coordinates: tuple[int, int] | tuple[int, int, int],
-    #):
+    # ):
     #    self._mz_arr.append(mz_arr)
     #    self._int_arr.append(int_arr)
     #    self._coordinates.append(coordinates)
@@ -58,9 +58,12 @@ class _Writer:
     def copy_spectra(self, reader, spectra_indices: Sequence[int], tqdm_position: int | None = None) -> None:
         # TODO reuse the implementation from ImzmlWriter as this is 100% identical
         if tqdm_position is not None:
+
             def progress_fn(x):
                 return tqdm(x, desc=" spectrum", position=tqdm_position)
+
         else:
+
             def progress_fn(x):
                 return x
 

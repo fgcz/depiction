@@ -47,7 +47,7 @@ class SyntheticMaldiIhcData:
                         label_image[h, w, i_label] = 1
 
         data = DataArray(label_image, dims=("y", "x", "c"), coords={"c": [f"synthetic_{i}" for i in range(n_labels)]})
-        data["bg_value"] = 0.
+        data["bg_value"] = 0.0
         return MultiChannelImage(data)
 
     def generate_imzml_for_labels(

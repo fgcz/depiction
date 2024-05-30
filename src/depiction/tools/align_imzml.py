@@ -27,7 +27,6 @@ class AlignImzmlMethod(enum.Enum):
     FIRST_MZ_ARR = "FIRST_MZ_ARR"
 
 
-
 class AlignImzml:
     """Aligns the m/z values of an imzml file to a common set of bins."""
 

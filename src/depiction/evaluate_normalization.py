@@ -2,6 +2,7 @@ import numpy as np
 
 # TODO deprecated, use tools.normalize_intensities instead
 
+
 class EvaluateTICNormalization:
     """
     Evaluates the TIC normalization of spectra.

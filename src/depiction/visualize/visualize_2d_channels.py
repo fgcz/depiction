@@ -1,14 +1,14 @@
 # TODO delete this file if not needed anymore
-#from typing import Optional, Callable, Sequence
+# from typing import Optional, Callable, Sequence
 #
-#from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 #
-#from ion_mapper.image.sparse_image_2d import SparseImage2d
+# from ion_mapper.image.sparse_image_2d import SparseImage2d
 #
 #
 ## TODO the configuration of intensity transformation needs to be more generic / standardized
 #
-#class Visualize2dChannels:
+# class Visualize2dChannels:
 #    """Visualizes 2D image channels."""
 #
 #    def __init__(self, image: SparseImage2d):

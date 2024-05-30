@@ -67,7 +67,7 @@ class BasicInterpolatedPeakPicker:
         # Fit a cubic spline
         spline = scipy.interpolate.CubicSpline(interp_mz, interp_int)
         roots = spline.derivative().roots()
-        if len(roots) == 0:
+        if np.isnan(roots).any():
             loguru.logger.warning(
                 f"Error: {len(roots)} roots found for local maximum at index {local_max_index}; "
                 f"{interp_mz=}, {interp_int=}, {roots=}"
@@ -89,3 +89,7 @@ class BasicInterpolatedPeakPicker:
             ),
         )
         return local_maxima_indices
+
+
+# TODO the interpolation could be much faster, if it were implemented in numba for our specific case of 3 points,
+#      since in general the scipy library will do everything much moe general than is actually required.

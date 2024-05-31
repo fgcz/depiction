@@ -1,12 +1,12 @@
 # TODO very experimental first version
 # TODO needs better name (but like this for easier distinguishing)
-import logging
 from pathlib import Path
 from typing import Optional
 
 import h5py
 import numpy as np
 import xarray
+from loguru import logger
 from numpy.typing import NDArray
 from xarray import DataArray
 
@@ -56,12 +56,12 @@ class PerformCalibration:
         if set(array.dims) != expected_dims:
             raise ValueError(f"Expected dims={expected_dims}, got={set(array.dims)}")
         if not np.array_equal(array.x.values, coordinates_2d[:, 0]):
-            logging.info(f"Expected x values={coordinates_2d[:, 0]}")
-            logging.info(f"Actual   x values={array.x.values}")
+            logger.info(f"Expected x values={coordinates_2d[:, 0]}")
+            logger.info(f"Actual   x values={array.x.values}")
             raise ValueError("Mismatch in x values")
         if not np.array_equal(array.y.values, coordinates_2d[:, 1]):
-            logging.info(f"Expected y values={coordinates_2d[:, 1]}")
-            logging.info(f"Actual   y values={array.y.values}")
+            logger.info(f"Expected y values={coordinates_2d[:, 1]}")
+            logger.info(f"Actual   y values={array.y.values}")
             raise ValueError("Mismatch in y values")
         if not np.array_equal(array.i.values, np.arange(len(array.i))):
             raise ValueError("Mismatch in i values")
@@ -71,8 +71,6 @@ class PerformCalibration:
     ) -> None:
         if read_full is None:
             read_full = read_peaks
-
-        logger = logging.getLogger(__name__)
 
         logger.info("Extracting all features...")
         all_features = self._extract_all_features(read_peaks)

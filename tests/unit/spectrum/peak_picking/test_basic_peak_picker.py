@@ -1,14 +1,14 @@
-import unittest
 from functools import cached_property
 from unittest.mock import patch, MagicMock
 
 import numpy as np
+import pytest
 
 from depiction.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 
 
-class TestBasicPeakPicker(unittest.TestCase):
-    def setUp(self) -> None:
+class TestBasicPeakPicker:
+    def setup_method(self) -> None:
         self.mock_smooth_sigma = 0.1
         self.mock_min_prominence = 2.0
         self.mock_min_distance = None
@@ -33,7 +33,7 @@ class TestBasicPeakPicker(unittest.TestCase):
         mock_int_arr = MagicMock(name="mock_int_arr", spec=[])
         mock_mz_arr = np.array([5, 7, 9, 11, 11.5, 15])
         int_arr_smooth = self.mock_picker.get_smoothed_intensities(mz_arr=mock_mz_arr, int_arr=mock_int_arr)
-        self.assertEqual(mock_gaussian_filter1d.return_value, int_arr_smooth)
+        assert mock_gaussian_filter1d.return_value == int_arr_smooth
         mock_gaussian_filter1d.assert_called_once_with(mock_int_arr, sigma=2.5)
 
     def test_get_smoothed_intensities_when_sigma_is_none(self) -> None:
@@ -41,7 +41,7 @@ class TestBasicPeakPicker(unittest.TestCase):
         mock_int_arr = MagicMock(name="mock_int_arr", spec=[])
         mock_mz_arr = MagicMock(name="mock_mz_arr", spec=[])
         smoothed = self.mock_picker.get_smoothed_intensities(mz_arr=mock_mz_arr, int_arr=mock_int_arr)
-        self.assertEqual(mock_int_arr, smoothed)
+        assert mock_int_arr == smoothed
 
     def test_pick_peaks_index(self) -> None:
         indices = self.mock_picker.pick_peaks_index(self.mock_mz_arr, self.mock_int_arr)
@@ -71,37 +71,32 @@ class TestBasicPeakPicker(unittest.TestCase):
 
     def test_clone(self) -> None:
         copy = self.mock_picker.clone()
-        self.assertIsNot(self.mock_picker, copy)
-        self.assertEqual(self.mock_picker.smooth_sigma, copy.smooth_sigma)
-        self.assertEqual(self.mock_picker.min_prominence, copy.min_prominence)
+        assert self.mock_picker is not copy
+        assert self.mock_picker.smooth_sigma == copy.smooth_sigma
+        assert self.mock_picker.min_prominence == copy.min_prominence
 
     def test_get_min_distance_indices_when_none(self) -> None:
         mock_mz_arr = MagicMock(name="mock_mz_arr", spec=[])
-        self.assertIsNone(
+        assert (
             BasicPeakPicker.get_min_distance_indices(min_distance=None, min_distance_unit=None, mz_arr=mock_mz_arr)
+            is None
         )
 
     def test_get_min_distance_indices_when_unit_index(self) -> None:
         mock_min_distance = 3
         mock_min_distance_unit = "index"
         mock_mz_arr = MagicMock(name="mock_mz_arr", spec=[])
-        self.assertEqual(
-            3,
-            BasicPeakPicker.get_min_distance_indices(
-                min_distance=mock_min_distance, min_distance_unit=mock_min_distance_unit, mz_arr=mock_mz_arr
-            ),
+        assert 3 == BasicPeakPicker.get_min_distance_indices(
+            min_distance=mock_min_distance, min_distance_unit=mock_min_distance_unit, mz_arr=mock_mz_arr
         )
 
     def test_get_min_distance_indices_when_unit_mz(self) -> None:
         mock_min_distance = 0.5
         mock_min_distance_unit = "mz"
-        self.assertEqual(
-            5,
-            BasicPeakPicker.get_min_distance_indices(
-                min_distance=mock_min_distance, min_distance_unit=mock_min_distance_unit, mz_arr=self.mock_mz_arr
-            ),
+        assert 5 == BasicPeakPicker.get_min_distance_indices(
+            min_distance=mock_min_distance, min_distance_unit=mock_min_distance_unit, mz_arr=self.mock_mz_arr
         )
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main()

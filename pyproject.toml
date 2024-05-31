@@ -47,7 +47,9 @@ testing = [
     "hypothesis>=6.99.11",
     "mypy>=1.9.0",
     "pytype>=2023.12.18",
-    "logot"
+    "logot",
+    "pytest",
+    "pytest-mock"
 ]
 dev = [
     "bokeh>=3.3.2",

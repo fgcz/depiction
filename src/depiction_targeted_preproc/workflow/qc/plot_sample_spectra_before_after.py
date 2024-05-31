@@ -16,7 +16,8 @@ def qc_plot_sample_spectra_before_after(
     output_pdf: Annotated[Path, Option()],
 ) -> None:
     import holoviews as hv
-    hv.extension("matplotlib") #<- todo where to handle this nicely?
+
+    hv.extension("matplotlib")  # <- todo where to handle this nicely?
 
     baseline = ImzmlReadFile(imzml_baseline)
     calib = ImzmlReadFile(imzml_calib)
@@ -27,22 +28,24 @@ def qc_plot_sample_spectra_before_after(
 
     plotter = PlotMassSpectrum()
 
-    with (baseline.reader() as baseline_reader, calib.reader() as calib_reader):
+    with baseline.reader() as baseline_reader, calib.reader() as calib_reader:
         for spectrum_index in spectra_indices:
             mz_arr_baseline, int_arr_baseline = baseline_reader.get_spectrum(spectrum_index)
             mz_arr_calib, int_arr_calib = calib_reader.get_spectrum(spectrum_index)
 
-            df_spectrum = pl.concat([
-                pl.DataFrame({"m/z": mz_arr_baseline, "intensity": int_arr_baseline, "variant": "baseline"}),
-                pl.DataFrame({"m/z": mz_arr_calib, "intensity": int_arr_calib, "variant": "calibrated"}),
-            ])
+            df_spectrum = pl.concat(
+                [
+                    pl.DataFrame({"m/z": mz_arr_baseline, "intensity": int_arr_baseline, "variant": "baseline"}),
+                    pl.DataFrame({"m/z": mz_arr_calib, "intensity": int_arr_calib, "variant": "calibrated"}),
+                ]
+            )
 
             plot_s_base = plotter.visualize_profile(df_spectrum, mass_list_df.rename({"mass": "m/z"}))
             plot_s_calib = plotter.visualize_profile(df_spectrum, mass_list_df.rename({"mass": "m/z"}))
 
             plot = plot_s_base.opts(color="") * plot_s_calib
 
-            #plot = plotter.get_layer_peaks(df_spectrum, extra_cols=["variant"]).overlay("variant")
+            # plot = plotter.get_layer_peaks(df_spectrum, extra_cols=["variant"]).overlay("variant")
             plot *= plotter.get_layer_refs(mass_list_df.rename({"mass": "m/z"}))
 
             mz_ref = mass_list_df["mass"].median()

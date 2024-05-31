@@ -4,8 +4,8 @@ import subprocess
 from pathlib import Path
 
 import yaml
-
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters, PipelineArtifact
+from loguru import logger
 
 RESULT_FILE_MAPPING = {
     PipelineArtifact.CALIB_IMZML: ["calibrated.imzML", "calibrated.ibd"],
@@ -42,7 +42,7 @@ def main() -> None:
 
     params_file = Path(__file__).parents[1] / "pipeline_config" / "default.yml"
     params = PipelineParameters.model_validate(yaml.safe_load(params_file.read_text()))
-    print(params)
+    logger.info("Pipeline parameters: {params}", params=params.dict())
 
     if not (dir_work / sample_name / "raw.imzML").exists():
         initial_setup(
@@ -78,7 +78,7 @@ def export_results(
 ) -> None:
     for artifact in requested_artifacts:
         if artifact == PipelineArtifact.DEBUG:
-            print(f"Skipping export of {artifact}")
+            logger.info(f"Skipping export of {artifact}")
             continue
         for file in result_file_mapping[artifact]:
             (output_dir / sample_name).mkdir(exist_ok=True, parents=True)
@@ -112,7 +112,7 @@ def snakemake_invoke(work_dir: Path, result_files: list[Path]) -> None:
         str(snakefile_path),
         *[str(file) for file in result_files],
     ]
-    print(command)
+    logger.info("Executing {command}", command=command)
     subprocess.run(
         command,
         cwd=workflow_dir,

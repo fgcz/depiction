@@ -17,20 +17,19 @@ def get_peak_counts(read_peaks: ImzmlReadFile, mass_groups: pl.DataFrame, n_jobs
         for i_spectrum in range(1000):
             group_index, group_mz_min, group_mz_max = mass_groups.select(["group_index", "mz_min", "mz_max"])
             mz_peaks = reader.get_spectrum_mz(i_spectrum)
-            collect.extend([
-                {
-                    "group_index": g_index,
-                    "n_peaks": ((mz_peaks > g_mz_min) & (mz_peaks < g_mz_max)).sum()
-                }
-                for g_index, g_mz_min, g_mz_max in zip(group_index, group_mz_min, group_mz_max)
-            ])
+            collect.extend(
+                [
+                    {"group_index": g_index, "n_peaks": ((mz_peaks > g_mz_min) & (mz_peaks < g_mz_max)).sum()}
+                    for g_index, g_mz_min, g_mz_max in zip(group_index, group_mz_min, group_mz_max)
+                ]
+            )
     return pl.DataFrame(collect)
 
 
 def qc_plot_peak_counts(
     imzml_peaks: Annotated[Path, Option()],
     output_pdf: Annotated[Path, Option()],
-    config_path: Annotated[Path, Option()]
+    config_path: Annotated[Path, Option()],
 ) -> None:
     config = PipelineParameters.parse_yaml(config_path)
     read_peaks = ImzmlReadFile(imzml_peaks)
@@ -44,10 +43,7 @@ def qc_plot_peak_counts(
 
     plot_df = peak_counts.join(mass_groups, on="group_index", how="left")
 
-    chart = alt.Chart(plot_df).mark_bar().encode(
-        x=alt.X("n_peaks:Q").bin(maxbins=50),
-        y="count()"
-    )
+    chart = alt.Chart(plot_df).mark_bar().encode(x=alt.X("n_peaks:Q").bin(maxbins=50), y="count()")
     chart = chart | chart.encode(color="mass_group:N")
     chart.save(output_pdf)
 

@@ -68,13 +68,22 @@ class PipelineArtifact(Enum):
     DEBUG = "DEBUG"
 
 
-class PipelineParameters(BaseModel):
+class PipelineParametersPreset(BaseModel):
     baseline_adjustment: BaselineAdjustment
     peak_picker: PeakPicker
     calibration: Calibration
+
+
+class PipelineParameters(PipelineParametersPreset):
     requested_artifacts: list[PipelineArtifact]
     n_jobs: int
 
     @classmethod
     def parse_yaml(cls, path: Path) -> PipelineParameters:
         return cls.model_validate(yaml.safe_load(path.read_text()))
+
+    @classmethod
+    def from_preset_and_settings(
+        cls, preset: PipelineParametersPreset, requested_artifacts: list[PipelineArtifact], n_jobs: int
+    ) -> PipelineParameters:
+        return cls(**preset.dict(), requested_artifacts=requested_artifacts, n_jobs=n_jobs)

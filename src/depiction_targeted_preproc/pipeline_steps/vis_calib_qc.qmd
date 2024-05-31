@@ -1,0 +1,21 @@
+---
+title: "Calibration QC"
+format:
+  html:
+    code-fold: true
+  pdf:
+    geometry:
+      - margin=1cm
+jupyter: python3
+---
+
+# Marker presence
+![](pdfs/marker_presence.pdf){width=100%}
+
+# Peak counts
+![](pdfs/peak_counts.pdf){width=100%}
+
+# Peak density
+![](pdfs/peak_density_combined.pdf){width=100%}
+![](pdfs/peak_density_ranges.pdf){width=100%}
+![](pdfs/peak_density_standards.pdf){width=100%}

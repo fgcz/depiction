@@ -1,0 +1,26 @@
+baseline_adjustment:
+  baseline_type: Tophat
+  window_size: 3000
+  window_unit: ppm
+peak_picker:
+  peak_picker_type: BasicInterpolated
+  min_prominence: 0.5
+  min_distance: 0.9
+  min_distance_unit: mz
+calibration:
+  calibration_method: RegressShift
+  max_distance: 3000
+  max_distance_unit: ppm
+  reg_model_type: linear_siegelslopes
+  reg_model_unit: mz
+  input_smoothing_activated: yes
+  input_smoothing_kernel_size: 5
+  input_smoothing_kernel_std: 1.0
+  min_points: 3
+n_jobs: 10
+requested_artifacts:
+  - CALIB_IMZML
+  - CALIB_IMAGES
+  - CALIB_QC
+  - CALIB_HEATMAP
+  - DEBUG

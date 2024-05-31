@@ -7,7 +7,7 @@ rule proc_adjust_baseline:
     output:
         imzml=multiext("{sample}/baseline_adj",".imzML",".ibd")
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.proc_adjust_baseline "
+        "python -m depiction_targeted_preproc.workflow.proc.adjust_baseline "
         " --input-imzml-path {input.imzml[0]} --config-path {input.config} "
         " --output-imzml-path {output.imzml[0]}"
 
@@ -18,7 +18,7 @@ rule proc_pick_peaks:
     output:
         imzml=multiext("{sample}/peaks",".imzML",".ibd"),
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.proc_pick_peaks "
+        "python -m depiction_targeted_preproc.workflow.proc.pick_peaks "
         " --input-imzml-path {input.imzml[0]} --config-path {input.config} "
         " --output-imzml-path {output.imzml[0]}"
 
@@ -31,7 +31,7 @@ rule proc_calibrate:
         imzml=multiext("{sample}/calibrated",".imzML",".ibd"),
         calib_data="{sample}/calib_data.hdf5",
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.proc_calibrate "
+        "python -m depiction_targeted_preproc.workflow.proc.calibrate "
         " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
         " --output-imzml-path {output.imzml[0]} --output-calib-data-path {output.calib_data}"
 
@@ -41,7 +41,7 @@ rule proc_export_raw_metadata:
     output:
         json="{sample}/raw_metadata.json"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.proc_export_raw_metadata "
+        "python -m depiction_targeted_preproc.workflow.proc.export_raw_metadata "
         " --input-imzml-path {input.imzml} --output-json-path {output.json}"
 
 rule vis_images:
@@ -52,7 +52,7 @@ rule vis_images:
     output:
         hdf5="{sample}/images_{label}.hdf5"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.vis_images "
+        "python -m depiction_targeted_preproc.workflow.vis.images "
         " --imzml-path {input.imzml[0]} --mass-list-path {input.mass_list} "
         " --output-hdf5-path {output.hdf5}"
         " --config-path {input.config}"
@@ -61,7 +61,7 @@ rule vis_images_norm:
     input: hdf5="{sample}/images_{label}.hdf5"
     output: hdf5="{sample}/images_{label}_norm.hdf5"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.vis_images_norm "
+        "python -m depiction_targeted_preproc.workflow.vis.images_norm "
         " --input-hdf5-path {input.hdf5} --output-hdf5-path {output.hdf5}"
 
 rule vis_images_ome_tiff:
@@ -71,7 +71,7 @@ rule vis_images_ome_tiff:
     output:
         ometiff="{sample}/images_{label}.ome.tiff"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.vis_images_ome_tiff "
+        "python -m depiction_targeted_preproc.workflow.vis.images_ome_tiff "
         " --input-netcdf-path {input.netcdf} --output-ometiff-path {output.ometiff}"
         " --input-raw-metadata-path {input.raw_metadata}"
 
@@ -81,7 +81,7 @@ rule qc_peak_counts:
     output:
         pdf="{sample}/qc/peak_counts.pdf"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_peak_counts"
+        "python -m depiction_targeted_preproc.workflow.qc.peak_counts"
         " --imzml-peaks {input.imzml_peaks} --output-table {output.table}"
 
 
@@ -92,7 +92,7 @@ rule qc_table_marker_distances_baseline:
     output:
         table="{sample}/qc/table_marker_distances_baseline.parquet"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_table_marker_distances"
+        "python -m depiction_targeted_preproc.workflow.qc.table_marker_distances"
         " --imzml-peaks {input.imzml_peaks} --mass-list {input.mass_list}"
         " --output-table {output.table}"
 
@@ -103,7 +103,7 @@ rule qc_table_marker_distances_calib:
     output:
         table="{sample}/qc/table_marker_distances_calib.parquet"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_table_marker_distances"
+        "python -m depiction_targeted_preproc.workflow.qc.table_marker_distances"
         " --imzml-peaks {input.imzml_peaks} --mass-list {input.mass_list}"
         " --output-table {output.table}"
 
@@ -115,7 +115,7 @@ rule qc_plot_marker_presence:
     output:
         pdf="{sample}/qc/plot_marker_presence.pdf"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_plot_marker_presence"
+        "python -m depiction_targeted_preproc.workflow.qc.plot_marker_presence"
         " --table-marker-distances-baseline {input.table_marker_distances_baseline}"
         " --table-marker-distances-calib {input.table_marker_distances_calib}"
         " --output-pdf {output.pdf}"
@@ -127,7 +127,7 @@ rule qc_plot_marker_presence_cv:
     output:
         pdf="{sample}/qc/plot_marker_presence_cv.pdf"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_plot_marker_presence_cv"
+        "python -m depiction_targeted_preproc.workflow.qc.plot_marker_presence_cv"
         " --image-hdf5 {input.image_hdf5}"
         " --output-pdf {output.pdf}"
 
@@ -139,7 +139,7 @@ rule qc_plot_peak_density_combined:
     output:
         pdf="{sample}/qc/plot_peak_density_combined.pdf"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_plot_peak_density"
+        "python -m depiction_targeted_preproc.workflow.qc.plot_peak_density"
         " --table-marker-distances-baseline {input.table_marker_distances_baseline}"
         " --table-marker-distances-calib {input.table_marker_distances_calib}"
         " --no-grouped"
@@ -153,7 +153,7 @@ rule qc_plot_peak_density_grouped:
     output:
         pdf="{sample}/qc/plot_peak_density_grouped.pdf"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_plot_peak_density"
+        "python -m depiction_targeted_preproc.workflow.qc.plot_peak_density"
         " --table-marker-distances-baseline {input.table_marker_distances_baseline}"
         " --table-marker-distances-calib {input.table_marker_distances_calib}"
         " --grouped"
@@ -167,7 +167,7 @@ rule qc_plot_calibration_map:
     output:
         pdf="{sample}/qc/plot_calibration_map.pdf"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_plot_calibration_map"
+        "python -m depiction_targeted_preproc.workflow.qc.plot_calibration_map"
         " --calib-data {input.calib_data} --mass-list {input.mass_list}"
         " --output-pdf {output.pdf}"
 
@@ -180,7 +180,7 @@ rule qc_plot_sample_spectra_before_after:
     output:
         pdf="{sample}/qc/plot_sample_spectra_before_after.pdf"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_plot_sample_spectra_before_after"
+        "python -m depiction_targeted_preproc.workflow.qc.plot_sample_spectra_before_after"
         " --imzml-baseline {input.imzml_baseline} --imzml-calib {input.imzml_calib}"
         " --mass-list {input.mass_list}"
         " --output-pdf {output.pdf}"
@@ -193,7 +193,7 @@ rule qc_plot_spectra_for_marker:
     output:
         pdf="{sample}/qc/plot_spectra_for_marker.pdf"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_plot_spectra_for_marker"
+        "python -m depiction_targeted_preproc.workflow.qc.plot_spectra_for_marker"
         " --marker-surrounding-baseline {input.marker_surrounding_baseline}"
         " --marker-surrounding-calib {input.marker_surrounding_calib}"
         " --output-pdf {output.pdf}"
@@ -205,7 +205,7 @@ rule qc_plot_peak_counts:
     output:
         pdf="{sample}/qc/plot_peak_counts.pdf"
     shell:
-        "python -m depiction_targeted_preproc.pipeline_steps.qc_plot_peak_counts"
+        "python -m depiction_targeted_preproc.workflow.qc.plot_peak_counts"
         " --config-path {input.config} --imzml-peaks {input.imzml_peaks}"
         " --output-pdf {output.pdf}"
 
@@ -217,6 +217,6 @@ rule qc_plot_peak_counts:
 #    output:
 #        hdf5="{sample}/images_calib_heatmap.hdf5"
 #    shell:
-#        "python -m depiction_targeted_preproc.pipeline_steps.vis_calib_heatmap "
+#        "python -m depiction_targeted_preproc.workflow.vis.calib_heatmap "
 #        " --input-calib-data-path {input.calib_data}"
 #        " --output-hdf5-path {output.hdf5}"

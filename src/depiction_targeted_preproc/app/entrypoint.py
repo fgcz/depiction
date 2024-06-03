@@ -9,7 +9,7 @@ from depiction_targeted_preproc.example.run import snakemake_invoke, get_result_
 
 from depiction.misc.find_file_util import find_one_by_extension
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters, \
-    PipelineArtifact
+    PipelineArtifact, PipelineParametersPreset
 
 
 def entrypoint(
@@ -74,18 +74,18 @@ def parse_parameters(yaml_file: Path) -> PipelineParameters:
     data = yaml.safe_load(yaml_file.read_text())
 
     # Find the correct preset
-    preset_name = Path(data["parameters"]["config_preset"]).name
-    preset_path = Path(__file__).parent / "config_presets" / f"{preset_name}.yaml"
+    preset_name = Path(data["application"]["parameters"]["config_preset"]).name
+    preset_path = Path(__file__).parent / "config_presets" / f"{preset_name}.yml"
     # Load the presets
-    preset = yaml.safe_load(preset_path.read_text())
+    preset = PipelineParametersPreset.validate(yaml.safe_load(preset_path.read_text()))
 
     # Add n_jobs and requested_artifacts information to build a PipelineParameters
     requested_artifacts = []
-    if data["parameters"]["output_activate_calibrated_imzml"]:
+    if data["application"]["parameters"]["output_activate_calibrated_imzml"]:
         requested_artifacts.append(PipelineArtifact.CALIB_IMZML)
-    if data["parameters"]["output_activate_calibrated_ometiff"]:
+    if data["application"]["parameters"]["output_activate_calibrated_ometiff"]:
         requested_artifacts.append(PipelineArtifact.CALIB_IMAGES)
-    if data["parameters"]["output_activate_calibration_qc"]:
+    if data["application"]["parameters"]["output_activate_calibration_qc"]:
         requested_artifacts.append(PipelineArtifact.CALIB_QC)
     return PipelineParameters.from_preset_and_settings(
         preset=preset,

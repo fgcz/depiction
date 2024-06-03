@@ -29,7 +29,7 @@ def find_one_by_glob(input_dir: str | Path, glob_pattern: str) -> Optional[str]:
     if len(candidates) == 0:
         return None
     elif len(candidates) == 1:
-        return str(candidates[0].absolute)
+        return str(candidates[0].absolute())
     else:
         raise RuntimeError(f"Multiple files with {glob_pattern=} found in {input_dir=}!")
 

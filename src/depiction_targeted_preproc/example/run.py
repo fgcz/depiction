@@ -66,7 +66,7 @@ def main() -> None:
 def get_result_files(params: PipelineParameters, work_dir: Path, sample_name: str):
     result_files = list(
         {
-            dir_work / sample_name / file
+            work_dir / sample_name / file
             for artifact in params.requested_artifacts
             for file in RESULT_FILE_MAPPING[artifact]
         }

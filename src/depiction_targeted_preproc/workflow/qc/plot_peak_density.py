@@ -7,7 +7,7 @@ import typer
 import vegafusion
 from typer import Option
 
-from msi_targeted_preproc.utils import get_mass_groups
+from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
 
 
 def subsample_dataframe(df: pl.DataFrame) -> pl.DataFrame:

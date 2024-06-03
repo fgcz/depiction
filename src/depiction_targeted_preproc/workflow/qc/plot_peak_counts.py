@@ -7,7 +7,7 @@ from typer import Option
 
 from depiction.persistence import ImzmlReadFile
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
-from msi_targeted_preproc.utils import get_mass_groups
+from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
 
 
 def get_peak_counts(read_peaks: ImzmlReadFile, mass_groups: pl.DataFrame, n_jobs: int) -> pl.DataFrame:

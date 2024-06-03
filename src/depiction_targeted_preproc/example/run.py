@@ -15,7 +15,6 @@ RESULT_FILE_MAPPING = {
         "qc/plot_marker_presence.pdf",
         "qc/plot_peak_density_combined.pdf",
         "qc/plot_peak_density_grouped.pdf",
-        "qc/plot_peak_counts.pdf",
         "qc/plot_calibration_map.pdf",
     ],
     PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff", "images_default_norm.ome.tiff"],
@@ -25,7 +24,8 @@ RESULT_FILE_MAPPING = {
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",
         "qc/plot_spectra_for_marker.pdf",
-        "qc/plot_sample_spectra_before_after.pdf"
+        "qc/plot_sample_spectra_before_after.pdf",
+        "qc/plot_peak_counts.pdf",
     ],
 }
 
@@ -87,7 +87,7 @@ def export_results(
             logger.info(f"Skipping export of {artifact}")
             continue
         for file in result_file_mapping[artifact]:
-            (output_dir / sample_name).mkdir(exist_ok=True, parents=True)
+            (output_dir / sample_name / file).parent.mkdir(exist_ok=True, parents=True)
             shutil.copy(work_dir / sample_name / file, output_dir / sample_name / file)
 
 

@@ -52,13 +52,7 @@ def main() -> None:
             work_dir=dir_work,
         )
 
-    result_files = list(
-        {
-            dir_work / sample_name / file
-            for artifact in params.requested_artifacts
-            for file in RESULT_FILE_MAPPING[artifact]
-        }
-    )
+    result_files = get_result_files(params, dir_work, sample_name)
     snakemake_invoke(work_dir=dir_work, result_files=result_files)
     export_results(
         work_dir=dir_work,
@@ -67,6 +61,17 @@ def main() -> None:
         requested_artifacts=params.requested_artifacts,
         result_file_mapping=RESULT_FILE_MAPPING,
     )
+
+
+def get_result_files(params: PipelineParameters, work_dir: Path, sample_name: str):
+    result_files = list(
+        {
+            dir_work / sample_name / file
+            for artifact in params.requested_artifacts
+            for file in RESULT_FILE_MAPPING[artifact]
+        }
+    )
+    return result_files
 
 
 def export_results(

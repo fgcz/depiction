@@ -81,7 +81,14 @@ def copy_standardized_table(input_csv: Path, output_csv: Path):
             mapping[column] = "label"
         elif column.lower() in ["mass", "m/z", "pc-mt (m+h)+"]:
             mapping[column] = "mass"
+        elif column.lower() in ["tol"]:
+            mapping[column] = "tol"
     output_df = input_df.rename(mapping)
+
+    if "tol" not in output_df:
+        # TODO make configurable
+        output_df = output_df.with_columns([pl.Series("tol", [0.2] * len(output_df))])
+
     output_df.write_csv(output_csv)
 
 

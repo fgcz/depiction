@@ -11,19 +11,20 @@ RESULT_FILE_MAPPING = {
     PipelineArtifact.CALIB_IMZML: ["calibrated.imzML", "calibrated.ibd"],
     # PipelineArtifact.CALIB_QC: ["calib_qc.pdf"],
     # TODO
-    PipelineArtifact.CALIB_QC: [],
+    PipelineArtifact.CALIB_QC: [
+        "qc/plot_marker_presence.pdf",
+        "qc/plot_peak_density_combined.pdf",
+        "qc/plot_peak_density_grouped.pdf",
+        "qc/plot_peak_counts.pdf",
+        "qc/plot_calibration_map.pdf",
+    ],
     PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff", "images_default_norm.ome.tiff"],
     # PipelineArtifact.CALIB_HEATMAP: ["images_calib_heatmap.ome.tiff"],
     # TODO
     PipelineArtifact.CALIB_HEATMAP: [],
     PipelineArtifact.DEBUG: [
-        "qc/plot_marker_presence.pdf",
         "qc/plot_marker_presence_cv.pdf",
-        "qc/plot_peak_density_combined.pdf",
-        "qc/plot_peak_density_grouped.pdf",
-        "qc/plot_calibration_map.pdf",
         "qc/plot_spectra_for_marker.pdf",
-        "qc/plot_peak_counts.pdf",
         "qc/plot_sample_spectra_before_after.pdf"
     ],
 }

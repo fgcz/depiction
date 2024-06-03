@@ -60,7 +60,7 @@ Calibration = Annotated[
 ]
 
 
-class PipelineArtifact(Enum):
+class PipelineArtifact(str, Enum):
     CALIB_IMZML = "CALIB_IMZML"
     CALIB_IMAGES = "CALIB_IMAGES"
     CALIB_QC = "CALIB_QC"
@@ -68,11 +68,15 @@ class PipelineArtifact(Enum):
     DEBUG = "DEBUG"
 
 
+# class PipelineParametersPreset(BaseModel, use_enum_values=True):
+
 class PipelineParametersPreset(BaseModel):
     baseline_adjustment: BaselineAdjustment
     peak_picker: PeakPicker
     calibration: Calibration
 
+
+# class PipelineParameters(PipelineParametersPreset, use_enum_values=True):
 
 class PipelineParameters(PipelineParametersPreset):
     requested_artifacts: list[PipelineArtifact]
@@ -80,7 +84,9 @@ class PipelineParameters(PipelineParametersPreset):
 
     @classmethod
     def parse_yaml(cls, path: Path) -> PipelineParameters:
-        return cls.model_validate(yaml.safe_load(path.read_text()))
+        # TODO consider in the future a better mechanism for passing step configurations, maybe using
+        #  json and pydantic but in a more granular way. for now this sort of works
+        return cls.model_validate(yaml.unsafe_load(path.read_text()))
 
     @classmethod
     def from_preset_and_settings(

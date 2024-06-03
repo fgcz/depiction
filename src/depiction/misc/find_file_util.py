@@ -18,23 +18,23 @@ def copy_imzml_file(source_imzml: Path, target_imzml: str) -> None:
     )
 
 
-def find_one_by_glob(input_dir: str, glob_pattern: str) -> Optional[str]:
+def find_one_by_glob(input_dir: str | Path, glob_pattern: str) -> Optional[str]:
     """
     Returns finds one file in input_dir matching the glob pattern.
     If there are multiple such files, an error is raised!
     :param input_dir: the directory to search in
     :param glob_pattern: the glob pattern to search for, e.g. "*.imzML"
     """
-    candidates = glob.glob(os.path.join(input_dir, glob_pattern))
+    candidates = list(Path(input_dir).glob(glob_pattern))
     if len(candidates) == 0:
         return None
     elif len(candidates) == 1:
-        return candidates[0]
+        return str(candidates[0].absolute)
     else:
         raise RuntimeError(f"Multiple files with {glob_pattern=} found in {input_dir=}!")
 
 
-def find_one_by_extension(input_dir: str, extension: str) -> Optional[str]:
+def find_one_by_extension(input_dir: str | Path, extension: str) -> Optional[str]:
     """
     Returns finds one file in input_dir with the given extension.
     If there are multiple such files, an error is raised!

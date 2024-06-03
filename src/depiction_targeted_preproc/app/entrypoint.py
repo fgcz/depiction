@@ -2,6 +2,7 @@ import shutil
 from pathlib import Path
 from typing import Annotated
 
+import polars as pl
 import typer
 import yaml
 from depiction_targeted_preproc.example.run import snakemake_invoke, get_result_files, export_results, \
@@ -62,12 +63,26 @@ def setup_workdir(params: PipelineParameters, input_imzml_file: Path, input_pane
     shutil.copy(input_imzml_file.with_suffix(".ibd"), sample_dir / "raw.ibd")
 
     # Copy the panel file
-    shutil.copy(input_panel_file, sample_dir / "images_default_mass_list.csv")
+    copy_standardized_table(input_panel_file, sample_dir / "images_default_mass_list.csv")
+    # shutil.copy(input_panel_file, sample_dir / "images_default_mass_list.csv")
 
     # Write the pipeline parameters
     params_file = sample_dir / "pipeline_params.yml"
     with params_file.open("w") as file:
         yaml.dump(params.dict(), file)
+
+
+def copy_standardized_table(input_csv: Path, output_csv: Path):
+    # TODO this is a total hack for a quick setu
+    input_df = pl.read_csv(input_csv)
+    mapping = {}
+    for column in input_df.columns:
+        if column.lower() in ["marker", "label"]:
+            mapping[column] = "label"
+        elif column.lower() in ["mass", "m/z", "pc-mt (m+h)+"]:
+            mapping[column] = "mass"
+    output_df = input_df.rename(mapping)
+    output_df.write_csv(output_csv)
 
 
 def parse_parameters(yaml_file: Path) -> PipelineParameters:
@@ -85,13 +100,13 @@ def parse_parameters(yaml_file: Path) -> PipelineParameters:
     requested_artifacts = []
     if data["application"]["parameters"]["output_activate_calibrated_imzml"]:
         requested_artifacts.append(PipelineArtifact.CALIB_IMZML)
-        #requested_artifacts.append("CALIB_IMZML")
+        # requested_artifacts.append("CALIB_IMZML")
     if data["application"]["parameters"]["output_activate_calibrated_ometiff"]:
         requested_artifacts.append(PipelineArtifact.CALIB_IMAGES)
-        #requested_artifacts.append("CALIB_IMAGES")
+        # requested_artifacts.append("CALIB_IMAGES")
     if data["application"]["parameters"]["output_activate_calibration_qc"]:
         requested_artifacts.append(PipelineArtifact.CALIB_QC)
-        #requested_artifacts.append("CALIB_QC")
+        # requested_artifacts.append("CALIB_QC")
     return PipelineParameters.from_preset_and_settings(
         preset=preset,
         requested_artifacts=requested_artifacts,

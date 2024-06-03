@@ -1,6 +1,7 @@
 import shutil
 from pathlib import Path
 from typing import Annotated
+from zipfile import ZipFile
 
 import polars as pl
 import typer
@@ -50,6 +51,16 @@ def entrypoint(
     # Export the results
     export_results(work_dir=work_dir, output_dir=output_dir, sample_name=sample_name,
                    requested_artifacts=params.requested_artifacts, result_file_mapping=RESULT_FILE_MAPPING)
+
+    # Zip the results
+    zip_results(output_dir=output_dir, sample_name=sample_name)
+
+
+def zip_results(output_dir: Path, sample_name: str) -> None:
+    with ZipFile(output_dir / f"{sample_name}.zip", "w") as zipf:
+        for file in (output_dir / sample_name).rglob("*"):
+            if file.is_file() and file.name != f"{sample_name}.zip":
+                zipf.write(file, file.relative_to(output_dir))
 
 
 def setup_workdir(params: PipelineParameters, input_imzml_file: Path, input_panel_file: Path, work_dir: Path) -> None:

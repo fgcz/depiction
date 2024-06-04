@@ -29,7 +29,7 @@ class CalibrationMethodGlobalConstantShift(CalibrationMethod):
 
     def preprocess_image_features(self, all_features: DataArray) -> DataArray:
         # we compute the actual global distance here
-        global_distance = np.nanmean(all_features.values.ravel())
+        global_distance = np.nanmedian(all_features.values.ravel())
         # create one copy per spectrum
         n_spectra = all_features.sizes["i"]
         return DataArray(np.full((n_spectra, 1), global_distance), dims=["i", "c"], coords=all_features.coords)

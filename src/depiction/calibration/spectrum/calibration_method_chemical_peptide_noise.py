@@ -8,7 +8,7 @@ from depiction.calibration.chemical_noise_bg_2019_boskamp_v2 import ChemicalNois
 from depiction.parallel_ops import ParallelConfig
 
 
-class CalibrationPipelineChemicalPeptideNoise(CalibrationMethod):
+class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):
     _lambda_averagine = 1.0 + 4.95e-4
 
     def __init__(

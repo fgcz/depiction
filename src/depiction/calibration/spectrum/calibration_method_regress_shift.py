@@ -9,7 +9,7 @@ from depiction.calibration.spectrum.reference_peak_distances import ReferencePea
 from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
-class CalibrationPipelineRegressShift(CalibrationMethod):
+class CalibrationMethodRegressShift(CalibrationMethod):
     """
     Calibrates spectra in a targeted setting, by regression of a shift model mapping mass to shift,
     and then subtracting the predicted shift from the observed mass.0

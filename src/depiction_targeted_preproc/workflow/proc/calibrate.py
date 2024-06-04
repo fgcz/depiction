@@ -7,10 +7,10 @@ import polars as pl
 import typer
 
 from depiction.calibration.perform_calibration import PerformCalibration
-from depiction.calibration.spectrum.calibration_pipeline_chemical_peptide_noise import (
-    CalibrationPipelineChemicalPeptideNoise,
+from depiction.calibration.spectrum.calibration_method_chemical_peptide_noise import (
+    CalibrationMethodChemicalPeptideNoise,
 )
-from depiction.calibration.spectrum.calibration_pipeline_regress_shift import CalibrationPipelineRegressShift
+from depiction.calibration.spectrum.calibration_method_regress_shift import CalibrationMethodRegressShift
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
 from depiction_targeted_preproc.pipeline_config import model
@@ -21,7 +21,7 @@ def get_calibration_from_config(mass_list: pl.DataFrame, config: PipelineParamet
     parallel_config = ParallelConfig(n_jobs=config.n_jobs, task_size=None)
     match config.calibration:
         case model.CalibrationRegressShift() as calib_config:
-            return CalibrationPipelineRegressShift(
+            return CalibrationMethodRegressShift(
                 ref_mz_arr=mass_list["mass"].to_numpy(),
                 max_distance=calib_config.max_distance,
                 max_distance_unit=calib_config.max_distance_unit,
@@ -33,7 +33,7 @@ def get_calibration_from_config(mass_list: pl.DataFrame, config: PipelineParamet
                 min_points=calib_config.min_points,
             )
         case model.CalibrationChemicalPeptideNoise() as calib_config:
-            return CalibrationPipelineChemicalPeptideNoise(
+            return CalibrationMethodChemicalPeptideNoise(
                 n_mass_intervals=calib_config.n_mass_intervals,
                 interpolation_mode=calib_config.interpolation_mode,
                 parallel_config=parallel_config,

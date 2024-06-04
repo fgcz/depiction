@@ -67,9 +67,14 @@ def entrypoint(
         requested_artifacts=params.requested_artifacts,
         result_file_mapping=RESULT_FILE_MAPPING,
     )
+    export_pipeline_params(work_dir=work_dir, output_dir=output_dir, sample_name=sample_name)
 
     # Zip the results
     zip_results(output_dir=output_dir, sample_name=sample_name)
+
+
+def export_pipeline_params(work_dir: Path, output_dir: Path, sample_name: str) -> None:
+    shutil.copy(work_dir / sample_name / "pipeline_params.yml", output_dir / sample_name / "pipeline_params.yml")
 
 
 def zip_results(output_dir: Path, sample_name: str) -> None:

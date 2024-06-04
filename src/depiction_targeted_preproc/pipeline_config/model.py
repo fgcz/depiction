@@ -56,13 +56,16 @@ class CalibrationChemicalPeptideNoise(BaseModel):
 
 
 class CalibrationMCC(BaseModel):
+    calibration_method: Literal["MCC"]
+
     model_smoothing_activated: bool = True
     model_smoothing_kernel_size: int = 27
     model_smoothing_kernel_std: float = 10.0
 
 
 Calibration = Annotated[
-    CalibrationRegressShift | CalibrationChemicalPeptideNoise, Field(discriminator="calibration_method")
+    CalibrationRegressShift | CalibrationChemicalPeptideNoise | CalibrationMCC,
+    Field(discriminator="calibration_method")
 ]
 
 

@@ -1,6 +1,5 @@
 import numpy as np
-import scipy
-import scipy.stats as stats
+import scipy.stats
 import statsmodels.api as sm
 from numpy.typing import NDArray
 from statsmodels.robust.norms import HuberT
@@ -64,7 +63,7 @@ class CalibrationMethodMCC(CalibrationMethod):
             else:
                 delta_intercept[i] = -1 + term1
 
-        intercept_coef = stats.trim_mean(delta_intercept, 0.3)
+        intercept_coef = scipy.stats.trim_mean(delta_intercept, 0.3)
         return DataArray([intercept_coef, slope], dims=["c"])
 
     def preprocess_image_features(self, all_features: DataArray) -> DataArray:
@@ -83,5 +82,6 @@ class CalibrationMethodMCC(CalibrationMethod):
     def apply_spectrum_model(
         self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
     ) -> tuple[NDArray[float], NDArray[float]]:
-        spectrum_corrected = spectrum_mz_arr * (1 - model_coef.values[1]) + model_coef.values[0]
-        return spectrum_corrected
+        intercept, slope = model_coef.values
+        spectrum_corrected = spectrum_mz_arr * (1 - slope) + intercept
+        return spectrum_corrected, spectrum_int_arr

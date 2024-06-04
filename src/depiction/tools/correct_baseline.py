@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 import enum
+from pathlib import Path
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import typer
 
-from depiction.spectrum.baseline.local_medians_baseline import LocalMediansBaseline
-from depiction.spectrum.baseline.tophat_baseline import TophatBaseline
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.write_spectra_parallel import WriteSpectraParallel
 from depiction.persistence import (
@@ -14,7 +15,8 @@ from depiction.persistence import (
     ImzmlWriter,
     ImzmlReader,
 )
-from typing import TYPE_CHECKING
+from depiction.spectrum.baseline.local_medians_baseline import LocalMediansBaseline
+from depiction.spectrum.baseline.tophat_baseline import TophatBaseline
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -35,9 +37,20 @@ class CorrectBaseline:
 
     @classmethod
     def from_variant(
-        cls, parallel_config: ParallelConfig, variant: BaselineVariants = BaselineVariants.tophat
+        cls,
+        parallel_config: ParallelConfig,
+        variant: BaselineVariants = BaselineVariants.tophat,
+        window_size: int | float = 5000,
+        window_unit: Literal["ppm", "index"] = "ppm",
     ) -> CorrectBaseline:
-        return cls(parallel_config=parallel_config, variant=variant)
+        """Creates an instance of CorrectBaseline with the specified variant."""
+        if variant == BaselineVariants.tophat:
+            baseline_correction = TophatBaseline(window_size=window_size, window_unit=window_unit)
+        elif variant == BaselineVariants.loc_medians:
+            baseline_correction = LocalMediansBaseline(window_size=window_size, window_unit=window_unit)
+        else:
+            raise ValueError(f"Unknown baseline variant: {variant}")
+        return cls(parallel_config=parallel_config, baseline_correction=baseline_correction)
 
     def evaluate_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile) -> None:
         """Evaluates the baseline correction for ``read_file`` and writes the results to ``write_file``."""

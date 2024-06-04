@@ -32,7 +32,7 @@ class CalibrationMethodGlobalConstantShift(CalibrationMethod):
         global_distance = np.nanmean(all_features.values.ravel())
         # create one copy per spectrum
         n_spectra = all_features.sizes["i"]
-        return DataArray(np.full((n_spectra, 1), global_distance), dims=["i", "c"])
+        return DataArray(np.full((n_spectra, 1), global_distance), dims=["i", "c"], coords=all_features.coords)
 
     def fit_spectrum_model(self, features: DataArray) -> DataArray:
         return features

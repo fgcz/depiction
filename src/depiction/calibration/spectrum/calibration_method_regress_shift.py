@@ -5,8 +5,8 @@ from xarray import DataArray
 from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.models import LinearModel
 from depiction.calibration.models.fit_model import fit_model
+from depiction.calibration.spectrum.calibration_smoothing import smooth_image_features
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
-from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
 class CalibrationMethodRegressShift(CalibrationMethod):
@@ -82,21 +82,11 @@ class CalibrationMethodRegressShift(CalibrationMethod):
 
     def preprocess_image_features(self, all_features: DataArray) -> DataArray:
         if self._input_smoothing_activated:
-            features_flat = all_features.drop("i").set_xindex(["x", "y"])
-            features_2d = features_flat.unstack("i").transpose("y", "x", "c")
-
-            smoother = SpatialSmoothingSparseAware(
+            return smooth_image_features(
+                all_features=all_features,
                 kernel_size=self._input_smoothing_kernel_size,
                 kernel_std=self._input_smoothing_kernel_std,
             )
-            result = smoother.smooth(features_2d, bg_value=np.nan)
-
-            # TODO a bit ugly...
-            result = result.stack(i=("x", "y")).dropna("i", how="all")
-            x, y = result.x.values, result.y.values
-            result = result.drop_vars(["i", "x", "y"]).assign_coords(x=("i", x), y=("i", y), i=np.arange(len(result.i)))
-
-            return result
         else:
             return all_features
 

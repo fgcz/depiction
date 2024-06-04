@@ -63,8 +63,12 @@ class CalibrationMCC(BaseModel):
     model_smoothing_kernel_std: float = 10.0
 
 
+class CalibrationConstantGlobalShift(BaseModel):
+    calibration_method: Literal["ConstantGlobalShift"]
+
+
 Calibration = Annotated[
-    CalibrationRegressShift | CalibrationChemicalPeptideNoise | CalibrationMCC,
+    CalibrationRegressShift | CalibrationChemicalPeptideNoise | CalibrationMCC | CalibrationConstantGlobalShift,
     Field(discriminator="calibration_method")
 ]
 

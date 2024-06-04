@@ -32,12 +32,10 @@ class ChemicalNoiseCalibration:
         self,
         n_mass_intervals: int,
         interpolation_mode: Literal["linear", "cubic_spline", "refit_linear"],
-        parallel_config: ParallelConfig,
         use_ppm_space: bool,
     ) -> None:
         self._n_mass_intervals = n_mass_intervals
         self._interpolation_mode = interpolation_mode
-        self._parallel_config = parallel_config
         self._use_ppm_space = use_ppm_space
 
     @property
@@ -144,9 +142,10 @@ class ChemicalNoiseCalibration:
         self,
         read_file: ImzmlReadFile,
         write_file: ImzmlWriteFile,
+        parallel_config: ParallelConfig,
     ) -> None:
         """Applies `align_masses` to all spectra in the given file and writes the results to the output file."""
-        parallelize = WriteSpectraParallel.from_config(self._parallel_config)
+        parallelize = WriteSpectraParallel.from_config(parallel_config)
 
         def chunk_operation(reader, spectra_indices, writer) -> None:
             for spectrum_id in spectra_indices:

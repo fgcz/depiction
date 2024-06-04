@@ -19,7 +19,6 @@ from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 
 
 def get_calibration_from_config(mass_list: pl.DataFrame, config: PipelineParameters):
-    parallel_config = ParallelConfig(n_jobs=config.n_jobs, task_size=None)
     match config.calibration:
         case model.CalibrationRegressShift() as calib_config:
             return CalibrationMethodRegressShift(
@@ -37,7 +36,6 @@ def get_calibration_from_config(mass_list: pl.DataFrame, config: PipelineParamet
             return CalibrationMethodChemicalPeptideNoise(
                 n_mass_intervals=calib_config.n_mass_intervals,
                 interpolation_mode=calib_config.interpolation_mode,
-                parallel_config=parallel_config,
                 use_ppm_space=calib_config.use_ppm_space,
             )
         case model.CalibrationMCC() as calib_config:

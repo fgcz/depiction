@@ -5,7 +5,6 @@ from xarray import DataArray
 
 from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.chemical_noise_bg_2019_boskamp_v2 import ChemicalNoiseCalibration
-from depiction.parallel_ops import ParallelConfig
 
 
 class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):
@@ -15,13 +14,11 @@ class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):
         self,
         n_mass_intervals: int,
         interpolation_mode: Literal["linear", "cubic_spline", "refit_linear"],
-        parallel_config: ParallelConfig,
         use_ppm_space: bool,
     ) -> None:
         self._calibration = ChemicalNoiseCalibration(
             n_mass_intervals=n_mass_intervals,
             interpolation_mode=interpolation_mode,
-            parallel_config=parallel_config,
             use_ppm_space=use_ppm_space,
         )
 

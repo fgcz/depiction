@@ -55,6 +55,12 @@ class CalibrationChemicalPeptideNoise(BaseModel):
     use_ppm_space: bool = False
 
 
+class CalibrationMCC(BaseModel):
+    model_smoothing_activated: bool = True
+    model_smoothing_kernel_size: int = 27
+    model_smoothing_kernel_std: float = 10.0
+
+
 Calibration = Annotated[
     CalibrationRegressShift | CalibrationChemicalPeptideNoise, Field(discriminator="calibration_method")
 ]

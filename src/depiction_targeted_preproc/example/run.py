@@ -24,7 +24,7 @@ RESULT_FILE_MAPPING = {
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",
         "qc/plot_spectra_for_marker.pdf",
-        "qc/plot_sample_spectra_before_after.pdf",
+        #"qc/plot_sample_spectra_before_after.pdf",
         "qc/plot_peak_counts.pdf",
     ],
 }

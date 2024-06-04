@@ -18,11 +18,13 @@ class CalibrationMethodGlobalConstantShift(CalibrationMethod):
         self._max_distance_unit = max_distance_unit
 
     def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
-        distances_mz = ReferencePeakDistances.get_distances_max_peak_in_window(peak_mz_arr=peak_mz_arr,
-                                                                               peak_int_arr=peak_int_arr,
-                                                                               ref_mz_arr=self._ref_mz_arr,
-                                                                               max_distance=self._max_distance,
-                                                                               max_distance_unit=self._max_distance_unit)
+        distances_mz = ReferencePeakDistances.get_distances_max_peak_in_window(
+            peak_mz_arr=peak_mz_arr,
+            peak_int_arr=peak_int_arr,
+            ref_mz_arr=self._ref_mz_arr,
+            max_distance=self._max_distance,
+            max_distance_unit=self._max_distance_unit,
+        )
         return DataArray(distances_mz, dims=["c"])
 
     def preprocess_image_features(self, all_features: DataArray) -> DataArray:
@@ -35,8 +37,9 @@ class CalibrationMethodGlobalConstantShift(CalibrationMethod):
     def fit_spectrum_model(self, features: DataArray) -> DataArray:
         return features
 
-    def apply_spectrum_model(self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float],
-                             model_coef: DataArray) -> tuple[NDArray[float], NDArray[float]]:
+    def apply_spectrum_model(
+        self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
+    ) -> tuple[NDArray[float], NDArray[float]]:
         # subtract the global distance from the m/z values
         [global_distance] = model_coef.values
         return spectrum_mz_arr - global_distance, spectrum_int_arr

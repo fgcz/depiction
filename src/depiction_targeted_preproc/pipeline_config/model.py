@@ -69,7 +69,7 @@ class CalibrationConstantGlobalShift(BaseModel):
 
 Calibration = Annotated[
     CalibrationRegressShift | CalibrationChemicalPeptideNoise | CalibrationMCC | CalibrationConstantGlobalShift,
-    Field(discriminator="calibration_method")
+    Field(discriminator="calibration_method"),
 ]
 
 

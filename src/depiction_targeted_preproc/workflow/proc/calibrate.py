@@ -68,7 +68,12 @@ def proc_calibrate(
             print("No calibration requested")
             shutil.copy(input_imzml_path, output_imzml_path)
             shutil.copy(input_imzml_path.with_suffix(".ibd"), output_imzml_path.with_suffix(".ibd"))
-        case model.CalibrationRegressShift() | model.CalibrationChemicalPeptideNoise() | model.CalibrationMCC() | model.CalibrationConstantGlobalShift():
+        case (
+            model.CalibrationRegressShift()
+            | model.CalibrationChemicalPeptideNoise()
+            | model.CalibrationMCC()
+            | model.CalibrationConstantGlobalShift()
+        ):
             calibration = get_calibration_from_config(mass_list, config)
             perform_calibration = PerformCalibration(
                 calibration=calibration,

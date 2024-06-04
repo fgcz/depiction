@@ -6,12 +6,19 @@ from zipfile import ZipFile
 import polars as pl
 import typer
 import yaml
-from depiction_targeted_preproc.example.run import snakemake_invoke, get_result_files, export_results, \
-    RESULT_FILE_MAPPING
+from depiction_targeted_preproc.example.run import (
+    snakemake_invoke,
+    get_result_files,
+    export_results,
+    RESULT_FILE_MAPPING,
+)
 
 from depiction.misc.find_file_util import find_one_by_extension
-from depiction_targeted_preproc.pipeline_config.model import PipelineParameters, \
-    PipelineArtifact, PipelineParametersPreset
+from depiction_targeted_preproc.pipeline_config.model import (
+    PipelineParameters,
+    PipelineArtifact,
+    PipelineParametersPreset,
+)
 
 
 def entrypoint(
@@ -40,8 +47,12 @@ def entrypoint(
 
     # Set up the workdir for the Snakemake workflow
     work_dir = output_dir / "work"
-    setup_workdir(params=params, input_imzml_file=Path(input_imzml_file), input_panel_file=Path(input_panel_file),
-                  work_dir=work_dir)
+    setup_workdir(
+        params=params,
+        input_imzml_file=Path(input_imzml_file),
+        input_panel_file=Path(input_panel_file),
+        work_dir=work_dir,
+    )
 
     # Execute the snakemake workflow
     sample_name = Path(input_imzml_file).stem
@@ -49,8 +60,13 @@ def entrypoint(
     snakemake_invoke(work_dir=work_dir, result_files=result_files)
 
     # Export the results
-    export_results(work_dir=work_dir, output_dir=output_dir, sample_name=sample_name,
-                   requested_artifacts=params.requested_artifacts, result_file_mapping=RESULT_FILE_MAPPING)
+    export_results(
+        work_dir=work_dir,
+        output_dir=output_dir,
+        sample_name=sample_name,
+        requested_artifacts=params.requested_artifacts,
+        result_file_mapping=RESULT_FILE_MAPPING,
+    )
 
     # Zip the results
     zip_results(output_dir=output_dir, sample_name=sample_name)
@@ -126,9 +142,7 @@ def parse_parameters(yaml_file: Path) -> PipelineParameters:
         requested_artifacts.append(PipelineArtifact.CALIB_QC)
         # requested_artifacts.append("CALIB_QC")
     return PipelineParameters.from_preset_and_settings(
-        preset=preset,
-        requested_artifacts=requested_artifacts,
-        n_jobs=32
+        preset=preset, requested_artifacts=requested_artifacts, n_jobs=32
     )
 
 

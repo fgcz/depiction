@@ -70,6 +70,7 @@ class PipelineArtifact(str, Enum):
 
 # class PipelineParametersPreset(BaseModel, use_enum_values=True):
 
+
 class PipelineParametersPreset(BaseModel):
     baseline_adjustment: BaselineAdjustment
     peak_picker: PeakPicker
@@ -77,6 +78,7 @@ class PipelineParametersPreset(BaseModel):
 
 
 # class PipelineParameters(PipelineParametersPreset, use_enum_values=True):
+
 
 class PipelineParameters(PipelineParametersPreset):
     requested_artifacts: list[PipelineArtifact]

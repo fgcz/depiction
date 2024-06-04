@@ -19,19 +19,20 @@ For now, I give a summary of the modules which are somewhat stable already:
 
 ## Setup dev environment
 
+### Using `uv`
 Install the `pyproject.toml` in editable mode, tested with [uv](https://github.com/astral-sh/uv):
 
 ```bash
-uv venv # <- if not using anaconda
+uv venv
 uv pip install -e ".[dev,testing]"
 ```
 
-TODO conda install:
+### Using `conda`
 
 ```bash
 conda create -n exp-2024-05-depiction python=3.12 
 conda activate exp-2024-05-depiction
-pip install --system -e ".[dev,testing]" # rerun if this fails
+pip install -e ".[dev,testing]"
 ```
 
 ## Geometry Conventions

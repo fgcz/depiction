@@ -8,7 +8,7 @@ from xarray import DataArray
 from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.spectrum.calibration_smoothing import smooth_image_features
 
-
+# rename to Mass Cluster Center Model MCCM
 class CalibrationMethodMCC(CalibrationMethod):
     def __init__(
         self,
@@ -23,17 +23,26 @@ class CalibrationMethodMCC(CalibrationMethod):
         self._max_pairwise_distance = max_pairwise_distance
 
     def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
-        l_none = 1.000482
-        # c_0 = 0.029
-        # c_1 = 4.98*10e-4
-
+        l_none: float = 1.000482
         # Compute all differences for elements in peak_mz_arr amd store in a DataArray
         delta = scipy.spatial.distance.pdist(np.expand_dims(peak_mz_arr, 1), metric="cityblock")
-
         # Get all distances smaller than the max pairwise distance
         delta = delta[delta < self._max_pairwise_distance]
 
         # Compute delta_lambda for each x
+        delta_lambda = self.compute_distance_from_MCC(delta, l_none)
+        # Add a constant term with the intercept set to zero
+        X = delta.reshape(-1, 1)
+        # Fit the model
+        robust_model = sm.RLM(delta_lambda, X, M=HuberT())
+        results = robust_model.fit()
+        slope = results.params[0]
+        peak_mz_corrected = peak_mz_arr * (1 - slope)
+        delta_intercept = self.compute_distance_from_MCC(peak_mz_corrected, l_none)
+        intercept_coef = scipy.stats.trim_mean(delta_intercept, 0.3)
+        return DataArray([intercept_coef, slope], dims=["c"])
+
+    def compute_distance_from_MCC(delta: NDArray[float], l_none = 1.000482) -> NDArray[float]:
         delta_lambda = np.zeros_like(delta)
         for i, mi in enumerate(delta):
             term1 = mi % l_none
@@ -41,30 +50,7 @@ class CalibrationMethodMCC(CalibrationMethod):
                 delta_lambda[i] = term1
             else:
                 delta_lambda[i] = -1 + term1
-
-        sorted_indices = np.argsort(delta)
-        delta = delta[sorted_indices]
-        delta_lambda = delta_lambda[sorted_indices]
-
-        # Add a constant term with the intercept set to zero
-        X = delta.reshape(-1, 1)
-
-        # Fit the model
-        robust_model = sm.RLM(delta_lambda, X, M=HuberT())
-        results = robust_model.fit()
-        slope = results.params[0]
-        peak_mz_corrected = peak_mz_arr * (1 - slope)
-
-        delta_intercept = np.zeros_like(peak_mz_corrected)
-        for i, mi in enumerate(peak_mz_corrected):
-            term1 = mi % l_none
-            if term1 < 0.5:
-                delta_intercept[i] = term1
-            else:
-                delta_intercept[i] = -1 + term1
-
-        intercept_coef = scipy.stats.trim_mean(delta_intercept, 0.3)
-        return DataArray([intercept_coef, slope], dims=["c"])
+        return delta_lambda
 
     def preprocess_image_features(self, all_features: DataArray) -> DataArray:
         if self._model_smoothing_activated:
@@ -83,5 +69,7 @@ class CalibrationMethodMCC(CalibrationMethod):
         self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
     ) -> tuple[NDArray[float], NDArray[float]]:
         intercept, slope = model_coef.values
-        spectrum_corrected = spectrum_mz_arr * (1 - slope) + intercept
+        # Apply the model to the spectrum
+        #  need to check if it should be -intercept or +intercept
+        spectrum_corrected = spectrum_mz_arr * (1 - slope) - intercept
         return spectrum_corrected, spectrum_int_arr

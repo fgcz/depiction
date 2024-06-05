@@ -42,9 +42,9 @@ class NewCalibrationMethod:
         # create a scatterplot of delte_lambda vs x
 
 
-        sorted_indices = np.argsort(delta)
-        delta = delta[sorted_indices]
-        delta_lambda = delta_lambda[sorted_indices]
+        #sorted_indices = np.argsort(delta)
+        #delta = delta[sorted_indices]
+        #delta_lambda = delta_lambda[sorted_indices]
 
         # Add a constant term with the intercept set to zero
         X = delta.reshape(-1, 1)

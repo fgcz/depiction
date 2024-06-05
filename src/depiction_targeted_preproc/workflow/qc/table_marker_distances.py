@@ -18,18 +18,18 @@ def get_peak_dist(
     collect = defaultdict(list)
     with read_file.get_reader() as reader:
         for i_spectrum in tqdm(range(reader.n_spectra)):
+            spectrum_mz = reader.get_spectrum_mz(i_spectrum)
             for mz_target, label in zip(mz_targets, mz_labels):
-                peak_mz = reader.get_spectrum_mz(i_spectrum)
-                dist = peak_mz - mz_target
+                dist = spectrum_mz - mz_target
                 # keep only the distances within max dist
                 sel = np.abs(dist) < mz_max_dist
                 dist = dist[sel]
-                peak_mz = peak_mz[sel]
+                marker_mz = spectrum_mz[sel]
                 if len(dist):
                     # add to result set
                     collect["i_spectrum"].append(i_spectrum)
                     collect["dist"].append(dist)
-                    collect["mz_peak"].append(peak_mz)
+                    collect["mz_peak"].append(marker_mz)
                     collect["mz_target"].append(mz_target)
                     collect["label"].append(label)
     return pl.DataFrame(collect).explode(["dist", "mz_peak"])

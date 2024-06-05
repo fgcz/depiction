@@ -13,7 +13,7 @@ class ParallelConfig:
     """
 
     n_jobs: int
-    task_size: int | None
+    task_size: int | None = None
     verbose: int = 1
 
     def get_splits_count(self, n_items: int) -> int:

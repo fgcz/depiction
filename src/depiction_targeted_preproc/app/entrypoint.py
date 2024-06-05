@@ -12,6 +12,7 @@ from depiction_targeted_preproc.example.run import (
     export_results,
     RESULT_FILE_MAPPING,
 )
+from loguru import logger
 
 from depiction.misc.find_file_util import find_one_by_extension
 from depiction_targeted_preproc.pipeline_config.model import (
@@ -134,21 +135,27 @@ def parse_parameters(yaml_file: Path) -> PipelineParameters:
     preset = PipelineParametersPreset.validate(yaml.safe_load(preset_path.read_text()))
 
     # Add n_jobs and requested_artifacts information to build a PipelineParameters
-    # TODO passing this as strings is technically not correct, but it's the only way that currently works
-    #      when writing the yaml
     requested_artifacts = []
-    if data["application"]["parameters"]["output_activate_calibrated_imzml"]:
+    if parse_app_boolean_parameter(data, "output_activate_calibrated_imzml"):
         requested_artifacts.append(PipelineArtifact.CALIB_IMZML)
-        # requested_artifacts.append("CALIB_IMZML")
-    if data["application"]["parameters"]["output_activate_calibrated_ometiff"]:
+    if parse_app_boolean_parameter(data, "output_activate_calibrated_ometiff"):
         requested_artifacts.append(PipelineArtifact.CALIB_IMAGES)
-        # requested_artifacts.append("CALIB_IMAGES")
-    if data["application"]["parameters"]["output_activate_calibration_qc"]:
+    if parse_app_boolean_parameter(data, "output_activate_calibration_qc"):
         requested_artifacts.append(PipelineArtifact.CALIB_QC)
-        # requested_artifacts.append("CALIB_QC")
     return PipelineParameters.from_preset_and_settings(
         preset=preset, requested_artifacts=requested_artifacts, n_jobs=32
     )
+
+
+def parse_app_boolean_parameter(data: dict, key: str) -> bool:
+    str_value = data["application"]["parameters"][key]
+    if str_value == "true":
+        return True
+    elif str_value == "false":
+        return False
+    else:
+        logger.warning(f"Unknown boolean value: {str_value}")
+        return False
 
 
 def main() -> None:

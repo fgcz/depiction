@@ -8,11 +8,16 @@ from xarray import DataArray
 from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.spectrum.calibration_smoothing import smooth_image_features
 
-# rename to Mass Cluster Center Model MCCM
-class CalibrationMethodMCC(CalibrationMethod):
+
+class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
+    """Implements the Mass Cluster Center Model (MCCM) calibration method as described in the paper by
+    Wolski, W.E., Farrow, M., Emde, AK. et al. Analytical model of peptide mass cluster centres with applications.
+    Proteome Sci 4, 18 (2006). https://doi.org/10.1186/1477-5956-4-18
+    """
+
     def __init__(
         self,
-        model_smoothing_activated: bool = True,
+        model_smoothing_activated: bool,
         model_smoothing_kernel_size: int = 27,
         model_smoothing_kernel_std: float = 10.0,
         max_pairwise_distance: float = 500,
@@ -39,7 +44,7 @@ class CalibrationMethodMCC(CalibrationMethod):
         slope = results.params[0]
         peak_mz_corrected = peak_mz_arr * (1 - slope)
         delta_intercept = self.compute_distance_from_MCC(peak_mz_corrected, l_none)
-        intercept_coef = scipy.stats.trim_mean(delta_intercept, 0.3)
+        intercept_coef = scipy.stats.trim_mean(delta_intercept, 0.25)
         return DataArray([intercept_coef, slope], dims=["c"])
 
     def compute_distance_from_MCC(self, delta: NDArray[float], l_none = 1.000482) -> NDArray[float]:

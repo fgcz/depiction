@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
+from loguru import logger
+
 from depiction.parallel_ops import ParallelConfig
 from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned
 from depiction.spectrum.peak_picking import BasicInterpolatedPeakPicker
@@ -21,7 +23,7 @@ def proc_pick_peaks(
     config = PipelineParameters.parse_yaml(config_path)
     match config.peak_picker:
         case None:
-            print("Peak picking is deactivated")
+            logger.info("Peak picking is deactivated")
             shutil.copy(input_imzml_path, output_imzml_path)
             shutil.copy(input_imzml_path.with_suffix(".ibd"), output_imzml_path.with_suffix(".ibd"))
         case model.PeakPickerBasicInterpolated() as peak_picker_config:

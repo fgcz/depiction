@@ -1,4 +1,3 @@
-from collections import defaultdict
 from pathlib import Path
 from typing import Sequence, Annotated
 
@@ -9,30 +8,32 @@ from tqdm import tqdm
 
 from depiction.persistence import ImzmlReadFile
 
+
 # TODO maybe rename to marker_surroundings
 
 
 def get_peak_dist(
     read_file: ImzmlReadFile, mz_targets: Sequence[float], mz_labels: Sequence[str], mz_max_dist: float
 ) -> pl.DataFrame:
-    collect = defaultdict(list)
+    collect = []
     with read_file.get_reader() as reader:
         for i_spectrum in tqdm(range(reader.n_spectra)):
+            spectrum_mz = reader.get_spectrum_mz(i_spectrum)
             for mz_target, label in zip(mz_targets, mz_labels):
-                peak_mz = reader.get_spectrum_mz(i_spectrum)
-                dist = peak_mz - mz_target
+                dist = spectrum_mz - mz_target
                 # keep only the distances within max dist
                 sel = np.abs(dist) < mz_max_dist
                 dist = dist[sel]
-                peak_mz = peak_mz[sel]
+                marker_mz = spectrum_mz[sel]
                 if len(dist):
-                    # add to result set
-                    collect["i_spectrum"].append(i_spectrum)
-                    collect["dist"].append(dist)
-                    collect["mz_peak"].append(peak_mz)
-                    collect["mz_target"].append(mz_target)
-                    collect["label"].append(label)
-    return pl.DataFrame(collect).explode(["dist", "mz_peak"])
+                    collect.append({
+                        "i_spectrum": i_spectrum,
+                        "dist": list(dist),
+                        "mz_peak": list(marker_mz),
+                        "mz_target": mz_target,
+                        "label": label,
+                    })
+    return pl.from_dicts(collect).explode(["dist", "mz_peak"])
 
 
 def qc_table_marker_distances(

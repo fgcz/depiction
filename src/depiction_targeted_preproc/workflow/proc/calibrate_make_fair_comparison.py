@@ -27,10 +27,11 @@ def calibrate_make_fair_comparison(
     parallel_config = ParallelConfig(n_jobs=config.n_jobs, task_size=None)
 
     # Determine if we should simply copy the file or if we should perform some GlobalConstantShift calibration
-    if isinstance(config.calibration, model.CalibrationRegressShift) or config is None:
+    if isinstance(config.calibration, model.CalibrationRegressShift) or config.calibration is None:
         # no additional calibration requested, simply copy the file
         logger.info("Copying input file to output")
         shutil.copy(input_imzml_path, output_imzml_path)
+        shutil.copy(input_imzml_path.with_suffix(".ibd"), output_imzml_path.with_suffix(".ibd"))
     else:
         logger.info("Performing GlobalConstantShift calibration")
         calibration = CalibrationMethodGlobalConstantShift(ref_mz_arr=mass_list["mass"].to_numpy())

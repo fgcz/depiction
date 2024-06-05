@@ -5,13 +5,14 @@ from typing import Annotated
 
 import polars as pl
 import typer
+from loguru import logger
 
 from depiction.calibration.perform_calibration import PerformCalibration
 from depiction.calibration.spectrum.calibration_method_chemical_peptide_noise import (
     CalibrationMethodChemicalPeptideNoise,
 )
 from depiction.calibration.spectrum.calibration_method_global_constant_shift import CalibrationMethodGlobalConstantShift
-from depiction.calibration.spectrum.calibration_method_mcc import CalibrationMethodMCC
+from depiction.calibration.spectrum.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
 from depiction.calibration.spectrum.calibration_method_regress_shift import CalibrationMethodRegressShift
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
@@ -44,7 +45,7 @@ def get_calibration_from_config(mass_list: pl.DataFrame, config: PipelineParamet
                 use_ppm_space=calib_config.use_ppm_space,
             )
         case model.CalibrationMCC() as calib_config:
-            return CalibrationMethodMCC(
+            return CalibrationMethodMassClusterCenterModel(
                 model_smoothing_activated=calib_config.model_smoothing_activated,
                 model_smoothing_kernel_size=calib_config.model_smoothing_kernel_size,
                 model_smoothing_kernel_std=calib_config.model_smoothing_kernel_std,
@@ -65,7 +66,7 @@ def proc_calibrate(
     parallel_config = ParallelConfig(n_jobs=config.n_jobs, task_size=None)
     match config.calibration:
         case None:
-            print("No calibration requested")
+            logger.info("No calibration requested")
             shutil.copy(input_imzml_path, output_imzml_path)
             shutil.copy(input_imzml_path.with_suffix(".ibd"), output_imzml_path.with_suffix(".ibd"))
         case (

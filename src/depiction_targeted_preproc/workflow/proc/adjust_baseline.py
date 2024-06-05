@@ -2,6 +2,8 @@ import shutil
 from pathlib import Path
 from typing import Annotated
 import typer
+from loguru import logger
+
 from depiction.spectrum.baseline.tophat_baseline import TophatBaseline
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
@@ -18,7 +20,7 @@ def proc_adjust_baseline(
     config = PipelineParameters.parse_yaml(config_path)
     match config.baseline_adjustment:
         case None:
-            print("Baseline adjustment is deactivated")
+            logger.info("Baseline adjustment is deactivated")
             shutil.copy(input_imzml_path, output_imzml_path)
             shutil.copy(input_imzml_path.with_suffix(".ibd"), output_imzml_path.with_suffix(".ibd"))
         case BaselineAdjustmentTophat(window_size=window_size, window_unit=window_unit):

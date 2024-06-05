@@ -11,7 +11,7 @@ from depiction.calibration.spectrum.calibration_method_chemical_peptide_noise im
     CalibrationMethodChemicalPeptideNoise,
 )
 from depiction.calibration.spectrum.calibration_method_global_constant_shift import CalibrationMethodGlobalConstantShift
-from depiction.calibration.spectrum.calibration_method_mcc import CalibrationMethodMCC
+from depiction.calibration.spectrum.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
 from depiction.calibration.spectrum.calibration_method_regress_shift import CalibrationMethodRegressShift
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
@@ -44,7 +44,7 @@ def get_calibration_from_config(mass_list: pl.DataFrame, config: PipelineParamet
                 use_ppm_space=calib_config.use_ppm_space,
             )
         case model.CalibrationMCC() as calib_config:
-            return CalibrationMethodMCC(
+            return CalibrationMethodMassClusterCenterModel(
                 model_smoothing_activated=calib_config.model_smoothing_activated,
                 model_smoothing_kernel_size=calib_config.model_smoothing_kernel_size,
                 model_smoothing_kernel_std=calib_config.model_smoothing_kernel_std,

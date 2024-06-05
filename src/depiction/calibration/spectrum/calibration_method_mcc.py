@@ -8,8 +8,13 @@ from xarray import DataArray
 from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.spectrum.calibration_smoothing import smooth_image_features
 
-# rename to Mass Cluster Center Model MCCM
-class CalibrationMethodMCC(CalibrationMethod):
+
+class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
+    """Implements the Mass Cluster Center Model (MCCM) calibration method as described in the paper by
+    Wolski, W.E., Farrow, M., Emde, AK. et al. Analytical model of peptide mass cluster centres with applications.
+    Proteome Sci 4, 18 (2006). https://doi.org/10.1186/1477-5956-4-18
+    """
+
     def __init__(
         self,
         model_smoothing_activated: bool = True,
@@ -42,7 +47,8 @@ class CalibrationMethodMCC(CalibrationMethod):
         intercept_coef = scipy.stats.trim_mean(delta_intercept, 0.3)
         return DataArray([intercept_coef, slope], dims=["c"])
 
-    def compute_distance_from_MCC(delta: NDArray[float], l_none = 1.000482) -> NDArray[float]:
+    @staticmethod
+    def compute_distance_from_MCC(delta: NDArray[float], l_none: float = 1.000482) -> NDArray[float]:
         delta_lambda = np.zeros_like(delta)
         for i, mi in enumerate(delta):
             term1 = mi % l_none
@@ -71,5 +77,5 @@ class CalibrationMethodMCC(CalibrationMethod):
         intercept, slope = model_coef.values
         # Apply the model to the spectrum
         #  need to check if it should be -intercept or +intercept
-        spectrum_corrected = spectrum_mz_arr * (1 - slope) - intercept
+        spectrum_corrected = spectrum_mz_arr * (1 - slope) + intercept
         return spectrum_corrected, spectrum_int_arr

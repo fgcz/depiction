@@ -17,7 +17,7 @@ class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
 
     def __init__(
         self,
-        model_smoothing_activated: bool = True,
+        model_smoothing_activated: bool,
         model_smoothing_kernel_size: int = 27,
         model_smoothing_kernel_std: float = 10.0,
         max_pairwise_distance: float = 500,

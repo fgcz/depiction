@@ -77,5 +77,5 @@ class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
         intercept, slope = model_coef.values
         # Apply the model to the spectrum
         #  need to check if it should be -intercept or +intercept
-        spectrum_corrected = spectrum_mz_arr * (1 - slope) + intercept
+        spectrum_corrected = spectrum_mz_arr * (1 - slope) - intercept
         return spectrum_corrected, spectrum_int_arr

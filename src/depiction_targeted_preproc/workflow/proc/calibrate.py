@@ -5,6 +5,7 @@ from typing import Annotated
 
 import polars as pl
 import typer
+from loguru import logger
 
 from depiction.calibration.perform_calibration import PerformCalibration
 from depiction.calibration.spectrum.calibration_method_chemical_peptide_noise import (
@@ -65,7 +66,7 @@ def proc_calibrate(
     parallel_config = ParallelConfig(n_jobs=config.n_jobs, task_size=None)
     match config.calibration:
         case None:
-            print("No calibration requested")
+            logger.info("No calibration requested")
             shutil.copy(input_imzml_path, output_imzml_path)
             shutil.copy(input_imzml_path.with_suffix(".ibd"), output_imzml_path.with_suffix(".ibd"))
         case (

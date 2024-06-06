@@ -44,6 +44,8 @@ def proc_pick_peaks(
         case _:
             raise ValueError(f"Unsupported peak picker type: {config.peak_picker.peak_picker_type}")
 
+    # TODO correctly detect files which are already picked
+
     pick_peaks = PickPeaks(peak_picker=peak_picker, parallel_config=parallel_config)
     read_file = ImzmlReadFile(input_imzml_path)
     write_file = ImzmlWriteFile(output_imzml_path, imzml_mode=ImzmlModeEnum.PROCESSED)

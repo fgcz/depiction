@@ -12,7 +12,7 @@ from depiction.tools.correct_baseline import CorrectBaseline
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters, BaselineAdjustmentTophat
 
 
-def proc_adjust_baseline(
+def correct_baseline(
     input_imzml_path: Annotated[Path, typer.Option()],
     config_path: Annotated[Path, typer.Option()],
     output_imzml_path: Annotated[Path, typer.Option()],
@@ -35,7 +35,7 @@ def proc_adjust_baseline(
 
 
 def main() -> None:
-    typer.run(proc_adjust_baseline)
+    typer.run(correct_baseline)
 
 
 if __name__ == "__main__":

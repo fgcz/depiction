@@ -4,61 +4,7 @@ version: "3"
 #      ambiguous. in principle we should structure the pipeline in a way, that in subsequent steps it is transparent
 #      which of these two it is.
 
-rule proc_adjust_baseline:
-    input:
-        imzml=multiext("{sample}/raw",".imzML",".ibd"),
-        config="{sample}/pipeline_params.yml",
-    output:
-        imzml=multiext("{sample}/baseline_adj",".imzML",".ibd")
-    shell:
-        "python -m depiction_targeted_preproc.workflow.proc.adjust_baseline "
-        " --input-imzml-path {input.imzml[0]} --config-path {input.config} "
-        " --output-imzml-path {output.imzml[0]}"
-
-rule proc_pick_peaks:
-    input:
-        imzml=multiext("{sample}/baseline_adj",".imzML",".ibd"),
-        config="{sample}/pipeline_params.yml",
-    output:
-        imzml=multiext("{sample}/peaks",".imzML",".ibd"),
-    shell:
-        "python -m depiction_targeted_preproc.workflow.proc.pick_peaks "
-        " --input-imzml-path {input.imzml[0]} --config-path {input.config} "
-        " --output-imzml-path {output.imzml[0]}"
-
-rule proc_calibrate:
-    input:
-        imzml=multiext("{sample}/peaks",".imzML",".ibd"),
-        config="{sample}/pipeline_params.yml",
-        mass_list="{sample}/images_default_mass_list.csv",
-    output:
-        imzml=multiext("{sample}/calibrated_tmp",".imzML",".ibd"),
-        calib_data="{sample}/calib_data.hdf5",
-    shell:
-        "python -m depiction_targeted_preproc.workflow.proc.calibrate "
-        " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
-        " --output-imzml-path {output.imzml[0]} --output-calib-data-path {output.calib_data}"
-
-rule proc_calibrate_make_fair_comparison:
-    input:
-        imzml=multiext("{sample}/calibrated_tmp",".imzML",".ibd"),
-        config="{sample}/pipeline_params.yml",
-        mass_list="{sample}/images_default_mass_list.csv",
-    output:
-        imzml=multiext("{sample}/calibrated",".imzML",".ibd"),
-    shell:
-        "python -m depiction_targeted_preproc.workflow.proc.calibrate_make_fair_comparison "
-        " --input-imzml-path {input.imzml[0]} --config-path {input.config}"
-        " --mass-list-path {input.mass_list} --output-imzml-path {output.imzml[0]}"
-
-rule proc_export_raw_metadata:
-    input:
-        imzml="{sample}/raw.imzML",
-    output:
-        json="{sample}/raw_metadata.json"
-    shell:
-        "python -m depiction_targeted_preproc.workflow.proc.export_raw_metadata "
-        " --input-imzml-path {input.imzml} --output-json-path {output.json}"
+include: "rules/rules_proc.smk"
 
 rule vis_images:
     input:

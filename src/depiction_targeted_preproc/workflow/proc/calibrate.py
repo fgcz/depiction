@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import shutil
 from pathlib import Path
@@ -7,6 +9,7 @@ import polars as pl
 import typer
 from loguru import logger
 
+from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.perform_calibration import PerformCalibration
 from depiction.calibration.spectrum.calibration_method_chemical_peptide_noise import (
     CalibrationMethodChemicalPeptideNoise,
@@ -20,9 +23,9 @@ from depiction_targeted_preproc.pipeline_config import model
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 
 
-def get_calibration_from_config(mass_list: pl.DataFrame, config: PipelineParameters):
-    match config.calibration:
-        case model.CalibrationRegressShift() as calib_config:
+def get_calibration_from_config(mass_list: pl.DataFrame, calib_config: model.Calibration) -> CalibrationMethod:
+    match calib_config:
+        case model.CalibrationRegressShift():
             return CalibrationMethodRegressShift(
                 ref_mz_arr=mass_list["mass"].to_numpy(),
                 max_distance=calib_config.max_distance,
@@ -34,17 +37,17 @@ def get_calibration_from_config(mass_list: pl.DataFrame, config: PipelineParamet
                 input_smoothing_kernel_std=calib_config.input_smoothing_kernel_std,
                 min_points=calib_config.min_points,
             )
-        case model.CalibrationConstantGlobalShift() as calib_config:
+        case model.CalibrationConstantGlobalShift():
             return CalibrationMethodGlobalConstantShift(
                 ref_mz_arr=mass_list["mass"].to_numpy(),
             )
-        case model.CalibrationChemicalPeptideNoise() as calib_config:
+        case model.CalibrationChemicalPeptideNoise():
             return CalibrationMethodChemicalPeptideNoise(
                 n_mass_intervals=calib_config.n_mass_intervals,
                 interpolation_mode=calib_config.interpolation_mode,
                 use_ppm_space=calib_config.use_ppm_space,
             )
-        case model.CalibrationMCC() as calib_config:
+        case model.CalibrationMCC():
             return CalibrationMethodMassClusterCenterModel(
                 model_smoothing_activated=calib_config.model_smoothing_activated,
                 model_smoothing_kernel_size=calib_config.model_smoothing_kernel_size,
@@ -69,13 +72,14 @@ def proc_calibrate(
             logger.info("No calibration requested")
             shutil.copy(input_imzml_path, output_imzml_path)
             shutil.copy(input_imzml_path.with_suffix(".ibd"), output_imzml_path.with_suffix(".ibd"))
+            return
         case (
             model.CalibrationRegressShift()
             | model.CalibrationChemicalPeptideNoise()
             | model.CalibrationMCC()
             | model.CalibrationConstantGlobalShift()
         ):
-            calibration = get_calibration_from_config(mass_list, config)
+            calibration = get_calibration_from_config(mass_list=mass_list, calib_config=config.calibration)
             perform_calibration = PerformCalibration(
                 calibration=calibration,
                 parallel_config=parallel_config,

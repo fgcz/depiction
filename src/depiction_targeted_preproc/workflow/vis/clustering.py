@@ -7,9 +7,7 @@ from matplotlib import pyplot as plt
 from typer import Option
 
 
-def vis_clustering(input_netcdf_path: Annotated[Path, Option()],
-                   output_png_path: Annotated[Path, Option()]
-                   ) -> None:
+def vis_clustering(input_netcdf_path: Annotated[Path, Option()], output_png_path: Annotated[Path, Option()]) -> None:
     source_image = xarray.open_dataarray(input_netcdf_path)
     fig = plt.figure(figsize=(10, 10))
     ax = fig.gca()

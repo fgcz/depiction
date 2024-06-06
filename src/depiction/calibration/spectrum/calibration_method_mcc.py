@@ -47,7 +47,7 @@ class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
         intercept_coef = scipy.stats.trim_mean(delta_intercept, 0.25)
         return DataArray([intercept_coef, slope], dims=["c"])
 
-    def compute_distance_from_MCC(self, delta: NDArray[float], l_none = 1.000482) -> NDArray[float]:
+    def compute_distance_from_MCC(self, delta: NDArray[float], l_none: float = 1.000482) -> NDArray[float]:
         delta_lambda = np.zeros_like(delta)
         for i, mi in enumerate(delta):
             term1 = mi % l_none

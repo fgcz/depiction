@@ -34,9 +34,7 @@ def cluster_kmeans(input_netcdf_path: Annotated[Path, Option()], output_netcdf_p
     kmeans = KMeans(n_clusters=n_clusters)
     clusters = kmeans.fit_predict(reduced_data.values)
 
-    cluster_data = xarray.DataArray(
-        clusters, dims=("i",), coords={"i": image.data_flat.coords["i"]}
-    ).expand_dims("c")
+    cluster_data = xarray.DataArray(clusters, dims=("i",), coords={"i": image.data_flat.coords["i"]}).expand_dims("c")
     cluster_data.coords["c"] = ["cluster"]
     cluster_data.attrs["bg_value"] = np.nan
     cluster_image = MultiChannelImage(cluster_data.unstack("i"))

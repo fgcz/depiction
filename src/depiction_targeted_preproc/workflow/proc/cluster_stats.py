@@ -15,8 +15,12 @@ def cluster_stats(input_netcdf_path: Annotated[Path, Option()], output_csv_path:
     cluster_image = MultiChannelImage.read_hdf5(input_netcdf_path)
 
     cluster_data = cluster_image.data_flat.values.ravel()
-    cluster_coords = np.hstack((cluster_image.data_flat.coords["x"].values.reshape(-1, 1),
-                                cluster_image.data_flat.coords["y"].values.reshape(-1, 1)))
+    cluster_coords = np.hstack(
+        (
+            cluster_image.data_flat.coords["x"].values.reshape(-1, 1),
+            cluster_image.data_flat.coords["y"].values.reshape(-1, 1),
+        )
+    )
 
     chaos = compute_CHAOS(cluster_data, cluster_coords)
     logger.info(f"Computed CHAOS: {chaos}")

@@ -79,7 +79,7 @@ def proc_calibrate(
             | model.CalibrationChemicalPeptideNoise()
             | model.CalibrationMCC()
             | model.CalibrationConstantGlobalShift(),
-            False
+            False,
         ):
             calibration = get_calibration_from_config(mass_list=mass_list, calib_config=config.calibration)
             logger.info("Using calibration method: {calibration}", calibration=calibration)

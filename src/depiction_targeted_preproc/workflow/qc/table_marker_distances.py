@@ -26,13 +26,15 @@ def get_peak_dist(
                 dist = dist[sel]
                 marker_mz = spectrum_mz[sel]
                 if len(dist):
-                    collect.append({
-                        "i_spectrum": i_spectrum,
-                        "dist": list(dist),
-                        "mz_peak": list(marker_mz),
-                        "mz_target": mz_target,
-                        "label": label,
-                    })
+                    collect.append(
+                        {
+                            "i_spectrum": i_spectrum,
+                            "dist": list(dist),
+                            "mz_peak": list(marker_mz),
+                            "mz_target": mz_target,
+                            "label": label,
+                        }
+                    )
     return pl.from_dicts(collect).explode(["dist", "mz_peak"])
 
 

@@ -34,8 +34,7 @@ class PeakPickerMSPeakPicker(BaseModel):
 
 
 PeakPicker = Annotated[
-    None | PeakPickerBasicInterpolated | PeakPickerMSPeakPicker,
-    Field(discriminator="peak_picker_type")
+    None | PeakPickerBasicInterpolated | PeakPickerMSPeakPicker, Field(discriminator="peak_picker_type")
 ]
 
 

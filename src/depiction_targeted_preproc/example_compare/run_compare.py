@@ -24,9 +24,7 @@ def main() -> None:
 
 def get_all_output_files(folders: list[Path]) -> list[Path]:
     artifacts = [PipelineArtifact.CALIB_QC, PipelineArtifact.CALIB_IMAGES, PipelineArtifact.DEBUG]
-    filenames = [name
-                 for artifact in artifacts
-                 for name in RESULT_FILE_MAPPING[artifact]]
+    filenames = [name for artifact in artifacts for name in RESULT_FILE_MAPPING[artifact]]
 
     all_files = []
     for folder in folders:

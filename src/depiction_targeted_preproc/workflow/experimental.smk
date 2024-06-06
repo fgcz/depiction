@@ -33,14 +33,15 @@ rule vis_images_ome_tiff:
         " --input-netcdf-path {input.netcdf} --output-ometiff-path {output.ometiff}"
         " --input-raw-metadata-path {input.raw_metadata}"
 
-rule qc_peak_counts:
-    input:
-        imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd")
-    output:
-        pdf="{sample}/qc/peak_counts.pdf"
-    shell:
-        "python -m depiction_targeted_preproc.workflow.qc.peak_counts"
-        " --imzml-peaks {input.imzml[0]} --output-table {output.table}"
+
+#rule qc_peak_counts:
+#    input:
+#        imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd")
+#    output:
+#        pdf="{sample}/qc/peak_counts.pdf"
+#    shell:
+#        "python -m depiction_targeted_preproc.workflow.qc.peak_counts"
+#        " --imzml-peaks {input.imzml[0]} --output-table {output.table}"
 
 
 rule qc_table_marker_distances_baseline:

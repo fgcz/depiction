@@ -57,3 +57,12 @@ rule proc_export_raw_metadata:
     shell:
         "python -m depiction_targeted_preproc.workflow.proc.export_raw_metadata "
         " --input-imzml-path {input.imzml} --output-json-path {output.json}"
+
+rule proc_cluster_kmeans:
+    input:
+        netcdf="{sample}/images_default.hdf5"
+    output:
+        netcdf="{sample}/images_default_kmeans.hdf5"
+    shell:
+        "python -m depiction_targeted_preproc.workflow.proc.cluster_kmeans "
+        " --input-netcdf-path {input.netcdf} --output-netcdf-path {output.netcdf}"

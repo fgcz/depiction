@@ -1,0 +1,13 @@
+baseline_adjustment:
+  baseline_type: Tophat
+  window_size: 3000
+  window_unit: ppm
+peak_picker:
+  peak_picker_type: MSPeakPicker
+  fit_type: quadratic
+calibration:
+  calibration_method: ChemicalPeptideNoise
+  n_mass_intervals: 8
+  interpolation_mode: linear
+  use_ppm_space: no
+n_jobs: 10

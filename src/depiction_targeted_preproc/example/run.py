@@ -54,7 +54,7 @@ def main() -> None:
             input_imzml=dir_raw / f"{sample_name}.imzML",
             input_mass_list=dir_raw / "mass_list_vend.csv",
             params_file=params_file,
-            work_dir=dir_work,
+            dir=dir_work / sample_name,
         )
 
     result_files = get_result_files(params, dir_work, sample_name)
@@ -95,14 +95,12 @@ def export_results(
             shutil.copy(work_dir / sample_name / file, output_dir / sample_name / file)
 
 
-def initial_setup(input_imzml: Path, input_mass_list: Path, params_file: Path, work_dir: Path) -> None:
-    sample_name = input_imzml.stem
-    sample_dir = work_dir / sample_name
-    sample_dir.mkdir(exist_ok=True)
-    shutil.copy(input_imzml, sample_dir / "raw.imzML")
-    shutil.copy(input_imzml.with_suffix(".ibd"), sample_dir / "raw.ibd")
-    shutil.copy(input_mass_list, sample_dir / "images_default_mass_list.csv")
-    shutil.copy(params_file, sample_dir / "pipeline_params.yml")
+def initial_setup(input_imzml: Path, input_mass_list: Path, params_file: Path, dir: Path) -> None:
+    dir.mkdir(exist_ok=True)
+    shutil.copy(input_imzml, dir / "raw.imzML")
+    shutil.copy(input_imzml.with_suffix(".ibd"), dir / "raw.ibd")
+    shutil.copy(input_mass_list, dir / "images_default_mass_list.csv")
+    shutil.copy(params_file, dir / "pipeline_params.yml")
 
 
 def snakemake_invoke(work_dir: Path, result_files: list[Path]) -> None:

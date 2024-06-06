@@ -28,7 +28,15 @@ class PeakPickerBasicInterpolated(BaseModel):
     #  but postpone for later)
 
 
-PeakPicker = Annotated[None | PeakPickerBasicInterpolated, Field(discriminator="peak_picker_type")]
+class PeakPickerMSPeakPicker(BaseModel):
+    peak_picker_type: Literal["MSPeakPicker"]
+    fit_type: Literal["quadratic"] = "quadratic"
+
+
+PeakPicker = Annotated[
+    None | PeakPickerBasicInterpolated | PeakPickerMSPeakPicker,
+    Field(discriminator="peak_picker_type")
+]
 
 
 class CalibrationRegressShift(BaseModel):

@@ -22,8 +22,8 @@ def proc_pick_peaks(
 ) -> None:
     config = PipelineParameters.parse_yaml(config_path)
 
-    # TODO configurable
-    peak_filtering = FilterNHighestIntensityPartitioned(max_count=200, n_partitions=8),
+    # TODO configurable filtering
+    peak_filtering = FilterNHighestIntensityPartitioned(max_count=200, n_partitions=8)
     parallel_config = ParallelConfig(n_jobs=config.n_jobs, task_size=None)
 
     match config.peak_picker:

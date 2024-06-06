@@ -5,12 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-import loguru
 import ms_peak_picker
 import numpy as np
-import scipy
-
-from depiction.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -31,7 +27,7 @@ class MSPeakPicker:
         peak_mz = np.array([peak.mz for peak in peak_list])
         peak_int = np.array([peak.intensity for peak in peak_list])
 
-        if self.peak_filtering is not None:
+        if self.peak_filtering is not None and len(peak_mz) > 0:
             peak_mz, peak_int = self.peak_filtering.filter_peaks(
                 spectrum_mz_arr=mz_arr,
                 spectrum_int_arr=int_arr,

@@ -9,3 +9,4 @@ calibration:
   calibration_method: MCC
   model_smoothing_activated: no
 n_jobs: 10
+requested_artifacts: []

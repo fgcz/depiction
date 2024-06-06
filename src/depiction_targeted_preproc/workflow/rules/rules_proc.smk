@@ -22,44 +22,32 @@ rule proc_pick_peaks:
         " --output-imzml-path {output.imzml[0]}"
 
 
-## TODO this should be solved more efficiently in the future, but for now it is solved by calling the script twice
-#rule proc_calibrate_remove_global_shift:
-#    input:
-#        imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd"),
-#        config="{sample}/pipeline_params.yml",
-#        mass_list="{sample}/images_default_mass_list.csv",
-#    output:
-#        imzml=temp(multiext("{sample}/calibrated.tmp",".imzML",".ibd")),
-#    shell:
-#        "python -m depiction_targeted_preproc.workflow.proc.calibrate "
-#        " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
-#        " --output-imzml-path {output.imzml[0]} --output-calib-data-path {output.imzml[0].repla
-
-
-rule proc_calibrate:
+# TODO this should be solved more efficiently in the future, but for now it is solved by calling the script twice
+rule proc_calibrate_remove_global_shift:
     input:
         imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd"),
         config="{sample}/pipeline_params.yml",
         mass_list="{sample}/images_default_mass_list.csv",
     output:
-        imzml=multiext("{sample}/calibrated_tmp",".imzML",".ibd"),
+        imzml=temp(multiext("{sample}/calibrated.tmp",".imzML",".ibd")),
+    shell:
+        "python -m depiction_targeted_preproc.workflow.proc.calibrate "
+        " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
+        " --use-global-constant-shift"
+        " --output-imzml-path {output.imzml[0]}"
+
+rule proc_calibrate_actual:
+    input:
+        imzml=multiext("{sample}/calibrated.tmp",".imzML",".ibd"),
+        config="{sample}/pipeline_params.yml",
+        mass_list="{sample}/images_default_mass_list.csv",
+    output:
+        imzml=multiext("{sample}/calibrated",".imzML",".ibd"),
         calib_data="{sample}/calib_data.hdf5",
     shell:
         "python -m depiction_targeted_preproc.workflow.proc.calibrate "
         " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
         " --output-imzml-path {output.imzml[0]} --output-calib-data-path {output.calib_data}"
-
-rule proc_calibrate_make_fair_comparison:
-    input:
-        imzml=multiext("{sample}/calibrated_tmp",".imzML",".ibd"),
-        config="{sample}/pipeline_params.yml",
-        mass_list="{sample}/images_default_mass_list.csv",
-    output:
-        imzml=multiext("{sample}/calibrated",".imzML",".ibd"),
-    shell:
-        "python -m depiction_targeted_preproc.workflow.proc.calibrate_make_fair_comparison "
-        " --input-imzml-path {input.imzml[0]} --config-path {input.config}"
-        " --mass-list-path {input.mass_list} --output-imzml-path {output.imzml[0]}"
 
 rule proc_export_raw_metadata:
     input:

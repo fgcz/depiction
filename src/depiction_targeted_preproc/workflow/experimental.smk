@@ -1,9 +1,5 @@
 version: "3"
 
-# TODO it should be more clear which is baseline+profile and which is baseline+picked because currently this is a bit
-#      ambiguous. in principle we should structure the pipeline in a way, that in subsequent steps it is transparent
-#      which of these two it is.
-
 include: "rules/rules_proc.smk"
 
 rule vis_images:
@@ -39,23 +35,23 @@ rule vis_images_ome_tiff:
 
 rule qc_peak_counts:
     input:
-        imzml_peaks="{sample}/peaks.imzML",
+        imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd")
     output:
         pdf="{sample}/qc/peak_counts.pdf"
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.peak_counts"
-        " --imzml-peaks {input.imzml_peaks} --output-table {output.table}"
+        " --imzml-peaks {input.imzml[0]} --output-table {output.table}"
 
 
 rule qc_table_marker_distances_baseline:
     input:
-        imzml_peaks="{sample}/peaks.imzML",
+        imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd"),
         mass_list="{sample}/images_default_mass_list.csv",
     output:
         table="{sample}/qc/table_marker_distances_baseline.parquet"
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.table_marker_distances"
-        " --imzml-peaks {input.imzml_peaks} --mass-list {input.mass_list}"
+        " --imzml-peaks {input.imzml[0]} --mass-list {input.mass_list}"
         " --output-table {output.table}"
 
 rule qc_table_marker_distances_calib:
@@ -162,13 +158,13 @@ rule qc_plot_spectra_for_marker:
 
 rule qc_plot_peak_counts:
     input:
-        imzml_peaks="{sample}/peaks.imzML",
+        imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd"),
         config="{sample}/pipeline_params.yml",
     output:
         pdf="{sample}/qc/plot_peak_counts.pdf"
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.plot_peak_counts"
-        " --config-path {input.config} --imzml-peaks {input.imzml_peaks}"
+        " --config-path {input.config} --imzml-peaks {input.imzml[0]}"
         " --output-pdf {output.pdf}"
 
 

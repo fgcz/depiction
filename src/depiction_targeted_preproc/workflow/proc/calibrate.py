@@ -62,13 +62,14 @@ def proc_calibrate(
     config_path: Annotated[Path, typer.Option()],
     mass_list_path: Annotated[Path, typer.Option()],
     output_imzml_path: Annotated[Path, typer.Option()],
-    output_calib_data_path: Annotated[Path, typer.Option()],
+    output_calib_data_path: Annotated[Path, typer.Option()] = None,
+    use_global_constant_shift: Annotated[bool, typer.Option(is_flag=True)] = False,
 ) -> None:
     config = PipelineParameters.parse_yaml(config_path)
     mass_list = pl.read_csv(mass_list_path)
     parallel_config = ParallelConfig(n_jobs=config.n_jobs, task_size=None)
-    match config.calibration:
-        case None:
+    match (config.calibration, use_global_constant_shift):
+        case (None, _):
             logger.info("No calibration requested")
             shutil.copy(input_imzml_path, output_imzml_path)
             shutil.copy(input_imzml_path.with_suffix(".ibd"), output_imzml_path.with_suffix(".ibd"))
@@ -77,23 +78,29 @@ def proc_calibrate(
             model.CalibrationRegressShift()
             | model.CalibrationChemicalPeptideNoise()
             | model.CalibrationMCC()
-            | model.CalibrationConstantGlobalShift()
+            | model.CalibrationConstantGlobalShift(),
+            False
         ):
             calibration = get_calibration_from_config(mass_list=mass_list, calib_config=config.calibration)
-            perform_calibration = PerformCalibration(
-                calibration=calibration,
-                parallel_config=parallel_config,
-                output_store=None,
-                coefficient_output_file=output_calib_data_path,
-            )
-            perform_calibration.calibrate_image(
-                read_peaks=ImzmlReadFile(input_imzml_path),
-                write_file=ImzmlWriteFile(output_imzml_path, imzml_mode=ImzmlModeEnum.PROCESSED),
-                # TODO
-                read_full=None,
-            )
+            logger.info("Using calibration method: {calibration}", calibration=calibration)
+        case (_, True):
+            logger.info("Using global constant shift calibration as --use-global-constant-shift is set")
+            calibration = CalibrationMethodGlobalConstantShift(ref_mz_arr=mass_list["mass"].to_numpy())
         case _:
             raise NotImplementedError("should be unreachable")
+
+    perform_calibration = PerformCalibration(
+        calibration=calibration,
+        parallel_config=parallel_config,
+        output_store=None,
+        coefficient_output_file=output_calib_data_path,
+    )
+    perform_calibration.calibrate_image(
+        read_peaks=ImzmlReadFile(input_imzml_path),
+        write_file=ImzmlWriteFile(output_imzml_path, imzml_mode=ImzmlModeEnum.PROCESSED),
+        # TODO
+        read_full=None,
+    )
 
 
 def main() -> None:

@@ -62,16 +62,16 @@ rule proc_cluster_kmeans:
     input:
         netcdf="{sample}/images_default.hdf5"
     output:
-        netcdf="{sample}/images_default_kmeans.hdf5"
+        netcdf="{sample}/cluster_default_kmeans.hdf5"
     shell:
         "python -m depiction_targeted_preproc.workflow.proc.cluster_kmeans "
         " --input-netcdf-path {input.netcdf} --output-netcdf-path {output.netcdf}"
 
 rule proc_cluster_stats_kmeans:
     input:
-        netcdf="{sample}/images_default_kmeans.hdf5"
+        netcdf="{sample}/cluster_default_kmeans.hdf5"
     output:
-        csv="{sample}/cluster_stats_kmeans.csv"
+        csv="{sample}/cluster_default_stats_kmeans.csv"
     shell:
         "python -m depiction_targeted_preproc.workflow.proc.cluster_stats"
         " --input-netcdf-path {input.netcdf} --output-csv-path {output.csv}"

@@ -24,9 +24,12 @@ RESULT_FILE_MAPPING = {
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",
         "qc/plot_spectra_for_marker.pdf",
-        #"qc/plot_sample_spectra_before_after.pdf",
+        # "qc/plot_sample_spectra_before_after.pdf",
         "qc/plot_peak_counts.pdf",
-    ],
+        "cluster_default_kmeans.hdf5",
+        "cluster_default_stats_kmeans.csv",
+        "cluster_default_kmeans.png"
+    ]
 }
 
 
@@ -39,6 +42,7 @@ def main() -> None:
     # sample_name = "menzha_20231208_s607930_64074-b20-30928-a"
     # sample_name = "menzha_20231210_s607943_64005-b20-47740-g"
     sample_name = "menzha_20231208_s607923_tonsil-repro-sample-01"
+    #sample_name = "menzha_20231208_s607923_tonsil-repro-sample-01_mcc"
     # sample_name = "menzha_20231208_s607923_tonsil-repro-sample-01_peptnoise"
 
     params_file = Path(__file__).parents[1] / "pipeline_config" / "default.yml"
@@ -102,7 +106,7 @@ def initial_setup(input_imzml: Path, input_mass_list: Path, params_file: Path, w
 
 
 def snakemake_invoke(work_dir: Path, result_files: list[Path]) -> None:
-    snakefile_path = Path(__file__).parents[1] / "workflow" / "Snakefile"
+    snakefile_path = Path(__file__).parents[1] / "workflow" / "experimental.smk"
     workflow_dir = Path(__file__).parents[1] / "workflow"
 
     snakemake_bin = shutil.which("snakemake")

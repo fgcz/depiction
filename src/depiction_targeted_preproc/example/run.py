@@ -95,12 +95,16 @@ def export_results(
             shutil.copy(work_dir / sample_name / file, output_dir / sample_name / file)
 
 
-def initial_setup(input_imzml: Path, input_mass_list: Path, params_file: Path, dir: Path) -> None:
-    dir.mkdir(exist_ok=True)
-    shutil.copy(input_imzml, dir / "raw.imzML")
-    shutil.copy(input_imzml.with_suffix(".ibd"), dir / "raw.ibd")
-    shutil.copy(input_mass_list, dir / "images_default_mass_list.csv")
-    shutil.copy(params_file, dir / "pipeline_params.yml")
+def initial_setup(input_imzml: Path, input_mass_list: Path, params_file: Path, dir: Path, force: bool = False) -> None:
+    if not force and (dir / "raw.imzML").exists():
+        logger.info("Skipping initial setup, directory already exists: {dir}", dir=dir)
+    else:
+        logger.info("Setting up directory: {dir}", dir=dir)
+        dir.mkdir(exist_ok=True, parents=True)
+        shutil.copy(input_imzml, dir / "raw.imzML")
+        shutil.copy(input_imzml.with_suffix(".ibd"), dir / "raw.ibd")
+        shutil.copy(input_mass_list, dir / "images_default_mass_list.csv")
+        shutil.copy(params_file, dir / "pipeline_params.yml")
 
 
 def snakemake_invoke(work_dir: Path, result_files: list[Path]) -> None:

@@ -17,7 +17,9 @@ def prepare_tasks(input_imzml_path: Path, work_dir: Path) -> list[Path]:
     requested_files = get_all_output_files(folders)
 
     combined_dir = work_dir / input_imzml_path.stem
-    exp_files = [combined_dir / "exp_compare_cluster_stats.pdf", combined_dir / "exp_plot_compare_peak_density.pdf"]
+    exp_files = [combined_dir / "exp_compare_cluster_stats.pdf",
+                 combined_dir / "exp_plot_compare_peak_density.pdf",
+                 combined_dir / "exp_plot_map_comparison.pdf"]
     return requested_files + exp_files
 
 
@@ -37,7 +39,7 @@ def main() -> None:
         requested_files += prepare_tasks(data_raw_dir / imzml, work_dir=work_dir)
 
     ## TODO quick hack
-    #requested_files = [f for f in requested_files if "mini" in str(f)]
+    # requested_files = [f for f in requested_files if "mini" in str(f)]
 
     SnakemakeInvoke(continue_on_error=True).invoke(work_dir=work_dir, result_files=requested_files, n_cores=4)
 

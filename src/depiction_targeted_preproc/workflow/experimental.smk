@@ -82,3 +82,14 @@ rule qc_plot_marker_presence_mini:
         " --table-marker-distances-calib {input.table_marker_distances_calib}"
         " --output-pdf {output.pdf}"
 
+variants_with_map = ["mass_cluster", "reg_shift"]
+
+rule exp_plot_map_comparison:
+    input:
+        mass_shifts=expand("{{sample}}/{exp_variant}/test_mass_shifts.hdf5", exp_variant=variants_with_map)
+    output:
+        pdf="{sample}/exp_plot_map_comparison.pdf"
+    shell:
+        "python -m depiction_targeted_preproc.workflow.exp.plot_map_comparison"
+        " {input.mass_shifts}"
+        " --output-pdf-path {output.pdf}"

@@ -31,6 +31,7 @@ RESULT_FILE_MAPPING = {
         "cluster_default_kmeans.hdf5",
         "cluster_default_stats_kmeans.csv",
         "cluster_default_kmeans.png",
+        "cluster_default_hdbscan.png",
     ],
 }
 

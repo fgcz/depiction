@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Annotated
 
+import numpy as np
 import typer
 import xarray
 from matplotlib import pyplot as plt
@@ -14,6 +15,9 @@ def vis_clustering(input_netcdf_path: Annotated[Path, Option()], output_png_path
     source_image.plot(cmap="tab10", ax=ax)
     ax.set_aspect("equal")
 
+    #n_classes = len(set(source_image.values.ravel()))
+    n_classes = len(np.unique(source_image.values))
+    fig.suptitle(f"Clustering with {n_classes} classes")
     fig.tight_layout()
     fig.savefig(output_png_path)
 

@@ -61,7 +61,8 @@ dev = [
     "tifffile>=2024.2.12",
     "xmltodict",
     "licensecheck",
-    "ms-peak-picker"
+    "ms-peak-picker",
+    "hdbscan"
 ]
 
 # potentially relevant in the future again:

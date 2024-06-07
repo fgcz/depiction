@@ -5,7 +5,8 @@ import numpy as np
 import typer
 import xarray
 from loguru import logger
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, BisectingKMeans
+from sklearn.preprocessing import StandardScaler
 from typer import Option
 
 from depiction.image.multi_channel_image import MultiChannelImage
@@ -31,8 +32,11 @@ def cluster_kmeans(input_netcdf_path: Annotated[Path, Option()], output_netcdf_p
 
     reduced_data = retain_strongest_signals(image.data_flat.transpose("i", "c"), n_features)
 
-    kmeans = KMeans(n_clusters=n_clusters)
-    clusters = kmeans.fit_predict(reduced_data.values)
+    scaler = StandardScaler()
+    scaler.fit(reduced_data.values)
+
+    kmeans = BisectingKMeans(n_clusters=n_clusters)
+    clusters = kmeans.fit_predict(scaler.transform(reduced_data.values))
 
     cluster_data = xarray.DataArray(clusters, dims=("i",), coords={"i": image.data_flat.coords["i"]}).expand_dims("c")
     cluster_data.coords["c"] = ["cluster"]

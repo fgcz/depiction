@@ -42,7 +42,7 @@ def plot_density_combined_full(df_peak_dist: pl.DataFrame, out_pdf: Path) -> Non
     collect = []
     for variant in variants:
         df_variant = df_peak_dist.filter(variant=variant)
-        dist, density = FFTKDE(bw="ISJ").fit(df_variant["dist"].to_numpy()).evaluate(2 ** 10)
+        dist, density = FFTKDE(bw="ISJ").fit(df_variant["dist"].to_numpy()).evaluate(2**10)
         collect.append(pl.DataFrame({"dist": list(dist), "density": list(density), "variant": variant}))
 
     dist_min = df_peak_dist["dist"].min()
@@ -50,17 +50,12 @@ def plot_density_combined_full(df_peak_dist: pl.DataFrame, out_pdf: Path) -> Non
     df_density = pl.concat(collect).filter((pl.col("dist") >= dist_min) & (pl.col("dist") <= dist_max))
 
     chart = (
-        (
-            alt.Chart(df_density)
-            .mark_line()
-            .encode(x="dist:Q", y="density:Q", color="variant:N")
-            .properties(width=500, height=300)
-        )
-        .properties(title="Linear scale")
-    )
-    chart = chart.properties(
-        title=f"Density of target-surrounding peak distances (N={len(df_peak_dist):,})"
-    )
+        alt.Chart(df_density)
+        .mark_line()
+        .encode(x="dist:Q", y="density:Q", color="variant:N")
+        .properties(width=500, height=300)
+    ).properties(title="Linear scale")
+    chart = chart.properties(title=f"Density of target-surrounding peak distances (N={len(df_peak_dist):,})")
     chart.save(out_pdf)
 
 

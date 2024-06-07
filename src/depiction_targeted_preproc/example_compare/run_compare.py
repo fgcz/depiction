@@ -17,8 +17,7 @@ def prepare_tasks(input_imzml_path: Path, work_dir: Path) -> list[Path]:
     requested_files = get_all_output_files(folders)
 
     combined_dir = work_dir / input_imzml_path.stem
-    exp_files = [combined_dir / "exp_compare_cluster_stats.pdf",
-                 combined_dir / "exp_plot_compare_peak_density.pdf"]
+    exp_files = [combined_dir / "exp_compare_cluster_stats.pdf", combined_dir / "exp_plot_compare_peak_density.pdf"]
     return requested_files + exp_files
 
 

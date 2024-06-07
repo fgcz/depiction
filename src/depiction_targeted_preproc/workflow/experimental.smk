@@ -34,10 +34,12 @@ rule exp_mass_list_preparation:
 
 rule exp_plot_compare_peak_density:
     input:
-        tables_marker_distance=expand("{{sample}}/{exp_variant}/qc/table_marker_distances_calib.parquet", exp_variant=exp_variants)
+        tables_marker_distance=expand("{{sample}}/{exp_variant}/qc/table_marker_distances_calib.parquet", exp_variant=exp_variants),
+        table_marker_distance_uncalib="{sample}/reg_shift/qc/table_marker_distances_baseline.parquet",
     output:
         pdf="{sample}/exp_plot_compare_peak_density.pdf"
     shell:
         "python -m depiction_targeted_preproc.workflow.exp.plot_compare_peak_density"
         " {input.tables_marker_distance}"
+        " --table-marker-distance-uncalib {input.table_marker_distance_uncalib}"
         " --output-pdf {output.pdf}"

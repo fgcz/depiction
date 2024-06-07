@@ -1,7 +1,7 @@
 rule qc_table_marker_distances_baseline:
     input:
         imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd"),
-        mass_list="{sample}/images_default_mass_list.csv",
+        mass_list="{sample}/mass_list.visualization.csv",
     output:
         table="{sample}/qc/table_marker_distances_baseline.parquet"
     shell:
@@ -12,7 +12,7 @@ rule qc_table_marker_distances_baseline:
 rule qc_table_marker_distances_calib:
     input:
         imzml_peaks="{sample}/calibrated.imzML",
-        mass_list="{sample}/images_default_mass_list.csv",
+        mass_list="{sample}/mass_list.visualization.csv",
     output:
         table="{sample}/qc/table_marker_distances_calib.parquet"
     shell:
@@ -76,7 +76,7 @@ rule qc_plot_peak_density_grouped:
 rule qc_plot_calibration_map:
     input:
         calib_data="{sample}/calib_data.hdf5",
-        mass_list="{sample}/images_default_mass_list.csv",
+        mass_list="{sample}/mass_list.visualization.csv",
     output:
         pdf="{sample}/qc/plot_calibration_map.pdf"
     shell:
@@ -89,7 +89,7 @@ rule qc_plot_sample_spectra_before_after:
     input:
         imzml_baseline="{sample}/peaks.imzML",
         imzml_calib="{sample}/calibrated.imzML",
-        mass_list="{sample}/images_default_mass_list.csv",
+        mass_list="{sample}/mass_list.visualization.csv",
     output:
         pdf="{sample}/qc/plot_sample_spectra_before_after.pdf"
     shell:

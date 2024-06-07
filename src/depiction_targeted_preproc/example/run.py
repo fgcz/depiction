@@ -97,7 +97,14 @@ def export_results(
             shutil.copy(work_dir / sample_name / file, output_dir / sample_name / file)
 
 
-def initial_setup(input_imzml: Path, input_mass_list: Path, params_file: Path, dir: Path, force: bool = False) -> None:
+def initial_setup(
+    input_imzml: Path,
+    input_mass_list: Path,
+    params_file: Path,
+    dir: Path,
+    force: bool = False,
+    mass_list_filename: str = "images_default_mass_list.csv",
+) -> None:
     if not force and (dir / "raw.imzML").exists():
         logger.info("Skipping initial setup, directory already exists: {dir}", dir=dir)
     else:
@@ -105,7 +112,7 @@ def initial_setup(input_imzml: Path, input_mass_list: Path, params_file: Path, d
         dir.mkdir(exist_ok=True, parents=True)
         shutil.copy(input_imzml, dir / "raw.imzML")
         shutil.copy(input_imzml.with_suffix(".ibd"), dir / "raw.ibd")
-        shutil.copy(input_mass_list, dir / "images_default_mass_list.csv")
+        shutil.copy(input_mass_list, dir / mass_list_filename)
         shutil.copy(params_file, dir / "pipeline_params.yml")
 
 

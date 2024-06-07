@@ -16,3 +16,17 @@ rule exp_compare_cluster_stats:
         "python -m depiction_targeted_preproc.workflow.exp.compare_cluster_stats"
         " {input.csv}"
         " --output-pdf {output}"
+
+rule exp_mass_list_preparation:
+    input:
+        csv="{sample}/mass_list.raw.csv"
+    output:
+        calibration_csv="{sample}/mass_list.calibration.csv",
+        standards_csv="{sample}/mass_list.standards.csv",
+        visualization="{sample}/mass_list.visualization.csv"
+    shell:
+        "python -m depiction_targeted_preproc.workflow.exp.mass_list_preparation"
+        " --input-csv-path {input.csv}"
+        " --out-calibration-csv {output.calibration_csv}"
+        " --out-standards-csv {output.standards_csv}"
+        " --out-visualization {output.visualization}"

@@ -27,7 +27,7 @@ rule proc_calibrate_remove_global_shift:
     input:
         imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd"),
         config="{sample}/pipeline_params.yml",
-        mass_list="{sample}/images_default_mass_list.csv",
+        mass_list="{sample}/mass_list.standards.csv",
     output:
         imzml=temp(multiext("{sample}/calibrated.tmp",".imzML",".ibd")),
     shell:
@@ -40,7 +40,7 @@ rule proc_calibrate_actual:
     input:
         imzml=multiext("{sample}/calibrated.tmp",".imzML",".ibd"),
         config="{sample}/pipeline_params.yml",
-        mass_list="{sample}/images_default_mass_list.csv",
+        mass_list="{sample}/mass_list.calibration.csv",
     output:
         imzml=multiext("{sample}/calibrated",".imzML",".ibd"),
         calib_data="{sample}/calib_data.hdf5",

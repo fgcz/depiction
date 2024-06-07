@@ -2,9 +2,9 @@ rule vis_images:
     input:
         imzml=multiext("{sample}/calibrated",".imzML",".ibd"),
         config="{sample}/pipeline_params.yml",
-        mass_list="{sample}/images_{label}_mass_list.csv"
+        mass_list="{sample}/mass_list.visualization.csv"
     output:
-        hdf5="{sample}/images_{label}.hdf5"
+        hdf5="{sample}/images_default.hdf5"
     shell:
         "python -m depiction_targeted_preproc.workflow.vis.images "
         " --imzml-path {input.imzml[0]} --mass-list-path {input.mass_list} "

@@ -12,7 +12,7 @@ def get_configs() -> dict[str, Path]:
 
 
 def prepare_tasks(input_imzml_path: Path, work_dir: Path) -> list[Path]:
-    input_mass_list = input_imzml_path.parent / "mass_list_vend.csv"
+    input_mass_list = input_imzml_path.parent / "mass_list.raw.csv"
     folders = set_up_work_dir(work_dir, input_imzml_path, input_mass_list)
     requested_files = get_all_output_files(folders)
 
@@ -34,7 +34,7 @@ def main() -> None:
     for imzml in imzmls:
         requested_files += prepare_tasks(data_raw_dir / imzml, work_dir=work_dir)
 
-    SnakemakeInvoke().invoke(work_dir=work_dir, result_files=requested_files, n_cores=1)
+    SnakemakeInvoke().invoke(work_dir=work_dir, result_files=requested_files, n_cores=2)
 
 
 def get_all_output_files(folders: list[Path]) -> list[Path]:
@@ -55,7 +55,13 @@ def set_up_work_dir(work_dir: Path, input_imzml: Path, input_mass_list: Path) ->
     sample_name = input_imzml.stem
     for config_name, config_path in configs.items():
         dir = work_dir / sample_name / config_name
-        initial_setup(input_imzml=input_imzml, input_mass_list=input_mass_list, params_file=config_path, dir=dir)
+        initial_setup(
+            input_imzml=input_imzml,
+            input_mass_list=input_mass_list,
+            params_file=config_path,
+            dir=dir,
+            mass_list_filename="mass_list.raw.csv",
+        )
         folders.append(dir)
     return folders
 

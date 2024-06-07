@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.stats
 import statsmodels.api as sm
+from loguru import logger
 from numpy.typing import NDArray
 from statsmodels.robust.norms import HuberT
 from xarray import DataArray
@@ -39,9 +40,13 @@ class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
         # Add a constant term with the intercept set to zero
         X = delta.reshape(-1, 1)
         # Fit the model
-        robust_model = sm.RLM(delta_lambda, X, M=HuberT())
-        results = robust_model.fit()
-        slope = results.params[0]
+        try:
+            robust_model = sm.RLM(delta_lambda, X, M=HuberT())
+            results = robust_model.fit()
+            slope = results.params[0]
+        except ZeroDivisionError:
+            logger.warning("ZeroDivisionError occurred during fitting. Setting slope to 0.")
+            slope = 0
         peak_mz_corrected = peak_mz_arr * (1 - slope)
         delta_intercept = self.compute_distance_from_MCC(peak_mz_corrected, l_none)
         intercept_coef = scipy.stats.trim_mean(delta_intercept, 0.25)

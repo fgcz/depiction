@@ -3,6 +3,7 @@ from pathlib import Path
 from depiction_targeted_preproc.example.run import initial_setup, RESULT_FILE_MAPPING, snakemake_invoke
 
 from depiction_targeted_preproc.pipeline_config.model import PipelineArtifact
+from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 
 
 def get_configs() -> dict[str, Path]:
@@ -23,15 +24,17 @@ def main() -> None:
     work_dir = Path(__file__).parent / "data-work"
     data_raw_dir = Path(__file__).parent / "data-raw"
 
-    requested_files = []
-    requested_files += prepare_tasks(
-        data_raw_dir / "menzha_20231208_s607923_tonsil-repro-sample-01.imzML", work_dir=work_dir
-    )
-    requested_files += prepare_tasks(
-        data_raw_dir / "menzha_20231208_s607930_64074-b20-30928-a.imzML", work_dir=work_dir
-    )
+    imzmls = [
+        "menzha_20231208_s607923_tonsil-repro-sample-01.imzML",
+        "menzha_20231208_s607930_64074-b20-30928-a.imzML",
+        "menzha_20240212_tonsil_06-50.imzML"
+    ]
 
-    snakemake_invoke(work_dir=work_dir, result_files=requested_files, n_cores=2)
+    requested_files = []
+    for imzml in imzmls:
+        requested_files += prepare_tasks(data_raw_dir / imzml, work_dir=work_dir)
+
+    SnakemakeInvoke(use_subprocess=True).invoke(work_dir=work_dir, result_files=requested_files, n_cores=1)
 
 
 def get_all_output_files(folders: list[Path]) -> list[Path]:

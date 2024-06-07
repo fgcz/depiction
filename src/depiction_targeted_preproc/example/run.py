@@ -5,6 +5,7 @@ from pathlib import Path
 
 import yaml
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters, PipelineArtifact
+from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 from loguru import logger
 
 RESULT_FILE_MAPPING = {
@@ -59,7 +60,7 @@ def main() -> None:
         )
 
     result_files = get_result_files(params, dir_work, sample_name)
-    snakemake_invoke(work_dir=dir_work, result_files=result_files)
+    SnakemakeInvoke().invoke(work_dir=dir_work, result_files=result_files)
     export_results(
         work_dir=dir_work,
         output_dir=dir_output,
@@ -106,31 +107,6 @@ def initial_setup(input_imzml: Path, input_mass_list: Path, params_file: Path, d
         shutil.copy(input_imzml.with_suffix(".ibd"), dir / "raw.ibd")
         shutil.copy(input_mass_list, dir / "images_default_mass_list.csv")
         shutil.copy(params_file, dir / "pipeline_params.yml")
-
-
-def snakemake_invoke(work_dir: Path, result_files: list[Path], n_cores: int = 1) -> None:
-    snakefile_path = Path(__file__).parents[1] / "workflow" / "experimental.smk"
-    workflow_dir = Path(__file__).parents[1] / "workflow"
-
-    snakemake_bin = shutil.which("snakemake")
-    if snakemake_bin is None:
-        raise RuntimeError(f"snakemake not found, check PATH: {os.environ['PATH']}")
-    command = [
-        snakemake_bin,
-        "-d",
-        str(work_dir),
-        "--cores",
-        str(n_cores),
-        "--snakefile",
-        str(snakefile_path),
-        *[str(file.relative_to(work_dir)) for file in result_files],
-    ]
-    logger.info("Executing {command}", command=command)
-    subprocess.run(
-        command,
-        cwd=workflow_dir,
-        check=True,
-    )
 
 
 if __name__ == "__main__":

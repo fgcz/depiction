@@ -33,7 +33,7 @@ def exp_mass_list_preparation(
     visualization_df.write_csv(out_visualization_csv_path)
 
     if out_visualization_mini_csv_path:
-        choices = ["Angiotensin standard", "CD38", "CD20", "Caveolin-1", "VIM", "CD36", "FN1", "Ki67"]
+        choices = ["Angiotensin standard", "CD38", "CD20", "Caveolin-1", "VIM", "CD36", "FN1", "Ki67", "CD16", "GATA3"]
         visualization_mini_df = visualization_df.filter(pl.col("label").is_in(choices))
         visualization_mini_df.write_csv(out_visualization_mini_csv_path)
 

@@ -36,6 +36,9 @@ def main() -> None:
     for imzml in imzmls:
         requested_files += prepare_tasks(data_raw_dir / imzml, work_dir=work_dir)
 
+    ## TODO quick hack
+    #requested_files = [f for f in requested_files if "mini" in str(f)]
+
     SnakemakeInvoke(continue_on_error=True).invoke(work_dir=work_dir, result_files=requested_files, n_cores=4)
 
 

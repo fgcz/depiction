@@ -66,6 +66,8 @@ class SnakemakeInvoke:
             str(n_cores),
             "--snakefile",
             str(self.snakefile_path),
+            # TODO configurable
+            "--rerun-incomplete",
             *extra_args,
             *[str(file.relative_to(work_dir)) for file in result_files],
         ]

@@ -10,6 +10,7 @@ from loguru import logger
 @dataclass
 class SnakemakeInvoke:
     use_subprocess: bool = True
+    continue_on_error: bool = False
 
     def invoke(self, work_dir: Path, result_files: list[Path], n_cores: int = 1) -> None:
         if self.use_subprocess:
@@ -31,6 +32,7 @@ class SnakemakeInvoke:
         from snakemake.settings import StorageSettings
         from snakemake.settings import ResourceSettings
         from snakemake.settings import DAGSettings
+        from snakemake.settings import ExecutionSettings
 
         with SnakemakeApi(
             OutputSettings(
@@ -47,12 +49,15 @@ class SnakemakeInvoke:
             dag_api = workflow_api.dag(
                 dag_settings=DAGSettings(targets=[str(p) for p in result_files], force_incomplete=True)
             )
-            dag_api.execute_workflow()
+            dag_api.execute_workflow(execution_settings=ExecutionSettings(keep_going=self.continue_on_error))
 
     def _invoke_subprocess(self, work_dir: Path, result_files: list[Path], n_cores: int) -> None:
         snakemake_bin = shutil.which("snakemake")
         if snakemake_bin is None:
             raise RuntimeError(f"snakemake not found, check PATH: {os.environ['PATH']}")
+        extra_args = []
+        if self.continue_on_error:
+            extra_args.append("--keep-going")
         command = [
             snakemake_bin,
             "-d",
@@ -61,6 +66,7 @@ class SnakemakeInvoke:
             str(n_cores),
             "--snakefile",
             str(self.snakefile_path),
+            *extra_args,
             *[str(file.relative_to(work_dir)) for file in result_files],
         ]
         logger.info("Executing {command}", command=command)

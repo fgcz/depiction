@@ -27,6 +27,7 @@ def main() -> None:
 
     imzmls = [
         "menzha_20231208_s607923_tonsil-repro-sample-01.imzML",
+        "menzha_20231208_s607923_tonsil-repro-sample-02.imzML",
         "menzha_20231208_s607930_64074-b20-30928-a.imzML",
         "menzha_20240212_tonsil_06-50.imzML",
     ]
@@ -35,7 +36,7 @@ def main() -> None:
     for imzml in imzmls:
         requested_files += prepare_tasks(data_raw_dir / imzml, work_dir=work_dir)
 
-    SnakemakeInvoke().invoke(work_dir=work_dir, result_files=requested_files, n_cores=4)
+    SnakemakeInvoke(continue_on_error=True).invoke(work_dir=work_dir, result_files=requested_files, n_cores=4)
 
 
 def get_all_output_files(folders: list[Path]) -> list[Path]:

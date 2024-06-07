@@ -13,12 +13,12 @@ from depiction.image.multi_channel_image import MultiChannelImage
 from depiction_targeted_preproc.workflow.proc.__cluster_stats import compute_CHAOS, compute_PAS
 
 
-# from fastdtw import fastdtw
-
-
 def compute_silhouette(cluster_data, cluster_coords):
     # higher is better
-    return silhouette_score(cluster_coords, cluster_data)
+    try:
+        return silhouette_score(cluster_coords, cluster_data)
+    except ValueError:
+        return np.nan
 
 
 def compute_davies_bouldin(cluster_data, cluster_coords):
@@ -27,20 +27,13 @@ def compute_davies_bouldin(cluster_data, cluster_coords):
 
 
 def compute_calinski_harabasz(X, labels):
-    return calinski_harabasz_score(X, labels)
+    try:
+        return calinski_harabasz_score(X, labels)
+    except ValueError:
+        return np.nan
 
 
-def cluster_stats(input_netcdf_path: Annotated[Path, Option()], output_csv_path: Annotated[Path, Option()]) -> None:
-    cluster_image = MultiChannelImage.read_hdf5(input_netcdf_path)
-
-    cluster_data = cluster_image.data_flat.values.ravel()
-    cluster_coords = np.hstack(
-        (
-            cluster_image.data_flat.coords["x"].values.reshape(-1, 1),
-            cluster_image.data_flat.coords["y"].values.reshape(-1, 1),
-        )
-    )
-
+def compute_metrics(cluster_data: np.ndarray, cluster_coords: np.ndarray) -> dict[str, float]:
     chaos = compute_CHAOS(cluster_data, cluster_coords)
     logger.info(f"Computed CHAOS: {chaos}")
 
@@ -56,9 +49,30 @@ def cluster_stats(input_netcdf_path: Annotated[Path, Option()], output_csv_path:
     calinski_harabasz = compute_calinski_harabasz(cluster_coords, cluster_data)
     logger.info(f"Computed Calinski-Harabasz: {calinski_harabasz}")
 
+    return {
+        "CHAOS": chaos,
+        "PAS": pas,
+        "Silhouette": silhouette,
+        "Davies-Bouldin": davies_bouldin,
+        "Calinski-Harabasz": calinski_harabasz
+    }
+
+
+def cluster_stats(input_netcdf_path: Annotated[Path, Option()], output_csv_path: Annotated[Path, Option()]) -> None:
+    cluster_image = MultiChannelImage.read_hdf5(input_netcdf_path)
+
+    cluster_data = cluster_image.data_flat.values.ravel()
+    cluster_coords = np.hstack(
+        (
+            cluster_image.data_flat.coords["x"].values.reshape(-1, 1),
+            cluster_image.data_flat.coords["y"].values.reshape(-1, 1),
+        )
+    )
+
+    metrics = compute_metrics(cluster_data, cluster_coords)
+
     metrics_df = pl.DataFrame(
-        {"metric": ["CHAOS", "PAS", "Silhouette", "Davies-Bouldin", "Calinski-Harabasz"],
-         "value": [chaos, pas, silhouette, davies_bouldin, calinski_harabasz]}
+        {"metric": list(metrics.keys()), "value": list(metrics.values())}
     )
     metrics_df.write_csv(output_csv_path)
 

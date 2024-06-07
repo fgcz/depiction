@@ -1,3 +1,4 @@
+import os
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -25,7 +26,27 @@ class SnakemakeInvoke:
         return Path(__file__).parents[1] / "workflow"
 
     def _invoke_direct(self, work_dir: Path, result_files: list[Path], n_cores: int) -> None:
-        pass
+        from snakemake.api import SnakemakeApi
+        from snakemake.settings import OutputSettings
+        from snakemake.settings import StorageSettings
+        from snakemake.settings import ResourceSettings
+        from snakemake.settings import DAGSettings
+
+        with SnakemakeApi(
+            OutputSettings(
+                verbose=True,
+                show_failed_logs=True,
+            ),
+        ) as snakemake_api:
+            workflow_api = snakemake_api.workflow(
+                storage_settings=StorageSettings(),
+                resource_settings=ResourceSettings(cores=n_cores),
+                snakefile=self.snakefile_path,
+                workdir=work_dir,
+            )
+            dag_api = workflow_api.dag(dag_settings=DAGSettings(targets=[str(p) for p in result_files], force_incomplete=True))
+            dag_api.execute_workflow()
+
 
     def _invoke_subprocess(self, work_dir: Path, result_files: list[Path], n_cores: int) -> None:
         snakemake_bin = shutil.which("snakemake")

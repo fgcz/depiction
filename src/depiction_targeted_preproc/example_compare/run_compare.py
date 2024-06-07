@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from depiction_targeted_preproc.example.run import initial_setup, RESULT_FILE_MAPPING, snakemake_invoke
+from depiction_targeted_preproc.example.run import initial_setup, RESULT_FILE_MAPPING
 
 from depiction_targeted_preproc.pipeline_config.model import PipelineArtifact
 from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
@@ -34,7 +34,7 @@ def main() -> None:
     for imzml in imzmls:
         requested_files += prepare_tasks(data_raw_dir / imzml, work_dir=work_dir)
 
-    SnakemakeInvoke(use_subprocess=True).invoke(work_dir=work_dir, result_files=requested_files, n_cores=1)
+    SnakemakeInvoke(use_subprocess=False).invoke(work_dir=work_dir, result_files=requested_files, n_cores=1)
 
 
 def get_all_output_files(folders: list[Path]) -> list[Path]:

@@ -44,9 +44,10 @@ class SnakemakeInvoke:
                 snakefile=self.snakefile_path,
                 workdir=work_dir,
             )
-            dag_api = workflow_api.dag(dag_settings=DAGSettings(targets=[str(p) for p in result_files], force_incomplete=True))
+            dag_api = workflow_api.dag(
+                dag_settings=DAGSettings(targets=[str(p) for p in result_files], force_incomplete=True)
+            )
             dag_api.execute_workflow()
-
 
     def _invoke_subprocess(self, work_dir: Path, result_files: list[Path], n_cores: int) -> None:
         snakemake_bin = shutil.which("snakemake")

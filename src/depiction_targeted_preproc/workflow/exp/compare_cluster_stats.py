@@ -17,11 +17,7 @@ def load_data(csv_paths: list[Path]) -> pl.DataFrame:
 
 def compare_cluster_stats(input_csv_path: list[Path], output_pdf: Annotated[Path, Option()]) -> None:
     data = load_data(input_csv_path)
-    chart = alt.Chart(data).mark_bar().encode(
-        x="label",
-        y="value",
-        column="metric"
-    ).resolve_scale(y="independent")
+    chart = alt.Chart(data).mark_bar().encode(x="label", y="value", column="metric").resolve_scale(y="independent")
     chart.save(output_pdf)
 
 

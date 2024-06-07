@@ -27,14 +27,14 @@ def main() -> None:
     imzmls = [
         "menzha_20231208_s607923_tonsil-repro-sample-01.imzML",
         "menzha_20231208_s607930_64074-b20-30928-a.imzML",
-        "menzha_20240212_tonsil_06-50.imzML"
+        "menzha_20240212_tonsil_06-50.imzML",
     ]
 
     requested_files = []
     for imzml in imzmls:
         requested_files += prepare_tasks(data_raw_dir / imzml, work_dir=work_dir)
 
-    SnakemakeInvoke(use_subprocess=False).invoke(work_dir=work_dir, result_files=requested_files, n_cores=1)
+    SnakemakeInvoke().invoke(work_dir=work_dir, result_files=requested_files, n_cores=1)
 
 
 def get_all_output_files(folders: list[Path]) -> list[Path]:

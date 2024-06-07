@@ -30,3 +30,14 @@ rule exp_mass_list_preparation:
         " --out-calibration-csv-path {output.calibration_csv}"
         " --out-standards-csv-path {output.standards_csv}"
         " --out-visualization-csv-path {output.visualization_csv}"
+
+
+rule exp_plot_compare_peak_density:
+    input:
+        tables_marker_distance=expand("{{sample}}/{exp_variant}/qc/table_marker_distances_calib.parquet", exp_variant=exp_variants)
+    output:
+        pdf="{sample}/exp_plot_compare_peak_density.pdf"
+    shell:
+        "python -m depiction_targeted_preproc.workflow.exp.plot_compare_peak_density"
+        " {input.tables_marker_distance}"
+        " --output-pdf {output.pdf}"

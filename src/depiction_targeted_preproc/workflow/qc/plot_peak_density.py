@@ -16,6 +16,7 @@ def subsample_dataframe(df: pl.DataFrame) -> pl.DataFrame:
 
 
 def plot_density_combined(df_peak_dist: pl.DataFrame, out_pdf: Path) -> None:
+    n_tot = len(df_peak_dist)
     df_peak_dist = subsample_dataframe(df_peak_dist)
     chart = (
         (
@@ -30,7 +31,7 @@ def plot_density_combined(df_peak_dist: pl.DataFrame, out_pdf: Path) -> None:
         .encode(y=alt.Y("density:Q"))
         .properties(title="Linear scale")
     )
-    chart = chart.properties(title="Density of target-surrounding peak distances")
+    chart = chart.properties(title=f"Density of target-surrounding peak distances (n_tot = {n_tot} sampled to n = {len(df_peak_dist)})")
     chart.save(out_pdf)
 
 

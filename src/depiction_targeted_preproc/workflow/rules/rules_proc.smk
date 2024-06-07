@@ -27,7 +27,8 @@ rule proc_calibrate_remove_global_shift:
     input:
         imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd"),
         config="{sample}/pipeline_params.yml",
-        mass_list="{sample}/mass_list.standards.csv",
+        #mass_list="{sample}/mass_list.standards.csv",
+        mass_list="{sample}/mass_list.calibration.csv",
     output:
         imzml=temp(multiext("{sample}/calibrated.tmp",".imzML",".ibd")),
     shell:

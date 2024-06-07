@@ -32,6 +32,7 @@ RESULT_FILE_MAPPING = {
         "cluster_default_stats_kmeans.csv",
         "cluster_default_kmeans.png",
         "cluster_default_hdbscan.png",
+        "qc/plot_marker_presence_mini.pdf",
     ],
 }
 

@@ -75,7 +75,7 @@ rule qc_plot_marker_presence_mini:
         table_marker_distances_baseline="{sample}/qc/table_marker_distances_baseline_mini.parquet",
         table_marker_distances_calib="{sample}/qc/table_marker_distances_calib_mini.parquet"
     output:
-        pdf="{sample}/qc/plot_marker_presence.pdf"
+        pdf="{sample}/qc/plot_marker_presence_mini.pdf"
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.plot_marker_presence"
         " --table-marker-distances-baseline {input.table_marker_distances_baseline}"

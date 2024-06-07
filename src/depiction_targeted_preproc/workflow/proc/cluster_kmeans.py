@@ -26,7 +26,7 @@ def retain_strongest_signals(data: xarray.DataArray, n_features: int) -> xarray.
 def cluster_kmeans(input_netcdf_path: Annotated[Path, Option()], output_netcdf_path: Annotated[Path, Option()]) -> None:
     image = MultiChannelImage.read_hdf5(input_netcdf_path)
     # TODO make configurable
-    n_clusters = 10
+    n_clusters = 6
     n_features = 30
 
     reduced_data = retain_strongest_signals(image.data_flat.transpose("i", "c"), n_features)

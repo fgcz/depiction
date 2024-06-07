@@ -15,12 +15,13 @@ RESULT_FILE_MAPPING = {
         "qc/plot_marker_presence.pdf",
         "qc/plot_peak_density_combined.pdf",
         "qc/plot_peak_density_grouped.pdf",
-        "qc/plot_calibration_map.pdf",
     ],
     PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff", "images_default_norm.ome.tiff"],
     # PipelineArtifact.CALIB_HEATMAP: ["images_calib_heatmap.ome.tiff"],
     # TODO
-    PipelineArtifact.CALIB_HEATMAP: [],
+    PipelineArtifact.CALIB_HEATMAP: [
+        "qc/plot_calibration_map.pdf",
+    ],
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",
         "qc/plot_spectra_for_marker.pdf",
@@ -122,7 +123,7 @@ def snakemake_invoke(work_dir: Path, result_files: list[Path]) -> None:
         "1",
         "--snakefile",
         str(snakefile_path),
-        *[str(file) for file in result_files],
+        *[str(file.relative_to(work_dir)) for file in result_files],
     ]
     logger.info("Executing {command}", command=command)
     subprocess.run(

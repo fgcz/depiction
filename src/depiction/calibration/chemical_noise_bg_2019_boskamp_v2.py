@@ -1,6 +1,6 @@
-import math
 from typing import Any, Optional, Literal
 
+import math
 import matplotlib
 import numpy as np
 import pandas as pd

@@ -1,5 +1,6 @@
 from typing import Literal
 
+from loguru import logger
 from numpy.typing import NDArray
 from xarray import DataArray
 
@@ -41,8 +42,12 @@ class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):
     def apply_spectrum_model(
         self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
     ) -> tuple[NDArray[float], NDArray[float]]:
-        res_mz_arr = self._calibration.align_masses(mz_arr=spectrum_mz_arr, int_arr=spectrum_int_arr)
-        return res_mz_arr, spectrum_int_arr
+        if len(spectrum_mz_arr) < self._calibration.n_mass_intervals:
+            logger.warning(f"Spectrum too small to calculate moments approximation. (n={len(spectrum_mz_arr)})")
+            return spectrum_mz_arr, spectrum_int_arr
+        else:
+            res_mz_arr = self._calibration.align_masses(mz_arr=spectrum_mz_arr, int_arr=spectrum_int_arr)
+            return res_mz_arr, spectrum_int_arr
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(calibration={self._calibration!r})"

@@ -108,7 +108,7 @@ def initial_setup(input_imzml: Path, input_mass_list: Path, params_file: Path, d
         shutil.copy(params_file, dir / "pipeline_params.yml")
 
 
-def snakemake_invoke(work_dir: Path, result_files: list[Path]) -> None:
+def snakemake_invoke(work_dir: Path, result_files: list[Path], n_cores: int = 1) -> None:
     snakefile_path = Path(__file__).parents[1] / "workflow" / "experimental.smk"
     workflow_dir = Path(__file__).parents[1] / "workflow"
 
@@ -120,7 +120,7 @@ def snakemake_invoke(work_dir: Path, result_files: list[Path]) -> None:
         "-d",
         str(work_dir),
         "--cores",
-        "1",
+        str(n_cores),
         "--snakefile",
         str(snakefile_path),
         *[str(file.relative_to(work_dir)) for file in result_files],

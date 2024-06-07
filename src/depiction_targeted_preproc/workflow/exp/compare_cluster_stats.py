@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Annotated
 
+import altair as alt
 import polars as pl
 import typer
 from typer import Option
@@ -16,7 +17,12 @@ def load_data(csv_paths: list[Path]) -> pl.DataFrame:
 
 def compare_cluster_stats(input_csv_path: list[Path], output_pdf: Annotated[Path, Option()]) -> None:
     data = load_data(input_csv_path)
-    print(data)
+    chart = alt.Chart(data).mark_bar().encode(
+        x="label",
+        y="value",
+        column="metric"
+    ).resolve_scale(y="independent")
+    chart.save(output_pdf)
 
 
 if __name__ == "__main__":

@@ -23,10 +23,10 @@ rule exp_mass_list_preparation:
     output:
         calibration_csv="{sample}/mass_list.calibration.csv",
         standards_csv="{sample}/mass_list.standards.csv",
-        visualization="{sample}/mass_list.visualization.csv"
+        visualization_csv="{sample}/mass_list.visualization.csv"
     shell:
         "python -m depiction_targeted_preproc.workflow.exp.mass_list_preparation"
         " --input-csv-path {input.csv}"
-        " --out-calibration-csv {output.calibration_csv}"
-        " --out-standards-csv {output.standards_csv}"
-        " --out-visualization {output.visualization}"
+        " --out-calibration-csv-path {output.calibration_csv}"
+        " --out-standards-csv-path {output.standards_csv}"
+        " --out-visualization-csv-path {output.visualization_csv}"

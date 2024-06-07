@@ -21,10 +21,10 @@ def exp_mass_list_preparation(
     visualization_df = input_df.with_columns(tol=pl.lit(0.25))
 
     # for the calibration remove the CHCA peaks, they have names starting with CHCA
-    calibration_df = visualization_df.filter(~pl.col("name").str.starts_with("CHCA"))
+    calibration_df = visualization_df.filter(~pl.col("label").str.starts_with("CHCA"))
 
     # for the standards csv only keep the "standard" peaks
-    standards_df = visualization_df.filter(pl.col("name").str.to_lowercase().contains("standard"))
+    standards_df = visualization_df.filter(pl.col("label").str.to_lowercase().str.contains("standard"))
 
     # write the results
     calibration_df.write_csv(out_calibration_csv_path)

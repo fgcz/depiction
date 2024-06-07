@@ -34,7 +34,7 @@ def main() -> None:
     for imzml in imzmls:
         requested_files += prepare_tasks(data_raw_dir / imzml, work_dir=work_dir)
 
-    SnakemakeInvoke().invoke(work_dir=work_dir, result_files=requested_files, n_cores=2)
+    SnakemakeInvoke().invoke(work_dir=work_dir, result_files=requested_files, n_cores=4)
 
 
 def get_all_output_files(folders: list[Path]) -> list[Path]:

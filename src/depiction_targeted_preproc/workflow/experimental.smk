@@ -45,3 +45,40 @@ rule exp_plot_compare_peak_density:
         " {input.tables_marker_distance}"
         " --table-marker-distance-uncalib {input.table_marker_distance_uncalib}"
         " --output-pdf {output.pdf}"
+
+
+# for the poster:
+rule qc_table_marker_distances_baseline_mini:
+    input:
+        imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd"),
+        mass_list="{sample}/mass_list.visualization_mini.csv",
+    output:
+        table="{sample}/qc/table_marker_distances_baseline_mini.parquet"
+    shell:
+        "python -m depiction_targeted_preproc.workflow.qc.table_marker_distances"
+        " --imzml-peaks {input.imzml[0]} --mass-list {input.mass_list}"
+        " --output-table {output.table}"
+
+rule qc_table_marker_distances_calib_mini:
+    input:
+        imzml_peaks="{sample}/calibrated.imzML",
+        mass_list="{sample}/mass_list.visualization_mini.csv",
+    output:
+        table="{sample}/qc/table_marker_distances_calib_mini.parquet"
+    shell:
+        "python -m depiction_targeted_preproc.workflow.qc.table_marker_distances"
+        " --imzml-peaks {input.imzml_peaks} --mass-list {input.mass_list}"
+        " --output-table {output.table}"
+
+rule qc_plot_marker_presence_mini:
+    input:
+        table_marker_distances_baseline="{sample}/qc/table_marker_distances_baseline_mini.parquet",
+        table_marker_distances_calib="{sample}/qc/table_marker_distances_calib_mini.parquet"
+    output:
+        pdf="{sample}/qc/plot_marker_presence.pdf"
+    shell:
+        "python -m depiction_targeted_preproc.workflow.qc.plot_marker_presence"
+        " --table-marker-distances-baseline {input.table_marker_distances_baseline}"
+        " --table-marker-distances-calib {input.table_marker_distances_calib}"
+        " --output-pdf {output.pdf}"
+

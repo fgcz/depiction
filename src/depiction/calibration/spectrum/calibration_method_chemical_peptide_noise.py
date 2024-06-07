@@ -43,3 +43,6 @@ class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):
     ) -> tuple[NDArray[float], NDArray[float]]:
         res_mz_arr = self._calibration.align_masses(mz_arr=spectrum_mz_arr, int_arr=spectrum_int_arr)
         return res_mz_arr, spectrum_int_arr
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(calibration={self._calibration!r})"

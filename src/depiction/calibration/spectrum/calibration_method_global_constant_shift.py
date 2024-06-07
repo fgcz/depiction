@@ -43,3 +43,7 @@ class CalibrationMethodGlobalConstantShift(CalibrationMethod):
         # subtract the global distance from the m/z values
         [global_distance] = model_coef.values
         return spectrum_mz_arr - global_distance, spectrum_int_arr
+
+    def __repr__(self) -> str:
+        return (f"{self.__class__.__name__}("
+                f"max_distance={self._max_distance}, max_distance_unit={self._max_distance_unit})")

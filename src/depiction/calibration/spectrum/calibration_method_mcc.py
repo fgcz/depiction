@@ -78,3 +78,12 @@ class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
         #  need to check if it should be -intercept or +intercept
         spectrum_corrected = spectrum_mz_arr * (1 - slope) - intercept
         return spectrum_corrected, spectrum_int_arr
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"model_smoothing_activated={self._model_smoothing_activated}, "
+            f"model_smoothing_kernel_size={self._model_smoothing_kernel_size}, "
+            f"model_smoothing_kernel_std={self._model_smoothing_kernel_std}, "
+            f"max_pairwise_distance={self._max_pairwise_distance})"
+        )

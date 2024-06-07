@@ -114,3 +114,16 @@ class CalibrationMethodRegressShift(CalibrationMethod):
         else:
             raise ValueError(f"Unknown unit={self._model_unit}")
         return spectrum_mz_arr - shifts_mz, spectrum_int_arr
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"max_distance={self._max_distance}, "
+            f"max_distance_unit={self._max_distance_unit}, "
+            f"model_type={self._model_type}, "
+            f"model_unit={self._model_unit}, "
+            f"input_smoothing_activated={self._input_smoothing_activated}, "
+            f"input_smoothing_kernel_size={self._input_smoothing_kernel_size}, "
+            f"input_smoothing_kernel_std={self._input_smoothing_kernel_std}, "
+            f"min_points={self._min_points})"
+        )

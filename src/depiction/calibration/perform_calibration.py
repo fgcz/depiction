@@ -53,18 +53,23 @@ class PerformCalibration:
         if set(array.coords) != expected_coords:
             raise ValueError(f"Expected coords={expected_coords}, got={set(array.coords)}")
         expected_dims = {"i", "c"}
+
+        errors = []
         if set(array.dims) != expected_dims:
-            raise ValueError(f"Expected dims={expected_dims}, got={set(array.dims)}")
+            logger.error(f"Expected dims={expected_dims}, got={set(array.dims)}")
+            errors.append("Mismatch in dimensions")
         if not np.array_equal(array.x.values, coordinates_2d[:, 0]):
-            logger.info(f"Expected x values={coordinates_2d[:, 0]}")
-            logger.info(f"Actual   x values={array.x.values}")
-            raise ValueError("Mismatch in x values")
+            logger.error(f"Expected x: values={coordinates_2d[:, 0]} shape={coordinates_2d[:, 0].shape}")
+            logger.error(f"Actual   x: values={array.x.values} shape={array.x.values.shape}")
+            errors.append("Mismatch in x values")
         if not np.array_equal(array.y.values, coordinates_2d[:, 1]):
-            logger.info(f"Expected y values={coordinates_2d[:, 1]}")
-            logger.info(f"Actual   y values={array.y.values}")
-            raise ValueError("Mismatch in y values")
+            logger.error(f"Expected y: values={coordinates_2d[:, 1]} shape={coordinates_2d[:, 1].shape}")
+            logger.error(f"Actual   y: values={array.y.values} shape={array.y.values.shape}")
+            errors.append("Mismatch in y values")
         if not np.array_equal(array.i.values, np.arange(len(array.i))):
-            raise ValueError("Mismatch in i values")
+            errors.append("Mismatch in i values")
+        if errors:
+            raise ValueError(errors)
 
     def calibrate_image(
         self, read_peaks: ImzmlReadFile, write_file: ImzmlWriteFile, read_full: Optional[ImzmlReadFile] = None

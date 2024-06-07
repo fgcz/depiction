@@ -11,6 +11,7 @@ def exp_mass_list_preparation(
     out_calibration_csv_path: Annotated[Path, Option()],
     out_standards_csv_path: Annotated[Path, Option()],
     out_visualization_csv_path: Annotated[Path, Option()],
+    out_visualization_mini_csv_path: Annotated[Path, Option()] = None,
 ) -> None:
     input_df = pl.read_csv(input_csv_path)
 
@@ -30,6 +31,11 @@ def exp_mass_list_preparation(
     calibration_df.write_csv(out_calibration_csv_path)
     standards_df.write_csv(out_standards_csv_path)
     visualization_df.write_csv(out_visualization_csv_path)
+
+    if out_visualization_mini_csv_path:
+        choices = ["Angiotensin standard", "CD38", "CD20", "Caveolin-1", "VIM", "CD36", "FN1", "Ki67"]
+        visualization_mini_df = visualization_df.filter(pl.col("label").is_in(choices))
+        visualization_mini_df.write_csv(out_visualization_mini_csv_path)
 
 
 if __name__ == "__main__":

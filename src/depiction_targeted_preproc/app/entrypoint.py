@@ -7,7 +7,6 @@ import polars as pl
 import typer
 import yaml
 from depiction_targeted_preproc.example.run import (
-    snakemake_invoke,
     get_result_files,
     export_results,
     RESULT_FILE_MAPPING,
@@ -20,6 +19,7 @@ from depiction_targeted_preproc.pipeline_config.model import (
     PipelineArtifact,
     PipelineParametersPreset,
 )
+from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 
 
 def entrypoint(
@@ -58,7 +58,7 @@ def entrypoint(
     # Execute the snakemake workflow
     sample_name = Path(input_imzml_file).stem
     result_files = get_result_files(params=params, work_dir=work_dir, sample_name=sample_name)
-    snakemake_invoke(work_dir=work_dir, result_files=result_files)
+    SnakemakeInvoke().invoke(work_dir=work_dir, result_files=result_files)
 
     # Export the results
     export_results(

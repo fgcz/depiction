@@ -6,6 +6,7 @@ authors = [{name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"}]
 readme = "README.md"
 
 dependencies = [
+    "setuptools",
     "spatialdata@git+https://github.com/leoschwarz/spatialdata@py3_12-support",
     "spatialdata-plot>=0.2.1",
     "alphapept>=0.5.2",

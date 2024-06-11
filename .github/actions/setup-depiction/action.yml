@@ -11,11 +11,15 @@ runs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}
-    - name: Install bfabricPy
+    - name: Install distutils
+      shell: bash
+      run: | 
+        apt-get update && apt-get install -y python3-distutils
+    - name: Install packages
       shell: bash
       run: |
         pip install uv
-        uv pip install --system setuptools==69.5.1
+        uv pip install --system setuptools
         uv pip install --system ".[dev,testing]"
     - name: Print installed packages
       shell: bash

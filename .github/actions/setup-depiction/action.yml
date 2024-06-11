@@ -14,7 +14,7 @@ runs:
     - name: Install bfabricPy
       shell: bash
       run: |
-        pip install uv
+        pip install uv setuptools
         uv pip install --system ".[dev,testing]"
     - name: Print installed packages
       shell: bash

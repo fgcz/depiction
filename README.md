@@ -24,16 +24,14 @@ Install the `pyproject.toml` in editable mode, tested with [uv](https://github.c
 
 ```bash
 uv venv
-uv pip install setuptools
 uv pip install -e ".[dev,testing]"
 ```
 
 ### Using `conda`
 
 ```bash
-conda create -n exp-2024-05-depiction python=3.12 
+conda create -n exp-2024-05-depiction python=3.11
 conda activate exp-2024-05-depiction
-pip install setuptools
 pip install -e ".[dev,testing]"
 ```
 

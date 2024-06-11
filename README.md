@@ -30,7 +30,7 @@ uv pip install -e ".[dev,testing]"
 ### Using `conda`
 
 ```bash
-conda create -n exp-2024-05-depiction python=3.12 
+conda create -n exp-2024-05-depiction python=3.11
 conda activate exp-2024-05-depiction
 pip install -e ".[dev,testing]"
 ```

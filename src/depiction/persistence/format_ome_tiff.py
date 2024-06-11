@@ -3,8 +3,11 @@
 import contextlib
 from pathlib import Path
 from typing import Any
+
+import numpy as np
 import pyometiff
 import xarray
+
 from depiction.persistence.pixel_size import PixelSize
 
 
@@ -54,15 +57,17 @@ class OmeTiff:
             raise ValueError(f"Unsupported dimension order: {metadata['DimOrder']}")
 
         channel_names = [channel["Name"] for channel in metadata["Channels"].values()]
+        # TODO ?
+        bg_value = np.nan
 
-        array = xarray.DataArray(data, dims=["c", "y", "x"], coords={"c": channel_names})
+        array = xarray.DataArray(data, dims=["c", "y", "x"], coords={"c": channel_names}, attrs={"bg_value": bg_value})
+
         array.attrs["pixel_size"] = PixelSize(
             size_x=metadata["PhysicalSizeX"],
             size_y=metadata["PhysicalSizeY"],
             unit="micrometer",
         )
         return array
-
 
     @staticmethod
     def _get_image_resolution_metadata(pixel_size: PixelSize) -> dict[str, Any]:

@@ -1,5 +1,6 @@
 # TODO figure out if format specific exporters should actually be moved to a different path
 # TODO figure out the ideal extension i.e. tif vs tiff!
+import contextlib
 from pathlib import Path
 from typing import Any
 import pyometiff
@@ -38,6 +39,30 @@ class OmeTiff:
             explicit_tiffdata=True,
         )
         writer.write()
+
+    @classmethod
+    def read(cls, path: Path) -> xarray.DataArray:
+        reader = pyometiff.OMETIFFReader(path)
+        with contextlib.redirect_stdout(None):
+            # pyometiff prints some messages I silence, be aware when debugging!
+            data, metadata, _ = reader.read()
+
+        # TODO pyometiff will squeeze the data when it uses the functionality from tifffile
+        # this makes it tricky to implement support for arbitrary shapes, but for now we simply support the ones we
+        # create
+        if metadata["DimOrder"] != "ZTCYX":
+            raise ValueError(f"Unsupported dimension order: {metadata['DimOrder']}")
+
+        channel_names = [channel["Name"] for channel in metadata["Channels"].values()]
+
+        array = xarray.DataArray(data, dims=["c", "y", "x"], coords={"c": channel_names})
+        array.attrs["pixel_size"] = PixelSize(
+            size_x=metadata["PhysicalSizeX"],
+            size_y=metadata["PhysicalSizeY"],
+            unit="micrometer",
+        )
+        return array
+
 
     @staticmethod
     def _get_image_resolution_metadata(pixel_size: PixelSize) -> dict[str, Any]:

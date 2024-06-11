@@ -96,8 +96,7 @@ def setup_workdir(params: PipelineParameters, input_imzml_file: Path, input_pane
     shutil.copy(input_imzml_file.with_suffix(".ibd"), sample_dir / "raw.ibd")
 
     # Copy the panel file
-    copy_standardized_table(input_panel_file, sample_dir / "images_default_mass_list.csv")
-    # shutil.copy(input_panel_file, sample_dir / "images_default_mass_list.csv")
+    copy_standardized_table(input_panel_file, sample_dir / "mass_list.raw.csv")
 
     # Write the pipeline parameters
     params_file = sample_dir / "pipeline_params.yml"

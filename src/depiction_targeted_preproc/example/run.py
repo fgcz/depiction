@@ -105,7 +105,7 @@ def initial_setup(
     params_file: Path,
     dir: Path,
     force: bool = False,
-    mass_list_filename: str = "images_default_mass_list.csv",
+    mass_list_filename: str = "mass_list.raw.csv",
 ) -> None:
     if not force and (dir / "raw.imzML").exists():
         logger.info("Skipping initial setup, directory already exists: {dir}", dir=dir)

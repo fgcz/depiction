@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-import loguru
 import numpy as np
 import scipy
+from loguru import logger
 
 from depiction.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 
@@ -36,6 +36,9 @@ class BasicInterpolatedPeakPicker:
             for local_max_index in local_maxima_indices
         ]
         peaks_interp = [peak for peak in peaks_interp if peak[0] is not None and peak[1] is not None]
+        if not peaks_interp:
+            logger.warning("No peaks were found.")
+            return np.array([]), np.array([])
         peak_mz, peak_int = zip(*peaks_interp)
         peak_mz = np.asarray(peak_mz)
         peak_int = np.asarray(peak_int)
@@ -68,7 +71,7 @@ class BasicInterpolatedPeakPicker:
         spline = scipy.interpolate.CubicSpline(interp_mz, interp_int)
         roots = spline.derivative().roots()
         if np.isnan(roots).any():
-            loguru.logger.warning(
+            logger.warning(
                 f"Error: {len(roots)} roots found for local maximum at index {local_max_index}; "
                 f"{interp_mz=}, {interp_int=}, {roots=}"
             )
@@ -89,7 +92,6 @@ class BasicInterpolatedPeakPicker:
             ),
         )
         return local_maxima_indices
-
 
 # TODO the interpolation could be much faster, if it were implemented in numba for our specific case of 3 points,
 #      since in general the scipy library will do everything much moe general than is actually required.

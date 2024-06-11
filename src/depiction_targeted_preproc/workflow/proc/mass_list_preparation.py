@@ -6,7 +6,7 @@ import typer
 from typer import Option
 
 
-def exp_mass_list_preparation(
+def proc_mass_list_preparation(
     input_csv_path: Annotated[Path, Option()],
     out_calibration_csv_path: Annotated[Path, Option()],
     out_standards_csv_path: Annotated[Path, Option()],
@@ -16,7 +16,9 @@ def exp_mass_list_preparation(
     input_df = pl.read_csv(input_csv_path)
 
     # rename cols
-    input_df = input_df.rename({"Marker": "label", "PC-MT (M+H)+": "mass"}).drop("No.")
+    possible_mapping = {"Marker": "label", "PC-MT (M+H)+": "mass"}
+    mapping = {k: v for k, v in possible_mapping.items() if k in input_df.columns}
+    input_df = input_df.rename(mapping).drop("No.")
 
     # add tol column
     visualization_df = input_df.with_columns(tol=pl.lit(0.25))
@@ -39,4 +41,4 @@ def exp_mass_list_preparation(
 
 
 if __name__ == "__main__":
-    typer.run(exp_mass_list_preparation)
+    typer.run(proc_mass_list_preparation)

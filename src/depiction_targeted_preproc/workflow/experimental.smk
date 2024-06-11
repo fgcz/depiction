@@ -17,23 +17,6 @@ rule exp_compare_cluster_stats:
         " {input.csv}"
         " --output-pdf {output}"
 
-rule exp_mass_list_preparation:
-    input:
-        csv="{sample}/mass_list.raw.csv"
-    output:
-        calibration_csv="{sample}/mass_list.calibration.csv",
-        standards_csv="{sample}/mass_list.standards.csv",
-        visualization_csv="{sample}/mass_list.visualization.csv",
-        visualization_mini_csv="{sample}/mass_list.visualization_mini.csv"
-    shell:
-        "python -m depiction_targeted_preproc.workflow.exp.mass_list_preparation"
-        " --input-csv-path {input.csv}"
-        " --out-calibration-csv-path {output.calibration_csv}"
-        " --out-standards-csv-path {output.standards_csv}"
-        " --out-visualization-csv-path {output.visualization_csv}"
-        " --out-visualization-mini-csv-path {output.visualization_mini_csv}"
-
-
 rule exp_plot_compare_peak_density:
     input:
         tables_marker_distance=expand("{{sample}}/{exp_variant}/qc/table_marker_distances_calib.parquet", exp_variant=exp_variants),

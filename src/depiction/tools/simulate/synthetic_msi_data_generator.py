@@ -23,7 +23,7 @@ class SyntheticMSIDataGenerator:
         label_masses: NDArray[float],
         n_isotopes: int,
         mz_arr: NDArray[float],
-        baseline_strength: float = 2.0,
+        baseline_max_intensity: float = 2.0,
         background_noise_strength: float = 0.05,
     ) -> None:
         with write_file.writer() as writer:
@@ -36,7 +36,7 @@ class SyntheticMSIDataGenerator:
                     "label_masses": label_masses,
                     "mz_arr": mz_arr,
                     "n_isotopes": n_isotopes,
-                    "baseline_strength": baseline_strength,
+                    "baseline_max_intensity": baseline_max_intensity,
                     "background_noise_strength": background_noise_strength,
                     "writer": writer,
                 },
@@ -53,7 +53,7 @@ class SyntheticMSIDataGenerator:
         label_masses: NDArray[float],
         mz_arr: NDArray[float],
         n_isotopes: int,
-        baseline_strength: float,
+        baseline_max_intensity: float,
         background_noise_strength: float,
         writer: ImzmlWriter
     ) -> None:
@@ -64,7 +64,7 @@ class SyntheticMSIDataGenerator:
             peak_intensities=intensities,
             mz_arr=mz_arr,
             n_isotopes=n_isotopes,
-            baseline_strength=baseline_strength,
+            baseline_max_intensity=baseline_max_intensity,
             background_noise_strength=background_noise_strength,
         )
         writer.add_spectrum(mz_arr, int_arr, (x, y, 1))
@@ -77,7 +77,7 @@ class SyntheticMSIDataGenerator:
         peak_intensities: Sequence[float],
         mz_arr: NDArray[float],
         n_isotopes: int = 1,
-        baseline_strength: float = 2.0,
+        baseline_max_intensity: float = 2.0,
         background_noise_strength: float = 0.05,
     ) -> NDArray[float]:
         int_arr = np.zeros_like(mz_arr)
@@ -86,7 +86,7 @@ class SyntheticMSIDataGenerator:
         int_arr += scipy.ndimage.gaussian_filter1d(self.rng.uniform(0, 1, len(mz_arr)), 2) * background_noise_strength
 
         # add baseline
-        int_arr += mz_arr ** (-0.3) * baseline_strength
+        int_arr += self.get_baseline(n_points=len(mz_arr), max_intensity=baseline_max_intensity)
 
         def next_peak(peak_mz: float) -> float:
             # corresponds to a gaussian with a FWHM of 0.1
@@ -100,5 +100,11 @@ class SyntheticMSIDataGenerator:
 
         return int_arr
 
-    def get_mz_arr(self, min_mass: float, max_mass: float, bin_width_ppm: float) -> NDArray[float]:
+    @staticmethod
+    def get_mz_arr(min_mass: float, max_mass: float, bin_width_ppm: float) -> NDArray[float]:
         return EstimatePPMError.ppm_to_mz_values(bin_width_ppm, mz_min=min_mass, mz_max=max_mass)
+
+    @staticmethod
+    def get_baseline(n_points: int, max_intensity: float = 2.0) -> NDArray[float]:
+        # TODO the current implementation is stupid as it does not take into account the actual mz values
+        return np.exp(np.linspace(3, 0, n_points)) / np.exp(3) * max_intensity

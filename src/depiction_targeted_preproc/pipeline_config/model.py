@@ -80,6 +80,13 @@ Calibration = Annotated[
 ]
 
 
+class SimulateParameters(BaseModel):
+    image_width: int = 200
+    image_height: int = 100
+    n_labels: int = 30
+    bin_width_ppm: float = 100.0
+
+
 class PipelineArtifact(str, Enum):
     CALIB_IMZML = "CALIB_IMZML"
     CALIB_IMAGES = "CALIB_IMAGES"
@@ -95,6 +102,7 @@ class PipelineParametersPreset(BaseModel):
     baseline_adjustment: BaselineAdjustment
     peak_picker: PeakPicker
     calibration: Calibration
+    simulate: SimulateParameters | None
 
 
 # class PipelineParameters(PipelineParametersPreset, use_enum_values=True):

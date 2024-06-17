@@ -3,6 +3,7 @@ version: "3"
 include: "rules/rules_proc.smk"
 include: "rules/rules_vis.smk"
 include: "rules/rules_qc.smk"
+include: "rules/rules_simulate.smk"
 
 
 exp_variants = ["chem_noise", "mass_cluster", "reg_shift"]

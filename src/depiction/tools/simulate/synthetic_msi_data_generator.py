@@ -55,7 +55,7 @@ class SyntheticMSIDataGenerator:
         n_isotopes: int,
         baseline_max_intensity: float,
         background_noise_strength: float,
-        writer: ImzmlWriter
+        writer: ImzmlWriter,
     ) -> None:
         masses = label_masses[labels > 0]
         intensities = labels[labels > 0]

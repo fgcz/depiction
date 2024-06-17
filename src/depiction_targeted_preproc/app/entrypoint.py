@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Annotated
 from zipfile import ZipFile
 
-import polars as pl
 import typer
 import yaml
 from depiction_targeted_preproc.example.run import (
@@ -14,6 +13,7 @@ from depiction_targeted_preproc.example.run import (
 from loguru import logger
 
 from depiction.misc.find_file_util import find_one_by_extension
+from depiction_targeted_preproc.pipeline.setup import setup_workdir
 from depiction_targeted_preproc.pipeline_config.model import (
     PipelineParameters,
     PipelineArtifact,
@@ -83,45 +83,6 @@ def zip_results(output_dir: Path, sample_name: str) -> None:
         for file in (output_dir / sample_name).rglob("*"):
             if file.is_file() and file.name != f"{sample_name}.zip":
                 zipf.write(file, file.relative_to(output_dir))
-
-
-def setup_workdir(params: PipelineParameters, input_imzml_file: Path, input_panel_file: Path, work_dir: Path) -> None:
-    # Set up the directory
-    sample_name = input_imzml_file.stem
-    sample_dir = work_dir / sample_name
-    sample_dir.mkdir(exist_ok=True, parents=True)
-
-    # Copy the imzML
-    shutil.copy(input_imzml_file, sample_dir / "raw.imzML")
-    shutil.copy(input_imzml_file.with_suffix(".ibd"), sample_dir / "raw.ibd")
-
-    # Copy the panel file
-    copy_standardized_table(input_panel_file, sample_dir / "mass_list.raw.csv")
-
-    # Write the pipeline parameters
-    params_file = sample_dir / "pipeline_params.yml"
-    with params_file.open("w") as file:
-        yaml.dump(params.dict(), file)
-
-
-def copy_standardized_table(input_csv: Path, output_csv: Path):
-    # TODO this is a total hack for a quick setu
-    input_df = pl.read_csv(input_csv)
-    mapping = {}
-    for column in input_df.columns:
-        if column.lower() in ["marker", "label"]:
-            mapping[column] = "label"
-        elif column.lower() in ["mass", "m/z", "pc-mt (m+h)+"]:
-            mapping[column] = "mass"
-        elif column.lower() in ["tol"]:
-            mapping[column] = "tol"
-    output_df = input_df.rename(mapping)
-
-    if "tol" not in output_df:
-        # TODO make configurable
-        output_df = output_df.with_columns([pl.Series("tol", [0.2] * len(output_df))])
-
-    output_df.write_csv(output_csv)
 
 
 def parse_parameters(yaml_file: Path) -> PipelineParameters:

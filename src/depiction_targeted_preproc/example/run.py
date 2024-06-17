@@ -5,36 +5,9 @@ from pathlib import Path
 
 import yaml
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters, PipelineArtifact
+from depiction_targeted_preproc.pipeline_config.artifacts_mapping import ARTIFACT_FILES_MAPPING
 from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 from loguru import logger
-
-RESULT_FILE_MAPPING = {
-    PipelineArtifact.CALIB_IMZML: ["calibrated.imzML", "calibrated.ibd"],
-    # PipelineArtifact.CALIB_QC: ["calib_qc.pdf"],
-    # TODO
-    PipelineArtifact.CALIB_QC: [
-        "qc/plot_marker_presence.pdf",
-        "qc/plot_peak_density_combined.pdf",
-        "qc/plot_peak_density_grouped.pdf",
-    ],
-    PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff", "images_default_norm.ome.tiff"],
-    # PipelineArtifact.CALIB_HEATMAP: ["images_calib_heatmap.ome.tiff"],
-    # TODO
-    PipelineArtifact.CALIB_HEATMAP: [
-        "qc/plot_calibration_map.pdf",
-    ],
-    PipelineArtifact.DEBUG: [
-        "qc/plot_marker_presence_cv.pdf",
-        "qc/plot_spectra_for_marker.pdf",
-        # "qc/plot_sample_spectra_before_after.pdf",
-        "qc/plot_peak_counts.pdf",
-        "cluster_default_kmeans.hdf5",
-        "cluster_default_stats_kmeans.csv",
-        "cluster_default_kmeans.png",
-        "cluster_default_hdbscan.png",
-        "qc/plot_marker_presence_mini.pdf",
-    ],
-}
 
 
 def main() -> None:
@@ -68,19 +41,8 @@ def main() -> None:
         output_dir=dir_output,
         sample_name=sample_name,
         requested_artifacts=params.requested_artifacts,
-        result_file_mapping=RESULT_FILE_MAPPING,
+        result_file_mapping=ARTIFACT_FILES_MAPPING,
     )
-
-
-def get_result_files(params: PipelineParameters, work_dir: Path, sample_name: str):
-    result_files = list(
-        {
-            work_dir / sample_name / file
-            for artifact in params.requested_artifacts
-            for file in RESULT_FILE_MAPPING[artifact]
-        }
-    )
-    return result_files
 
 
 def export_results(

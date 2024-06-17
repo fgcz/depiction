@@ -1,9 +1,7 @@
 from pathlib import Path
 
-from depiction_targeted_preproc.example.run import RESULT_FILE_MAPPING
-
 from depiction_targeted_preproc.pipeline.setup import initial_setup
-from depiction_targeted_preproc.pipeline_config.model import PipelineArtifact
+from depiction_targeted_preproc.pipeline_config.artifacts_mapping import get_all_output_files
 from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 
 
@@ -43,18 +41,6 @@ def main() -> None:
     # requested_files = [f for f in requested_files if "mini" in str(f)]
 
     SnakemakeInvoke(continue_on_error=True).invoke(work_dir=work_dir, result_files=requested_files, n_cores=4)
-
-
-def get_all_output_files(folders: list[Path]) -> list[Path]:
-    artifacts = [PipelineArtifact.CALIB_QC, PipelineArtifact.CALIB_IMAGES, PipelineArtifact.DEBUG]
-    filenames = [name for artifact in artifacts for name in RESULT_FILE_MAPPING[artifact]]
-
-    all_files = []
-    for folder in folders:
-        for filename in filenames:
-            all_files.append(folder / filename)
-
-    return all_files
 
 
 def set_up_work_dir(work_dir: Path, input_imzml: Path, input_mass_list: Path) -> list[Path]:

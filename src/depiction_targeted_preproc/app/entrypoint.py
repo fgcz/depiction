@@ -6,14 +6,13 @@ from zipfile import ZipFile
 import typer
 import yaml
 from depiction_targeted_preproc.example.run import (
-    get_result_files,
     export_results,
-    RESULT_FILE_MAPPING,
 )
 from loguru import logger
 
 from depiction.misc.find_file_util import find_one_by_extension
 from depiction_targeted_preproc.pipeline.setup import setup_workdir
+from depiction_targeted_preproc.pipeline_config.artifacts_mapping import ARTIFACT_FILES_MAPPING, get_result_files
 from depiction_targeted_preproc.pipeline_config.model import (
     PipelineParameters,
     PipelineArtifact,
@@ -66,7 +65,7 @@ def entrypoint(
         output_dir=output_dir,
         sample_name=sample_name,
         requested_artifacts=params.requested_artifacts,
-        result_file_mapping=RESULT_FILE_MAPPING,
+        result_file_mapping=ARTIFACT_FILES_MAPPING,
     )
     export_pipeline_params(work_dir=work_dir, output_dir=output_dir, sample_name=sample_name)
 

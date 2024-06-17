@@ -4,7 +4,6 @@ import numpy as np
 import scipy
 from numpy.typing import NDArray
 from tqdm import tqdm
-
 from depiction.estimate_ppm_error import EstimatePPMError
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.persistence import ImzmlWriteFile
@@ -22,15 +21,12 @@ class SyntheticMSIDataGenerator:
         label_image: MultiChannelImage,
         label_masses: NDArray[float],
         n_isotopes: int,
-        bin_width_ppm: float = 50,
+        mz_arr: NDArray[float],
         baseline_strength: float = 2.0,
         background_noise_strength: float = 0.05,
     ) -> None:
-        mz_arr = self.get_mz_arr(round(min(label_masses) - 10), round(max(label_masses) + 10), bin_width_ppm)
         with write_file.writer() as writer:
-            # TODO reimplement this by iterating over the xarray directly if possible
-            # sparse_values = label_image.sparse_values
-            # sparse_coordinates = label_image.sparse_coordinates
+            # TODO use xarray.apply_ufunc here
             flat_data_array = label_image.data_flat
             sparse_coordinates = flat_data_array.coords["c"].values
 

@@ -4,9 +4,9 @@
 
 rule simulate_create_labels:
     output:
-        image="{sample}/simulated_labels.hdf5",
-        overview_image="{sample}/simulated_labels_overview.png",
-        config="{sample}/pipeline_params.yml",
+        image="{sample}_sim/true_labels.hdf5",
+        overview_image="{sample}_sim/true_labels_overview.png",
+        config="{sample}_sim/pipeline_params.yml",
     shell:
         "python -m depiction_targeted_preproc.workflow.simulate.create_labels"
         " --output-image-path {output.image} --output-overview-image-path {output.overview_image}"
@@ -15,10 +15,10 @@ rule simulate_create_labels:
 
 rule simulate_create_mass_list:
     input:
-        mass_list="{sample}/mass_list.calibration.csv",
-        config="{sample}/pipeline_params.yml",
+        mass_list="{sample}_sim/mass_list.calibration.csv",
+        config="{sample}_sim/pipeline_params.yml",
     output:
-        mass_list="{sample}/mass_list.simulated.csv"
+        mass_list="{sample}_sim/mass_list.simulated.csv"
     shell:
         "python -m depiction_targeted_preproc.workflow.simulate.create_mass_list"
         " --input-mass-list-path {input.mass_list} --config-path {input.config}"
@@ -27,11 +27,11 @@ rule simulate_create_mass_list:
 
 rule simulate_generate_imzml:
     input:
-        image="{sample}/simulated_labels.hdf5",
-        mass_list="{sample}/mass_list.simulated.csv",
-        config="{sample}/pipeline_params.yml",
+        image="{sample}_sim/simulated_labels.hdf5",
+        mass_list="{sample}_sim/mass_list.simulated.csv",
+        config="{sample}_sim/pipeline_params.yml",
     output:
-        imzml=multiext("{sample}/simulated",".imzML",".ibd"),
+        imzml=multiext("{sample}_sim/raw",".imzML",".ibd"),
     shell:
         "python -m depiction_targeted_preproc.workflow.simulate.generate_imzml"
         " --input-image-path {input.image} --input-mass-list-path {input.mass_list} --config-path {input.config}"

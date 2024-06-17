@@ -2,11 +2,12 @@ from collections.abc import Sequence
 
 import numpy as np
 import scipy
+import xarray
 from numpy.typing import NDArray
-from tqdm import tqdm
+
 from depiction.estimate_ppm_error import EstimatePPMError
 from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.persistence import ImzmlWriteFile
+from depiction.persistence import ImzmlWriteFile, ImzmlWriter
 
 
 class SyntheticMSIDataGenerator:
@@ -26,23 +27,49 @@ class SyntheticMSIDataGenerator:
         background_noise_strength: float = 0.05,
     ) -> None:
         with write_file.writer() as writer:
-            # TODO use xarray.apply_ufunc here
-            flat_data_array = label_image.data_flat
-            sparse_coordinates = flat_data_array.coords["c"].values
+            xarray.apply_ufunc(
+                self._generate_and_write_single_spectrum,
+                label_image.data_flat,
+                label_image.data_flat.x.values,
+                label_image.data_flat.y.values,
+                kwargs={
+                    "label_masses": label_masses,
+                    "mz_arr": mz_arr,
+                    "n_isotopes": n_isotopes,
+                    "baseline_strength": baseline_strength,
+                    "background_noise_strength": background_noise_strength,
+                    "writer": writer,
+                },
+                input_core_dims=[["c"], [], []],
+                output_core_dims=[["c"]],
+                vectorize=True,
+            )
 
-            for i, (x, y) in tqdm(enumerate(sparse_coordinates), total=len(sparse_coordinates)):
-                labels = flat_data_array.sel(i=i).values
-                masses = label_masses[labels > 0]
-                intensities = labels[labels > 0]
-                int_arr = self.generate_single_spectrum(
-                    peak_masses=masses,
-                    peak_intensities=intensities,
-                    mz_arr=mz_arr,
-                    n_isotopes=n_isotopes,
-                    baseline_strength=baseline_strength,
-                    background_noise_strength=background_noise_strength,
-                )
-                writer.add_spectrum(mz_arr, int_arr, (x, y, 1))
+    def _generate_and_write_single_spectrum(
+        self,
+        labels: NDArray[int],
+        x: int,
+        y: int,
+        label_masses: NDArray[float],
+        mz_arr: NDArray[float],
+        n_isotopes: int,
+        baseline_strength: float,
+        background_noise_strength: float,
+        writer: ImzmlWriter
+    ) -> None:
+        masses = label_masses[labels > 0]
+        intensities = labels[labels > 0]
+        int_arr = self.generate_single_spectrum(
+            peak_masses=masses,
+            peak_intensities=intensities,
+            mz_arr=mz_arr,
+            n_isotopes=n_isotopes,
+            baseline_strength=baseline_strength,
+            background_noise_strength=background_noise_strength,
+        )
+        writer.add_spectrum(mz_arr, int_arr, (x, y, 1))
+        # TODO not sure how to avoid returning something here
+        return np.zeros_like(labels)
 
     def generate_single_spectrum(
         self,

@@ -29,8 +29,8 @@ class TestBasicInterpolatedPeakPicker(unittest.TestCase):
         """In this very simple case, interpolation should return the same value as the intensity on both sides is
         symmetric."""
         local_max_index = 2
-        mz_arr = np.array([1., 2, 3, 4, 5])
-        int_arr = np.array([0., 0, 10, 0, 0])
+        mz_arr = np.array([1.0, 2, 3, 4, 5])
+        int_arr = np.array([0.0, 0, 10, 0, 0])
 
         interpolated_mz, interpolated_int = self.basic_interpolated_peak_picker._interpolate_max_mz_and_intensity(
             local_max_index, mz_arr, int_arr
@@ -41,8 +41,8 @@ class TestBasicInterpolatedPeakPicker(unittest.TestCase):
 
     def test_interpolate_max_mz_and_intensity_when_success_and_not_exact(self) -> None:
         local_max_index = 2
-        mz_arr = np.array([1., 2, 3, 4, 5])
-        int_arr = np.array([0., 0, 10, 5, 0])
+        mz_arr = np.array([1.0, 2, 3, 4, 5])
+        int_arr = np.array([0.0, 0, 10, 5, 0])
 
         interpolated_mz, interpolated_int = self.basic_interpolated_peak_picker._interpolate_max_mz_and_intensity(
             local_max_index, mz_arr, int_arr
@@ -53,8 +53,8 @@ class TestBasicInterpolatedPeakPicker(unittest.TestCase):
 
     def test_interpolate_max_mz_and_intensity_when_failure(self) -> None:
         local_max_index = 2
-        mz_arr = np.array([1., 2, 3, 4, 5])
-        int_arr = np.array([0., 10, 10, 10, 0])
+        mz_arr = np.array([1.0, 2, 3, 4, 5])
+        int_arr = np.array([0.0, 10, 10, 10, 0])
 
         with Logot().capturing(capturer=LoguruCapturer) as logot:
             interpolated_mz, interpolated_int = self.basic_interpolated_peak_picker._interpolate_max_mz_and_intensity(

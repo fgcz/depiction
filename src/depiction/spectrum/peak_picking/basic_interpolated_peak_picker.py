@@ -93,5 +93,6 @@ class BasicInterpolatedPeakPicker:
         )
         return local_maxima_indices
 
+
 # TODO the interpolation could be much faster, if it were implemented in numba for our specific case of 3 points,
 #      since in general the scipy library will do everything much moe general than is actually required.

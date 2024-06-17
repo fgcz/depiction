@@ -54,7 +54,7 @@ def compute_metrics(cluster_data: np.ndarray, cluster_coords: np.ndarray) -> dic
         "PAS": pas,
         "Silhouette": silhouette,
         "Davies-Bouldin": davies_bouldin,
-        "Calinski-Harabasz": calinski_harabasz
+        "Calinski-Harabasz": calinski_harabasz,
     }
 
 
@@ -71,9 +71,7 @@ def cluster_stats(input_netcdf_path: Annotated[Path, Option()], output_csv_path:
 
     metrics = compute_metrics(cluster_data, cluster_coords)
 
-    metrics_df = pl.DataFrame(
-        {"metric": list(metrics.keys()), "value": list(metrics.values())}
-    )
+    metrics_df = pl.DataFrame({"metric": list(metrics.keys()), "value": list(metrics.values())})
     metrics_df.write_csv(output_csv_path)
 
 

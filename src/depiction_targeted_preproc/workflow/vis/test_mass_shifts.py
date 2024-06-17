@@ -30,8 +30,9 @@ def vis_test_mass_shifts(
 
     # compute the shifts
     def compute_shifts(coef):
-        result = calibration.apply_spectrum_model(spectrum_mz_arr=test_masses, spectrum_int_arr=test_masses_int,
-                                                  model_coef=xr.DataArray(coef, dims=["c"]))
+        result = calibration.apply_spectrum_model(
+            spectrum_mz_arr=test_masses, spectrum_int_arr=test_masses_int, model_coef=xr.DataArray(coef, dims=["c"])
+        )
         return xr.DataArray(result[0] - test_masses, dims=["m"])
 
     shifts = xr.apply_ufunc(

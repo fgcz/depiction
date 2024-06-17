@@ -22,5 +22,6 @@ def exp_plot_map_comparison(
 
     plt.savefig(output_pdf_path, bbox_inches="tight")
 
+
 if __name__ == "__main__":
     typer.run(exp_plot_map_comparison)

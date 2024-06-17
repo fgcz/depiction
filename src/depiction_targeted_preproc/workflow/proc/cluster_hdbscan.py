@@ -5,7 +5,7 @@ import math
 import numpy as np
 import typer
 import xarray
-from hdbscan.flat import (HDBSCAN_flat)
+from hdbscan.flat import HDBSCAN_flat
 from loguru import logger
 from sklearn.preprocessing import StandardScaler
 from typer import Option
@@ -30,9 +30,8 @@ def cluster_dbscan(input_netcdf_path: Annotated[Path, Option()], output_netcdf_p
     data_scaled = scaler.transform(reduced_data.values)
 
     try:
-        clusterer = HDBSCAN_flat(data_scaled,
-                                 n_clusters=10)
-                                 #min_cluster_size=math.ceil(0.02 * data_scaled.shape[0]))
+        clusterer = HDBSCAN_flat(data_scaled, n_clusters=10)
+        # min_cluster_size=math.ceil(0.02 * data_scaled.shape[0]))
         clusters = clusterer.labels_
     except IndexError:
         logger.error("No clusters found")

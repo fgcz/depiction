@@ -10,6 +10,8 @@ from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.persistence import ImzmlWriteFile, ImzmlWriter
 
 
+# TODO configure shifts
+
 class SyntheticMSIDataGenerator:
     """Helper that creates synthetic MSI data."""
 

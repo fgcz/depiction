@@ -85,6 +85,8 @@ class SimulateParameters(BaseModel):
     image_height: int = 100
     n_labels: int = 30
     bin_width_ppm: float = 100.0
+    target_mass_min: float = 850.
+    target_mass_max: float = 1900.
 
 
 class PipelineArtifact(str, Enum):

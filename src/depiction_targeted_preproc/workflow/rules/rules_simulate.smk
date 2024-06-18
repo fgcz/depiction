@@ -16,20 +16,19 @@ rule simulate_create_labels:
 
 rule simulate_create_mass_list:
     input:
-        mass_list="{sample}_sim/mass_list.calibration.csv",
         config="{sample}_sim/pipeline_params.yml",
     output:
-        mass_list="{sample}_sim/mass_list.simulated.csv"
+        mass_list="{sample}_sim/mass_list.raw.csv"
     shell:
         "python -m depiction_targeted_preproc.workflow.simulate.create_mass_list"
-        " --input-mass-list-path {input.mass_list} --config-path {input.config}"
+        " --config-path {input.config}"
         " --output-mass-list-path {output.mass_list}"
 
 
 rule simulate_generate_imzml:
     input:
         image="{sample}_sim/true_labels.hdf5",
-        mass_list="{sample}_sim/mass_list.simulated.csv",
+        mass_list="{sample}_sim/mass_list.raw.csv",
         config="{sample}_sim/pipeline_params.yml",
     output:
         imzml=multiext("{sample}_sim/raw",".imzML",".ibd"),

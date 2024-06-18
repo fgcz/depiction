@@ -11,17 +11,17 @@ from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 def setup_sim_dir(path: Path) -> None:
     path.mkdir(exist_ok=True, parents=True)
     shutil.copyfile(Path(__file__).parent / "default.yml", path / "pipeline_params.yml")
-    path_source_mass_list = Path(__file__).parents[1] / "example" / "data-raw" / "mass_list_vend.csv"
-    shutil.copyfile(path_source_mass_list, path / "mass_list.raw.csv")
+    # path_source_mass_list = Path(__file__).parents[1] / "example" / "data-raw" / "mass_list_vend.csv"
+    # shutil.copyfile(path_source_mass_list, path / "mass_list.raw.csv")
 
 
 # TODO why does it not work?
 
 def main() -> None:
     dir_work = Path(__file__).parent / "data-work"
-    #dir_output = Path(__file__).parent / "data-output"
+    # dir_output = Path(__file__).parent / "data-output"
     dir_work.mkdir(exist_ok=True, parents=True)
-    #dir_output.mkdir(exist_ok=True, parents=True)
+    # dir_output.mkdir(exist_ok=True, parents=True)
 
     sample_name = "dummy01_sim"
     setup_sim_dir(dir_work / sample_name)

@@ -3,10 +3,13 @@ baseline_adjustment:
   window_size: 3000
   window_unit: ppm
 peak_picker:
-  peak_picker_type: BasicInterpolated
-  min_prominence: 0.5
-  min_distance: 0.9
-  min_distance_unit: mz
+  peak_picker_type: MSPeakPicker
+  fit_type: quadratic
+#peak_picker:
+#  peak_picker_type: BasicInterpolated
+#  min_prominence: 0.5
+#  min_distance: 0.9
+#  min_distance_unit: mz
 calibration:
   calibration_method: RegressShift
   max_distance: 3000

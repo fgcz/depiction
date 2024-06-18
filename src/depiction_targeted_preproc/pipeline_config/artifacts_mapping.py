@@ -16,6 +16,7 @@ ARTIFACT_FILES_MAPPING = {
     # TODO
     PipelineArtifact.CALIB_HEATMAP: [
         "qc/plot_calibration_map.pdf",
+        "qc/plot_calibration_map_v2.pdf",
     ],
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",

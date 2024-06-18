@@ -41,6 +41,7 @@ class VisualizeMassShiftMap:
         n_bins: int = 50,
         scale_percentile: float = 100.0,
         unit: str = "m/z",
+        int_limits: tuple[float | None, float | None] = (None, None),
     ):
         """Plots a grid of test mass error maps and the histograms of these errors.
         :param test_masses: The test masses for which the correction values should be computed.
@@ -50,12 +51,18 @@ class VisualizeMassShiftMap:
         :param scale_percentile: The percentile of the absolute values of the correction values that will be used to
             determine the scaling.
         :param unit: The unit of the test masses. Either "m/z" or "ppm".
+        :param int_limits: The intensity limits for the map plots. If None, the limits will be determined automatically.
         """
         correction_image = self.get_correction_image(test_masses=test_masses, unit=unit)
         n_masses = len(test_masses)
 
         fig, axs = plt.subplots(n_masses, 2, figsize=(n_masses * 6, 12), sharex="col" if same_scale else False)
-        hist_bins = np.histogram(correction_image.data_flat.values.ravel(), bins=n_bins)[1]
+        if int_limits[0] is None or int_limits[1] is None:
+            hist_bins = np.histogram(correction_image.data_flat.values.ravel(), bins=n_bins)[1]
+        else:
+            vals = correction_image.data_flat.values.ravel()
+            vals = vals[(vals >= int_limits[0]) & (vals <= int_limits[1])]
+            hist_bins = np.histogram(vals, bins=n_bins)[1]
 
         for i_mass, test_mass in enumerate(test_masses):
             self._plot_row(
@@ -66,6 +73,7 @@ class VisualizeMassShiftMap:
                 same_scale=same_scale,
                 scale_percentile=scale_percentile,
                 unit=unit,
+                int_limits=int_limits,
             )
 
         fig.tight_layout()
@@ -89,6 +97,7 @@ class VisualizeMassShiftMap:
         same_scale: bool,  # TODO this was already broken before but will probably be useful again
         scale_percentile: float,
         unit: str,
+        int_limits: tuple[float | None, float | None],
     ) -> None:
         # get the data
         values = correction_image.data_flat.values.ravel()
@@ -96,10 +105,12 @@ class VisualizeMassShiftMap:
 
         # scaling value
         abs_perc = np.percentile(np.abs(values), scale_percentile)
+        vmin = int_limits[0] if int_limits[0] is not None else -abs_perc
+        vmax = int_limits[1] if int_limits[1] is not None else abs_perc
 
         # plot the map
         PlotImage(correction_image).plot_single_channel_image(
-            correction_image.channel_names[0], ax=ax_map, cmap="coolwarm", vmin=-abs_perc, vmax=abs_perc
+            correction_image.channel_names[0], ax=ax_map, cmap="coolwarm", vmin=vmin, vmax=vmax
         )
         ax_map.set_title(f"Error for {name}")
         ax_map.axis("off")
@@ -112,5 +123,8 @@ class VisualizeMassShiftMap:
         ax_hist.grid(True)
 
         # center histogram at zero
-        abs_max = np.max(np.abs(values))
-        ax_hist.set_xlim(-abs_max, abs_max)
+        if int_limits[0] is None or int_limits[1] is None:
+            abs_max = np.max(np.abs(values))
+            ax_hist.set_xlim(-abs_max, abs_max)
+        else:
+            ax_hist.set_xlim(int_limits)

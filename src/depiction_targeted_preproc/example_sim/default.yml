@@ -24,4 +24,8 @@ requested_artifacts:
   - CALIB_QC
   - CALIB_HEATMAP
   - DEBUG
-simulate: null
+simulate:
+  image_width: 200
+  image_height: 100
+  n_labels: 30
+  bin_width_ppm: 80

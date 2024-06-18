@@ -64,6 +64,7 @@ rule qc_plot_marker_presence_mini:
         "python -m depiction_targeted_preproc.workflow.qc.plot_marker_presence"
         " --table-marker-distances-baseline {input.table_marker_distances_baseline}"
         " --table-marker-distances-calib {input.table_marker_distances_calib}"
+        " --layout-vertical"
         " --output-pdf {output.pdf}"
 
 variants_with_map = ["mass_cluster", "reg_shift"]

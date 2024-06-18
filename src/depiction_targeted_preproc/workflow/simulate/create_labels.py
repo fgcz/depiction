@@ -7,10 +7,10 @@ from matplotlib import pyplot as plt
 from typer import Option
 
 from depiction.tools.simulate import GenerateLabelImage
-from depiction_targeted_preproc.pipeline_config.model import PipelineParameters, SimulateParameters
+from depiction_targeted_preproc.pipeline_config.model import SimulateParameters
 
 
-def generate_circles(generator: GenerateLabelImage, params: SimulateParameters):
+def generate_circles(generator: GenerateLabelImage, params: SimulateParameters) -> list[dict[str, float]]:
     rng = np.random.default_rng(0)
     # TODO more customizable
     n_circles_per_channel = np.clip(rng.normal(7, 6, params.n_labels).astype(int), 0, 10)
@@ -26,13 +26,13 @@ def simulate_create_labels(
     output_image_path: Annotated[Path, Option()],
     output_overview_image_path: Annotated[Path, Option()],
 ) -> None:
-    config = PipelineParameters.parse_yaml(config_path)
+    config = SimulateParameters.parse_yaml(config_path)
     generator = GenerateLabelImage(
-        image_height=config.simulate.image_height,
-        image_width=config.simulate.image_width,
-        n_labels=config.simulate.n_labels,
+        image_height=config.image_height,
+        image_width=config.image_width,
+        n_labels=config.n_labels,
     )
-    circles = generate_circles(generator, config.simulate)
+    circles = generate_circles(generator, config)
     generator.add_circles(circles)
     label_image = generator.render()
 

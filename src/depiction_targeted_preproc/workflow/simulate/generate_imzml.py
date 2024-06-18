@@ -9,7 +9,7 @@ from typer import Option
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.persistence import ImzmlWriteFile, ImzmlModeEnum
 from depiction.tools.simulate import SyntheticMSIDataGenerator
-from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
+from depiction_targeted_preproc.pipeline_config.model import SimulateParameters
 
 
 def simulate_generate_imzml(
@@ -21,10 +21,10 @@ def simulate_generate_imzml(
     write_file = ImzmlWriteFile(output_imzml_path, imzml_mode=ImzmlModeEnum.CONTINUOUS)
     label_image = MultiChannelImage.read_hdf5(input_image_path)
     mass_list = pl.read_csv(input_mass_list_path)
-    config = PipelineParameters.parse_yaml(config_path)
+    config = SimulateParameters.parse_yaml(config_path)
 
     mz_arr = SyntheticMSIDataGenerator.get_mz_arr(
-        mass_list["mass"].min() - 50, mass_list["mass"].max() + 50, config.simulate.bin_width_ppm
+        mass_list["mass"].min() - 50, mass_list["mass"].max() + 50, config.bin_width_ppm
     )
     gen = SyntheticMSIDataGenerator()
     gen.generate_imzml_for_labels(

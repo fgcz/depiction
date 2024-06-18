@@ -9,8 +9,12 @@ from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 
 
 def setup_sim_dir(path: Path) -> None:
+    source_configs_dir = Path(__file__).parents[1] / "pipeline_config"
     path.mkdir(exist_ok=True, parents=True)
-    shutil.copyfile(Path(__file__).parent / "default.yml", path / "pipeline_params.yml")
+    shutil.copyfile(source_configs_dir / "default.yml", path / "pipeline_params.yml")
+    (path / "config").mkdir(exist_ok=True)
+    shutil.copyfile(source_configs_dir / "default_simulate.yml", path / "config" / "simulate.yml")
+
     # path_source_mass_list = Path(__file__).parents[1] / "example" / "data-raw" / "mass_list_vend.csv"
     # shutil.copyfile(path_source_mass_list, path / "mass_list.raw.csv")
 

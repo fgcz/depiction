@@ -6,7 +6,7 @@ import polars as pl
 import typer
 from typer import Option
 
-from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
+from depiction_targeted_preproc.pipeline_config.model import SimulateParameters
 
 
 def simulate_create_mass_list(
@@ -14,12 +14,12 @@ def simulate_create_mass_list(
     output_mass_list_path: Annotated[Path, Option()],
 ) -> None:
     # parse the config
-    config = PipelineParameters.parse_yaml(config_path)
+    config = SimulateParameters.parse_yaml(config_path)
 
     # compute the masses
     lambda_avg = 1.0 + 4.95e-4
-    n_labels = config.simulate.n_labels
-    masses = np.linspace(config.simulate.target_mass_min, config.simulate.target_mass_max, n_labels)
+    n_labels = config.n_labels
+    masses = np.linspace(config.target_mass_min, config.target_mass_max, n_labels)
     masses -= masses % lambda_avg
 
     # create the output mass list

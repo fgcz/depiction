@@ -4,7 +4,7 @@
 
 rule simulate_create_labels:
     input:
-        config = "{sample}_sim/pipeline_params.yml",
+        config = "{sample}_sim/config/simulate.yml",
     output:
         image="{sample}_sim/true_labels.hdf5",
         overview_image="{sample}_sim/true_labels_overview.png",
@@ -16,7 +16,7 @@ rule simulate_create_labels:
 
 rule simulate_create_mass_list:
     input:
-        config="{sample}_sim/pipeline_params.yml",
+        config="{sample}_sim/config/simulate.yml",
     output:
         mass_list="{sample}_sim/mass_list.raw.csv"
     shell:
@@ -29,7 +29,7 @@ rule simulate_generate_imzml:
     input:
         image="{sample}_sim/true_labels.hdf5",
         mass_list="{sample}_sim/mass_list.raw.csv",
-        config="{sample}_sim/pipeline_params.yml",
+        config="{sample}_sim/config/simulate.yml",
     output:
         imzml=multiext("{sample}_sim/raw",".imzML",".ibd"),
     shell:

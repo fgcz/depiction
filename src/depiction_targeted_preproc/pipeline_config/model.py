@@ -2,10 +2,18 @@ from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
-from typing import Literal, Union, Annotated
+from typing import Literal, Union, Annotated, Self
 
 import yaml
 from pydantic import BaseModel, Field
+
+
+class Model(BaseModel):
+    @classmethod
+    def parse_yaml(cls, path: Path) -> Self:
+        # TODO consider in the future a better mechanism for passing step configurations, maybe using
+        #  json and pydantic but in a more granular way. for now this sort of works
+        return cls.model_validate(yaml.unsafe_load(path.read_text()))
 
 
 class BaselineAdjustmentTophat(BaseModel):
@@ -80,7 +88,7 @@ Calibration = Annotated[
 ]
 
 
-class SimulateParameters(BaseModel):
+class SimulateParameters(Model):
     image_width: int = 200
     image_height: int = 100
     n_labels: int = 30
@@ -100,11 +108,10 @@ class PipelineArtifact(str, Enum):
 # class PipelineParametersPreset(BaseModel, use_enum_values=True):
 
 
-class PipelineParametersPreset(BaseModel):
+class PipelineParametersPreset(Model):
     baseline_adjustment: BaselineAdjustment
     peak_picker: PeakPicker
     calibration: Calibration
-    simulate: SimulateParameters | None
 
 
 # class PipelineParameters(PipelineParametersPreset, use_enum_values=True):
@@ -113,12 +120,6 @@ class PipelineParametersPreset(BaseModel):
 class PipelineParameters(PipelineParametersPreset):
     requested_artifacts: list[PipelineArtifact]
     n_jobs: int
-
-    @classmethod
-    def parse_yaml(cls, path: Path) -> PipelineParameters:
-        # TODO consider in the future a better mechanism for passing step configurations, maybe using
-        #  json and pydantic but in a more granular way. for now this sort of works
-        return cls.model_validate(yaml.unsafe_load(path.read_text()))
 
     @classmethod
     def from_preset_and_settings(

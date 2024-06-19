@@ -23,6 +23,7 @@ ARTIFACT_FILES_MAPPING = {
         #"qc/plot_spectra_for_marker.pdf",
         # "qc/plot_sample_spectra_before_after.pdf",
         "qc/plot_peak_counts.pdf",
+        "qc/plot_scan_direction.pdf",
         "cluster_default_kmeans.hdf5",
         "cluster_default_stats_kmeans.csv",
         "cluster_default_kmeans.png",

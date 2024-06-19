@@ -133,3 +133,13 @@ rule qc_plot_peak_counts:
         "python -m depiction_targeted_preproc.workflow.qc.plot_peak_counts"
         " --config-path {input.config} --imzml-peaks {input.imzml[0]}"
         " --output-pdf {output.pdf}"
+
+rule qc_plot_scan_direction:
+    input:
+        imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd"),
+    output:
+        pdf="{sample}/qc/plot_scan_direction.pdf"
+    shell:
+        "python -m depiction_targeted_preproc.workflow.qc.plot_scan_direction"
+        " --input-imzml-path {input.imzml[0]}"
+        " --output-pdf {output.pdf}"

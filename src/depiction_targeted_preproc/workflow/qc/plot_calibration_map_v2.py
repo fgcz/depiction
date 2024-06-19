@@ -16,7 +16,7 @@ def qc_plot_calibration_map_v2(
     fig, axs = plt.subplots(2, 1, figsize=(10, 20))
 
     # show the map
-    mass_shifts.isel(c=0).plot.imshow(x="x", y="y", ax=axs[0], cmap="coolwarm", vmin=-0.5, vmax=+0.5)
+    mass_shifts.isel(c=0).plot.imshow(x="x", y="y", ax=axs[0], cmap="coolwarm", vmin=-0.5, vmax=+0.5, yincrease=False)
     axs[0].set_aspect("equal")
     test_mass = mass_shifts.coords["c"][0]
     axs[0].set_title(f"Computed shift for test mass {test_mass:.2f}")

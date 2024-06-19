@@ -56,7 +56,7 @@ class PlotImage:
         ax.imshow(
             dense_values,
             cmap=cmap,
-            origin="lower",
+            origin="upper",
             vmin=vmin,
             vmax=vmax,
             interpolation=interpolation,

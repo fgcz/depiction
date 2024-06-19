@@ -110,8 +110,9 @@ class PipelineArtifact(str, Enum):
 
 class PipelineParametersPreset(Model):
     baseline_adjustment: BaselineAdjustment
-    peak_picker: PeakPicker
     calibration: Calibration
+    peak_picker: PeakPicker
+    force_peak_picker: bool
 
 
 # class PipelineParameters(PipelineParametersPreset, use_enum_values=True):

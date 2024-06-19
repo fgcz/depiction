@@ -5,6 +5,7 @@ baseline_adjustment:
 peak_picker:
   peak_picker_type: MSPeakPicker
   fit_type: quadratic
+force_peak_picker: no
 #peak_picker:
 #  peak_picker_type: BasicInterpolated
 #  min_prominence: 0.5

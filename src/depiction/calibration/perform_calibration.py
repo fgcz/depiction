@@ -68,6 +68,8 @@ class PerformCalibration:
             errors.append("Mismatch in y values")
         if not np.array_equal(array.i.values, np.arange(len(array.i))):
             errors.append("Mismatch in i values")
+            logger.error(f"Expected i: values={np.arange(len(array.i))} shape={np.arange(len(array.i)).shape}")
+            logger.error(f"Actual   i: values={array.i.values} shape={array.i.values.shape}")
         if errors:
             raise ValueError(errors)
 

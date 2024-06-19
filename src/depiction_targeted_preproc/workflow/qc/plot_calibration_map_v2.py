@@ -16,14 +16,14 @@ def qc_plot_calibration_map_v2(
     fig, axs = plt.subplots(2, 1, figsize=(10, 20))
 
     # show the map
-    mass_shifts.isel(c=0).plot.imshow(x="x", y="y", ax=axs[0], cmap="coolwarm", vmin=-0.5, vmax=+.5)
+    mass_shifts.isel(c=0).plot.imshow(x="x", y="y", ax=axs[0], cmap="coolwarm", vmin=-0.5, vmax=+0.5)
     axs[0].set_aspect("equal")
     test_mass = mass_shifts.coords["c"][0]
     axs[0].set_title(f"Computed shift for test mass {test_mass:.2f}")
 
     # show the histogram
     # TODO the clipping could be misleading (as it's not indicated)
-    mass_shifts.isel(c=0).clip(-.5, .5).plot.hist(ax=axs[1], bins=100, color="gray")
+    mass_shifts.isel(c=0).clip(-0.5, 0.5).plot.hist(ax=axs[1], bins=100, color="gray")
     axs[1].set_title("Histogram of computed shifts")
 
     plt.savefig(output_pdf, bbox_inches="tight")

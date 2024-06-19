@@ -41,7 +41,9 @@ def qc_plot_calibration_map(
 
     vis_shifts = VisualizeMassShiftMap(models=models, coordinates=coords_2d)
     # TODO fix same_scale
-    fig, axs = vis_shifts.plot_test_mass_maps_and_histograms(test_masses=test_masses, same_scale=True, int_limits=(-.25, .25))
+    fig, axs = vis_shifts.plot_test_mass_maps_and_histograms(
+        test_masses=test_masses, same_scale=True, int_limits=(-0.25, 0.25)
+    )
     fig.savefig(output_pdf)
     fig.clear()
 

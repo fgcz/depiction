@@ -8,7 +8,7 @@ import typer
 from typer import Option
 
 
-def plot_marker_presence(df_peak_dist: pl.DataFrame, n_spectra: int, out_path: Path, layout_vertical:bool) -> None:
+def plot_marker_presence(df_peak_dist: pl.DataFrame, n_spectra: int, out_path: Path, layout_vertical: bool) -> None:
     # Add a `max_dist` column to the dataframe, that indicates the first bin a particular item falls into
     df = df_peak_dist.with_columns(abs_dist=pl.col("dist").abs()).sort("abs_dist")
     df_cutoffs = pl.DataFrame({"max_dist": [0.05, 0.1, 0.2, 0.3, 0.4, np.inf]}).sort("max_dist")
@@ -28,19 +28,26 @@ def plot_marker_presence(df_peak_dist: pl.DataFrame, n_spectra: int, out_path: P
         "fraction", descending=True
     )["label"]
 
-    layout_config = {"column": "variant:N"} if not layout_vertical else {"row": "variant:N"}
+    layout_config = (
+        {"column": alt.Column("variant:N", title=None)}
+        if not layout_vertical
+        else {"row": alt.Row("variant:N", title=None, header=alt.Header(orient="top"))}
+    )
+    size_config = {"width": 600} if not layout_vertical else {"width": 500, "height": 300}
     c = (
         alt.Chart(df)
         .mark_bar()
         .encode(
-            x=alt.X("sum(fraction):Q", scale=alt.Scale(domain=[0, 1])),
-            y=alt.Y("label:N", sort=list(sorted_labels)),
-            color=alt.Color("detection_dist:N"),
+            x=alt.X("sum(fraction):Q", scale=alt.Scale(domain=[0, 1]), title="Fraction of spectra with peaks detected"),
+            y=alt.Y("label:N", sort=list(sorted_labels), title=None),
+            color=alt.Color("detection_dist:N", legend=alt.Legend(title="Max distance cutoff", orient="top")),
             **layout_config
         )
-        .properties(
-            title="Fraction of spectra with peaks detected per marker at different max distance cutoffs", width=600
-        )
+        .properties(title=alt.Title("Marker presence at different mass windows", anchor="middle"), **size_config)
+        .configure_axis(labelFontSize=14, titleFontSize=16)
+        .configure_header(titleFontSize=16, labelFontSize=16, labelFontWeight="bold")
+        .configure_title(fontSize=20)
+        .configure_legend(labelFontSize=14, titleFontSize=16)
     )
     c.save(out_path)
 
@@ -59,7 +66,12 @@ def qc_plot_marker_presence(
             table_baseline.with_columns(variant=pl.lit("baseline_adj")),
         ]
     )
-    plot_marker_presence(df_peak_dist=table, n_spectra=table["i_spectrum"].n_unique(), out_path=output_pdf, layout_vertical=layout_vertical)
+    plot_marker_presence(
+        df_peak_dist=table,
+        n_spectra=table["i_spectrum"].n_unique(),
+        out_path=output_pdf,
+        layout_vertical=layout_vertical,
+    )
 
 
 if __name__ == "__main__":

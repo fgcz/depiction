@@ -22,6 +22,30 @@ rule proc_pick_peaks:
         " --output-imzml-path {output.imzml[0]}"
 
 
+# TODO currently needed for peak picked data, e.g. from timsTOF
+#rule proc_pick_peaks:
+#    input:
+#        imzml=multiext("{sample}/corrected.original",".imzML",".ibd"),
+#        config="{sample}/pipeline_params.yml",
+#    output:
+#        imzml=multiext("{sample}/corrected.peaks_all",".imzML",".ibd"),
+#    shell:
+#        "python -m depiction_targeted_preproc.workflow.proc.pick_peaks "
+#        " --input-imzml-path {input.imzml[0]} --config-path {input.config} "
+#        " --output-imzml-path {output.imzml[0]}"
+#
+#
+## TODO very experimental to be removed later again
+#rule proc_filter_peaks:
+#    input:
+#        imzml=multiext("{sample}/corrected.peaks_all",".imzML",".ibd"),
+#    output:
+#        imzml=multiext("{sample}/corrected.peaks",".imzML",".ibd"),
+#    shell:
+#        "python -m depiction_targeted_preproc.workflow.proc.filter_peaks "
+#        " --input-imzml-path {input.imzml[0]} "
+#        " --output-imzml-path {output.imzml[0]}"
+
 # TODO this should be solved more efficiently in the future, but for now it is solved by calling the script twice
 rule proc_calibrate_remove_global_shift:
     input:

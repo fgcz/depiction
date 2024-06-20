@@ -1,10 +1,7 @@
-import argparse
 from collections.abc import Sequence
-from pprint import pprint
 from typing import Optional
 
 import numpy as np
-import polars as pl
 from numpy.typing import NDArray
 from xarray import DataArray
 
@@ -12,7 +9,6 @@ from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
 from depiction.persistence import ImzmlReadFile, ImzmlReader
-from depiction.tools.image_channel_statistics import ImageChannelStatistics
 
 
 class GenerateIonImage:
@@ -132,40 +128,3 @@ class GenerateIonImage:
                 mz_end = np.searchsorted(mz_arr, mz_max, side="right")
                 result[i_spectrum, i_range] = np.sum(int_arr[mz_begin:mz_end])
         return result
-
-
-def main_generate_ion_image(
-    input_imzml_path: str, mass_list_path: str, output_hdf5: str, n_jobs: int, output_stats_path: Optional[str]
-) -> None:
-    parallel_config = ParallelConfig(n_jobs=n_jobs, task_size=None)
-    gen_image = GenerateIonImage(parallel_config=parallel_config)
-    mass_list_df = pl.read_csv(mass_list_path)
-
-    image = gen_image.generate_ion_images_for_file(
-        input_file=ImzmlReadFile(input_imzml_path),
-        mz_values=mass_list_df["mass"],
-        tol=mass_list_df["tol"],
-        channel_names=mass_list_df["label"],
-    )
-    xarray = image.to_dense_xarray(bg_value=np.nan)
-    xarray.to_netcdf(output_hdf5)
-
-    if output_stats_path:
-        stats = ImageChannelStatistics.compute_xarray(xarray)
-        stats.write_csv(output_stats_path)
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input-imzml", dest="input_imzml_path")
-    parser.add_argument("--mass-list", dest="mass_list_path")
-    parser.add_argument("--output-hdf5")
-    parser.add_argument("--n-jobs", default=20, type=int)
-    parser.add_argument("--output-stats", required=False, default=None, dest="output_stats_path")
-    args = vars(parser.parse_args())
-    pprint(args)
-    main_generate_ion_image(**args)
-
-
-if __name__ == "__main__":
-    main()

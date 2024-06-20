@@ -5,11 +5,11 @@ rule vis_images:
         mass_list="{sample}/mass_list.visualization.csv"
     output:
         hdf5="{sample}/images_default.hdf5"
+    # TODO how can i pass n-jobs nicely here
     shell:
-        "python -m depiction_targeted_preproc.workflow.vis.images "
-        " --imzml-path {input.imzml[0]} --mass-list-path {input.mass_list} "
-        " --output-hdf5-path {output.hdf5}"
-        " --config-path {input.config}"
+        "python -m depiction.tools.cli.cli_generate_ion_images"
+        " --imzml-path {input.imzml[0]} --mass-list-path {input.mass_list}"
+        " --output-hdf5-path {output.hdf5} --n-jobs 10"
 
 rule vis_images_norm:
     input: hdf5="{sample}/images_{label}.hdf5"

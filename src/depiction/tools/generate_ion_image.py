@@ -44,11 +44,15 @@ class GenerateIonImage:
         :param channel_names: the names of the channels, if None, the channels will be numbered
         """
         channel_values = self._generate_channel_values(input_file=input_file, mz_values=mz_values, tol=tol)
-        data = channel_values.assign_coords(
-            c=channel_names,
-            x=("i", input_file.coordinates_2d[:, 0]),
-            y=("i", input_file.coordinates_2d[:, 1]),
-        ).set_xindex(["y", "x"]).unstack("i")
+        data = (
+            channel_values.assign_coords(
+                c=channel_names,
+                x=("i", input_file.coordinates_2d[:, 0]),
+                y=("i", input_file.coordinates_2d[:, 1]),
+            )
+            .set_xindex(["y", "x"])
+            .unstack("i")
+        )
         return MultiChannelImage(data)
 
     def _generate_channel_values(

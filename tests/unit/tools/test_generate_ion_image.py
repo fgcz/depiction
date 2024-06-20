@@ -22,31 +22,31 @@ def mock_generate(mock_parallel_config: MagicMock) -> GenerateIonImage:
 
 def test_generate_ion_images_for_file(mocker, mock_generate: GenerateIonImage) -> None:
     mock_generate_channel_values = mocker.patch.object(GenerateIonImage, "_generate_channel_values")
-    mock_generate_channel_values.return_value = DataArray([[1, 2], [3, 4], [5, 6]], dims=("i", "c"),
-                                                          attrs={"bg_value": np.nan})
+    mock_generate_channel_values.return_value = DataArray(
+        [[1, 2], [3, 4], [5, 6]], dims=("i", "c"), attrs={"bg_value": np.nan}
+    )
 
     mock_input_file = MagicMock(name="mock_input_file", coordinates_2d=np.array([[0, 0], [0, 1], [1, 0]]))
     mock_mz_values = MagicMock(name="mock_mz_values", spec=[])
     mock_tol = MagicMock(name="mock_tol", spec=[])
 
     image = mock_generate.generate_ion_images_for_file(
-        input_file=mock_input_file,
-        mz_values=mock_mz_values,
-        tol=mock_tol,
-        channel_names=["channel A", "channel B"]
+        input_file=mock_input_file, mz_values=mock_mz_values, tol=mock_tol, channel_names=["channel A", "channel B"]
     )
 
     assert image.channel_names == ["channel A", "channel B"]
-    xarray.testing.assert_equal(image.bg_mask, DataArray([[False, False], [False, True]], dims=("y", "x"),
-                                                         coords={"y": [0, 1], "x": [0, 1]}))
+    xarray.testing.assert_equal(
+        image.bg_mask, DataArray([[False, False], [False, True]], dims=("y", "x"), coords={"y": [0, 1], "x": [0, 1]})
+    )
     img_array = image.data_spatial.transpose("x", "y", "c").values
     assert img_array[0, 0, 0] == 1
     assert img_array[0, 0, 1] == 2
     assert img_array[1, 0, 0] == 5
     assert img_array[1, 0, 1] == 6
 
-    mock_generate_channel_values.assert_called_once_with(input_file=mock_input_file, mz_values=mock_mz_values,
-                                                         tol=mock_tol)
+    mock_generate_channel_values.assert_called_once_with(
+        input_file=mock_input_file, mz_values=mock_mz_values, tol=mock_tol
+    )
 
 
 def test_generate_channel_values(mocker, mock_generate: GenerateIonImage, mock_parallel_config) -> None:
@@ -57,14 +57,15 @@ def test_generate_channel_values(mocker, mock_generate: GenerateIonImage, mock_p
     tol = [0.25, 0.5, 0.25]
 
     values = mock_generate._generate_channel_values(input_file=mock_input_file, mz_values=mock_mz_values, tol=tol)
-    xarray.testing.assert_identical(values,
-                                    DataArray(np.array([[1., 2], [3, 4]]), dims=("i", "c"), attrs={"bg_value": np.nan}))
+    xarray.testing.assert_identical(
+        values, DataArray(np.array([[1.0, 2], [3, 4]]), dims=("i", "c"), attrs={"bg_value": np.nan})
+    )
     mock_read_parallel_from.assert_called_once_with(mock_parallel_config)
     mock_read_parallel_from.return_value.map_chunked.assert_called_once_with(
         read_file=mock_input_file,
         operation=GenerateIonImage._compute_channels_chunk,
         bind_args=dict(mz_values=mock_mz_values, tol_values=tol),
-        reduce_fn=ANY
+        reduce_fn=ANY,
     )
 
 
@@ -72,7 +73,6 @@ class TestGenerateIonImage(unittest.TestCase):
     def setUp(self) -> None:
         self.mock_parallel_config = MagicMock(name="mock_parallel_config")
         self.mock_generate = GenerateIonImage(parallel_config=self.mock_parallel_config)
-
 
     @patch.object(GenerateIonImage, "_compute_for_mz_ranges")
     @patch.object(ReadSpectraParallel, "from_config")

@@ -5,12 +5,11 @@ include: "rules/rules_vis.smk"
 include: "rules/rules_qc.smk"
 include: "rules/rules_simulate.smk"
 
-
 exp_variants = ["chem_noise", "mass_cluster", "reg_shift"]
 
 rule exp_compare_cluster_stats:
     input:
-        csv=expand("{{sample}}/{exp_variant}/cluster_default_stats_hdbscan.csv", exp_variant=exp_variants)
+        csv=expand("{{sample}}/{exp_variant}/cluster_default_stats_hdbscan.csv",exp_variant=exp_variants)
     output:
         pdf="{sample}/exp_compare_cluster_stats.pdf"
     shell:
@@ -20,7 +19,7 @@ rule exp_compare_cluster_stats:
 
 rule exp_plot_compare_peak_density:
     input:
-        tables_marker_distance=expand("{{sample}}/{exp_variant}/qc/table_marker_distances_calib.parquet", exp_variant=exp_variants),
+        tables_marker_distance=expand("{{sample}}/{exp_variant}/qc/table_marker_distances_calib.parquet",exp_variant=exp_variants),
         table_marker_distance_uncalib="{sample}/reg_shift/qc/table_marker_distances_baseline.parquet",
     output:
         pdf="{sample}/exp_plot_compare_peak_density.pdf"
@@ -71,10 +70,22 @@ variants_with_map = ["mass_cluster", "reg_shift"]
 
 rule exp_plot_map_comparison:
     input:
-        mass_shifts=expand("{{sample}}/{exp_variant}/test_mass_shifts.hdf5", exp_variant=variants_with_map)
+        mass_shifts=expand("{{sample}}/{exp_variant}/test_mass_shifts.hdf5",exp_variant=variants_with_map)
     output:
         pdf="{sample}/exp_plot_map_comparison.pdf"
     shell:
         "python -m depiction_targeted_preproc.workflow.exp.plot_map_comparison"
         " {input.mass_shifts}"
         " --output-pdf-path {output.pdf}"
+
+
+#rule exp_plot_map_single_for_poster:
+#    input:
+#        mass_shift="{sample}/test_mass_shifts.hdf5"
+#    output:
+#        pdf="{sample}/exp_plot_map_single_for_poster.pdf"
+#    shell:
+#        "python -m depiction_targeted_preproc.workflow.exp.plot_map_single"
+#        " --input-mass-shift-path {input.mass_shift}"
+#        " --output-pdf-path {output.pdf}"
+#

@@ -9,6 +9,7 @@ from loguru import logger
 
 @dataclass
 class SnakemakeInvoke:
+    snakefile_name: str = "Snakefile"
     use_subprocess: bool = True
     continue_on_error: bool = False
 
@@ -20,7 +21,7 @@ class SnakemakeInvoke:
 
     @property
     def snakefile_path(self) -> Path:
-        return Path(__file__).parents[1] / "workflow" / "experimental.smk"
+        return Path(__file__).parents[1] / "workflow" / self.snakefile_name
 
     @property
     def workflow_dir(self) -> Path:

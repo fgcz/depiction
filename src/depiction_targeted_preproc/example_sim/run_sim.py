@@ -21,6 +21,7 @@ def setup_sim_dir(path: Path) -> None:
 
 # TODO why does it not work?
 
+
 def main() -> None:
     dir_work = Path(__file__).parent / "data-work"
     # dir_output = Path(__file__).parent / "data-output"

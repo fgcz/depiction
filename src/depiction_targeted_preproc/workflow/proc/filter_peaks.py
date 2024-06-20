@@ -10,8 +10,7 @@ from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned
 
 
 def proc_filter_peaks(
-    input_imzml_path: Annotated[Path, Option()],
-    output_imzml_path: Annotated[Path, Option()]
+    input_imzml_path: Annotated[Path, Option()], output_imzml_path: Annotated[Path, Option()]
 ) -> None:
     read_file = ImzmlReadFile(input_imzml_path)
     peaks_filter = FilterNHighestIntensityPartitioned(max_count=500, n_partitions=8)
@@ -21,12 +20,7 @@ def proc_filter_peaks(
 
     write_parallel = WriteSpectraParallel.from_config(parallel_config)
     write_parallel.map_chunked_to_file(
-        read_file=read_file,
-        write_file=write_file,
-        operation=filter_chunk,
-        bind_args={
-            "peaks_filter": peaks_filter
-        }
+        read_file=read_file, write_file=write_file, operation=filter_chunk, bind_args={"peaks_filter": peaks_filter}
     )
 
 

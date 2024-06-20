@@ -48,7 +48,7 @@ def find_num_clusters(data):
     best_n_clusters = 1
 
     for n_clusters in range(2, 10):
-        model = KMeans(n_clusters=n_clusters, init='k-means++', max_iter=100, n_init=1)
+        model = KMeans(n_clusters=n_clusters, init="k-means++", max_iter=100, n_init=1)
         labels = model.fit_predict(data)
         sil_score = silhouette_score(data, labels)
         print("The average silhouette score for %i clusters is %0.2f" % (n_clusters, sil_score))
@@ -68,14 +68,14 @@ def cluster_kmeans(input_netcdf_path: Annotated[Path, Option()], output_netcdf_p
     reduced_data = retain_interesting_signals(image.data_flat.transpose("i", "c"), n_features)
     reduced_data = binarize_signals(reduced_data)
 
-    #scaler = StandardScaler()
-    #scaler.fit(reduced_data.values)
+    # scaler = StandardScaler()
+    # scaler.fit(reduced_data.values)
 
     # n_clusters = find_num_clusters(scaler.transform(reduced_data.values))
     n_clusters = 7
 
     kmeans = BisectingKMeans(n_clusters=n_clusters)
-    #clusters = kmeans.fit_predict(scaler.transform(reduced_data.values))
+    # clusters = kmeans.fit_predict(scaler.transform(reduced_data.values))
     clusters = kmeans.fit_predict(reduced_data.values)
 
     cluster_data = xarray.DataArray(clusters, dims=("i",), coords={"i": image.data_flat.coords["i"]}).expand_dims("c")

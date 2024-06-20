@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from typing import Callable
 
-import numpy as np
 import xarray
 from xarray import DataArray
 
@@ -48,26 +47,22 @@ class XarrayHelper:
             # call the function
             result = fn(array_2d)
 
-            # keep only the elements that were present before
-            array_present_before = (
-                array_flat.notnull()
-                .reduce(np.all, "c", keepdims=True)
-                .unstack("i")
-                .transpose("y", "x", "c")
-                .astype(float)
-                .where(lambda x: x)
-            )
+            # we only want to drop the background, i.e. no dropping of the values that were nan before or where fn
+            # returned an all nan array
+            is_foreground = xarray.ones_like(array_flat.isel(c=[0])).unstack("i").transpose("y", "x", "c")
+
+            # stack this into the result
             if "c" in array_flat.coords:
-                # TODO test case distinction
-                array_present_before = array_present_before.assign_coords(c=["nan_before"])
-            result = xarray.concat([result, array_present_before], dim="c")
+                is_foreground = is_foreground.assign_coords(c=["is_foreground"])
+            result = xarray.concat([result, is_foreground], dim="c")
 
             # make flat again
             result_flat = result.stack(i=index_order)
             # remove nan
-            result = result_flat.drop_isel(c=-1).dropna("i", how="all")
+            result = result_flat.dropna("i", how="all").drop_isel(c=-1)
+
             # TODO assigning the coords will be broken in the future, when "i" is a multi-index, however since in general
-            #      it is not, this will require a case distinciton
+            #      it is not, this will require a case distinction
             return result.assign_coords(i=original_coords)
         else:
             raise ValueError(f"Unsupported dims={set(array.dims)}")

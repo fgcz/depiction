@@ -72,6 +72,11 @@ def array_flat(array_spatial) -> DataArray:
 
 
 @pytest.fixture
+def array_flat_with_nan_before(array_spatial) -> DataArray:
+    return array_spatial.stack(i=("x", "y"))
+
+
+@pytest.fixture
 def array_flat_transposed(array_spatial) -> DataArray:
     return array_spatial.stack(i=("y", "x")).dropna("i", how="all")
 
@@ -90,6 +95,11 @@ def test_apply_on_spatial_view_array_flat_no_nan(array_flat) -> None:
 def test_apply_on_spatial_view_array_flat_with_nan(array_flat) -> None:
     result = XarrayHelper.apply_on_spatial_view(array_flat, dummy_function)
     xarray.testing.assert_equal(result, array_flat * 2)
+
+
+def test_apply_on_spatial_view_array_flat_with_nan_before(array_flat_with_nan_before) -> None:
+    result = XarrayHelper.apply_on_spatial_view(array_flat_with_nan_before, dummy_function)
+    xarray.testing.assert_equal(result, array_flat_with_nan_before * 2)
 
 
 def test_apply_on_spatial_view_array_flat_no_nan_transposed(array_flat_transposed) -> None:

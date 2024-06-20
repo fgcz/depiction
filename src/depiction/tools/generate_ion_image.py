@@ -6,6 +6,7 @@ from typing import Optional
 import numpy as np
 import polars as pl
 from numpy.typing import NDArray
+from xarray import DataArray
 
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.parallel_ops.parallel_config import ParallelConfig
@@ -42,22 +43,27 @@ class GenerateIonImage:
         :param tol: the tolerance, for the m/z readout
         :param channel_names: the names of the channels, if None, the channels will be numbered
         """
-        parallelize = ReadSpectraParallel.from_config(self._parallel_config)
+        channel_values = self._generate_channel_values(input_file, mz_values, tol)
+        data = channel_values.assign_coords(
+            c=channel_names,
+            x=("i", input_file.coordinates_2d[:, 0]),
+            y=("i", input_file.coordinates_2d[:, 1]),
+        ).set_xindex(["y", "x"]).unstack("i")
+        return MultiChannelImage(data)
+
+    def _generate_channel_values(
+        self, input_file: ImzmlReadFile, mz_values: Sequence[float], tol: float | Sequence[float]
+    ) -> DataArray:
         if np.isscalar(tol):
             tol = [tol] * len(mz_values)
-        channel_values = parallelize.map_chunked(
+        parallelize = ReadSpectraParallel.from_config(self._parallel_config)
+        array = parallelize.map_chunked(
             read_file=input_file,
             operation=self._compute_channels_chunk,
             bind_args=dict(mz_values=mz_values, tol_values=tol),
             reduce_fn=lambda chunks: np.concatenate(chunks, axis=0),
         )
-        return MultiChannelImage.from_numpy_sparse(
-            values=channel_values,
-            coordinates=input_file.coordinates_2d,
-            channel_names=channel_names,
-            # TODO clarify
-            bg_value=np.nan,
-        )
+        return DataArray(array, dims=("i", "c"), attrs={"bg_value": np.nan})
 
     def generate_range_images_for_file(
         self,

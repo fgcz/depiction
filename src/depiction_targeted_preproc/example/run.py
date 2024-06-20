@@ -4,8 +4,10 @@ import subprocess
 from pathlib import Path
 
 import yaml
-from depiction_targeted_preproc.pipeline_config.model import PipelineParameters, PipelineArtifact
+from depiction_targeted_preproc.pipeline.setup import initial_setup
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import ARTIFACT_FILES_MAPPING
+from depiction_targeted_preproc.pipeline_config.artifacts_mapping import get_result_files
+from depiction_targeted_preproc.pipeline_config.model import PipelineParameters, PipelineArtifact
 from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 from loguru import logger
 

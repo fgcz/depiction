@@ -17,3 +17,4 @@ calibration:
   min_points: 3
 n_jobs: 10
 requested_artifacts: []
+force_peak_picker: yes

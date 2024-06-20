@@ -10,3 +10,4 @@ calibration:
   model_smoothing_activated: no
 n_jobs: 10
 requested_artifacts: []
+force_peak_picker: yes

@@ -12,7 +12,7 @@ def vis_clustering(input_netcdf_path: Annotated[Path, Option()], output_png_path
     source_image = xarray.open_dataarray(input_netcdf_path)
     fig = plt.figure(figsize=(10, 10))
     ax = fig.gca()
-    source_image.plot(cmap="tab10", ax=ax)
+    source_image.isel(c=0).plot.imshow(x="x", y="y", cmap="tab10", ax=ax, yincrease=False)
     ax.set_aspect("equal")
 
     # n_classes = len(set(source_image.values.ravel()))

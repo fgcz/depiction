@@ -43,6 +43,18 @@ def perform_peak_picking(config: PipelineParameters, read_file: ImzmlReadFile, o
             )
         case model.PeakPickerMSPeakPicker() as peak_picker_config:
             peak_picker = MSPeakPicker(fit_type=peak_picker_config.fit_type, peak_filtering=peak_filtering)
+        case model.PeakPickerFindMFPy() as peak_picker_config:
+            # NOTE: importing this here since it has non-standard dependencies
+            from depiction.spectrum.peak_picking.findmf_peak_picker import FindMFPeakpicker
+
+            peak_picker = FindMFPeakpicker(
+                resolution=peak_picker_config.resolution,
+                width=peak_picker_config.width,
+                int_width=peak_picker_config.int_width,
+                int_threshold=peak_picker_config.int_threshold,
+                area=peak_picker_config.area,
+                max_peaks=peak_picker_config.max_peaks,
+            )
         case _:
             raise ValueError(f"Unsupported peak picker type: {config.peak_picker.peak_picker_type}")
     # TODO correctly detect files which are already picked

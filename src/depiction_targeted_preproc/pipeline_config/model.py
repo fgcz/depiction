@@ -41,8 +41,19 @@ class PeakPickerMSPeakPicker(BaseModel):
     fit_type: Literal["quadratic"] = "quadratic"
 
 
+class PeakPickerFindMFPy(BaseModel):
+    peak_picker_type: Literal["FindMFPy"]
+    resolution: float = 10000.0
+    width: float = 2.0
+    int_width: float = 2.0
+    int_threshold: float = 10.0
+    area: bool = True
+    max_peaks: int = 0
+
+
 PeakPicker = Annotated[
-    None | PeakPickerBasicInterpolated | PeakPickerMSPeakPicker, Field(discriminator="peak_picker_type")
+    None | PeakPickerBasicInterpolated | PeakPickerMSPeakPicker | PeakPickerFindMFPy,
+    Field(discriminator="peak_picker_type"),
 ]
 
 

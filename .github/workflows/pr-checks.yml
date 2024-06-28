@@ -1,12 +1,10 @@
 name: PR Checks
-
 on:
   push:
     branches: [main, dev]
   pull_request:
     branches: [main, dev]
   workflow_dispatch:
-
 jobs:
   unit_tests:
     name: PR Checks
@@ -21,15 +19,14 @@ jobs:
       - name: Code style
         run: ruff check || true
         if: success() || failure()
-
-  #code_style:
-  #  name: Code Style
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #    - uses: actions/checkout@v4
-  #    - uses: ./.github/actions/setup-depiction
-  #      with:
-  #        python-version: 3.11
-  #    - name: Check code with ruff
-  #      run:
-  #        ruff check || true
+#code_style:
+#  name: Code Style
+#  runs-on: ubuntu-latest
+#  steps:
+#    - uses: actions/checkout@v4
+#    - uses: ./.github/actions/setup-depiction
+#      with:
+#        python-version: 3.11
+#    - name: Check code with ruff
+#      run:
+#        ruff check || true

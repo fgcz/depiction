@@ -7,7 +7,7 @@ from loguru import logger
 
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile, ImzmlReadFile
-from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned
+from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned, PeakFilteringType
 from depiction.spectrum.peak_picking import BasicInterpolatedPeakPicker
 from depiction.spectrum.peak_picking.ms_peak_picker_wrapper import MSPeakPicker
 from depiction.tools.pick_peaks import PickPeaks
@@ -29,9 +29,18 @@ def proc_pick_peaks(
         perform_peak_picking(config=config, read_file=read_file, output_imzml_path=output_imzml_path)
 
 
+def get_peak_filtering(config: model.PeakFiltering) -> PeakFilteringType | None:
+    match config:
+        case model.FilterNHighestIntensityPartitioned() as c:
+            return FilterNHighestIntensityPartitioned(max_count=c.max_count, n_partitions=c.n_partitions)
+        case None:
+            return None
+        case _:
+            raise ValueError(f"Unsupported peak filtering type: {config}")
+
+
 def perform_peak_picking(config: PipelineParameters, read_file: ImzmlReadFile, output_imzml_path: Path) -> None:
-    # TODO configurable filtering
-    peak_filtering = FilterNHighestIntensityPartitioned(max_count=200, n_partitions=8)
+    peak_filtering = get_peak_filtering(config.peak_filtering)
     parallel_config = ParallelConfig(n_jobs=config.n_jobs, task_size=None)
     match config.peak_picker:
         case model.PeakPickerBasicInterpolated() as peak_picker_config:

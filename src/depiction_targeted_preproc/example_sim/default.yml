@@ -7,6 +7,10 @@ peak_picker:
   min_prominence: 0.5
   min_distance: 0.9
   min_distance_unit: mz
+peak_filtering:
+  method: FilterNHighestIntensityPartitioned
+  max_count: 200
+  n_partitions: 8
 calibration:
   calibration_method: RegressShift
   max_distance: 3000

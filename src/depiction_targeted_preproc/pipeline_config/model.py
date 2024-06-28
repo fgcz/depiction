@@ -118,13 +118,21 @@ class PipelineArtifact(str, Enum):
     DEBUG = "DEBUG"
 
 
-# class PipelineParametersPreset(BaseModel, use_enum_values=True):
+class FilterNHighestIntensityPartitioned(BaseModel):
+    method: Literal["FilterNHighestIntensityPartitioned"]
+    max_count: int
+    n_partitions: int
+
+
+# PeakFiltering = Annotated[FilterNHighestIntensityPartitioned, Field(discriminator="method")] |None
+PeakFiltering = FilterNHighestIntensityPartitioned | None
 
 
 class PipelineParametersPreset(Model):
     baseline_adjustment: BaselineAdjustment
     calibration: Calibration
     peak_picker: PeakPicker
+    peak_filtering: PeakFiltering
     force_peak_picker: bool
 
 

@@ -6,6 +6,10 @@ peak_picker:
   peak_picker_type: MSPeakPicker
   fit_type: quadratic
 force_peak_picker: no
+peak_filtering:
+  method: FilterNHighestIntensityPartitioned
+  max_count: 200
+  n_partitions: 8
 #peak_picker:
 #  peak_picker_type: BasicInterpolated
 #  min_prominence: 0.5

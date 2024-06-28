@@ -89,6 +89,7 @@ class SnakemakeInvoke:
                 *base_command,
                 "--report",
                 self.report_file,
+                *[str(file.relative_to(work_dir)) for file in result_files],
             ]
             logger.info("Executing {command}", command=command)
             subprocess.run(

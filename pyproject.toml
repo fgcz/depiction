@@ -99,5 +99,8 @@ exclude_also = [
     "if TYPE_CHECKING:",
     ]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.codespell]
 ignore-words-list = "averagine,coo"

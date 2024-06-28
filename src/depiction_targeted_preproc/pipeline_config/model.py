@@ -5,10 +5,12 @@ from pathlib import Path
 from typing import Literal, Union, Annotated, Self
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class Model(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
     @classmethod
     def parse_yaml(cls, path: Path) -> Self:
         # TODO consider in the future a better mechanism for passing step configurations, maybe using

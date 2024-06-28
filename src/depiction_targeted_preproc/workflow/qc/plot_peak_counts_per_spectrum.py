@@ -1,29 +1,37 @@
 from pathlib import Path
 from typing import Annotated
+
 import altair as alt
 import polars as pl
 import typer
 from typer import Option
 
-from depiction.persistence import ImzmlReadFile
+from depiction.parallel_ops import ReadSpectraParallel, ParallelConfig
+from depiction.persistence import ImzmlReadFile, ImzmlReader
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
 
 
-def get_peak_counts(read_peaks: ImzmlReadFile, mass_groups: pl.DataFrame, n_jobs: int) -> pl.DataFrame:
-    # TODO parallelize, over all !!!FIXME
+def _get_chunk_counts(reader: ImzmlReader, spectra_ids: list[int], mass_groups: pl.DataFrame) -> pl.DataFrame:
     collect = []
-    with read_peaks.reader() as reader:
-        for i_spectrum in range(1000):
-            group_index, group_mz_min, group_mz_max = mass_groups.select(["group_index", "mz_min", "mz_max"])
-            mz_peaks = reader.get_spectrum_mz(i_spectrum)
-            collect.extend(
-                [
-                    {"group_index": g_index, "n_peaks": ((mz_peaks > g_mz_min) & (mz_peaks < g_mz_max)).sum()}
-                    for g_index, g_mz_min, g_mz_max in zip(group_index, group_mz_min, group_mz_max)
-                ]
-            )
+    for i_spectrum in spectra_ids:
+        mz_peaks = reader.get_spectrum_mz(i_spectrum)
+        collect.extend(
+            [
+                {"group_index": g_index, "n_peaks": ((mz_peaks > g_mz_min) & (mz_peaks < g_mz_max)).sum()}
+                for g_index, g_mz_min, g_mz_max in zip(
+                    mass_groups["group_index"], mass_groups["mz_min"], mass_groups["mz_max"]
+                )
+            ]
+        )
     return pl.DataFrame(collect)
+
+
+def get_peak_counts(read_peaks: ImzmlReadFile, mass_groups: pl.DataFrame, n_jobs: int) -> pl.DataFrame:
+    read_parallel = ReadSpectraParallel.from_config(ParallelConfig(n_jobs=n_jobs))
+    return read_parallel.map_chunked(
+        read_file=read_peaks, operation=_get_chunk_counts, bind_args={"mass_groups": mass_groups}, reduce_fn=pl.concat
+    )
 
 
 def qc_plot_peak_counts_per_spectrum(
@@ -42,9 +50,11 @@ def qc_plot_peak_counts_per_spectrum(
     print(peak_counts)
 
     plot_df = peak_counts.join(mass_groups, on="group_index", how="left")
+    n_peaks = plot_df["n_peaks"].sum()
 
     chart = alt.Chart(plot_df).mark_bar().encode(x=alt.X("n_peaks:Q").bin(maxbins=50), y="count()")
     chart = chart | chart.encode(color="mass_group:N")
+    chart = chart.properties(title=f"Peak counts per spectrum (N={n_peaks:,})")
     chart.save(output_pdf)
 
 

@@ -37,7 +37,13 @@ def qc_plot_peak_counts_per_mass_range(
     )
     logger.info(f"Plot dataframe: {plot_df}")
 
-    chart = alt.Chart(plot_df).mark_bar().encode(x="n_peaks:Q", y=alt.Y("mass_group:N", sort=None))
+    n_peaks = plot_df["n_peaks"].sum()
+    chart = (
+        alt.Chart(plot_df)
+        .mark_bar()
+        .encode(x="n_peaks:Q", y=alt.Y("mass_group:N", sort=None))
+        .properties(title=f"Peak counts per spectrum (N={n_peaks:,})")
+    )
     chart.save(output_pdf)
 
 

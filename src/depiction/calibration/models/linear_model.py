@@ -46,14 +46,25 @@ class LinearModel:
         return cls([0, 0])
 
     @classmethod
-    def fit_lsq(cls, x_arr: NDArray[float], y_arr: NDArray[float]) -> LinearModel:
+    def fit_lsq(cls, x_arr: NDArray[float], y_arr: NDArray[float], min_points: int | None = None) -> LinearModel:
         """Fits a linear model to the given data using least squares regression."""
+        if min_points is not None and x_arr.size < min_points:
+            return cls.fit_constant(y_arr=y_arr)
         model = sklearn.linear_model.LinearRegression()
         model.fit(x_arr[:, np.newaxis], y_arr[:, np.newaxis])
         return LinearModel(coef=[model.intercept_[0], model.coef_[0, 0]])
 
     @classmethod
-    def fit_siegelslopes(cls, x_arr: NDArray[float], y_arr: NDArray[float]) -> LinearModel:
+    def fit_siegelslopes(
+        cls, x_arr: NDArray[float], y_arr: NDArray[float], min_points: int | None = None
+    ) -> LinearModel:
         """Fits a linear model to the given data using robust Siegel-Slopes regression."""
+        if min_points is not None and x_arr.size < min_points:
+            return cls.fit_constant(y_arr)
         slope, intercept = scipy.stats.siegelslopes(y=y_arr, x=x_arr)
         return LinearModel(coef=[intercept, slope])
+
+    @classmethod
+    def fit_constant(cls, y_arr: NDArray[float]) -> LinearModel:
+        """Fits a constant model to the given data."""
+        return LinearModel(coef=[np.mean(y_arr), 0])

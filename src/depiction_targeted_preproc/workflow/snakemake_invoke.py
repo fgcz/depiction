@@ -12,6 +12,7 @@ class SnakemakeInvoke:
     snakefile_name: str = "Snakefile"
     use_subprocess: bool = True
     continue_on_error: bool = False
+    report_file: str | None = "report.html"
 
     def invoke(self, work_dir: Path, result_files: list[Path], n_cores: int = 1) -> None:
         if self.use_subprocess:
@@ -59,6 +60,8 @@ class SnakemakeInvoke:
         extra_args = []
         if self.continue_on_error:
             extra_args.append("--keep-going")
+        if self.report_file:
+            extra_args.extend(["--report", self.report_file])
         command = [
             snakemake_bin,
             "-d",

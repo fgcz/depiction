@@ -6,7 +6,7 @@ class ImzmlAlignmentTracker:
     """
     Helper class that tracks whether the spectra added to a writer are aligned.
     The logic has been extracted to this dedicated class since it's fairly slow, and should be refactored
-    once a native implementaiton of the imzml parser is available.
+    once a native implementation of the imzml parser is available.
     """
 
     def __init__(self, first_mz_arr: Optional[np.ndarray] = None, is_aligned: bool = False) -> None:

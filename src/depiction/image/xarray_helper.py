@@ -8,7 +8,6 @@ from xarray import DataArray
 
 
 class XarrayHelper:
-
     @staticmethod
     def is_sparse(values: DataArray) -> bool:
         """Returns whether the DataArray is sparse."""

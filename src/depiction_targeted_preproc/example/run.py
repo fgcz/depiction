@@ -1,6 +1,4 @@
-import os
 import shutil
-import subprocess
 from pathlib import Path
 
 import yaml
@@ -20,9 +18,12 @@ def main() -> None:
     dir_output.mkdir(exist_ok=True, parents=True)
     # sample_name = "menzha_20231208_s607930_64074-b20-30928-a"
     # sample_name = "menzha_20231210_s607943_64005-b20-47740-g"
-    sample_name = "menzha_20231208_s607923_tonsil-repro-sample-01"
+    # sample_name = "menzha_20231208_s607923_tonsil-repro-sample-01"
+    sample_name = "menzha_20231208_s607923_tonsil-repro-sample-01-findmf"
     # sample_name = "menzha_20231208_s607923_tonsil-repro-sample-01_mcc"
     # sample_name = "menzha_20231208_s607923_tonsil-repro-sample-01_peptnoise"
+    # sample_name = "antdit_20240606_mbrain_20um"
+    # sample_name = "20240606_mbrain_20um_timstof"
 
     params_file = Path(__file__).parents[1] / "pipeline_config" / "default.yml"
     params = PipelineParameters.model_validate(yaml.safe_load(params_file.read_text()))
@@ -31,7 +32,8 @@ def main() -> None:
     if not (dir_work / sample_name / "raw.imzML").exists():
         initial_setup(
             input_imzml=dir_raw / f"{sample_name}.imzML",
-            input_mass_list=dir_raw / "mass_list_vend.csv",
+            # input_mass_list=dir_raw / "mass_list_vend.csv",
+            input_mass_list=dir_raw / "Dataset_50020.csv",
             params_file=params_file,
             dir=dir_work / sample_name,
         )

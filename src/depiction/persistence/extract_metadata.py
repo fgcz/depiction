@@ -9,7 +9,7 @@ from depiction.persistence.pixel_size import PixelSize
 class Metadata(BaseModel):
     pixel_size: PixelSize
     data_processing: list[str]
-    softwares: list[str]
+    software: list[str]
 
 
 class ExtractMetadata:
@@ -25,7 +25,7 @@ class ExtractMetadata:
         return Metadata(
             pixel_size=extractor.pixel_size(),
             data_processing=extractor.data_processing(),
-            softwares=extractor.softwares(),
+            software=extractor.software(),
         )
 
     @cached_property
@@ -64,6 +64,6 @@ class ExtractMetadata:
         items = self._etree.findall(f".//{self._ns}processingMethod/{self._ns}cvParam")
         return [item.attrib["name"] for item in items]
 
-    def softwares(self) -> list[str]:
+    def software(self) -> list[str]:
         items = self._etree.findall(f".//{self._ns}software/{self._ns}cvParam")
         return [item.attrib["name"] for item in items]

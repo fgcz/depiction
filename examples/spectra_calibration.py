@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Tuple, Any
 
 from matplotlib import pyplot as plt
 from numpy.typing import NDArray
@@ -8,54 +7,51 @@ import numpy as np
 import scipy
 import statsmodels.api as sm
 from statsmodels.robust.norms import HuberT
-import pandas as pd
-from depiction.calibration.models.fit_model import fit_model
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
 from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned
 from depiction.spectrum.peak_picking import BasicInterpolatedPeakPicker
 import scipy.stats as stats
 
+
 class NewCalibrationMethod:
     def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
         l_none = 1.000482
-        #c_0 = 0.029
-        #c_1 = 4.98*10e-4
+        # c_0 = 0.029
+        # c_1 = 4.98*10e-4
 
-        plt.scatter(peak_mz_arr, peak_int_arr, color='blue', alpha=0.5, marker='x', label='delta_lambda vs x', s=0.3)
+        plt.scatter(peak_mz_arr, peak_int_arr, color="blue", alpha=0.5, marker="x", label="delta_lambda vs x", s=0.3)
         plt.xlim(1300, 1400)
         plt.show()
 
         # compute all differences for elements in peak_mz_arr amd store in a DataArray
-        #delta = scipy.spatial.distance_matrix(np.expand_dims(peak_mz_arr,1), np.expand_dims(peak_mz_arr,1), p = 1)
-        delta = scipy.spatial.distance.pdist(np.expand_dims(peak_mz_arr, 1), metric='cityblock')
+        # delta = scipy.spatial.distance_matrix(np.expand_dims(peak_mz_arr,1), np.expand_dims(peak_mz_arr,1), p = 1)
+        delta = scipy.spatial.distance.pdist(np.expand_dims(peak_mz_arr, 1), metric="cityblock")
         # get all distances smaller then 500
-
 
         delta = delta[delta < 500]
         # for each x compute
         # Compute delta_lambda for each x
         delta_lambda = self.compute_distance_from_MCC(delta, l_none)
 
-        #sorted_indices = np.argsort(delta)
-        #delta = delta[sorted_indices]
-        #delta_lambda = delta_lambda[sorted_indices]
+        # sorted_indices = np.argsort(delta)
+        # delta = delta[sorted_indices]
+        # delta_lambda = delta_lambda[sorted_indices]
 
         # Add a constant term with the intercept set to zero
         X = delta.reshape(-1, 1)
 
-
         # Fit the model
-        robust_model = sm.RLM(delta_lambda, X, M = HuberT())
+        robust_model = sm.RLM(delta_lambda, X, M=HuberT())
         results = robust_model.fit()
 
         if False:
-            plt.scatter(delta, delta_lambda, color='blue', alpha=0.5, marker='x', label='delta_lambda vs x', s = 0.3)
-            plt.plot(delta,  results.predict(X) , color='red', label='fit')
+            plt.scatter(delta, delta_lambda, color="blue", alpha=0.5, marker="x", label="delta_lambda vs x", s=0.3)
+            plt.plot(delta, results.predict(X), color="red", label="fit")
             plt.show()
 
         slope = results.params[0]
         peak_mz_corrected = peak_mz_arr + results.predict(np.expand_dims(peak_mz_arr, 1))
-        peak_mz_corrected2 = peak_mz_arr * ( 1 - slope)
+        peak_mz_corrected2 = peak_mz_arr * (1 - slope)
 
         delta_intercept = self.compute_distance_from_MCC(peak_mz_corrected2, l_none)
         intercept_coef = stats.trim_mean(delta_intercept, 0.3)
@@ -63,13 +59,12 @@ class NewCalibrationMethod:
         if False:
             plt.hist(delta_intercept, bins=100)
             # add vertical abline at intercept_coef
-            plt.axvline(intercept_coef, color='red')
+            plt.axvline(intercept_coef, color="red")
             plt.show()
 
         return DataArray([intercept_coef, slope], dims=["c"])
 
-
-    def compute_distance_from_MCC(self ,delta: NDArray[float], l_none = 1.000482) -> NDArray[float]:
+    def compute_distance_from_MCC(self, delta: NDArray[float], l_none=1.000482) -> NDArray[float]:
         delta_lambda = np.zeros_like(delta)
         for i, mi in enumerate(delta):
             term1 = mi % l_none
@@ -86,14 +81,15 @@ class NewCalibrationMethod:
 
         # check calibration here
         delta_intercept = self.compute_distance_from_MCC(spectrum_corrected)
-        #intercept_coef = np.mean(delta_intercept)
+        # intercept_coef = np.mean(delta_intercept)
         intercept_coef = stats.trim_mean(delta_intercept, 0.3)
         # add histogram of delta_intercept
         plt.hist(delta_intercept, bins=100)
         # add vertical abline at intercept_coef
-        plt.axvline(intercept_coef, color='red')
+        plt.axvline(intercept_coef, color="red")
         plt.show()
-        return (spectrum_corrected,spectrum_int_arr)
+        return (spectrum_corrected, spectrum_int_arr)
+
 
 def main() -> None:
     with ImzmlReadFile("sample.imzML").reader() as reader:
@@ -103,10 +99,13 @@ def main() -> None:
             spectra_original.append((mz_arr, int_arr))
 
     # TODO adjust params?
-    peak_picker = BasicInterpolatedPeakPicker(min_prominence=2, min_distance=0.9, min_distance_unit="mz", peak_filtering=FilterNHighestIntensityPartitioned(max_count=200, n_partitions=8),)
-    spectra_picked = [
-        peak_picker.pick_peaks(mz_arr, int_arr) for mz_arr, int_arr in spectra_original
-    ]
+    peak_picker = BasicInterpolatedPeakPicker(
+        min_prominence=2,
+        min_distance=0.9,
+        min_distance_unit="mz",
+        peak_filtering=FilterNHighestIntensityPartitioned(max_count=200, n_partitions=8),
+    )
+    spectra_picked = [peak_picker.pick_peaks(mz_arr, int_arr) for mz_arr, int_arr in spectra_original]
 
     # show picker result
     mz_arr, int_arr = spectra_picked[0]
@@ -129,8 +128,9 @@ def main() -> None:
     print("Applying models...")
     spectra_calib = []
     for (mz_arr, int_arr), features in zip(spectra_picked, all_features):
-        mz_arr, int_arr = calib.apply_spectrum_model(spectrum_mz_arr=mz_arr, spectrum_int_arr=int_arr,
-                                                     model_coef=features)
+        mz_arr, int_arr = calib.apply_spectrum_model(
+            spectrum_mz_arr=mz_arr, spectrum_int_arr=int_arr, model_coef=features
+        )
         spectra_calib.append((mz_arr, int_arr))
 
     # compare the spectra somehow...

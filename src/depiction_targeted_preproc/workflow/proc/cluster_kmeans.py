@@ -8,7 +8,6 @@ from loguru import logger
 from sklearn.cluster import BisectingKMeans, KMeans
 from sklearn.decomposition import NMF
 from sklearn.metrics import silhouette_score
-from sklearn.preprocessing import StandardScaler
 from typer import Option
 from xarray import DataArray
 

@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import Sequence, Annotated
+from typing import Annotated
+from collections.abc import Sequence
 
 import numpy as np
 import polars as pl

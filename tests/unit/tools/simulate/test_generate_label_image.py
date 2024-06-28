@@ -59,7 +59,7 @@ def test_render(generate) -> None:
     ]
     image = generate.render()
     assert image.n_channels == 3
-    assert (2, 2) == image.dimensions
+    assert image.dimensions == (2, 2)
     assert ["synthetic_0", "synthetic_1", "synthetic_2"] == image.channel_names
 
 

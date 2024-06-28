@@ -30,9 +30,9 @@ def main() -> None:
 
     imzmls = [
         "menzha_20231208_s607923_tonsil-repro-sample-01.imzML",
-        "menzha_20231208_s607923_tonsil-repro-sample-02.imzML",
-        "menzha_20231208_s607930_64074-b20-30928-a.imzML",
-        "menzha_20240212_tonsil_06-50.imzML",
+        # "menzha_20231208_s607923_tonsil-repro-sample-02.imzML",
+        # "menzha_20231208_s607930_64074-b20-30928-a.imzML",
+        # "menzha_20240212_tonsil_06-50.imzML",
     ]
 
     requested_files = []
@@ -40,7 +40,7 @@ def main() -> None:
         requested_files += prepare_tasks(data_raw_dir / imzml, work_dir=work_dir)
 
     ## TODO quick hack
-    # requested_files = [f for f in requested_files if "mini" in str(f)]
+    requested_files = [f for f in requested_files if "mini" in str(f) or "presence" in str(f)]
 
     SnakemakeInvoke(continue_on_error=True).invoke(work_dir=work_dir, result_files=requested_files, n_cores=4)
 

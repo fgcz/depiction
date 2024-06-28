@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Annotated
 
-import math
 import numpy as np
 import typer
 import xarray

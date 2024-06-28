@@ -20,7 +20,7 @@ def proc_export_raw_metadata(
         logger.info("Using dummy metadata instead!")
         # TODO maybe this should be revisited in the future and handled as `None`
         metadata = Metadata(
-            pixel_size=PixelSize(size_x=1, size_y=1, unit="micrometer"), data_processing=[], softwares=[]
+            pixel_size=PixelSize(size_x=1, size_y=1, unit="micrometer"), data_processing=[], software=[]
         )
     with output_json_path.open("w") as file:
         file.write(metadata.model_dump_json())

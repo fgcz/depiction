@@ -86,15 +86,21 @@ class TestBasicPeakPicker:
         mock_min_distance = 3
         mock_min_distance_unit = "index"
         mock_mz_arr = MagicMock(name="mock_mz_arr", spec=[])
-        assert 3 == BasicPeakPicker.get_min_distance_indices(
-            min_distance=mock_min_distance, min_distance_unit=mock_min_distance_unit, mz_arr=mock_mz_arr
+        assert (
+            BasicPeakPicker.get_min_distance_indices(
+                min_distance=mock_min_distance, min_distance_unit=mock_min_distance_unit, mz_arr=mock_mz_arr
+            )
+            == 3
         )
 
     def test_get_min_distance_indices_when_unit_mz(self) -> None:
         mock_min_distance = 0.5
         mock_min_distance_unit = "mz"
-        assert 5 == BasicPeakPicker.get_min_distance_indices(
-            min_distance=mock_min_distance, min_distance_unit=mock_min_distance_unit, mz_arr=self.mock_mz_arr
+        assert (
+            BasicPeakPicker.get_min_distance_indices(
+                min_distance=mock_min_distance, min_distance_unit=mock_min_distance_unit, mz_arr=self.mock_mz_arr
+            )
+            == 5
         )
 
 

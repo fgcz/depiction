@@ -41,7 +41,7 @@ def plot_marker_presence(df_peak_dist: pl.DataFrame, n_spectra: int, out_path: P
             x=alt.X("sum(fraction):Q", scale=alt.Scale(domain=[0, 1]), title="Fraction of spectra with peaks detected"),
             y=alt.Y("label:N", sort=list(sorted_labels), title=None),
             color=alt.Color("detection_dist:N", legend=alt.Legend(title="Max distance cutoff", orient="top")),
-            **layout_config
+            **layout_config,
         )
         .properties(title=alt.Title("Marker presence at different mass windows", anchor="middle"), **size_config)
         .configure_axis(labelFontSize=14, titleFontSize=16)

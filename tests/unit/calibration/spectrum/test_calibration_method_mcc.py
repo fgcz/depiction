@@ -1,6 +1,5 @@
 import unittest
 
-import numpy as np
 
 from depiction.calibration.spectrum.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
 

@@ -11,6 +11,7 @@ from depiction.spectrum.peak_filtering import PeakFilteringType
 @dataclass
 class FilterBySnrThreshold(PeakFilteringType):
     """Implements SNR threshold based on a median absolute deviation (MAD) estimate of the noise level."""
+
     snr_threshold: float
     window_size: int = 10
 

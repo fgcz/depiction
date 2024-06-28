@@ -20,15 +20,16 @@ ARTIFACT_FILES_MAPPING = {
     ],
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",
-        #"qc/plot_spectra_for_marker.pdf",
+        # "qc/plot_spectra_for_marker.pdf",
         # "qc/plot_sample_spectra_before_after.pdf",
         "qc/plot_peak_counts.pdf",
         "qc/plot_scan_direction.pdf",
         "cluster_default_kmeans.hdf5",
-        "cluster_default_stats_kmeans.csv",
+        #        "cluster_default_stats_kmeans.csv",
         "cluster_default_kmeans.png",
         "cluster_default_hdbscan.png",
-        #"qc/plot_marker_presence_mini.pdf",
+        # "exp_plot_map_comparison.pdf",
+        # "qc/plot_marker_presence_mini.pdf",
     ],
 }
 

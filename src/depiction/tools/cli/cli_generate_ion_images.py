@@ -11,6 +11,7 @@ from depiction.tools.generate_ion_image import GenerateIonImage
 
 # TODO for the cli module we should figure out a sane way to configure the default n_jobs value
 
+
 def generate_ion_images(
     imzml_path: Annotated[Path, typer.Option()],
     mass_list_path: Annotated[Path, typer.Option()],

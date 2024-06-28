@@ -1,7 +1,7 @@
 from collections import defaultdict
 from collections.abc import Generator
 from contextlib import contextmanager
-from functools import cached_property, cache
+from functools import cached_property
 from pathlib import Path
 from typing import Any, Optional
 

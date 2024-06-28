@@ -2,11 +2,12 @@ rule qc_table_marker_distances_baseline:
     input:
         imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
         mass_list="{sample}/mass_list.visualization.csv",
+        config="{sample}/pipeline_params.yml",
     output:
         table="{sample}/qc/table_marker_distances_baseline.parquet",
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.table_marker_distances"
-        " --imzml-peaks {input.imzml[0]} --mass-list {input.mass_list}"
+        " --imzml-peaks {input.imzml[0]} --mass-list {input.mass_list} --config-path {input.config}"
         " --output-table {output.table}"
 
 
@@ -14,11 +15,12 @@ rule qc_table_marker_distances_calib:
     input:
         imzml_peaks="{sample}/calibrated.imzML",
         mass_list="{sample}/mass_list.visualization.csv",
+        config="{sample}/pipeline_params.yml",
     output:
         table="{sample}/qc/table_marker_distances_calib.parquet",
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.table_marker_distances"
-        " --imzml-peaks {input.imzml_peaks} --mass-list {input.mass_list}"
+        " --imzml-peaks {input.imzml_peaks} --mass-list {input.mass_list} --config-path {input.config}"
         " --output-table {output.table}"
 
 

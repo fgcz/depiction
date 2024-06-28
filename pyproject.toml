@@ -64,7 +64,7 @@ dev = [
     "xmltodict",
     "licensecheck",
     "hdbscan",
-    "nox"
+    "nox[uv]"
 ]
 
 # potentially relevant in the future again:

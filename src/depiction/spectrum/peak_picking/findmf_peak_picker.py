@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-from findmfpy.api import pick_peaks as _pick_peaks
+import findmfpy
 from numpy.typing import NDArray
 
 
@@ -21,7 +21,7 @@ class FindMFPeakpicker:
     def pick_peaks(
         self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
-        return _pick_peaks(
+        return findmfpy.pick_peaks(
             mz_arr,
             int_arr,
             resolution=self.resolution,

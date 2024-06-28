@@ -60,9 +60,9 @@ class SnakemakeInvoke:
         extra_args = []
         if self.continue_on_error:
             extra_args.append("--keep-going")
-        if self.report_file:
-            extra_args.extend(["--report", self.report_file])
-        command = [
+        # if self.report_file:
+        #    extra_args.extend(["--report", self.report_file])
+        base_command = [
             snakemake_bin,
             "-d",
             str(work_dir),
@@ -73,6 +73,9 @@ class SnakemakeInvoke:
             # TODO configurable
             "--rerun-incomplete",
             *extra_args,
+        ]
+        command = [
+            *base_command,
             *[str(file.relative_to(work_dir)) for file in result_files],
         ]
         logger.info("Executing {command}", command=command)
@@ -81,3 +84,15 @@ class SnakemakeInvoke:
             cwd=self.workflow_dir,
             check=True,
         )
+        if self.report_file:
+            command = [
+                *base_command,
+                "--report",
+                self.report_file,
+            ]
+            logger.info("Executing {command}", command=command)
+            subprocess.run(
+                command,
+                cwd=self.workflow_dir,
+                check=True,
+            )

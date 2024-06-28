@@ -139,6 +139,18 @@ rule qc_plot_peak_counts:
         " --output-pdf {output.pdf}"
 
 
+rule qc_plot_peak_counts_per_mass_range:
+    input:
+        imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
+        config="{sample}/pipeline_params.yml",
+    output:
+        pdf="{sample}/qc/plot_peak_counts_per_mass_range.pdf",
+    shell:
+        "python -m depiction_targeted_preproc.workflow.qc.plot_peak_counts_per_mass_range"
+        " --config-path {input.config} --imzml-peaks {input.imzml[0]}"
+        " --output-pdf {output.pdf}"
+
+
 rule qc_plot_scan_direction:
     input:
         imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),

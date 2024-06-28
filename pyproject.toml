@@ -63,7 +63,8 @@ dev = [
     "tifffile>=2024.2.12",
     "xmltodict",
     "licensecheck",
-    "hdbscan"
+    "hdbscan",
+    "nox"
 ]
 
 # potentially relevant in the future again:

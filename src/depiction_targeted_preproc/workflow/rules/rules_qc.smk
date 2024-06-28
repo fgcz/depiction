@@ -127,14 +127,14 @@ rule qc_plot_spectra_for_marker:
         " --output-pdf {output.pdf}"
 
 
-rule qc_plot_peak_counts:
+rule qc_plot_peak_counts_per_spectrum:
     input:
         imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
         config="{sample}/pipeline_params.yml",
     output:
-        pdf="{sample}/qc/plot_peak_counts.pdf",
+        pdf="{sample}/qc/plot_peak_counts_per_spectrum.pdf",
     shell:
-        "python -m depiction_targeted_preproc.workflow.qc.plot_peak_counts"
+        "python -m depiction_targeted_preproc.workflow.qc.plot_peak_counts_per_spectrum"
         " --config-path {input.config} --imzml-peaks {input.imzml[0]}"
         " --output-pdf {output.pdf}"
 

@@ -11,7 +11,7 @@ from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass
 
 
 def get_peak_counts(read_peaks: ImzmlReadFile, mass_groups: pl.DataFrame, n_jobs: int) -> pl.DataFrame:
-    # TODO parallelize, over all
+    # TODO parallelize, over all !!!FIXME
     collect = []
     with read_peaks.reader() as reader:
         for i_spectrum in range(1000):
@@ -26,7 +26,7 @@ def get_peak_counts(read_peaks: ImzmlReadFile, mass_groups: pl.DataFrame, n_jobs
     return pl.DataFrame(collect)
 
 
-def qc_plot_peak_counts(
+def qc_plot_peak_counts_per_spectrum(
     imzml_peaks: Annotated[Path, Option()],
     output_pdf: Annotated[Path, Option()],
     config_path: Annotated[Path, Option()],
@@ -49,4 +49,4 @@ def qc_plot_peak_counts(
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_peak_counts)
+    typer.run(qc_plot_peak_counts_per_spectrum)

@@ -10,7 +10,7 @@ from typer import Option
 from depiction.persistence import ImzmlReadFile
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
-from depiction_targeted_preproc.workflow.qc.plot_peak_counts import get_peak_counts
+from depiction_targeted_preproc.workflow.qc.plot_peak_counts_per_spectrum import get_peak_counts
 
 
 def qc_plot_peak_counts_per_mass_range(

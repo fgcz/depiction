@@ -11,9 +11,6 @@ from depiction.persistence import ImzmlReadFile, ImzmlReader
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 
 
-# TODO maybe rename to marker_surroundings
-
-
 def _get_marker_surroundings_chunk(
     reader: ImzmlReader, spectra_ids: list[int], targets: list[tuple[float, str]], mz_max_dist: float
 ) -> pl.DataFrame:
@@ -39,7 +36,7 @@ def _get_marker_surroundings_chunk(
     return pl.from_dicts(collect).explode(["dist", "mz_peak"])
 
 
-def get_peak_dist(
+def get_marker_surroundings(
     read_file: ImzmlReadFile, mz_targets: Sequence[float], mz_labels: Sequence[str], mz_max_dist: float, n_jobs: int
 ) -> pl.DataFrame:
     read_parallel = ReadSpectraParallel.from_config(ParallelConfig(n_jobs=n_jobs))
@@ -54,7 +51,7 @@ def get_peak_dist(
     )
 
 
-def qc_table_marker_distances(
+def qc_table_marker_surroundings(
     imzml_peaks: Annotated[Path, typer.Option()],
     mass_list: Annotated[Path, typer.Option()],
     config_path: Annotated[Path, typer.Option()],
@@ -66,7 +63,7 @@ def qc_table_marker_distances(
 
     read_file = ImzmlReadFile(imzml_peaks)
     mass_list_df = pl.read_csv(mass_list)
-    dist_df = get_peak_dist(
+    dist_df = get_marker_surroundings(
         read_file=read_file,
         mz_targets=mass_list_df["mass"].to_list(),
         mz_labels=mass_list_df["label"].to_list(),
@@ -78,7 +75,7 @@ def qc_table_marker_distances(
 
 def main() -> None:
     """Parses CLI args and calls `qc_table_marker_distances`."""
-    typer.run(qc_table_marker_distances)
+    typer.run(qc_table_marker_surroundings)
 
 
 if __name__ == "__main__":

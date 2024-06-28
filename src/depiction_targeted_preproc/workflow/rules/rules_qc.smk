@@ -1,39 +1,39 @@
-rule qc_table_marker_distances_baseline:
+rule qc_table_marker_surroundings_baseline:
     input:
         imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
         mass_list="{sample}/mass_list.visualization.csv",
         config="{sample}/pipeline_params.yml",
     output:
-        table="{sample}/qc/table_marker_distances_baseline.parquet",
+        table="{sample}/qc/table_marker_surroundings_baseline.parquet",
     shell:
-        "python -m depiction_targeted_preproc.workflow.qc.table_marker_distances"
+        "python -m depiction_targeted_preproc.workflow.qc.table_marker_surroundings"
         " --imzml-peaks {input.imzml[0]} --mass-list {input.mass_list} --config-path {input.config}"
         " --output-table {output.table}"
 
 
-rule qc_table_marker_distances_calib:
+rule qc_table_marker_surroundings_calib:
     input:
         imzml_peaks="{sample}/calibrated.imzML",
         mass_list="{sample}/mass_list.visualization.csv",
         config="{sample}/pipeline_params.yml",
     output:
-        table="{sample}/qc/table_marker_distances_calib.parquet",
+        table="{sample}/qc/table_marker_surroundings_calib.parquet",
     shell:
-        "python -m depiction_targeted_preproc.workflow.qc.table_marker_distances"
+        "python -m depiction_targeted_preproc.workflow.qc.table_marker_surroundings"
         " --imzml-peaks {input.imzml_peaks} --mass-list {input.mass_list} --config-path {input.config}"
         " --output-table {output.table}"
 
 
 rule qc_plot_marker_presence:
     input:
-        table_marker_distances_baseline="{sample}/qc/table_marker_distances_baseline.parquet",
-        table_marker_distances_calib="{sample}/qc/table_marker_distances_calib.parquet",
+        table_marker_surroundings_baseline="{sample}/qc/table_marker_surroundings_baseline.parquet",
+        table_marker_surroundings_calib="{sample}/qc/table_marker_surroundings_calib.parquet",
     output:
         pdf="{sample}/qc/plot_marker_presence.pdf",
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.plot_marker_presence"
-        " --table-marker-distances-baseline {input.table_marker_distances_baseline}"
-        " --table-marker-distances-calib {input.table_marker_distances_calib}"
+        " --table-marker-distances-baseline {input.table_marker_surroundings_baseline}"
+        " --table-marker-distances-calib {input.table_marker_surroundings_calib}"
         " --output-pdf {output.pdf}"
 
 
@@ -50,28 +50,28 @@ rule qc_plot_marker_presence_cv:
 
 rule qc_plot_peak_density_combined:
     input:
-        table_marker_distances_baseline="{sample}/qc/table_marker_distances_baseline.parquet",
-        table_marker_distances_calib="{sample}/qc/table_marker_distances_calib.parquet",
+        table_marker_surroundings_baseline="{sample}/qc/table_marker_surroundings_baseline.parquet",
+        table_marker_surroundings_calib="{sample}/qc/table_marker_surroundings_calib.parquet",
     output:
         pdf="{sample}/qc/plot_peak_density_combined.pdf",
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.plot_peak_density"
-        " --table-marker-distances-baseline {input.table_marker_distances_baseline}"
-        " --table-marker-distances-calib {input.table_marker_distances_calib}"
+        " --table-marker-distances-baseline {input.table_marker_surroundings_baseline}"
+        " --table-marker-distances-calib {input.table_marker_surroundings_calib}"
         " --no-grouped"
         " --output-pdf {output.pdf}"
 
 
 rule qc_plot_peak_density_grouped:
     input:
-        table_marker_distances_baseline="{sample}/qc/table_marker_distances_baseline.parquet",
-        table_marker_distances_calib="{sample}/qc/table_marker_distances_calib.parquet",
+        table_marker_surroundings_baseline="{sample}/qc/table_marker_surroundings_baseline.parquet",
+        table_marker_surroundings_calib="{sample}/qc/table_marker_surroundings_calib.parquet",
     output:
         pdf="{sample}/qc/plot_peak_density_grouped.pdf",
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.plot_peak_density"
-        " --table-marker-distances-baseline {input.table_marker_distances_baseline}"
-        " --table-marker-distances-calib {input.table_marker_distances_calib}"
+        " --table-marker-distances-baseline {input.table_marker_surroundings_baseline}"
+        " --table-marker-distances-calib {input.table_marker_surroundings_calib}"
         " --grouped"
         " --output-pdf {output.pdf}"
 
@@ -118,8 +118,8 @@ rule qc_plot_sample_spectra_before_after:
 # TODO
 rule qc_plot_spectra_for_marker:
     input:
-        marker_surrounding_baseline="{sample}/qc/table_marker_distances_baseline.parquet",
-        marker_surrounding_calib="{sample}/qc/table_marker_distances_calib.parquet",
+        marker_surrounding_baseline="{sample}/qc/table_marker_surroundings_baseline.parquet",
+        marker_surrounding_calib="{sample}/qc/table_marker_surroundings_calib.parquet",
     output:
         pdf="{sample}/qc/plot_spectra_for_marker.pdf",
     shell:

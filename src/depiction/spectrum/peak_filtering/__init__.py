@@ -1,7 +1,6 @@
 from .chain_filters import ChainFilters
 from .filter_by_intensity import FilterByIntensity
 from .filter_by_isotope_distance import FilterByIsotopeDistance
-from .filter_by_isotope_pattern import FilterByIsotopePattern
 from .filter_by_reference_peak_distance import FilterByReferencePeakDistance
 from .filter_n_highest_intensity import FilterNHighestIntensity
 from .filter_n_highest_intensity_partitioned import FilterNHighestIntensityPartitioned
@@ -11,7 +10,6 @@ __all__ = [
     "ChainFilters",
     "FilterByIntensity",
     "FilterByIsotopeDistance",
-    "FilterByIsotopePattern",
     "FilterByReferencePeakDistance",
     "FilterNHighestIntensity",
     "FilterNHighestIntensityPartitioned",

@@ -4,6 +4,7 @@ from typing import Annotated
 import altair as alt
 import polars as pl
 import typer
+from loguru import logger
 from typer import Option
 
 from depiction.parallel_ops import ReadSpectraParallel, ParallelConfig
@@ -44,17 +45,20 @@ def qc_plot_peak_counts_per_spectrum(
     with read_peaks.reader() as reader:
         mass_min, mass_max = reader.get_spectrum_mz(0)[[0, -1]]
     mass_groups = get_mass_groups(mass_min=mass_min, mass_max=mass_max, n_bins=5)
-    print(mass_groups)
+    logger.info(f"Mass groups: {mass_groups}")
 
     peak_counts = get_peak_counts(read_peaks=read_peaks, mass_groups=mass_groups, n_jobs=config.n_jobs)
-    print(peak_counts)
+    logger.info("Peak counts: {peak_counts}")
 
     plot_df = peak_counts.join(mass_groups, on="group_index", how="left")
     n_peaks = plot_df["n_peaks"].sum()
 
-    chart = alt.Chart(plot_df).mark_bar().encode(x=alt.X("n_peaks:Q").bin(maxbins=50), y="count()")
-    chart = chart | chart.encode(color="mass_group:N")
-    chart = chart.properties(title=f"Peak counts per spectrum (N={n_peaks:,})")
+    chart = (
+        alt.Chart(plot_df)
+        .mark_bar()
+        .encode(x=alt.X("n_peaks:Q").bin(maxbins=50), y="count()", color="mass_group:N")
+        .properties(title=f"Peak counts per spectrum (N={n_peaks:,})")
+    )
     chart.save(output_pdf)
 
 

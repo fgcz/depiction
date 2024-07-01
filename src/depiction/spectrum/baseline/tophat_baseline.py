@@ -98,7 +98,7 @@ def _optimize_structuring_element_size(int_arr: NDArray[float], tolerance: float
     # TODO this is quite slow, taking about 2s for an array with 40k elements
     openings = []
 
-    def eq_relation(opening_1, opening_2):
+    def eq_relation(opening_1: NDArray[float], opening_2: NDArray[float]) -> bool:
         rel_diff = np.abs(opening_1 - opening_2) / np.maximum(opening_1, opening_2)
         return np.all(rel_diff < tolerance)
 

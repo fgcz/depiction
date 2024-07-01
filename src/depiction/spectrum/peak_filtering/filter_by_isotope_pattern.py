@@ -25,7 +25,7 @@ class FilterByIsotopePattern:
     n_isotopic_peaks_max: int
     mass_distance_tolerance: float
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._isotope_pattern_matcher = IsotopePatternMatcher(
             cache_size=1000,
             cache_tolerance=0.5,

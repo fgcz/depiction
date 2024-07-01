@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-import numpy as np
 import findmfpy
-from numpy.typing import NDArray
+
+if TYPE_CHECKING:
+    import numpy as np
+    from numpy.typing import NDArray
 
 
 @dataclass

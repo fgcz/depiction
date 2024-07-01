@@ -20,17 +20,17 @@ class TestWriteSpectraParallel(unittest.TestCase):
             (
                 ImzmlModeEnum.CONTINUOUS,
                 [
-                    "/dev/null/mock/continuous_0.imzML",
-                    "/dev/null/mock/continuous_1.imzML",
-                    "/dev/null/mock/continuous_2.imzML",
+                    Path("/dev/null/mock/continuous_0.imzML"),
+                    Path("/dev/null/mock/continuous_1.imzML"),
+                    Path("/dev/null/mock/continuous_2.imzML"),
                 ],
             ),
             (
                 ImzmlModeEnum.PROCESSED,
                 [
-                    "/dev/null/mock/processed_0.imzML",
-                    "/dev/null/mock/processed_1.imzML",
-                    "/dev/null/mock/processed_2.imzML",
+                    Path("/dev/null/mock/processed_0.imzML"),
+                    Path("/dev/null/mock/processed_1.imzML"),
+                    Path("/dev/null/mock/processed_2.imzML"),
                 ],
             ),
         ]
@@ -66,7 +66,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
         )
 
         mock_get_split_modes_and_paths.assert_called_once_with(
-            work_directory="/dev/null/tmpdir",
+            work_directory=Path("/dev/null/tmpdir"),
             spectra_indices=None,
             read_file=mock_read_file,
             write_files=mock_write_files,
@@ -129,17 +129,17 @@ class TestWriteSpectraParallel(unittest.TestCase):
         passed_operation = mock_map_chunked_to_files.mock_calls[0].kwargs["operation"]
         passed_operation(mock_reader, [3, 4, 5], mock_write_files)
         mock_operation.assert_called_once_with(
-            "/dev/null/tmpdir/tmp_file.imzML",
+            Path("/dev/null/tmpdir/tmp_file.imzML"),
             ["test1.imzML", "test2.imzML"],
         )
         mock_imzml_write_file.assert_called_once_with(
-            "/dev/null/tmpdir/tmp_file.imzML", imzml_mode=mock_reader.imzml_mode
+            Path("/dev/null/tmpdir/tmp_file.imzML"), imzml_mode=mock_reader.imzml_mode
         )
 
     def test_get_split_modes_and_paths_when_spectra_indices_none(self) -> None:
         self.mock_config.get_splits_count.return_value = 3
         split_modes_and_paths = self.mock_parallel._get_split_modes_and_paths(
-            work_directory="/dev/null/mock",
+            work_directory=Path("/dev/null/mock"),
             read_file=MagicMock(name="mock_read_file", n_spectra=20),
             write_files=[
                 MagicMock(name="mock_write_file_1", imzml_mode=ImzmlModeEnum.CONTINUOUS),
@@ -152,9 +152,9 @@ class TestWriteSpectraParallel(unittest.TestCase):
             (
                 ImzmlModeEnum.CONTINUOUS,
                 [
-                    "/dev/null/mock/chunk_f0_t0.imzML",
-                    "/dev/null/mock/chunk_f0_t1.imzML",
-                    "/dev/null/mock/chunk_f0_t2.imzML",
+                    Path("/dev/null/mock/chunk_f0_t0.imzML"),
+                    Path("/dev/null/mock/chunk_f0_t1.imzML"),
+                    Path("/dev/null/mock/chunk_f0_t2.imzML"),
                 ],
             ),
             split_modes_and_paths[0],
@@ -163,9 +163,9 @@ class TestWriteSpectraParallel(unittest.TestCase):
             (
                 ImzmlModeEnum.PROCESSED,
                 [
-                    "/dev/null/mock/chunk_f1_t0.imzML",
-                    "/dev/null/mock/chunk_f1_t1.imzML",
-                    "/dev/null/mock/chunk_f1_t2.imzML",
+                    Path("/dev/null/mock/chunk_f1_t0.imzML"),
+                    Path("/dev/null/mock/chunk_f1_t1.imzML"),
+                    Path("/dev/null/mock/chunk_f1_t2.imzML"),
                 ],
             ),
             split_modes_and_paths[1],
@@ -175,7 +175,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
     def test_get_split_modes_and_paths_when_spectra_indices_present(self) -> None:
         self.mock_config.get_splits_count.return_value = 3
         split_modes_and_paths = self.mock_parallel._get_split_modes_and_paths(
-            work_directory="/dev/null/mock",
+            work_directory=Path("/dev/null/mock"),
             read_file=MagicMock(name="mock_read_file", n_spectra=20),
             write_files=[
                 MagicMock(name="mock_write_file_1", imzml_mode=ImzmlModeEnum.CONTINUOUS),
@@ -188,9 +188,9 @@ class TestWriteSpectraParallel(unittest.TestCase):
             (
                 ImzmlModeEnum.CONTINUOUS,
                 [
-                    "/dev/null/mock/chunk_f0_t0.imzML",
-                    "/dev/null/mock/chunk_f0_t1.imzML",
-                    "/dev/null/mock/chunk_f0_t2.imzML",
+                    Path("/dev/null/mock/chunk_f0_t0.imzML"),
+                    Path("/dev/null/mock/chunk_f0_t1.imzML"),
+                    Path("/dev/null/mock/chunk_f0_t2.imzML"),
                 ],
             ),
             split_modes_and_paths[0],
@@ -199,9 +199,9 @@ class TestWriteSpectraParallel(unittest.TestCase):
             (
                 ImzmlModeEnum.PROCESSED,
                 [
-                    "/dev/null/mock/chunk_f1_t0.imzML",
-                    "/dev/null/mock/chunk_f1_t1.imzML",
-                    "/dev/null/mock/chunk_f1_t2.imzML",
+                    Path("/dev/null/mock/chunk_f1_t0.imzML"),
+                    Path("/dev/null/mock/chunk_f1_t1.imzML"),
+                    Path("/dev/null/mock/chunk_f1_t2.imzML"),
                 ],
             ),
             split_modes_and_paths[1],
@@ -287,17 +287,17 @@ class TestWriteSpectraParallel(unittest.TestCase):
             [
                 call(
                     input_files=[
-                        {"read_file": "/dev/null/mock/continuous_0.imzML"},
-                        {"read_file": "/dev/null/mock/continuous_1.imzML"},
-                        {"read_file": "/dev/null/mock/continuous_2.imzML"},
+                        {"read_file": Path("/dev/null/mock/continuous_0.imzML")},
+                        {"read_file": Path("/dev/null/mock/continuous_1.imzML")},
+                        {"read_file": Path("/dev/null/mock/continuous_2.imzML")},
                     ],
                     output_file=mock_write_file_0,
                 ),
                 call(
                     input_files=[
-                        {"read_file": "/dev/null/mock/processed_0.imzML"},
-                        {"read_file": "/dev/null/mock/processed_1.imzML"},
-                        {"read_file": "/dev/null/mock/processed_2.imzML"},
+                        {"read_file": Path("/dev/null/mock/processed_0.imzML")},
+                        {"read_file": Path("/dev/null/mock/processed_1.imzML")},
+                        {"read_file": Path("/dev/null/mock/processed_2.imzML")},
                     ],
                     output_file=mock_write_file_1,
                 ),

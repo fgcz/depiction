@@ -1,9 +1,10 @@
 from __future__ import annotations
+
 import contextlib
 import functools
-import os
-from typing import Callable, Any, TYPE_CHECKING
+from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Callable, Any, TYPE_CHECKING
 
 from depiction.parallel_ops import ReadSpectraParallel
 from depiction.persistence import (
@@ -54,7 +55,7 @@ class WriteSpectraParallel:
         """
         with TemporaryDirectory() as work_directory:
             split_modes_and_paths = self._get_split_modes_and_paths(
-                work_directory=work_directory,
+                work_directory=Path(work_directory),
                 spectra_indices=spectra_indices,
                 read_file=read_file,
                 write_files=write_files,
@@ -97,7 +98,7 @@ class WriteSpectraParallel:
             # TODO also it's currently untested
             # copy the relevant spectra to a temporary file
             with TemporaryDirectory() as work_directory:
-                split_input_file = os.path.join(work_directory, "tmp_file.imzML")
+                split_input_file = Path(work_directory) / "tmp_file.imzML"
                 with ImzmlWriteFile(
                     split_input_file,
                     imzml_mode=reader.imzml_mode,
@@ -120,11 +121,11 @@ class WriteSpectraParallel:
 
     def _get_split_modes_and_paths(
         self,
-        work_directory: str,
+        work_directory: Path,
         read_file: ImzmlReadFile,
         write_files: list[ImzmlWriteFile],
         spectra_indices: NDArray[int] | None,
-    ) -> list[tuple[ImzmlModeEnum, list[str]]]:
+    ) -> list[tuple[ImzmlModeEnum, list[Path]]]:
         # determine the number of tasks
         if spectra_indices is not None:
             n_tasks = self._config.get_splits_count(n_items=len(spectra_indices))
@@ -135,7 +136,7 @@ class WriteSpectraParallel:
         return [
             (
                 write_file.imzml_mode,
-                [os.path.join(work_directory, f"chunk_f{i_file}_t{i_task}.imzML") for i_task in range(n_tasks)],
+                [work_directory / f"chunk_f{i_file}_t{i_task}.imzML" for i_task in range(n_tasks)],
             )
             for i_file, write_file in enumerate(write_files)
         ]
@@ -150,7 +151,7 @@ class WriteSpectraParallel:
             | Callable[[ImzmlReader, list[int], list[ImzmlWriteFile], ...], None]
         ),
         open_write_files: bool,
-        split_modes_and_paths: list[tuple[ImzmlModeEnum, list[str]]],
+        split_modes_and_paths: list[tuple[ImzmlModeEnum, list[Path]]],
     ) -> None:
         """Performs the operation for a chunk of spectra. To be called in a parallel context.
         :param reader: the reader to read the spectra from

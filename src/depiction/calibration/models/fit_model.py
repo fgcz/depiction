@@ -4,6 +4,7 @@ from depiction.calibration.models import LinearModel, PolynomialModel
 
 
 def fit_model(x: NDArray[float], y: NDArray[float], model_type: str) -> Union[LinearModel, PolynomialModel]:
+    """Fits a model to the given data, with the particular model_type."""
     if len(x) < 3:
         # If there are not enough points, return a zero model.
         if model_type.startswith("poly_"):

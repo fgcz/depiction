@@ -25,7 +25,7 @@ class IsotopePatternMatcher:
     cache_size: int
     cache_tolerance: float = 0.5
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._pattern_cache = OrderedDict()  # type: OrderedDict[float, tuple[NDArray[float], NDArray[float]]]
 
     def get_averagine_pattern(self, mass: float) -> tuple[NDArray[float], NDArray[float]]:

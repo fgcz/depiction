@@ -1,6 +1,6 @@
+import math
 from typing import Any, Optional, Literal
 
-import math
 import matplotlib
 import numpy as np
 import pandas as pd
@@ -10,7 +10,7 @@ import seaborn
 from numpy.typing import NDArray
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import ImzmlWriteFile, ImzmlReadFile
+from depiction.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlReader, ImzmlWriter
 
 
 # TODO experimental/non-prod
@@ -147,7 +147,7 @@ class ChemicalNoiseCalibration:
         """Applies `align_masses` to all spectra in the given file and writes the results to the output file."""
         parallelize = WriteSpectraParallel.from_config(parallel_config)
 
-        def chunk_operation(reader, spectra_indices, writer) -> None:
+        def chunk_operation(reader: ImzmlReader, spectra_indices: list[int], writer: ImzmlWriter) -> None:
             for spectrum_id in spectra_indices:
                 mz_arr, int_arr = reader.get_spectrum(spectrum_id)
                 mz_arr = self.align_masses(mz_arr, int_arr)

@@ -45,7 +45,7 @@ class PerformCalibration:
     #    else:
     #        raise ValueError(f"Unknown pattern={repr(pattern)}")
 
-    def _validate_per_spectra_array(self, array: DataArray, coordinates_2d) -> None:
+    def _validate_per_spectra_array(self, array: DataArray, coordinates_2d: NDArray[float]) -> None:
         """Checks the DataArray has the correct shapes and dimensions. Used for debugging."""
         # TODO make it configurable in the future, whether this check is executed, during development it definitely
         #      should be here since it can safe a ton of time

@@ -16,7 +16,7 @@ class PolynomialModel:
 
     coef: NDArray[float]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.coef = np.asarray(self.coef)
 
     @property

@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class LinearModel:
     coef: NDArray[float]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.coef = np.asarray(self.coef)
         if self.coef.shape != (2,):
             raise ValueError(f"Invalid shape {self.coef=}")

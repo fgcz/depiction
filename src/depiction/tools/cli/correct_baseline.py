@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import Annotated
-from loguru import logger
+from typing import Annotated, Literal
 
 import typer
+from loguru import logger
 from typer import Argument, Option
 
 from depiction.parallel_ops import ParallelConfig
@@ -18,6 +18,8 @@ def correct_baseline(
     output_imzml: Annotated[Path, Argument()],
     n_jobs: Annotated[int, Option()] = None,
     baseline_variant: Annotated[BaselineVariants, Option()] = BaselineVariants.TopHat,
+    window_size: Annotated[int | float, Option()] = 5000,
+    window_unit: Annotated[Literal["ppm", "index"], Option()] = "ppm",
 ) -> None:
     """Removes the baseline from the input imzML file and writes the result to the output imzML file."""
     output_imzml.parent.mkdir(parents=True, exist_ok=True)
@@ -32,7 +34,9 @@ def correct_baseline(
         parallel_config = ParallelConfig(n_jobs=n_jobs)
         input_file = ImzmlReadFile(input_imzml)
         output_file = ImzmlWriteFile(output_imzml, imzml_mode=input_file.imzml_mode)
-        correct_baseline = CorrectBaseline.from_variant(parallel_config=parallel_config, variant=baseline_variant)
+        correct_baseline = CorrectBaseline.from_variant(
+            parallel_config=parallel_config, variant=baseline_variant, window_size=window_size, window_unit=window_unit
+        )
         correct_baseline.evaluate_file(input_file, output_file)
 
 

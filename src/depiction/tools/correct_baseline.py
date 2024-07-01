@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import enum
-from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
-import typer
 
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.write_spectra_parallel import WriteSpectraParallel
@@ -20,7 +18,6 @@ from depiction.spectrum.baseline.tophat_baseline import TophatBaseline
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
-    from pathlib import Path
     from depiction.spectrum.baseline.baseline import Baseline
 
 
@@ -97,25 +94,3 @@ class CorrectBaseline:
             return LocalMediansBaseline(window_size=5000, window_unit="ppm")
         else:
             raise ValueError(f"Unknown baseline variant: {variant}")
-
-
-# TODO testing
-# TODO use it in the workflow
-# TODO replace use by tools.cli.correct_baseline
-def main(
-    input_imzml: Path,
-    output_imzml: Path,
-    n_jobs: int = 20,
-    baseline_variant: BaselineVariants = BaselineVariants.TopHat,
-) -> None:
-    """Corrects the baseline of `input_imzml` and writes the results to `output_imzml`."""
-    parallel_config = ParallelConfig(n_jobs=n_jobs, task_size=None)
-    input_file = ImzmlReadFile(input_imzml)
-    output_file = ImzmlWriteFile(output_imzml, imzml_mode=input_file.imzml_mode)
-    output_imzml.parent.mkdir(exist_ok=True, parents=True)
-    correct_baseline = CorrectBaseline.from_variant(parallel_config=parallel_config, variant=baseline_variant)
-    correct_baseline.evaluate_file(input_file, output_file)
-
-
-if __name__ == "__main__":
-    typer.run(main)

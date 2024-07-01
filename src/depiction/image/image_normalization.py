@@ -28,7 +28,7 @@ class ImageNormalization:
         else:
             raise NotImplementedError("Multiple index columns are not supported yet.")
 
-    def _normalize_single_xarray(self, image: xarray.DataArray, variant: ImageNormalizationVariant):
+    def _normalize_single_xarray(self, image: xarray.DataArray, variant: ImageNormalizationVariant) -> xarray.DataArray:
         if variant == ImageNormalizationVariant.VEC_NORM:
             return image / (((image**2).sum(["c"])) ** 0.5)
         elif variant == ImageNormalizationVariant.STD:
@@ -36,7 +36,9 @@ class ImageNormalization:
         else:
             raise NotImplementedError(f"Unknown variant: {variant}")
 
-    def _normalize_multiple_xarray(self, image: xarray.DataArray, index_dim: str, variant: ImageNormalizationVariant):
+    def _normalize_multiple_xarray(
+        self, image: xarray.DataArray, index_dim: str, variant: ImageNormalizationVariant
+    ) -> xarray.DataArray:
         dataset = image.to_dataset(dim=index_dim)
         normalized = dataset.map(
             lambda x: self._normalize_single_xarray(x, variant=variant),

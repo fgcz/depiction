@@ -60,8 +60,8 @@ class XarrayHelper:
             # remove nan
             result = result_flat.dropna("i", how="all").drop_isel(c=-1)
 
-            # TODO assigning the coords will be broken in the future, when "i" is a multi-index, however since in general
-            #      it is not, this will require a case distinction
+            # TODO assigning the coords will be broken in the future, when "i" is a multi-index,
+            #      however since in general it is not, this will require a case distinction
             return result.assign_coords(i=original_coords)
         else:
             raise ValueError(f"Unsupported dims={set(array.dims)}")

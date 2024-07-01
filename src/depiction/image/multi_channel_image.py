@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from functools import cached_property
-from pathlib import Path
-from collections.abc import Sequence
 
 import numpy as np
 import xarray
 from xarray import DataArray
 
 from depiction.image.sparse_representation import SparseRepresentation
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from pathlib import Path
 
 
 class MultiChannelImage:

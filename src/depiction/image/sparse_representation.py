@@ -40,6 +40,7 @@ class SparseRepresentation:
         for i_channel in range(n_channels):
             values_grid[tuple(coordinates_shifted.T) + (i_channel,)] = sparse_values[:, i_channel]
 
+        # TODO coordinates might come in the wrong order FIXME
         return DataArray(values_grid, dims=("y", "x", "c"))
 
     @classmethod

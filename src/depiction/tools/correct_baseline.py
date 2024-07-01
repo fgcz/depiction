@@ -21,17 +21,19 @@ from depiction.spectrum.baseline.tophat_baseline import TophatBaseline
 if TYPE_CHECKING:
     from numpy.typing import NDArray
     from pathlib import Path
+    from depiction.spectrum.baseline.baseline import Baseline
 
 
 class BaselineVariants(str, enum.Enum):
-    tophat = "tophat"
-    loc_medians = "loc_medians"
+    TopHat = "TopHat"
+    LocMedians = "LocMedians"
+    Zero = "Zero"
 
 
 class CorrectBaseline:
     """Implements baseline correction for imzml files."""
 
-    def __init__(self, parallel_config: ParallelConfig, baseline_correction) -> None:
+    def __init__(self, parallel_config: ParallelConfig, baseline_correction: Baseline) -> None:
         self._parallel_config = parallel_config
         self._baseline_correction = baseline_correction
 
@@ -39,14 +41,14 @@ class CorrectBaseline:
     def from_variant(
         cls,
         parallel_config: ParallelConfig,
-        variant: BaselineVariants = BaselineVariants.tophat,
+        variant: BaselineVariants = BaselineVariants.TopHat,
         window_size: int | float = 5000,
         window_unit: Literal["ppm", "index"] = "ppm",
     ) -> CorrectBaseline:
         """Creates an instance of CorrectBaseline with the specified variant."""
-        if variant == BaselineVariants.tophat:
+        if variant == BaselineVariants.TopHat:
             baseline_correction = TophatBaseline(window_size=window_size, window_unit=window_unit)
-        elif variant == BaselineVariants.loc_medians:
+        elif variant == BaselineVariants.LocMedians:
             baseline_correction = LocalMediansBaseline(window_size=window_size, window_unit=window_unit)
         else:
             raise ValueError(f"Unknown baseline variant: {variant}")
@@ -89,19 +91,22 @@ class CorrectBaseline:
 
     @staticmethod
     def _get_baseline_correction(variant: BaselineVariants):
-        if variant == BaselineVariants.tophat:
+        if variant == BaselineVariants.TopHat:
             return TophatBaseline(window_size=5000, window_unit="ppm")
-        elif variant == BaselineVariants.loc_medians:
+        elif variant == BaselineVariants.LocMedians:
             return LocalMediansBaseline(window_size=5000, window_unit="ppm")
         else:
             raise ValueError(f"Unknown baseline variant: {variant}")
 
 
+# TODO testing
+# TODO use it in the workflow
+# TODO replace use by tools.cli.correct_baseline
 def main(
     input_imzml: Path,
     output_imzml: Path,
     n_jobs: int = 20,
-    baseline_variant: BaselineVariants = BaselineVariants.tophat,
+    baseline_variant: BaselineVariants = BaselineVariants.TopHat,
 ) -> None:
     """Corrects the baseline of `input_imzml` and writes the results to `output_imzml`."""
     parallel_config = ParallelConfig(n_jobs=n_jobs, task_size=None)

@@ -7,7 +7,7 @@ import pandas as pd
 from rpy2 import robjects as robjects
 from rpy2.robjects import pandas2ri
 
-from depiction.image.sparse_image_2d import SparseImage2d
+from depiction.image.multi_channel_image import MultiChannelImage
 
 
 @dataclass
@@ -21,7 +21,7 @@ class GutenTagLabeledOutputs:
     expanded_correspondence_df: pd.DataFrame | None
     untargeted_correspondence_df: pd.DataFrame | None
 
-    intensities: SparseImage2d | None = None
+    intensities: MultiChannelImage | None = None
 
     @classmethod
     def from_rdata_file(cls, path: str) -> GutenTagLabeledOutputs:
@@ -90,7 +90,7 @@ class GutenTagLabeledOutputs:
         return df
 
     @staticmethod
-    def _parse_intensities(entries: dict[str, Any], image_key: str) -> SparseImage2d:
+    def _parse_intensities(entries: dict[str, Any], image_key: str) -> MultiChannelImage:
         """Parses the intensities from the `entries` dictionary for `image_key`.
         Valid values are currently "IntensityDF" and "FilteredDF".
         """
@@ -104,7 +104,9 @@ class GutenTagLabeledOutputs:
         sparse_values = intensity_df.values
         channel_names = list(intensity_df.columns)
         coordinates = coords_df[["x", "y"]].values.astype(int)
-        return SparseImage2d(values=sparse_values, coordinates=coordinates, channel_names=channel_names)
+        return MultiChannelImage.from_numpy_sparse(
+            values=sparse_values, coordinates=coordinates, channel_names=channel_names
+        )
 
 
 def _get_rlist_key(r_list, name: str):

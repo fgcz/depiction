@@ -10,6 +10,7 @@ import pyimzml.ImzMLParser
 from depiction.persistence.imzml_mode_enum import ImzmlModeEnum
 
 if TYPE_CHECKING:
+    from types import TracebackType
     from pathlib import Path
     from numpy.typing import NDArray
 
@@ -60,7 +61,7 @@ class ImzmlReader:
         }
 
     # TODO
-    def __setstate__(self, state: dict[str, Any]):
+    def __setstate__(self, state: dict[str, Any]) -> None:
         # self._portable_reader = state["portable_reader"]
         self._imzml_path = state["imzml_path"]
         self._ibd_file = None
@@ -100,7 +101,9 @@ class ImzmlReader:
     def __enter__(self) -> ImzmlReader:
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None
+    ) -> None:
         self.close()
 
     def close(self) -> None:

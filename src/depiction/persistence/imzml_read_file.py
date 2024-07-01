@@ -3,7 +3,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, TextIO
 
 import pyimzml.ImzMLParser
 from numpy.typing import NDArray
@@ -164,7 +164,7 @@ class ImzmlReadFile:
             f"{mz_range_line}"
         )
 
-    def print_summary(self, checksums: bool = True, file=None) -> None:
+    def print_summary(self, checksums: bool = True, file: TextIO | None = None) -> None:
         print(self.summary(checksums=checksums), file=file)
 
     @cached_property

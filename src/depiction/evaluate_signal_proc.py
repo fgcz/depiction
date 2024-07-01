@@ -26,7 +26,8 @@ class EvaluateGaussianSmoothing:
             # Don't filter
             return int_values
         else:
-            # the problem with below's implementation was, that e.g. for input of size 1 it would create an output of size 5 (since it choses the bigger size of the two arrays)
+            # the problem with below's implementation was, that e.g. for input of size 1
+            # it would create an output of size 5 (since it choses the bigger size of the two arrays)
             # return scipy.signal.convolve(int_array, gaussian_filter, mode='same')
             values = np.convolve(int_values, gaussian_filter, mode="same")
             values[0] = int_values[0]

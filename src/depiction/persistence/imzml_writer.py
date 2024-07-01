@@ -1,8 +1,7 @@
+from __future__ import annotations
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-import numpy as np
 import pyimzml
 import pyimzml.ImzMLWriter
 from tqdm import tqdm
@@ -11,6 +10,8 @@ from depiction.persistence.imzml_alignment_tracker import ImzmlAlignmentTracker
 from depiction.persistence.imzml_mode_enum import ImzmlModeEnum
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+    import numpy as np
     from depiction.persistence.imzml_reader import ImzmlReader
 
 
@@ -19,13 +20,13 @@ class ImzmlWriter:
         self,
         *,
         wrapped_imzml_writer: pyimzml.ImzMLWriter.ImzMLWriter,
-        imzml_alignment_tracker: Optional[ImzmlAlignmentTracker],
+        imzml_alignment_tracker: ImzmlAlignmentTracker | None,
     ) -> None:
         self._imzml_writer = wrapped_imzml_writer
         self._imzml_alignment_tracker = imzml_alignment_tracker
 
     @classmethod
-    def open(cls, path: str | Path, imzml_mode: ImzmlModeEnum, imzml_alignment_tracking: bool = True):
+    def open(cls, path: str | Path, imzml_mode: ImzmlModeEnum, imzml_alignment_tracking: bool = True) -> ImzmlWriter:
         """Opens an imzML file."""
         imzml_alignment_tracker = ImzmlAlignmentTracker() if imzml_alignment_tracking else None
         return cls(
@@ -37,7 +38,8 @@ class ImzmlWriter:
         )
 
     # TODO this currently has a bug, when closing a reader to which not a single spectrum was added.
-    #      it should be handled gracefully, since there are reasonable cases where this could occur with the use of "with" clauses.
+    #      it should be handled gracefully, since there are reasonable cases,
+    #      where this could occur with the use of "with" clauses.
     def close(self) -> None:
         self._imzml_writer.close()
 
@@ -75,20 +77,19 @@ class ImzmlWriter:
         if self._imzml_alignment_tracker:
             self._imzml_alignment_tracker.track_mz_array(mz_arr)
 
-        if self.imzml_mode == ImzmlModeEnum.CONTINUOUS and self._imzml_alignment_tracker:
-            if not self.is_aligned:
-                raise ValueError(
-                    "The m/z array of the first spectrum must be identical to the m/z array of all other spectra!"
-                )
+        if self.imzml_mode == ImzmlModeEnum.CONTINUOUS and self._imzml_alignment_tracker and not self.is_aligned:
+            raise ValueError(
+                "The m/z array of the first spectrum must be identical to the m/z array of all other spectra!"
+            )
 
         # Write the spectrum.
         self._imzml_writer.addSpectrum(mz_arr, int_arr, coordinates)
 
     def copy_spectra(
         self,
-        reader: "ImzmlReader",
+        reader: ImzmlReader,
         spectra_indices: Sequence[int],
-        tqdm_position: Optional[int] = None,
+        tqdm_position: int | None = None,
     ) -> None:
         """
         Copies spectra from an existing reader. Not optimized yet.
@@ -97,12 +98,12 @@ class ImzmlWriter:
         """
         if tqdm_position is not None:
 
-            def progress_fn(x):
+            def progress_fn(x: Sequence[int]) -> tqdm:
                 return tqdm(x, desc=" spectrum", position=tqdm_position)
 
         else:
 
-            def progress_fn(x):
+            def progress_fn(x: Sequence[int]) -> Sequence[int]:
                 return x
 
         for spectrum_index in progress_fn(spectra_indices):

@@ -27,7 +27,7 @@ class PlotMassSpectraSamples:
         self._data_df = data_df
         self._charts = []
 
-    def plot_spectrum(self, spectrum_name: str):
+    def plot_spectrum(self, spectrum_name: str) -> None:
         data = self._data_df.filter(spectrum_name=spectrum_name)
         chart = (
             alt.Chart(data)

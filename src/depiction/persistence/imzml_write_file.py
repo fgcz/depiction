@@ -1,8 +1,12 @@
-from contextlib import contextmanager
+from __future__ import annotations
+from contextlib import contextmanager, AbstractContextManager
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from depiction.persistence.imzml_mode_enum import ImzmlModeEnum
 from depiction.persistence.imzml_writer import ImzmlWriter
+
+if TYPE_CHECKING:
+    from depiction.persistence.imzml_mode_enum import ImzmlModeEnum
 
 
 class ImzmlWriteFile:
@@ -38,7 +42,7 @@ class ImzmlWriteFile:
         return self._imzml_mode
 
     @contextmanager
-    def writer(self):
+    def writer(self) -> AbstractContextManager[ImzmlWriter]:
         """Opens the .imzML file for writing and yields an `ImzmlWriter` instance."""
         if self._write_mode == "x":
             if self.imzml_file.exists():

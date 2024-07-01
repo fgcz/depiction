@@ -1,3 +1,4 @@
+from __future__ import annotations
 import enum
 
 
@@ -8,12 +9,12 @@ class ImzmlModeEnum(enum.Enum):
     PROCESSED = enum.auto()
 
     @classmethod
-    def as_pyimzml_str(cls, instance) -> str:
+    def as_pyimzml_str(cls, instance: ImzmlModeEnum) -> str:
         """Returns the string representation of the enum value as used by pyimzml."""
         return instance.name.lower()
 
     @classmethod
-    def from_pyimzml_str(cls, value: str) -> "ImzmlModeEnum":
+    def from_pyimzml_str(cls, value: str) -> ImzmlModeEnum:
         if value == "continuous":
             return cls.CONTINUOUS
         elif value == "processed":

@@ -1,13 +1,20 @@
-from typing import Any, NoReturn
+from __future__ import annotations
+
+from typing import Any, NoReturn, TYPE_CHECKING
 
 import numpy as np
-from numpy._typing import NDArray
 
 from depiction.persistence import ImzmlModeEnum
 
+if TYPE_CHECKING:
+    from types import TracebackType
+    from numpy.typing import NDArray
+
 
 class RamReader:
-    def __init__(self, mz_arr_list, int_arr_list, coordinates) -> None:
+    def __init__(
+        self, mz_arr_list: list[NDArray[float]], int_arr_list: list[NDArray[float]], coordinates: NDArray[int]
+    ) -> None:
         self._mz_arr_list = mz_arr_list
         self._int_arr_list = int_arr_list
         self._coordinates = coordinates
@@ -27,10 +34,12 @@ class RamReader:
         # TODO a problem, right?
         raise NotImplementedError
 
-    def __enter__(self):
+    def __enter__(self) -> RamReader:
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None
+    ) -> None:
         self.close()
 
     def close(self) -> None:
@@ -55,11 +64,11 @@ class RamReader:
         return len(self._mz_arr_list)
 
     @property
-    def coordinates(self):
+    def coordinates(self) -> NDArray[int]:
         return self._coordinates
 
     @property
-    def coordinates_2d(self):
+    def coordinates_2d(self) -> NDArray[int]:
         return self._coordinates[:, :2]
 
     def get_spectrum(self, i_spectrum: int) -> tuple[np.ndarray, np.ndarray]:
@@ -76,7 +85,7 @@ class RamReader:
     def get_spectrum_mz(self, i_spectrum: int) -> NDArray[float]:
         return self._mz_arr_list[i_spectrum]
 
-    def get_spectrum_int(self, i_spectrum) -> NDArray[float]:
+    def get_spectrum_int(self, i_spectrum: int) -> NDArray[float]:
         return self._int_arr_list[i_spectrum]
 
     def get_spectrum_n_points(self, i_spectrum: int) -> int:

@@ -197,13 +197,13 @@ class WriteSpectraParallel:
         operation: Callable[[ImzmlReader, list[int], ImzmlWriter], None],
         spectra_indices: NDArray[int] | None = None,
         bind_args: dict[str, Any] | None = None,
-    ):
+    ) -> None:
         def wrap_operation(
             reader: ImzmlReader, spectra_ids: list[int], writers: list[ImzmlWriter], **kwargs: dict[str, Any]
-        ):
-            return operation(reader, spectra_ids, writers[0], **kwargs)
+        ) -> None:
+            operation(reader, spectra_ids, writers[0], **kwargs)
 
-        return self.map_chunked_to_files(
+        self.map_chunked_to_files(
             read_file=read_file,
             write_files=[write_file],
             operation=wrap_operation,

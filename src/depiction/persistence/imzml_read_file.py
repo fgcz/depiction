@@ -164,8 +164,8 @@ class ImzmlReadFile:
             f"{mz_range_line}"
         )
 
-    def print_summary(self, checksums: bool = True) -> None:
-        print(self.summary(checksums=checksums))
+    def print_summary(self, checksums: bool = True, file=None) -> None:
+        print(self.summary(checksums=checksums), file=file)
 
     @cached_property
     def pixel_size(self) -> PixelSize | None:

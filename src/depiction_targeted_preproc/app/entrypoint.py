@@ -11,6 +11,7 @@ from depiction_targeted_preproc.example.run import (
 from loguru import logger
 
 from depiction.misc.find_file_util import find_one_by_extension
+from depiction.persistence import ImzmlReadFile
 from depiction_targeted_preproc.pipeline.setup import setup_workdir
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import ARTIFACT_FILES_MAPPING, get_result_files
 from depiction_targeted_preproc.pipeline_config.model import (
@@ -41,6 +42,9 @@ def entrypoint(
         )
     if not workunit_yaml_file.exists():
         raise RuntimeError(f"Workunit yaml file not found: {workunit_yaml_file}")
+
+    # Ensure the input file's checksum passes
+    check_imzml_file(ImzmlReadFile(input_imzml_file))
 
     # Parse the params
     params = parse_parameters(workunit_yaml_file)
@@ -75,6 +79,14 @@ def entrypoint(
 
 def export_pipeline_params(work_dir: Path, output_dir: Path, sample_name: str) -> None:
     shutil.copy(work_dir / sample_name / "pipeline_params.yml", output_dir / sample_name / "pipeline_params.yml")
+
+
+def check_imzml_file(imzml_file: ImzmlReadFile) -> None:
+    # TODO this is not very efficient, but is better than not checking the file at all
+    logger.info(f"Checking the integrity of the input file: {imzml_file.imzml_file}")
+    logger.info(imzml_file.summary())
+    if not imzml_file.is_checksum_valid:
+        raise RuntimeError(f"Checksum validation failed for the input file: {imzml_file.imzml_file}")
 
 
 def zip_results(output_dir: Path, sample_name: str) -> None:

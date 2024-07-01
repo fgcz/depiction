@@ -228,7 +228,7 @@ class TestImzmlReadFile(unittest.TestCase):
     def test_print_summary(self, mock_summary, mock_print) -> None:
         self.mock_read_file.print_summary()
         mock_summary.assert_called_once_with(checksums=True)
-        mock_print.assert_called_once_with(mock_summary.return_value)
+        mock_print.assert_called_once_with(mock_summary.return_value, file=None)
 
     @patch.object(ImzmlReadFile, "reader")
     def test_cached_properties(self, method_reader) -> None:

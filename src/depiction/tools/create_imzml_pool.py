@@ -64,7 +64,7 @@ class CreateImzmlPool:
         with write_file.writer() as writer:
             for imzml_file in tqdm(self._source_files, desc="Copying file"):
                 with imzml_file.reader() as reader:
-                    abs_path = str(imzml_file.imzml_file.absolute())
+                    str(imzml_file.imzml_file.absolute())
                     spectrum_ids = self.pool_source_df.query("abs_path == @abs_path").iloc[0]["source_spectrum_id"]
                     writer.copy_spectra(reader, spectrum_ids)
 

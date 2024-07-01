@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 from typing import (
     Any,
     Callable,
     TypeVar,
     TYPE_CHECKING,
+    TypedDict,
 )
 
 import numpy as np
@@ -28,11 +30,11 @@ class ReadSpectraParallel:
         self._config = config
 
     @classmethod
-    def from_config(cls, config: ParallelConfig):
+    def from_config(cls, config: ParallelConfig) -> ReadSpectraParallel:
         return cls(config=config)
 
     @classmethod
-    def from_params(cls, n_jobs: int, task_size: int | None, verbose: int = 1):
+    def from_params(cls, n_jobs: int, task_size: int | None, verbose: int = 1) -> ReadSpectraParallel:
         """In general, try to use from_config and pass the configuration throughout the application as appropriate."""
         return cls(config=ParallelConfig(n_jobs=n_jobs, task_size=task_size, verbose=verbose))
 
@@ -76,7 +78,7 @@ class ReadSpectraParallel:
             for task_index, task in enumerate(self._config.get_task_splits(item_indices=spectra_indices))
         ]
 
-        def execute_task(args, **kwargs) -> list[T]:
+        def execute_task(args: list[Any], **kwargs: TypedDict[str, Any]) -> list[T]:
             with read_file.reader() as reader:
                 return operation(reader, *args, **kwargs)
 

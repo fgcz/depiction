@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import shutil
-from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, TYPE_CHECKING
 
 import typer
 from loguru import logger
@@ -11,6 +10,9 @@ from typer import Argument, Option
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
 from depiction.tools.correct_baseline import BaselineVariants, CorrectBaseline
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def correct_baseline(

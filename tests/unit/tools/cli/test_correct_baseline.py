@@ -38,7 +38,9 @@ def test_correct_baseline_when_other_variant(mocker) -> None:
         input_imzml=mock_input_imzml, output_imzml=mock_output_imzml, baseline_variant=BaselineVariants.TopHat
     )
 
-    construct_correct_baseline.assert_called_once_with(parallel_config=mocker.ANY, variant=BaselineVariants.TopHat)
+    construct_correct_baseline.assert_called_once_with(
+        parallel_config=mocker.ANY, variant=BaselineVariants.TopHat, window_size=5000, window_unit="ppm"
+    )
     construct_correct_baseline.return_value.evaluate_file.assert_called_once_with(
         construct_imzml_read_file.return_value, construct_imzml_write_file.return_value
     )

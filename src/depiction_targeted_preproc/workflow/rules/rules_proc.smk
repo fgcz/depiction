@@ -17,7 +17,7 @@ rule proc_correct_baseline_run:
     output:
         imzml=temp(multiext("{sample}/corrected.original", ".imzML", ".ibd")),
     shell:
-        "python -m depiction.tools.cli.correct_baseline config"
+        "python -m depiction.tools.cli.correct_baseline run-config"
         " --config {input.config}"
         " --input-imzml {input.imzml[0]} --output-imzml {output.imzml[0]}"
 

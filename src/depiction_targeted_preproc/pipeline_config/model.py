@@ -7,6 +7,8 @@ from typing import Literal, Union, Annotated, Self
 import yaml
 from pydantic import BaseModel, Field, ConfigDict
 
+from depiction.tools.cli.correct_baseline import BaselineCorrectionConfig
+
 
 class Model(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
@@ -16,15 +18,6 @@ class Model(BaseModel):
         # TODO consider in the future a better mechanism for passing step configurations, maybe using
         #  json and pydantic but in a more granular way. for now this sort of works
         return cls.model_validate(yaml.unsafe_load(path.read_text()))
-
-
-class BaselineAdjustmentTophat(BaseModel):
-    baseline_type: Literal["Tophat"] = "Tophat"
-    window_size: Union[int, float]
-    window_unit: Literal["ppm", "index"]
-
-
-BaselineAdjustment = Annotated[None | BaselineAdjustmentTophat, Field(discriminator="baseline_type")]
 
 
 class PeakPickerBasicInterpolated(BaseModel):
@@ -128,8 +121,8 @@ class FilterNHighestIntensityPartitioned(BaseModel):
 PeakFiltering = FilterNHighestIntensityPartitioned | None
 
 
-class PipelineParametersPreset(Model):
-    baseline_adjustment: BaselineAdjustment
+class PipelineParametersPreset(Model, use_enum_values=True, validate_default=True):
+    baseline_correction: BaselineCorrectionConfig
     calibration: Calibration
     peak_picker: PeakPicker
     peak_filtering: PeakFiltering
@@ -139,7 +132,7 @@ class PipelineParametersPreset(Model):
 # class PipelineParameters(PipelineParametersPreset, use_enum_values=True):
 
 
-class PipelineParameters(PipelineParametersPreset):
+class PipelineParameters(PipelineParametersPreset, use_enum_values=True, validate_default=True):
     requested_artifacts: list[PipelineArtifact]
     n_jobs: int
 

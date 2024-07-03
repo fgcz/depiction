@@ -1,10 +1,9 @@
-baseline_adjustment:
-  baseline_type: Tophat
+baseline_correction:
+  baseline_type: TopHat
   window_size: 3000
   window_unit: ppm
 peak_picker:
-  peak_picker_type: MSPeakPicker
-  fit_type: quadratic
+  peak_picker_type: FindMFPy
 force_peak_picker: no
 peak_filtering:
   method: FilterNHighestIntensityPartitioned

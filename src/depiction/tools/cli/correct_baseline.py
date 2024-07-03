@@ -16,8 +16,8 @@ from depiction.tools.correct_baseline import BaselineVariants, CorrectBaseline
 app = cyclopts.App()
 
 
-class BaselineCorrectionConfig(BaseModel):
-    n_jobs: int | None
+class BaselineCorrectionConfig(BaseModel, use_enum_values=True, validate_default=True):
+    n_jobs: int | None = None
     baseline_variant: BaselineVariants = BaselineVariants.TopHat
     window_size: int | float = 5000.0
     window_unit: Literal["ppm", "index"] = "ppm"

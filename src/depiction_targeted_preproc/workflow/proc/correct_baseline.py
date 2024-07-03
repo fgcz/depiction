@@ -23,7 +23,7 @@ def proc_correct_baseline(
             window["window_size"] = window_size
             window["window_unit"] = window_unit
         case _:
-            raise ValueError(f"Unsupported baseline adjustment type: {config.baseline_adjustment.baseline_type}")
+            raise ValueError(f"Unsupported baseline adjustment type: {config.baseline_adjustment.baseline_variant}")
 
     correct_baseline(
         input_imzml=input_imzml_path,

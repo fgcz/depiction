@@ -22,18 +22,6 @@ rule proc_correct_baseline_run:
         " --input-imzml {input.imzml[0]} --output-imzml {output.imzml[0]}"
 
 
-# rule proc_correct_baseline:
-#    input:
-#        imzml=multiext("{sample}/raw", ".imzML", ".ibd"),
-#        config="{sample}/pipeline_params.yml",
-#    output:
-#        imzml=temp(multiext("{sample}/corrected.original", ".imzML", ".ibd")),
-#    shell:
-#        "python -m depiction_targeted_preproc.workflow.proc.correct_baseline "
-#        " --input-imzml-path {input.imzml[0]} --config-path {input.config} "
-#        " --output-imzml-path {output.imzml[0]}"
-
-
 rule proc_pick_peaks:
     input:
         imzml=multiext("{sample}/corrected.original", ".imzML", ".ibd"),

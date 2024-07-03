@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import shutil
-from typing import Annotated, Literal, TYPE_CHECKING
+from pathlib import Path
+from typing import Annotated, Literal
 
 import cyclopts
 import yaml
@@ -12,8 +13,6 @@ from typer import Argument, Option
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
 from depiction.tools.correct_baseline import BaselineVariants, CorrectBaseline
-
-from pathlib import Path
 
 app = cyclopts.App()
 

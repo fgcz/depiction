@@ -1,22 +1,22 @@
 from __future__ import annotations
 
 import enum
+import shutil
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
+from loguru import logger
+from pydantic import BaseModel
 
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.write_spectra_parallel import WriteSpectraParallel
+from depiction.persistence import ImzmlWriteFile, ImzmlWriter, ImzmlReader
+from depiction.persistence.imzml_read_file import ImzmlReadFile
 from depiction.spectrum.baseline.local_medians_baseline import LocalMediansBaseline
 from depiction.spectrum.baseline.tophat_baseline import TophatBaseline
 
 if TYPE_CHECKING:
-    from depiction.persistence import (
-        ImzmlReadFile,
-        ImzmlWriteFile,
-        ImzmlWriter,
-        ImzmlReader,
-    )
     from numpy.typing import NDArray
     from depiction.spectrum.baseline.baseline import Baseline
 
@@ -25,6 +25,13 @@ class BaselineVariants(str, enum.Enum):
     TopHat = "TopHat"
     LocMedians = "LocMedians"
     Zero = "Zero"
+
+
+class BaselineCorrectionConfig(BaseModel, use_enum_values=True, validate_default=True):
+    n_jobs: int | None = None
+    baseline_variant: BaselineVariants = BaselineVariants.TopHat
+    window_size: int | float = 5000.0
+    window_unit: Literal["ppm", "index"] = "ppm"
 
 
 class CorrectBaseline:
@@ -94,3 +101,28 @@ class CorrectBaseline:
             return LocalMediansBaseline(window_size=5000, window_unit="ppm")
         else:
             raise ValueError(f"Unknown baseline variant: {variant}")
+
+
+def correct_baseline(config: BaselineCorrectionConfig, input_imzml: Path, output_imzml: Path) -> None:
+    """Removes the baseline from the input imzML file and writes the result to the output imzML file."""
+    output_imzml.parent.mkdir(parents=True, exist_ok=True)
+    if config.baseline_variant == BaselineVariants.Zero:
+        logger.info("Baseline correction is deactivated, copying input to output")
+        shutil.copyfile(input_imzml, output_imzml)
+        shutil.copyfile(input_imzml.with_suffix(".ibd"), output_imzml.with_suffix(".ibd"))
+    else:
+        if config.n_jobs is None:
+            # TODO define some sane default for None and -1 n_jobs e.g. use all available up to a limit (None) or use all (1-r)
+            n_jobs = 10
+        else:
+            n_jobs = config.n_jobsf
+        parallel_config = ParallelConfig(n_jobs=n_jobs)
+        input_file = ImzmlReadFile(input_imzml)
+        output_file = ImzmlWriteFile(output_imzml, imzml_mode=input_file.imzml_mode)
+        correct_baseline = CorrectBaseline.from_variant(
+            parallel_config=parallel_config,
+            variant=config.baseline_variant,
+            window_size=config.window_size,
+            window_unit=config.window_unit,
+        )
+        correct_baseline.evaluate_file(input_file, output_file)

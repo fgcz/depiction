@@ -7,7 +7,7 @@ from typing import Literal, Union, Annotated, Self
 import yaml
 from pydantic import BaseModel, Field, ConfigDict
 
-from depiction.tools.cli.correct_baseline import BaselineCorrectionConfig
+from depiction.tools.correct_baseline import BaselineCorrectionConfig
 
 
 class Model(BaseModel):

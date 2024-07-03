@@ -1,4 +1,3 @@
-# TODO this should be handled better in the future, but for illustrative purposes I'm doing it here
 from pathlib import Path
 
 import cyclopts

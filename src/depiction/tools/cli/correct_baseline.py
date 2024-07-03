@@ -18,14 +18,14 @@ app = cyclopts.App()
 
 
 class BaselineCorrectionConfig(BaseModel):
-    n_jobs: int
+    n_jobs: int | None
     baseline_variant: BaselineVariants = BaselineVariants.TopHat
     window_size: int | float = 5000.0
     window_unit: Literal["ppm", "index"] = "ppm"
 
 
 @app.command
-def config(
+def run_config(
     input_imzml: Annotated[Path, Argument()],
     output_imzml: Annotated[Path, Argument()],
     config: Annotated[Path, Argument()],
@@ -35,7 +35,7 @@ def config(
 
 
 @app.default
-def main_args(
+def run(
     input_imzml: Annotated[Path, Argument()],
     output_imzml: Annotated[Path, Argument()],
     n_jobs: Annotated[int, Option()] = None,
@@ -43,11 +43,10 @@ def main_args(
     window_size: Annotated[int | float, Option()] = 5000,
     window_unit: Annotated[Literal["ppm", "index"], Option()] = "ppm",
 ):
-    parsed = BaselineCorrectionConfig(
-        n_jobs=n_jobs, baseline_type=baseline_variant, window_size=window_size, window_unit=window_unit
+    config = BaselineCorrectionConfig.validate(
+        dict(n_jobs=n_jobs, baseline_variant=baseline_variant, window_size=window_size, window_unit=window_unit)
     )
-    parsed.validate()
-    correct_baseline(config=parsed, input_imzml=input_imzml, output_imzml=output_imzml)
+    correct_baseline(config=config, input_imzml=input_imzml, output_imzml=output_imzml)
 
 
 def correct_baseline(config: BaselineCorrectionConfig, input_imzml: Path, output_imzml: Path) -> None:

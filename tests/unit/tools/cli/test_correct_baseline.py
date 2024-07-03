@@ -2,19 +2,17 @@ from pathlib import Path
 
 import pytest
 
-from depiction.tools.cli.correct_baseline import correct_baseline
+from depiction.tools.cli.correct_baseline import run
 from depiction.tools.correct_baseline import BaselineVariants
 
 
-def test_correct_baseline_when_variant_zero(mocker) -> None:
+def test_run_when_variant_zero(mocker) -> None:
     mock_copyfile = mocker.patch("shutil.copyfile")
     mock_logger = mocker.patch("depiction.tools.cli.correct_baseline.logger")
     mock_input_imzml = Path("/dev/null/hello.imzML")
     mock_output_imzml = mocker.MagicMock(name="mock_output_imzml")
 
-    correct_baseline(
-        input_imzml=mock_input_imzml, output_imzml=mock_output_imzml, baseline_variant=BaselineVariants.Zero
-    )
+    run(input_imzml=mock_input_imzml, output_imzml=mock_output_imzml, baseline_variant=BaselineVariants.Zero)
 
     assert mock_copyfile.mock_calls == [
         mocker.call(mock_input_imzml, mock_output_imzml),
@@ -24,7 +22,7 @@ def test_correct_baseline_when_variant_zero(mocker) -> None:
     mock_logger.info.assert_called_once()
 
 
-def test_correct_baseline_when_other_variant(mocker) -> None:
+def test_run_when_other_variant(mocker) -> None:
     mock_logger = mocker.patch("loguru.logger")
     mock_imzml_mode = mocker.MagicMock(name="mock_imzml_mode", spec=[])
     construct_imzml_read_file = mocker.patch("depiction.tools.cli.correct_baseline.ImzmlReadFile")
@@ -34,9 +32,7 @@ def test_correct_baseline_when_other_variant(mocker) -> None:
     mock_input_imzml = Path("/dev/null/hello.imzML")
     mock_output_imzml = mocker.MagicMock(name="mock_output_imzml")
 
-    correct_baseline(
-        input_imzml=mock_input_imzml, output_imzml=mock_output_imzml, baseline_variant=BaselineVariants.TopHat
-    )
+    run(input_imzml=mock_input_imzml, output_imzml=mock_output_imzml, baseline_variant=BaselineVariants.TopHat)
 
     construct_correct_baseline.assert_called_once_with(
         parallel_config=mocker.ANY, variant=BaselineVariants.TopHat, window_size=5000, window_unit="ppm"

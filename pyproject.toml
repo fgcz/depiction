@@ -30,6 +30,7 @@ dependencies = [
     "statsmodels>=0.14.0",
     "tqdm>=4.66.1",
     "typer>=0.12.3",
+    "cyclopts",
     "vegafusion[embed]>=1.6.5",
     "xarray",
     "netCDF4",

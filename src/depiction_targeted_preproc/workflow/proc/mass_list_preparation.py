@@ -1,44 +1,62 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Annotated
 
+import cyclopts
 import polars as pl
-import typer
-from typer import Option
+
+app = cyclopts.App()
+
+COLUMN_NAMES = {
+    "mass": {"m/z", "mass", "pc-mt (m+h)+"},
+    "label": {"marker", "label"},
+    "tol": {"tol", "tolerance"},
+}
 
 
-def proc_mass_list_preparation(
-    input_csv_path: Annotated[Path, Option()],
-    out_calibration_csv_path: Annotated[Path, Option()],
-    out_standards_csv_path: Annotated[Path, Option()],
-    out_visualization_csv_path: Annotated[Path, Option()],
-    out_visualization_mini_csv_path: Annotated[Path, Option()] = None,
+def identify_column_correspondence(raw_df: pl.DataFrame) -> dict[str, str]:
+    identified_columns = {}
+    for column_name in raw_df.columns:
+        for key, values in COLUMN_NAMES.items():
+            if column_name.lower() in values:
+                if key not in identified_columns:
+                    identified_columns[key] = column_name
+                else:
+                    raise ValueError(
+                        f"Column {column_name} is ambiguous, it could be {key} or {identified_columns[key]}"
+                    )
+    required_columns = {"mass", "label"}
+    missing_columns = required_columns - set(identified_columns.keys())
+    if missing_columns:
+        raise ValueError(f"Missing columns: {missing_columns}")
+    # reverse the mapping
+    return {original: target for target, original in identified_columns.items()}
+
+
+@app.default
+def mass_list_preparation(
+    raw_csv: Path,
+    out_csv: Path,
 ) -> None:
-    input_df = pl.read_csv(input_csv_path)
+    raw_df = pl.read_csv(raw_csv)
 
-    # rename cols
-    possible_mapping = {"Marker": "label", "PC-MT (M+H)+": "mass"}
-    mapping = {k: v for k, v in possible_mapping.items() if k in input_df.columns}
-    input_df = input_df.rename(mapping).drop("No.")
+    # identify columns
+    column_correspondence = identify_column_correspondence(raw_df)
 
-    # add tol column
-    visualization_df = input_df.with_columns(tol=pl.lit(0.25))
+    # rename columns (and drop the rest)
+    renamed = (
+        raw_df.select(column_correspondence.values())
+        .rename(column_correspondence)
+        .select(sorted(column_correspondence.values()))
+    )
 
-    # for the calibration remove the CHCA peaks, they have names starting with CHCA
-    calibration_df = visualization_df.filter(~pl.col("label").str.starts_with("CHCA"))
-
-    # for the standards csv only keep the "standard" peaks
-    standards_df = visualization_df.filter(pl.col("label").str.to_lowercase().str.contains("standard"))
+    # add tol column if not present
+    if "tol" not in renamed.columns:
+        renamed = renamed.with_column("tol", pl.Null)
 
     # write the results
-    calibration_df.write_csv(out_calibration_csv_path)
-    standards_df.write_csv(out_standards_csv_path)
-    visualization_df.write_csv(out_visualization_csv_path)
-
-    if out_visualization_mini_csv_path:
-        choices = ["Angiotensin standard", "CD38", "CD20", "Caveolin-1", "VIM", "CD36", "FN1", "Ki67", "CD16", "GATA3"]
-        visualization_mini_df = visualization_df.filter(pl.col("label").is_in(choices))
-        visualization_mini_df.write_csv(out_visualization_mini_csv_path)
+    renamed.write_csv(out_csv)
 
 
 if __name__ == "__main__":
-    typer.run(proc_mass_list_preparation)
+    app()

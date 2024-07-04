@@ -7,8 +7,8 @@ import typer
 import xarray as xr
 from typer import Option
 
+from depiction.tools.calibrate import get_calibration_instance
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
-from depiction_targeted_preproc.workflow.proc.calibrate import get_calibration_from_config
 
 
 def vis_test_mass_shifts(
@@ -21,7 +21,7 @@ def vis_test_mass_shifts(
     model_coefs = xr.open_dataarray(calib_hdf5_path, group="model_coefs")
     config = PipelineParameters.parse_yaml(config_path)
     mass_list = pl.read_csv(mass_list_path)
-    calibration = get_calibration_from_config(mass_list=mass_list, calib_config=config.calibration)
+    calibration = get_calibration_instance(config=config.calibration, mass_list=mass_list_path)
 
     # define test masses
     # to keep it simple for now only 1

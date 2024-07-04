@@ -157,13 +157,17 @@ rule proc_mass_list_preparation:
         csv="{sample}/mass_list.raw.csv",
     output:
         calibration_csv="{sample}/mass_list.calibration.csv",
+        # TODO remove
         standards_csv="{sample}/mass_list.standards.csv",
+        # TODO remove
         visualization_csv="{sample}/mass_list.visualization.csv",
+        # TODO remove
         visualization_mini_csv="{sample}/mass_list.visualization_mini.csv",
     shell:
-        "python -m depiction_targeted_preproc.workflow.proc.mass_list_preparation"
-        " --input-csv-path {input.csv}"
-        " --out-calibration-csv-path {output.calibration_csv}"
-        " --out-standards-csv-path {output.standards_csv}"
-        " --out-visualization-csv-path {output.visualization_csv}"
-        " --out-visualization-mini-csv-path {output.visualization_mini_csv}"
+        """
+        python -m depiction_targeted_preproc.workflow.proc.mass_list_preparation \
+        --raw-csv {input.csv} --out-csv {output.calibration_csv}
+        cp {output.calibration_csv} {output.standards_csv}
+        cp {output.calibration_csv} {output.visualization_csv}
+        cp {output.calibration_csv} {output.visualization_mini_csv}
+        """

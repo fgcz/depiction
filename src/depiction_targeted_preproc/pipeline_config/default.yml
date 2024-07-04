@@ -2,13 +2,21 @@ baseline_correction:
   baseline_type: TopHat
   window_size: 3000
   window_unit: ppm
-peak_picker:
-  peak_picker_type: FindMFPy
-force_peak_picker: no
-peak_filtering:
-  method: FilterNHighestIntensityPartitioned
-  max_count: 200
-  n_partitions: 8
+pick_peaks:
+  peak_picker:
+    peak_picker_type: FindMFPy
+  force_peak_picker: no
+  peak_filtering:
+    filters:
+      - method: FilterNHighestIntensityPartitioned
+        max_count: 200
+        n_partitions: 8
+  n_jobs: 10
+filter_peaks:
+  filters:
+    - method: FilterNHighestIntensityPartitioned
+      max_count: 200
+      n_partitions: 8
 #peak_picker:
 #  peak_picker_type: BasicInterpolated
 #  min_prominence: 0.5

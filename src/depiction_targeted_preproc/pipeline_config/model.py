@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
-from typing import Literal, Union, Annotated, Self
+from typing import Literal, Annotated, Self
 
 import yaml
 from pydantic import BaseModel, Field, ConfigDict
 
 from depiction.tools.correct_baseline import BaselineCorrectionConfig
+from depiction.tools.filter_peaks import FilterPeaksConfig
+from depiction.tools.pick_peaks import PickPeaksConfig
 
 
 class Model(BaseModel):
@@ -18,38 +20,6 @@ class Model(BaseModel):
         # TODO consider in the future a better mechanism for passing step configurations, maybe using
         #  json and pydantic but in a more granular way. for now this sort of works
         return cls.model_validate(yaml.unsafe_load(path.read_text()))
-
-
-class PeakPickerBasicInterpolated(BaseModel):
-    peak_picker_type: Literal["BasicInterpolated"]
-    min_prominence: float
-    min_distance: Union[int, float, None] = None
-    min_distance_unit: Literal["index", "mz"] | None = None
-
-    # TODO ensure min_distance are both either present or missing
-    # (ideally we would just have a better typing support here and provide as tuple,
-    #  but postpone for later)
-
-
-class PeakPickerMSPeakPicker(BaseModel):
-    peak_picker_type: Literal["MSPeakPicker"]
-    fit_type: Literal["quadratic"] = "quadratic"
-
-
-class PeakPickerFindMFPy(BaseModel):
-    peak_picker_type: Literal["FindMFPy"]
-    resolution: float = 10000.0
-    width: float = 2.0
-    int_width: float = 2.0
-    int_threshold: float = 10.0
-    area: bool = True
-    max_peaks: int = 0
-
-
-PeakPicker = Annotated[
-    None | PeakPickerBasicInterpolated | PeakPickerMSPeakPicker | PeakPickerFindMFPy,
-    Field(discriminator="peak_picker_type"),
-]
 
 
 class CalibrationRegressShift(BaseModel):
@@ -111,25 +81,11 @@ class PipelineArtifact(str, Enum):
     DEBUG = "DEBUG"
 
 
-class FilterNHighestIntensityPartitioned(BaseModel):
-    method: Literal["FilterNHighestIntensityPartitioned"]
-    max_count: int
-    n_partitions: int
-
-
-# PeakFiltering = Annotated[FilterNHighestIntensityPartitioned, Field(discriminator="method")] |None
-PeakFiltering = FilterNHighestIntensityPartitioned | None
-
-
 class PipelineParametersPreset(Model, use_enum_values=True, validate_default=True):
     baseline_correction: BaselineCorrectionConfig
+    filter_peaks: FilterPeaksConfig
     calibration: Calibration
-    peak_picker: PeakPicker
-    peak_filtering: PeakFiltering
-    force_peak_picker: bool
-
-
-# class PipelineParameters(PipelineParametersPreset, use_enum_values=True):
+    pick_peaks: PickPeaksConfig
 
 
 class PipelineParameters(PipelineParametersPreset, use_enum_values=True, validate_default=True):

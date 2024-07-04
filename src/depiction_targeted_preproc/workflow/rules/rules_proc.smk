@@ -22,16 +22,25 @@ rule proc_correct_baseline_run:
         " --input-imzml {input.imzml[0]} --output-imzml {output.imzml[0]}"
 
 
+rule proc_pick_peaks_config:
+    input:
+        config="{sample}/pipeline_params.yml",
+    output:
+        config="{sample}/config/proc_pick_peaks.yml",
+    shell:
+        "python -m depiction_targeted_preproc.workflow.proc.pick_peaks_config"
+        " --input-config {input.config} --output-config {output.config}"
+
+
 rule proc_pick_peaks:
     input:
         imzml=multiext("{sample}/corrected.original", ".imzML", ".ibd"),
-        config="{sample}/pipeline_params.yml",
+        config="{sample}/config/proc_pick_peaks.yml",
     output:
         imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
     shell:
-        "python -m depiction_targeted_preproc.workflow.proc.pick_peaks "
-        " --input-imzml-path {input.imzml[0]} --config-path {input.config} "
-        " --output-imzml-path {output.imzml[0]}"
+        "python -m depiction.tools.cli.cli_pick_peaks "
+        " run-config --config {input.config} --input-imzml {input.imzml[0]} --output-imzml {output.imzml[0]}"
 
 
 # TODO currently needed for peak picked data, e.g. from timsTOF

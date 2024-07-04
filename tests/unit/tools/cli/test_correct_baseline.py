@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from depiction.persistence import ImzmlReadFile
-from depiction.tools.cli.correct_baseline import run
+from depiction.tools.cli.cli_correct_baseline import run
 from depiction.tools.correct_baseline import BaselineVariants
 
 

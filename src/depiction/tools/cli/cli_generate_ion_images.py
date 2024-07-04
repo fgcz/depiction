@@ -1,22 +1,24 @@
 from pathlib import Path
-from typing import Annotated
 
+import cyclopts
 import polars as pl
-import typer
 
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile
 from depiction.tools.generate_ion_image import GenerateIonImage
 
+app = cyclopts.App()
+
 
 # TODO for the cli module we should figure out a sane way to configure the default n_jobs value
 
 
+@app.default
 def generate_ion_images(
-    imzml_path: Annotated[Path, typer.Option()],
-    mass_list_path: Annotated[Path, typer.Option()],
-    output_hdf5_path: Annotated[Path, typer.Option()],
-    n_jobs: Annotated[int, typer.Option()] = 16,
+    imzml_path: Path,
+    mass_list_path: Path,
+    output_hdf5_path: Path,
+    n_jobs: int = 16,
 ) -> None:
     parallel_config = ParallelConfig(n_jobs=n_jobs)
     gen_image = GenerateIonImage(parallel_config=parallel_config)
@@ -33,4 +35,4 @@ def generate_ion_images(
 
 
 if __name__ == "__main__":
-    typer.run(generate_ion_images)
+    app()

@@ -1,253 +1,286 @@
 import unittest
-from functools import cached_property
 from pathlib import Path
 from typing import NoReturn
 from unittest.mock import patch, MagicMock
 
 import numpy as np
+import pytest
+from pytest_mock import MockerFixture
 
 from depiction.persistence import ImzmlReadFile, ImzmlModeEnum
 
 
-class TestImzmlReadFile(unittest.TestCase):
-    def setUp(self) -> None:
-        self.mock_path = "/dev/null/mock_path.imzML"
+@pytest.fixture()
+def mock_path() -> Path:
+    return Path("/dev/null/mock_path.imzML")
 
-    @cached_property
-    def mock_read_file(self) -> ImzmlReadFile:
-        return ImzmlReadFile(path=self.mock_path)
 
-    def test_imzml_file(self) -> None:
-        self.assertEqual(Path(self.mock_path), self.mock_read_file.imzml_file)
+@pytest.fixture()
+def mock_read_file(mock_path) -> ImzmlReadFile:
+    return ImzmlReadFile(path=mock_path)
 
-    def test_imzml_file_when_case_insensitive(self) -> None:
-        self.mock_path = "/dev/null/mock_path.IMZML"
-        self.assertEqual(Path(self.mock_path), self.mock_read_file.imzml_file)
 
-    def test_imzml_file_when_invalid_path(self) -> None:
-        self.mock_path = "/dev/null/mock_path.txt"
-        with self.assertRaises(ValueError) as error:
-            _ = self.mock_read_file.imzml_file
-        self.assertIn("Expected .imzML file, got", str(error.exception))
+def test_imzml_file(mock_read_file, mock_path) -> None:
+    assert mock_read_file.imzml_file == mock_path
 
-    def test_ibd_file(self) -> None:
-        self.assertEqual(Path("/dev/null/mock_path.ibd"), self.mock_read_file.ibd_file)
 
-    def test_ibd_file_when_case_insensitive(self) -> None:
-        self.mock_path = "/dev/null/mock_path.IMZML"
-        self.assertEqual(Path("/dev/null/mock_path.ibd"), self.mock_read_file.ibd_file)
+def test_imzml_file_when_case_insensitive() -> None:
+    mock_path = "/dev/null/mock_path.IMZML"
+    mock_read_file = ImzmlReadFile(path=mock_path)
+    assert mock_read_file.imzml_file == Path(mock_path)
 
-    def test_ibd_file_when_invalid_path(self) -> None:
-        self.mock_path = "/dev/null/mock_path.txt"
-        with self.assertRaises(ValueError) as error:
-            _ = self.mock_read_file.ibd_file
-        self.assertIn("Expected .imzML file, got", str(error.exception))
 
-    @patch.object(ImzmlReadFile, "get_reader")
-    def test_reader_when_normal(self, method_get_reader) -> None:
-        mock_reader = MagicMock(name="mock_reader")
-        method_get_reader.return_value = mock_reader
-        with self.mock_read_file.reader() as reader:
-            method_get_reader.assert_called_once_with()
-            self.assertEqual(mock_reader, reader)
-        mock_reader.close.assert_called_once_with()
+def test_imzml_file_when_invalid_path() -> None:
+    mock_path = "/dev/null/mock_path.txt"
+    read_file = ImzmlReadFile(path=mock_path)
+    with pytest.raises(ValueError) as error:
+        _ = read_file.imzml_file
+    assert "Expected .imzML file, got" in str(error)
 
-    @patch.object(ImzmlReadFile, "get_reader")
-    def test_get_reader_when_exception(self, method_get_reader) -> NoReturn:
-        mock_reader = MagicMock(name="mock_reader")
-        method_get_reader.return_value = mock_reader
-        with self.assertRaises(ValueError) as error, self.mock_read_file.reader() as reader:
-            method_get_reader.assert_called_once_with()
-            self.assertEqual(mock_reader, reader)
-            raise ValueError("mock_error")
-        self.assertEqual("mock_error", str(error.exception))
-        mock_reader.close.assert_called_once_with()
 
-    @patch("pyimzml.ImzMLParser.ImzMLParser")
-    def test_get_reader(self, mock_imzml_parser) -> None:
-        mock_reader = MagicMock(name="mock_reader", mzPrecision="d", intensityPrecision="i")
-        mock_imzml_parser.return_value.__enter__.return_value.portable_spectrum_reader.return_value = mock_reader
-        reader = self.mock_read_file.get_reader()
-        mock_imzml_parser.assert_called_once_with(Path(self.mock_path))
-        self.assertEqual(Path(self.mock_path), reader._imzml_path)
-        self.assertEqual(8, reader._mz_bytes)
-        self.assertEqual(4, reader._int_bytes)
+def test_ibd_file(mock_read_file) -> None:
+    assert mock_read_file.ibd_file == Path("/dev/null/mock_path.ibd")
 
-    @patch.object(ImzmlReadFile, "_cached_properties", {"n_spectra": 123})
-    def test_n_spectra(self) -> None:
-        self.assertEqual(123, self.mock_read_file.n_spectra)
 
-    @patch.object(ImzmlReadFile, "_cached_properties", {"imzml_mode": "mock_mode"})
-    def test_imzml_mode(self) -> None:
-        self.assertEqual("mock_mode", self.mock_read_file.imzml_mode)
+def test_ibd_file_when_case_insensitive() -> None:
+    mock_path = "/dev/null/mock_path.IMZML"
+    mock_read_file = ImzmlReadFile(path=mock_path)
+    assert mock_read_file.ibd_file == Path("/dev/null/mock_path.ibd")
 
-    @patch.object(ImzmlReadFile, "_cached_properties", {"coordinates": "mock_coordinates"})
-    def test_coordinates(self) -> None:
-        self.assertEqual("mock_coordinates", self.mock_read_file.coordinates)
 
-    @patch.object(ImzmlReadFile, "_cached_properties", {"coordinates": np.array([[1, 2, 3], [4, 5, 6]])})
-    def test_coordinates_2d(self) -> None:
-        np.testing.assert_array_equal(np.array([[1, 2], [4, 5]]), self.mock_read_file.coordinates_2d)
+def test_ibd_file_when_invalid_path() -> None:
+    mock_path = "/dev/null/mock_path.txt"
+    read_file = ImzmlReadFile(path=mock_path)
+    with pytest.raises(ValueError) as error:
+        _ = read_file.ibd_file
+    assert "Expected .imzML file, got" in str(error)
 
-    def test_compact_metadata(self) -> None:
-        mock_coordinates = np.array([[1, 2, 3], [3, 3, 3], [1 + 3, 2 + 4, 3 + 5]])
-        with (
-            patch.object(ImzmlReadFile, "n_spectra", 15),
-            patch.object(ImzmlReadFile, "imzml_mode", ImzmlModeEnum.PROCESSED),
-            patch.object(ImzmlReadFile, "coordinates", mock_coordinates),
-            patch.object(ImzmlReadFile, "imzml_file", "mock_imzml_file_path"),
-            patch.object(ImzmlReadFile, "ibd_file", "mock_ibd_file_path"),
-        ):
-            self.assertDictEqual(
-                {
-                    "n_spectra": 15,
-                    "imzml_mode": "PROCESSED",
-                    "coordinate_extent": [4, 5, 6],
-                    "imzml_file": "mock_imzml_file_path",
-                    "ibd_file": "mock_ibd_file_path",
-                },
-                self.mock_read_file.compact_metadata,
-            )
 
-    @patch("pyimzml.ImzMLParser.ImzMLParser")
-    def test_metadata_checksums_when_none(self, mock_pyimzml_parser) -> None:
-        mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {}
-        self.assertEqual({}, self.mock_read_file.metadata_checksums)
+def test_reader_when_normal(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_reader = mocker.MagicMock(name="mock_reader")
+    method_get_reader = mocker.patch.object(ImzmlReadFile, "get_reader", return_value=mock_reader)
+    with mock_read_file.reader() as reader:
+        method_get_reader.assert_called_once_with()
+        assert mock_reader == reader
+    mock_reader.close.assert_called_once_with()
 
-    @patch("pyimzml.ImzMLParser.ImzMLParser")
-    def test_metadata_checksums_when_md5_available(self, mock_pyimzml_parser) -> None:
-        mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {"ibd MD5": "ABCD"}
-        self.assertEqual({"md5": "abcd"}, self.mock_read_file.metadata_checksums)
 
-    @patch("pyimzml.ImzMLParser.ImzMLParser")
-    def test_metadata_checksums_when_sha1_available(self, mock_pyimzml_parser) -> None:
-        mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {"ibd SHA-1": "ABCD"}
-        self.assertEqual({"sha1": "abcd"}, self.mock_read_file.metadata_checksums)
+def test_reader_when_exception(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> NoReturn:
+    mock_reader = mocker.MagicMock(name="mock_reader")
+    mocker.patch.object(ImzmlReadFile, "get_reader", return_value=mock_reader)
+    with pytest.raises(ValueError) as error, mock_read_file.reader() as reader:
+        assert mock_reader == reader
+        raise ValueError("mock_error")
+    assert "mock_error" in str(error)
+    mock_reader.close.assert_called_once_with()
 
-    @patch("pyimzml.ImzMLParser.ImzMLParser")
-    def test_metadata_checksums_when_sha256_available(self, mock_pyimzml_parser) -> None:
-        mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {"ibd SHA-256": "ABCD"}
-        self.assertEqual({"sha256": "abcd"}, self.mock_read_file.metadata_checksums)
 
-    @patch("pyimzml.ImzMLParser.ImzMLParser")
-    def test_metadata_checksums_when_both_checksums_available(self, mock_pyimzml_parser) -> None:
-        mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {
-            "ibd MD5": "ABCD",
-            "ibd SHA-1": "EF00",
+def test_get_reader(mocker: MockerFixture, mock_path: Path, mock_read_file: ImzmlReadFile) -> None:
+    mock_reader = mocker.MagicMock(name="mock_reader", mzPrecision="d", intensityPrecision="i")
+    mock_imzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
+    mock_imzml_parser.return_value.__enter__.return_value.portable_spectrum_reader.return_value = mock_reader
+    reader = mock_read_file.get_reader()
+    mock_imzml_parser.assert_called_once_with(mock_path)
+    assert reader.imzml_path == Path(mock_read_file._path)
+    assert reader._mz_bytes == 8
+    assert reader._int_bytes == 4
+
+
+def test_n_spectra(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mocker.patch.object(ImzmlReadFile, "_cached_properties", {"n_spectra": 123})
+    assert mock_read_file.n_spectra == 123
+
+
+def test_imzml_mode(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mocker.patch.object(ImzmlReadFile, "_cached_properties", {"imzml_mode": "mock_mode"})
+    assert mock_read_file.imzml_mode == "mock_mode"
+
+
+def test_coordinates(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mocker.patch.object(ImzmlReadFile, "_cached_properties", {"coordinates": "mock_coordinates"})
+    assert mock_read_file.coordinates == "mock_coordinates"
+
+
+def test_coordinates_2d(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mocker.patch.object(ImzmlReadFile, "_cached_properties", {"coordinates": np.array([[1, 2, 3], [4, 5, 6]])})
+    np.testing.assert_array_equal(np.array([[1, 2], [4, 5]]), mock_read_file.coordinates_2d)
+
+
+def test_compact_metadata(mock_read_file: ImzmlReadFile) -> None:
+    mock_coordinates = np.array([[1, 2, 3], [3, 3, 3], [1 + 3, 2 + 4, 3 + 5]])
+    with (
+        patch.object(ImzmlReadFile, "n_spectra", 15),
+        patch.object(ImzmlReadFile, "imzml_mode", ImzmlModeEnum.PROCESSED),
+        patch.object(ImzmlReadFile, "coordinates", mock_coordinates),
+        patch.object(ImzmlReadFile, "imzml_file", "mock_imzml_file_path"),
+        patch.object(ImzmlReadFile, "ibd_file", "mock_ibd_file_path"),
+    ):
+        assert mock_read_file.compact_metadata == {
+            "n_spectra": 15,
+            "imzml_mode": "PROCESSED",
+            "coordinate_extent": [4, 5, 6],
+            "imzml_file": "mock_imzml_file_path",
+            "ibd_file": "mock_ibd_file_path",
         }
-        self.assertEqual({"md5": "abcd", "sha1": "ef00"}, self.mock_read_file.metadata_checksums)
 
-    @patch("depiction.persistence.imzml_read_file.FileChecksums")
-    def test_ibd_checksums(self, mock_file_checksums):
-        self.assertEqual(mock_file_checksums.return_value, self.mock_read_file.ibd_checksums)
-        mock_file_checksums.assert_called_once_with(file_path=self.mock_read_file.ibd_file)
 
-    @patch.object(ImzmlReadFile, "metadata_checksums", new={})
-    def test_is_checksum_valid_when_no_checksums_available(self) -> None:
-        self.assertIsNone(self.mock_read_file.is_checksum_valid)
+def test_metadata_checksums_when_none(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_pyimzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
+    mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {}
+    assert mock_read_file.metadata_checksums == {}
 
-    @patch.object(ImzmlReadFile, "metadata_checksums", new={"md5": "1234"})
-    @patch.object(ImzmlReadFile, "ibd_checksums")
-    def test_is_checksum_valid_when_md5_available(self, mock_checksums) -> None:
-        mock_checksums.checksum_md5 = "1234"
-        self.assertTrue(self.mock_read_file.is_checksum_valid)
 
-    @patch.object(ImzmlReadFile, "metadata_checksums", new={"sha1": "1234"})
-    @patch.object(ImzmlReadFile, "ibd_checksums")
-    def test_is_checksum_valid_when_sha1_available(self, mock_checksums) -> None:
-        mock_checksums.checksum_sha1 = "1234"
-        self.assertTrue(self.mock_read_file.is_checksum_valid)
+def test_metadata_checksums_when_md5_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_pyimzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
+    mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {"ibd MD5": "ABCD"}
+    assert mock_read_file.metadata_checksums == {"md5": "abcd"}
 
-    @patch.object(ImzmlReadFile, "metadata_checksums", new={"sha256": "1234"})
-    @patch.object(ImzmlReadFile, "ibd_checksums")
-    def test_is_checksum_valid_when_sha256_available(self, mock_checksums) -> None:
-        mock_checksums.checksum_sha256 = "1234"
-        self.assertTrue(self.mock_read_file.is_checksum_valid)
 
-    @patch.object(ImzmlReadFile, "metadata_checksums", new={"md5": "1234", "sha1": "5678"})
-    @patch.object(ImzmlReadFile, "ibd_checksums")
-    def test_is_checksum_valid_when_multiple_checksums_available(self, mock_ibd_checksums) -> None:
-        mock_ibd_checksums.checksum_sha1 = "5678"
-        mock_ibd_checksums.checksum_md5 = "1234"
-        self.assertTrue(self.mock_read_file.is_checksum_valid)
+def test_metadata_checksums_when_sha1_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_pyimzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
+    mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {"ibd SHA-1": "ABCD"}
+    assert mock_read_file.metadata_checksums == {"sha1": "abcd"}
 
-    @patch.object(ImzmlReadFile, "metadata_checksums", new={"abc": "1234"})
-    def test_is_checksum_valid_when_invalid_metadata_checksums(self) -> None:
-        with self.assertRaises(ValueError) as error:
-            _ = self.mock_read_file.is_checksum_valid
-        self.assertIn("Invalid metadata_checksums", str(error.exception))
 
-    @patch.object(ImzmlReadFile, "imzml_file")
-    @patch.object(ImzmlReadFile, "ibd_file")
-    def test_file_sizes_bytes(self, mock_ibd_file, mock_imzml_file) -> None:
-        mock_imzml_file.stat.return_value.st_size = 1234
-        mock_ibd_file.stat.return_value.st_size = 5678
-        self.assertDictEqual({"imzml": 1234, "ibd": 5678}, self.mock_read_file.file_sizes_bytes)
+def test_metadata_checksums_when_sha256_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_pyimzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
+    mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {"ibd SHA-256": "ABCD"}
+    assert mock_read_file.metadata_checksums == {"sha256": "abcd"}
 
-    @patch.object(ImzmlReadFile, "imzml_file")
-    @patch.object(ImzmlReadFile, "ibd_file")
-    def test_get_file_sizes_mb(self, mock_ibd_file, mock_imzml_file) -> None:
-        mock_imzml_file.stat.return_value.st_size = round(2.5 * 1024**2)
-        mock_ibd_file.stat.return_value.st_size = round(3.5 * 1024**2)
-        self.assertEqual({"imzml", "ibd"}, self.mock_read_file.file_sizes_mb.keys())
-        self.assertAlmostEqual(2.5, self.mock_read_file.file_sizes_mb["imzml"], places=8)
-        self.assertAlmostEqual(3.5, self.mock_read_file.file_sizes_mb["ibd"], places=8)
 
-    @patch.object(ImzmlReadFile, "imzml_mode", new=ImzmlModeEnum.PROCESSED)
-    @patch.object(ImzmlReadFile, "n_spectra", new=42)
-    @patch.object(ImzmlReadFile, "is_checksum_valid", new=True)
-    @patch.object(ImzmlReadFile, "file_sizes_mb", new={"imzml": 2.5, "ibd": 3.5})
-    def test_summary_when_processed(self) -> None:
-        summary = self.mock_read_file.summary()
-        self.assertIn("imzML file: /dev/null/mock_path.imzML (2.50 MB)", summary)
-        self.assertIn("ibd file: /dev/null/mock_path.ibd (3.50 MB)", summary)
-        self.assertIn("imzML mode: PROCESSED", summary)
-        self.assertIn("n_spectra: 42", summary)
-        self.assertIn("is_checksum_valid: True", summary)
+def test_metadata_checksums_when_both_checksums_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_pyimzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
+    mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {
+        "ibd MD5": "ABCD",
+        "ibd SHA-1": "EF00",
+    }
+    assert mock_read_file.metadata_checksums == {"md5": "abcd", "sha1": "ef00"}
 
-    @patch.object(ImzmlReadFile, "imzml_mode", new=ImzmlModeEnum.CONTINUOUS)
-    @patch.object(ImzmlReadFile, "n_spectra", new=42)
-    @patch.object(ImzmlReadFile, "is_checksum_valid", new=True)
-    @patch.object(ImzmlReadFile, "file_sizes_mb", new={"imzml": 2.5, "ibd": 3.5})
-    @patch.object(ImzmlReadFile, "reader")
-    def test_summary_when_continuous(self, method_reader) -> None:
-        mock_reader = MagicMock(name="mock_reader")
-        mock_reader.get_spectrum_mz.return_value = np.array([1, 2, 3])
-        method_reader.return_value.__enter__.return_value = mock_reader
-        summary = self.mock_read_file.summary()
-        self.assertIn("imzML file: /dev/null/mock_path.imzML (2.50 MB)", summary)
-        self.assertIn("ibd file: /dev/null/mock_path.ibd (3.50 MB)", summary)
-        self.assertIn("imzML mode: CONTINUOUS", summary)
-        self.assertIn("n_spectra: 42", summary)
-        self.assertIn("is_checksum_valid: True", summary)
-        self.assertIn("m/z range: 1.00 - 3.00 (3 bins)", summary)
-        method_reader.assert_called_once_with()
 
-    @patch("builtins.print")
-    @patch.object(ImzmlReadFile, "summary")
-    def test_print_summary(self, mock_summary, mock_print) -> None:
-        self.mock_read_file.print_summary()
-        mock_summary.assert_called_once_with(checksums=True)
-        mock_print.assert_called_once_with(mock_summary.return_value, file=None)
+def test_ibd_checksums(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_file_checksums = mocker.patch("depiction.persistence.imzml_read_file.FileChecksums")
+    assert mock_file_checksums.return_value == mock_read_file.ibd_checksums
+    mock_file_checksums.assert_called_once_with(file_path=mock_read_file.ibd_file)
 
-    @patch.object(ImzmlReadFile, "reader")
-    def test_cached_properties(self, method_reader) -> None:
-        mock_reader = MagicMock(name="mock_reader")
-        method_reader.return_value.__enter__.return_value = mock_reader
-        self.assertDictEqual(
-            {
-                "n_spectra": mock_reader.n_spectra,
-                "imzml_mode": mock_reader.imzml_mode,
-                "coordinates": mock_reader.coordinates,
-            },
-            self.mock_read_file._cached_properties,
-        )
 
-    def test_repr(self) -> None:
-        self.assertEqual(f"ImzmlReadFile('{self.mock_path}')", repr(self.mock_read_file))
+def test_is_checksum_valid_when_no_checksums_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mocker.patch.object(ImzmlReadFile, "metadata_checksums", new={})
+    assert mock_read_file.is_checksum_valid is None
 
-    def test_str(self) -> None:
-        self.assertEqual(f"ImzmlReadFile('{self.mock_path}')", str(self.mock_read_file))
+
+def test_is_checksum_valid_when_md5_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mocker.patch.object(ImzmlReadFile, "metadata_checksums", new={"md5": "1234"})
+    mock_checksums = mocker.patch.object(ImzmlReadFile, "ibd_checksums")
+    mock_checksums.checksum_md5 = "1234"
+    assert mock_read_file.is_checksum_valid
+
+
+def test_is_checksum_valid_when_sha1_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mocker.patch.object(ImzmlReadFile, "metadata_checksums", new={"sha1": "1234"})
+    mock_checksums = mocker.patch.object(ImzmlReadFile, "ibd_checksums")
+    mock_checksums.checksum_sha1 = "1234"
+    assert mock_read_file.is_checksum_valid
+
+
+def test_is_checksum_valid_when_sha256_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mocker.patch.object(ImzmlReadFile, "metadata_checksums", new={"sha256": "1234"})
+    mock_checksums = mocker.patch.object(ImzmlReadFile, "ibd_checksums")
+    mock_checksums.checksum_sha256 = "1234"
+    assert mock_read_file.is_checksum_valid
+
+
+def test_is_checksum_valid_when_multiple_checksums_available(
+    mocker: MockerFixture, mock_read_file: ImzmlReadFile
+) -> None:
+    mocker.patch.object(ImzmlReadFile, "metadata_checksums", new={"md5": "1234", "sha1": "5678"})
+    mock_checksums = mocker.patch.object(ImzmlReadFile, "ibd_checksums")
+    mock_checksums.checksum_sha1 = "5678"
+    mock_checksums.checksum_md5 = "1234"
+    assert mock_read_file.is_checksum_valid
+
+
+def test_is_checksum_valid_when_invalid_metadata_checksums(
+    mocker: MockerFixture, mock_read_file: ImzmlReadFile
+) -> None:
+    mocker.patch.object(ImzmlReadFile, "metadata_checksums", new={"abc": "1234"})
+    with pytest.raises(ValueError) as error:
+        _ = mock_read_file.is_checksum_valid
+    assert "Invalid metadata_checksums" in str(error)
+
+
+def test_file_sizes_bytes(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_imzml_file = mocker.patch.object(ImzmlReadFile, "imzml_file")
+    mock_ibd_file = mocker.patch.object(ImzmlReadFile, "ibd_file")
+    mock_imzml_file.stat.return_value.st_size = 1234
+    mock_ibd_file.stat.return_value.st_size = 5678
+    assert mock_read_file.file_sizes_bytes == {"imzml": 1234, "ibd": 5678}
+
+
+def test_get_file_sizes_mb(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_imzml_file = mocker.patch.object(ImzmlReadFile, "imzml_file")
+    mock_ibd_file = mocker.patch.object(ImzmlReadFile, "ibd_file")
+    mock_imzml_file.stat.return_value.st_size = round(2.5 * 1024**2)
+    mock_ibd_file.stat.return_value.st_size = round(3.5 * 1024**2)
+    assert mock_read_file.file_sizes_mb["imzml"] == pytest.approx(2.5, 1e-8)
+    assert mock_read_file.file_sizes_mb["ibd"] == pytest.approx(3.5, 1e-8)
+
+
+def test_summary_when_processed(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mocker.patch.object(ImzmlReadFile, "imzml_mode", ImzmlModeEnum.PROCESSED)
+    mocker.patch.object(ImzmlReadFile, "n_spectra", 15)
+    mocker.patch.object(ImzmlReadFile, "is_checksum_valid", True)
+    mocker.patch.object(ImzmlReadFile, "file_sizes_mb", {"imzml": 1.5, "ibd": 2.5})
+    assert mock_read_file.summary() == (
+        "imzML file: /dev/null/mock_path.imzML (1.50 MB)\n"
+        "ibd file: /dev/null/mock_path.ibd (2.50 MB)\n"
+        "imzML mode: PROCESSED\n"
+        "n_spectra: 15\n"
+        "is_checksum_valid: True\n"
+    )
+
+
+def test_summary_when_continuous(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mocker.patch.object(ImzmlReadFile, "imzml_mode", ImzmlModeEnum.CONTINUOUS)
+    mocker.patch.object(ImzmlReadFile, "n_spectra", 15)
+    mocker.patch.object(ImzmlReadFile, "is_checksum_valid", True)
+    mocker.patch.object(ImzmlReadFile, "file_sizes_mb", {"imzml": 1.5, "ibd": 2.5})
+    mock_reader = mocker.MagicMock(name="mock_reader")
+    mock_reader.get_spectrum_mz.return_value = np.array([1, 2, 3])
+    mocker.patch.object(ImzmlReadFile, "reader").return_value.__enter__.return_value = mock_reader
+    assert mock_read_file.summary() == (
+        "imzML file: /dev/null/mock_path.imzML (1.50 MB)\n"
+        "ibd file: /dev/null/mock_path.ibd (2.50 MB)\n"
+        "imzML mode: CONTINUOUS\n"
+        "n_spectra: 15\n"
+        "is_checksum_valid: True\n"
+        "m/z range: 1.00 - 3.00 (3 bins)\n"
+    )
+
+
+def test_print_summary(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_print = mocker.patch("builtins.print")
+    mock_summary = mocker.patch.object(ImzmlReadFile, "summary")
+    mock_read_file.print_summary()
+    mock_summary.assert_called_once_with(checksums=True)
+    mock_print.assert_called_once_with(mock_summary.return_value, file=None)
+
+
+def test_cached_properties(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_reader = MagicMock(name="mock_reader")
+    mocker.patch.object(ImzmlReadFile, "reader").return_value.__enter__.return_value = mock_reader
+    assert mock_read_file._cached_properties == {
+        "n_spectra": mock_reader.n_spectra,
+        "imzml_mode": mock_reader.imzml_mode,
+        "coordinates": mock_reader.coordinates,
+    }
+
+
+def test_repr(mock_path: Path, mock_read_file: ImzmlReadFile) -> None:
+    assert repr(mock_read_file) == f"ImzmlReadFile('{mock_path}')"
+
+
+def test_str(mock_path: Path, mock_read_file: ImzmlReadFile) -> None:
+    assert str(mock_read_file) == f"ImzmlReadFile('{mock_path}')"
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import shutil
 from collections import defaultdict
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -184,6 +185,11 @@ class ImzmlReadFile:
             [pixel_size_y] = collect["pixel_size_y"]
         # TODO actual check of the unit
         return PixelSize(size_x=pixel_size_x, size_y=pixel_size_y, unit="micrometer")
+
+    def copy_to(self, path: Path) -> None:
+        """Copies the file of this instance to the given path. Needs to end with .imzML."""
+        shutil.copy(self.imzml_file, path)
+        shutil.copy(self.ibd_file, path.with_suffix(".ibd"))
 
     @cached_property
     def _cached_properties(self) -> dict[str, Any]:

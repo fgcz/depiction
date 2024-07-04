@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import shutil
-from pathlib import Path
 from typing import Literal, Any
 
 from loguru import logger
@@ -145,14 +143,8 @@ def pick_peaks(
     if config.peak_picker is None or (
         not config.force_peak_picker and input_file.imzml_mode == ImzmlModeEnum.PROCESSED
     ):
-        copy_without_picking(input_imzml_path=input_file.imzml_file, output_imzml_path=output_file.imzml_file)
+        logger.info("Peak picking is deactivated")
+        input_file.copy_to(output_file.imzml_file)
     else:
         pick_peaks = PickPeaks(peak_picker=peak_picker, parallel_config=parallel_config)
         pick_peaks.evaluate_file(read_file=input_file, write_file=output_file)
-
-
-def copy_without_picking(input_imzml_path: Path, output_imzml_path: Path) -> None:
-    # TODO this is duplicated in several places and should be unified, in fact it could be a method of ImzmlReadFile
-    logger.info("Peak picking is deactivated")
-    shutil.copy(input_imzml_path, output_imzml_path)
-    shutil.copy(input_imzml_path.with_suffix(".ibd"), output_imzml_path.with_suffix(".ibd"))

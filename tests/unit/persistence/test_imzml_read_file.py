@@ -265,6 +265,17 @@ def test_print_summary(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> 
     mock_print.assert_called_once_with(mock_summary.return_value, file=None)
 
 
+def test_copy_to(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_output_file = mocker.MagicMock(name="mock_output_file")
+    mock_copy = mocker.patch("shutil.copy")
+    mock_read_file.copy_to(mock_output_file)
+    assert mock_copy.mock_calls == [
+        mocker.call(mock_read_file.imzml_file, mock_output_file),
+        mocker.call(mock_read_file.ibd_file, mock_output_file.with_suffix.return_value),
+    ]
+    mock_output_file.with_suffix.assert_called_once_with(".ibd")
+
+
 def test_cached_properties(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
     mock_reader = MagicMock(name="mock_reader")
     mocker.patch.object(ImzmlReadFile, "reader").return_value.__enter__.return_value = mock_reader

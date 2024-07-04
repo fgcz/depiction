@@ -10,7 +10,7 @@ from depiction.spectrum.peak_filtering import ChainFilters, FilterNHighestIntens
 
 
 class FilterNHighestIntensityPartitionedConfig(BaseModel):
-    method: Literal["FilterNHighestIntensityPartitioned"]
+    method: Literal["FilterNHighestIntensityPartitioned"] = "FilterNHighestIntensityPartitioned"
     max_count: int
     n_partitions: int
 
@@ -23,7 +23,7 @@ class FilterPeaksConfig(BaseModel, use_enum_values=True, validate_default=True):
 def _get_filter_object(config: FilterPeaksConfig) -> PeakFilteringType:
     filters = []
     for filter in config.filters:
-        match filter.method:
+        match filter:
             case FilterNHighestIntensityPartitionedConfig(max_count=max_count, n_partitions=n_partitions):
                 filters.append(FilterNHighestIntensityPartitioned(max_count=max_count, n_partitions=n_partitions))
             case _:
@@ -37,6 +37,7 @@ def _get_filter_object(config: FilterPeaksConfig) -> PeakFilteringType:
 def _filter_chunk(
     reader: ImzmlReader, indices: list[int], writer: ImzmlWriter, peaks_filter: PeakFilteringType
 ) -> None:
+    """Returns the filtered peaks for the given indices."""
     for spectrum_id in indices:
         mz_arr, int_arr, coords = reader.get_spectrum_with_coords(spectrum_id)
         mz_arr, int_arr = peaks_filter.filter_peaks(mz_arr, int_arr, mz_arr, int_arr)

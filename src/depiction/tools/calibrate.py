@@ -84,18 +84,18 @@ def extract_reference_masses(mass_list: Path) -> NDArray[float]:
 
 # TODO better name, return type
 def get_calibration_instance(config: CalibrationConfig, mass_list: Path | None):
-    match config:
+    match config.method:
         case CalibrationRegressShiftConfig():
             return CalibrationMethodRegressShift(
                 ref_mz_arr=extract_reference_masses(mass_list),
-                max_distance=config.max_distance,
-                max_distance_unit=config.max_distance_unit,
-                model_type=config.reg_model_type,
-                model_unit=config.reg_model_unit,
-                input_smoothing_activated=config.input_smoothing_activated,
-                input_smoothing_kernel_size=config.input_smoothing_kernel_size,
-                input_smoothing_kernel_std=config.input_smoothing_kernel_std,
-                min_points=config.min_points,
+                max_distance=config.method.max_distance,
+                max_distance_unit=config.method.max_distance_unit,
+                model_type=config.method.reg_model_type,
+                model_unit=config.method.reg_model_unit,
+                input_smoothing_activated=config.method.input_smoothing_activated,
+                input_smoothing_kernel_size=config.method.input_smoothing_kernel_size,
+                input_smoothing_kernel_std=config.method.input_smoothing_kernel_std,
+                min_points=config.method.min_points,
             )
         case CalibrationConstantGlobalShiftConfig():
             return CalibrationMethodGlobalConstantShift(
@@ -103,15 +103,15 @@ def get_calibration_instance(config: CalibrationConfig, mass_list: Path | None):
             )
         case CalibrationChemicalPeptideNoiseConfig():
             return CalibrationMethodChemicalPeptideNoise(
-                n_mass_intervals=config.n_mass_intervals,
-                interpolation_mode=config.interpolation_mode,
-                use_ppm_space=config.use_ppm_space,
+                n_mass_intervals=config.method.n_mass_intervals,
+                interpolation_mode=config.method.interpolation_mode,
+                use_ppm_space=config.method.use_ppm_space,
             )
         case CalibrationMCCConfig():
             return CalibrationMethodMassClusterCenterModel(
-                model_smoothing_activated=config.coef_smoothing_activated,
-                model_smoothing_kernel_size=config.coef_smoothing_kernel_size,
-                model_smoothing_kernel_std=config.coef_smoothing_kernel_std,
+                model_smoothing_activated=config.method.coef_smoothing_activated,
+                model_smoothing_kernel_size=config.method.coef_smoothing_kernel_size,
+                model_smoothing_kernel_std=config.method.coef_smoothing_kernel_std,
             )
         case _:
             raise NotImplementedError("should be unreachable")

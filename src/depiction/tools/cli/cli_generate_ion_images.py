@@ -18,6 +18,7 @@ def generate_ion_images(
     imzml_path: Path,
     mass_list_path: Path,
     output_hdf5_path: Path,
+    *,
     n_jobs: int = 16,
 ) -> None:
     parallel_config = ParallelConfig(n_jobs=n_jobs)

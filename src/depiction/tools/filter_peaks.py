@@ -20,7 +20,8 @@ class FilterPeaksConfig(BaseModel, use_enum_values=True, validate_default=True):
     n_jobs: int | None = None
 
 
-def _get_filter_object(config: FilterPeaksConfig) -> PeakFilteringType:
+def get_peak_filter(config: FilterPeaksConfig) -> PeakFilteringType:
+    """Returns the PeakFilteringType instance as specified in config.get_peak_filtering"""
     filters = []
     for filter in config.filters:
         match filter:
@@ -46,7 +47,7 @@ def _filter_chunk(
 
 def filter_peaks(config: FilterPeaksConfig, input_file: ImzmlReadFile, output_file: ImzmlWriteFile) -> None:
     """Filters the peaks in `input_file` and writes them to `output_file` according to the `config`."""
-    peaks_filter = _get_filter_object(config)
+    peaks_filter = get_peak_filter(config)
     # TODO n_jobs handling
     parallel_config = ParallelConfig(n_jobs=config.n_jobs or 10)
     write_parallel = WriteSpectraParallel.from_config(parallel_config)

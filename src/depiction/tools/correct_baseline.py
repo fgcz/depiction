@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import enum
-import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
@@ -106,10 +105,10 @@ class CorrectBaseline:
 def correct_baseline(config: BaselineCorrectionConfig, input_imzml: Path, output_imzml: Path) -> None:
     """Removes the baseline from the input imzML file and writes the result to the output imzML file."""
     output_imzml.parent.mkdir(parents=True, exist_ok=True)
+    input_file = ImzmlReadFile(input_imzml)
     if config.baseline_variant == BaselineVariants.Zero:
         logger.info("Baseline correction is deactivated, copying input to output")
-        shutil.copyfile(input_imzml, output_imzml)
-        shutil.copyfile(input_imzml.with_suffix(".ibd"), output_imzml.with_suffix(".ibd"))
+        input_file.copy_to(output_imzml)
     else:
         if config.n_jobs is None:
             # TODO define some sane default for None and -1 n_jobs e.g. use all available up to a limit (None) or use all (1-r)
@@ -117,7 +116,6 @@ def correct_baseline(config: BaselineCorrectionConfig, input_imzml: Path, output
         else:
             n_jobs = config.n_jobsf
         parallel_config = ParallelConfig(n_jobs=n_jobs)
-        input_file = ImzmlReadFile(input_imzml)
         output_file = ImzmlWriteFile(output_imzml, imzml_mode=input_file.imzml_mode)
         correct_baseline = CorrectBaseline.from_variant(
             parallel_config=parallel_config,

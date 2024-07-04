@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, PositiveInt, PositiveFloat
 
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.write_spectra_parallel import WriteSpectraParallel
@@ -27,9 +27,9 @@ class BaselineVariants(str, enum.Enum):
 
 
 class BaselineCorrectionConfig(BaseModel, use_enum_values=True, validate_default=True):
-    n_jobs: int | None = None
+    n_jobs: PositiveInt | None = None
     baseline_variant: BaselineVariants = BaselineVariants.TopHat
-    window_size: int | float = 5000.0
+    window_size: PositiveInt | PositiveFloat = 5000.0
     window_unit: Literal["ppm", "index"] = "ppm"
 
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, PositiveInt
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
@@ -17,7 +17,7 @@ class FilterNHighestIntensityPartitionedConfig(BaseModel):
 
 class FilterPeaksConfig(BaseModel, use_enum_values=True, validate_default=True):
     filters: list[FilterNHighestIntensityPartitionedConfig]
-    n_jobs: int | None = None
+    n_jobs: PositiveInt | None = None
 
 
 def get_peak_filter(config: FilterPeaksConfig) -> PeakFilteringType:

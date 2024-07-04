@@ -10,10 +10,10 @@ app = cyclopts.App()
 
 
 @app.default
-def correct_baseline_config(input_config: Path, output_config: Path) -> None:
+def calibrate_config(input_config: Path, output_config: Path) -> None:
     config = PipelineParameters.parse_yaml(input_config)
     with output_config.open("w") as file:
-        yaml.dump(config.pick_peaks.dict(), file)
+        yaml.dump(config.calibration.dict(), file)
 
 
 if __name__ == "__main__":

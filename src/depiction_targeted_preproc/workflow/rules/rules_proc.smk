@@ -57,34 +57,59 @@ rule proc_pick_peaks:
 #
 
 
-# TODO this should be solved more efficiently in the future, but for now it is solved by calling the script twice
-rule proc_calibrate_remove_global_shift:
+## TODO this should be solved more efficiently in the future, but for now it is solved by calling the script twice
+# rule proc_calibrate_remove_global_shift:
+#    input:
+#        imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
+#        config="{sample}/pipeline_params.yml",
+#        #mass_list="{sample}/mass_list.standards.csv",
+#        mass_list="{sample}/mass_list.calibration.csv",
+#    output:
+#        imzml=temp(multiext("{sample}/calibrated.tmp", ".imzML", ".ibd")),
+#    shell:
+#        "python -m depiction_targeted_preproc.workflow.proc.calibrate "
+#        " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
+#        " --use-global-constant-shift"
+#        " --output-imzml-path {output.imzml[0]}"
+#
+#
+# rule proc_calibrate_actual:
+#    input:
+#        imzml=multiext("{sample}/calibrated.tmp", ".imzML", ".ibd"),
+#        config="{sample}/pipeline_params.yml",
+#        mass_list="{sample}/mass_list.calibration.csv",
+#    output:
+#        imzml=multiext("{sample}/calibrated", ".imzML", ".ibd"),
+#        calib_data="{sample}/calib_data.hdf5",
+#    shell:
+#        "python -m depiction_targeted_preproc.workflow.proc.calibrate "
+#        " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
+#        " --output-imzml-path {output.imzml[0]} --output-calib-data-path {output.calib_data}"
+
+
+rule proc_calibrate_config:
+    input:
+        config="{sample}/pipeline_params.yml",
+    output:
+        config="{sample}/config/proc_calibrate.yml",
+    shell:
+        "python -m depiction_targeted_preproc.workflow.proc.calibrate_config"
+        " --input-config {input.config} --output-config {output.config}"
+
+
+rule proc_calibrate:
     input:
         imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
-        config="{sample}/pipeline_params.yml",
-        #mass_list="{sample}/mass_list.standards.csv",
-        mass_list="{sample}/mass_list.calibration.csv",
-    output:
-        imzml=temp(multiext("{sample}/calibrated.tmp", ".imzML", ".ibd")),
-    shell:
-        "python -m depiction_targeted_preproc.workflow.proc.calibrate "
-        " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
-        " --use-global-constant-shift"
-        " --output-imzml-path {output.imzml[0]}"
-
-
-rule proc_calibrate_actual:
-    input:
-        imzml=multiext("{sample}/calibrated.tmp", ".imzML", ".ibd"),
-        config="{sample}/pipeline_params.yml",
+        config="{sample}/config/proc_calibrate.yml",
         mass_list="{sample}/mass_list.calibration.csv",
     output:
         imzml=multiext("{sample}/calibrated", ".imzML", ".ibd"),
         calib_data="{sample}/calib_data.hdf5",
     shell:
-        "python -m depiction_targeted_preproc.workflow.proc.calibrate "
-        " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
-        " --output-imzml-path {output.imzml[0]} --output-calib-data-path {output.calib_data}"
+        "python -m depiction.tools.cli.cli_calibrate "
+        " run-config --config {input.config} "
+        " --input-imzml {input.imzml[0]} --input-mass-list {input.mass_list}"
+        " --output-imzml {output.imzml[0]} --output-calib-data {output.calib_data}"
 
 
 rule proc_export_raw_metadata:

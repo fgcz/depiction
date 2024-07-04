@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
-from typing import Literal, Annotated, Self
+from typing import Self
 
 import yaml
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict
 
+from depiction.tools.calibrate import CalibrationConfig
 from depiction.tools.correct_baseline import BaselineCorrectionConfig
 from depiction.tools.filter_peaks import FilterPeaksConfig
 from depiction.tools.pick_peaks import PickPeaksConfig
@@ -20,48 +21,6 @@ class Model(BaseModel):
         # TODO consider in the future a better mechanism for passing step configurations, maybe using
         #  json and pydantic but in a more granular way. for now this sort of works
         return cls.model_validate(yaml.unsafe_load(path.read_text()))
-
-
-class CalibrationRegressShift(BaseModel):
-    calibration_method: Literal["RegressShift"]
-
-    max_distance: float
-    # TODO make explicit
-    max_distance_unit: str
-    # TODO make explicit
-    reg_model_type: str
-    # TODO make explicit
-    reg_model_unit: str
-    input_smoothing_activated: bool
-    input_smoothing_kernel_size: int = 27
-    input_smoothing_kernel_std: float = 10.0
-    min_points: int = 3
-
-
-class CalibrationChemicalPeptideNoise(BaseModel):
-    calibration_method: Literal["ChemicalPeptideNoise"]
-
-    n_mass_intervals: int
-    interpolation_mode: Literal["linear", "cubic_spline", "refit_linear"] = "linear"
-    use_ppm_space: bool = False
-
-
-class CalibrationMCC(BaseModel):
-    calibration_method: Literal["MCC"]
-
-    model_smoothing_activated: bool
-    model_smoothing_kernel_size: int = 27
-    model_smoothing_kernel_std: float = 10.0
-
-
-class CalibrationConstantGlobalShift(BaseModel):
-    calibration_method: Literal["ConstantGlobalShift"]
-
-
-Calibration = Annotated[
-    CalibrationRegressShift | CalibrationChemicalPeptideNoise | CalibrationMCC | CalibrationConstantGlobalShift,
-    Field(discriminator="calibration_method"),
-]
 
 
 class SimulateParameters(Model):
@@ -84,7 +43,7 @@ class PipelineArtifact(str, Enum):
 class PipelineParametersPreset(Model, use_enum_values=True, validate_default=True):
     baseline_correction: BaselineCorrectionConfig
     filter_peaks: FilterPeaksConfig
-    calibration: Calibration
+    calibration: CalibrationConfig
     pick_peaks: PickPeaksConfig
 
 

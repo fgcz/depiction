@@ -40,9 +40,9 @@ def run_findmf(
     resolution: float = 10000.0,
 ) -> None:
     """Runs FindMF peak picker on input imzml file and writes the output to output imzml file."""
-    picker_config = PeakPickerFindMFPyConfig.validate(dict(resolution=resolution))
+    picker_config = PeakPickerFindMFPyConfig(resolution=resolution)
     pick_peaks(
-        config=PickPeaksConfig.validate(dict(peak_picker=picker_config, peak_filtering=None, n_jobs=n_jobs)),
+        config=PickPeaksConfig(peak_picker=picker_config, peak_filtering=None, n_jobs=n_jobs),
         input_file=ImzmlReadFile(input_imzml),
         output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
     )
@@ -58,8 +58,8 @@ def run_mspeak(
 ) -> None:
     """Runs MSPeakPicker on input imzml file and writes the output to output imzml file."""
     pick_peaks(
-        config=PickPeaksConfig.validate(
-            dict(peak_picker=PeakPickerMSPeakPickerConfig(fit_type=fit_type), peak_filtering=None, n_jobs=n_jobs)
+        config=PickPeaksConfig(
+            peak_picker=PeakPickerMSPeakPickerConfig(fit_type=fit_type), peak_filtering=None, n_jobs=n_jobs
         ),
         input_file=ImzmlReadFile(input_imzml),
         output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),

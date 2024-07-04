@@ -40,11 +40,9 @@ def run_global_constant_shift(
     input_mass_list: Path | None = None,
     n_jobs: int | None = None,
 ) -> None:
-    config = CalibrationConfig.validate(
-        dict(
-            method=CalibrationConstantGlobalShiftConfig(),
-            n_jobs=n_jobs,
-        )
+    config = CalibrationConfig(
+        method=CalibrationConstantGlobalShiftConfig(),
+        n_jobs=n_jobs,
     )
     input_file = ImzmlReadFile(input_imzml)
     output_file = ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED)

@@ -34,7 +34,7 @@ def run(
 ) -> None:
     # TODO this is hardcoded like before in the workflow
     peaks_filter = FilterNHighestIntensityPartitionedConfig(max_count=500, n_partitions=8)
-    config = FilterPeaksConfig.validate(dict(filters=[peaks_filter], n_jobs=n_jobs))
+    config = FilterPeaksConfig(filters=[peaks_filter], n_jobs=n_jobs)
     filter_peaks(
         config=config,
         input_file=ImzmlReadFile(input_imzml),

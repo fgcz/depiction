@@ -19,8 +19,8 @@ def test_filter_peaks_when_n_highest_intensity_partitioned(mocker: MockerFixture
     mock_from_config = mocker.patch(
         "depiction.tools.filter_peaks.WriteSpectraParallel.from_config", return_value=mock_write_parallel
     )
-    config = FilterPeaksConfig.validate(
-        dict(filters=[FilterNHighestIntensityPartitionedConfig(max_count=10, n_partitions=20)], n_jobs=30)
+    config = FilterPeaksConfig(
+        filters=[FilterNHighestIntensityPartitionedConfig(max_count=10, n_partitions=20)], n_jobs=30
     )
     filter_peaks(config=config, input_file=mock_input_file, output_file=mock_output_file)
     mock_from_config.assert_called_once_with(ParallelConfig(n_jobs=30))

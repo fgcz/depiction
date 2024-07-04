@@ -31,8 +31,8 @@ def run(
     window_size: int | float = 5000,
     window_unit: Literal["ppm", "index"] = "ppm",
 ) -> None:
-    config = BaselineCorrectionConfig.validate(
-        dict(n_jobs=n_jobs, baseline_variant=baseline_variant, window_size=window_size, window_unit=window_unit)
+    config = BaselineCorrectionConfig(
+        n_jobs=n_jobs, baseline_variant=baseline_variant, window_size=window_size, window_unit=window_unit
     )
     correct_baseline(config=config, input_imzml=input_imzml, output_imzml=output_imzml)
 

@@ -15,7 +15,7 @@ from depiction.tools.filter_peaks import FilterPeaksConfig, get_peak_filter
 
 
 class PeakPickerBasicInterpolatedConfig(BaseModel):
-    peak_picker_type: Literal["BasicInterpolated"]
+    peak_picker_type: Literal["BasicInterpolated"] = "BasicInterpolated"
     min_prominence: float
     min_distance: int | float | None = None
     min_distance_unit: Literal["index", "mz"] | None = None
@@ -26,12 +26,12 @@ class PeakPickerBasicInterpolatedConfig(BaseModel):
 
 
 class PeakPickerMSPeakPickerConfig(BaseModel):
-    peak_picker_type: Literal["MSPeakPicker"]
+    peak_picker_type: Literal["MSPeakPicker"] = "MSPeakPicker"
     fit_type: Literal["quadratic"] = "quadratic"
 
 
 class PeakPickerFindMFPyConfig(BaseModel):
-    peak_picker_type: Literal["FindMFPy"]
+    peak_picker_type: Literal["FindMFPy"] = "FindMFPy"
     resolution: float = 10000.0
     width: float = 2.0
     int_width: float = 2.0
@@ -44,9 +44,9 @@ class PickPeaksConfig(BaseModel, use_enum_values=True, validate_default=True):
     peak_picker: PeakPickerBasicInterpolatedConfig | PeakPickerMSPeakPickerConfig | PeakPickerFindMFPyConfig = Field(
         ..., discriminator="peak_picker_type"
     )
-    peak_filtering: FilterPeaksConfig | None
-    force_peak_picker: bool = False
     n_jobs: int
+    force_peak_picker: bool = False
+    peak_filtering: FilterPeaksConfig | None = None
 
 
 class PickPeaks:

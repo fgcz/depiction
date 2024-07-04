@@ -6,8 +6,12 @@ import cyclopts
 import yaml
 
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
-from depiction.tools.filter_peaks import FilterPeaksConfig, filter_peaks, FilterNHighestIntensityPartitionedConfig
-from depiction.tools.pick_peaks import PickPeaksConfig, pick_peaks
+from depiction.tools.pick_peaks import (
+    PickPeaksConfig,
+    pick_peaks,
+    PeakPickerFindMFPyConfig,
+    PeakPickerMSPeakPickerConfig,
+)
 
 app = cyclopts.App()
 
@@ -18,6 +22,7 @@ def run_config(
     input_imzml: Path,
     output_imzml: Path,
 ) -> None:
+    """Runs the configured peak picker on input imzml file and writes the output to output imzml file."""
     config = PickPeaksConfig.validate(yaml.safe_load(config.read_text()))
     pick_peaks(
         config=config,
@@ -26,14 +31,39 @@ def run_config(
     )
 
 
-# @app.default
-# def run(
-#    input_imzml: Path,
-#    output_imzml: Path,
-#    *,
-#    n_jobs: int | None = None,
-# ) -> None:
-#    pass
+@app.command
+def run_findmf(
+    input_imzml: Path,
+    output_imzml: Path,
+    *,
+    n_jobs: int | None = None,
+    resolution: float = 10000.0,
+) -> None:
+    """Runs FindMF peak picker on input imzml file and writes the output to output imzml file."""
+    picker_config = PeakPickerFindMFPyConfig.validate(dict(resolution=resolution))
+    pick_peaks(
+        config=PickPeaksConfig.validate(dict(peak_picker=picker_config, peak_filtering=None, n_jobs=n_jobs)),
+        input_file=ImzmlReadFile(input_imzml),
+        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
+    )
+
+
+@app.command()
+def run_mspeak(
+    input_imzml: Path,
+    output_imzml: Path,
+    *,
+    n_jobs: int | None = None,
+    fit_type: str = "quadratic",
+) -> None:
+    """Runs MSPeakPicker on input imzml file and writes the output to output imzml file."""
+    pick_peaks(
+        config=PickPeaksConfig.validate(
+            dict(peak_picker=PeakPickerMSPeakPickerConfig(fit_type=fit_type), peak_filtering=None, n_jobs=n_jobs)
+        ),
+        input_file=ImzmlReadFile(input_imzml),
+        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
+    )
 
 
 if __name__ == "__main__":

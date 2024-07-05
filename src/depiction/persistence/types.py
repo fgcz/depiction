@@ -6,17 +6,14 @@ from typing import TYPE_CHECKING, Self, Protocol
 if TYPE_CHECKING:
     from types import TracebackType
     from numpy.typing import NDArray
+    from collections.abc import Sequence
+    import numpy as np
 
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from tqdm import tqdm
 
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-    import numpy as np
 
 
 # TODO better name

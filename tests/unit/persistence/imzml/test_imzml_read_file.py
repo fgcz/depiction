@@ -158,7 +158,7 @@ def test_metadata_checksums_when_both_checksums_available(mocker: MockerFixture,
 
 
 def test_ibd_checksums(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
-    mock_file_checksums = mocker.patch("depiction.persistence.imzml_read_file.FileChecksums")
+    mock_file_checksums = mocker.patch("depiction.persistence.imzml.imzml_read_file.FileChecksums")
     assert mock_file_checksums.return_value == mock_read_file.ibd_checksums
     mock_file_checksums.assert_called_once_with(file_path=mock_read_file.ibd_file)
 

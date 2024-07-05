@@ -239,7 +239,7 @@ class TestImzmlReader(unittest.TestCase):
         self.assertTupleEqual((0.5, 6), mz_range)
         self.assertListEqual([call(0), call(1), call(2)], mock_get_spectrum_mz.mock_calls)
 
-    @patch("depiction.persistence.imzml_reader.pyimzml.ImzMLParser.ImzMLParser")
+    @patch("depiction.persistence.imzml.imzml_reader.pyimzml.ImzMLParser.ImzMLParser")
     def test_parse_imzml(self, module_imzml_parser) -> None:
         mock_path = MagicMock(name="mock_path", spec=[])
         mock_portable_spectrum_reader = MagicMock(name="mock_portable_spectrum_reader")

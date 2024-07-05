@@ -7,7 +7,7 @@ from typing import Any, TYPE_CHECKING
 import numpy as np
 import pyimzml.ImzMLParser
 
-from depiction.persistence.imzml_mode_enum import ImzmlModeEnum
+from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 
 if TYPE_CHECKING:
     from types import TracebackType

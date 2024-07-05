@@ -6,13 +6,13 @@ import pyimzml
 import pyimzml.ImzMLWriter
 from tqdm import tqdm
 
-from depiction.persistence.imzml_alignment_tracker import ImzmlAlignmentTracker
-from depiction.persistence.imzml_mode_enum import ImzmlModeEnum
+from depiction.persistence.imzml.imzml_alignment_tracker import ImzmlAlignmentTracker
+from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     import numpy as np
-    from depiction.persistence.imzml_reader import ImzmlReader
+    from depiction.persistence.imzml.imzml_reader import ImzmlReader
 
 
 class ImzmlWriter:

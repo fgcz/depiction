@@ -5,7 +5,7 @@ import typer
 from loguru import logger
 from pydantic import ValidationError
 
-from depiction.persistence.extract_metadata import ExtractMetadata, Metadata
+from depiction.persistence.imzml.extract_metadata import ExtractMetadata, Metadata
 from depiction.persistence.pixel_size import PixelSize
 
 

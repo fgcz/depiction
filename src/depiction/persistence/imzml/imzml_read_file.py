@@ -10,8 +10,8 @@ import pyimzml.ImzMLParser
 from numpy.typing import NDArray
 
 from depiction.persistence.file_checksums import FileChecksums
-from depiction.persistence.imzml_mode_enum import ImzmlModeEnum
-from depiction.persistence.imzml_reader import ImzmlReader
+from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
+from depiction.persistence.imzml.imzml_reader import ImzmlReader
 from depiction.persistence.pixel_size import PixelSize
 
 

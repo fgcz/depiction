@@ -3,10 +3,10 @@ from contextlib import contextmanager, AbstractContextManager
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from depiction.persistence.imzml_writer import ImzmlWriter
+from depiction.persistence.imzml.imzml_writer import ImzmlWriter
 
 if TYPE_CHECKING:
-    from depiction.persistence.imzml_mode_enum import ImzmlModeEnum
+    from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 
 
 class ImzmlWriteFile:

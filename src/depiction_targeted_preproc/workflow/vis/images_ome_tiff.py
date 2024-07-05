@@ -4,7 +4,7 @@ from typing import Annotated
 import typer
 import xarray
 
-from depiction.persistence.extract_metadata import Metadata
+from depiction.persistence.imzml.extract_metadata import Metadata
 from depiction.persistence.format_ome_tiff import OmeTiff
 
 

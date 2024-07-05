@@ -10,8 +10,7 @@ from pydantic import BaseModel, PositiveInt, PositiveFloat
 
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.write_spectra_parallel import WriteSpectraParallel
-from depiction.persistence import ImzmlWriteFile, ImzmlWriter, ImzmlReader
-from depiction.persistence.imzml_read_file import ImzmlReadFile
+from depiction.persistence import ImzmlWriteFile, ImzmlWriter, ImzmlReader, ImzmlReadFile
 from depiction.spectrum.baseline.local_medians_baseline import LocalMediansBaseline
 from depiction.spectrum.baseline.tophat_baseline import TophatBaseline
 

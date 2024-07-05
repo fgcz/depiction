@@ -2,7 +2,7 @@ import unittest
 from functools import cached_property
 from unittest.mock import MagicMock
 
-from depiction.persistence.ram_write_file import RamWriteFile
+from depiction.persistence.ram.ram_write_file import RamWriteFile
 from typing import NoReturn
 
 

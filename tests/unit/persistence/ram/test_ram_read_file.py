@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 import numpy as np
 
 from depiction.persistence import ImzmlModeEnum
-from depiction.persistence.ram_read_file import RamReadFile
+from depiction.persistence.ram.ram_read_file import RamReadFile
 
 
 class TestRamReadFile(unittest.TestCase):
@@ -34,7 +34,7 @@ class TestRamReadFile(unittest.TestCase):
         mock_reader.close.assert_called_once_with()
         method_get_reader.assert_called_once_with()
 
-    @patch("depiction.persistence.ram_read_file.RamReader")
+    @patch("depiction.persistence.ram.ram_read_file.RamReader")
     def test_get_reader(self, construct_ram_reader) -> None:
         reader = self.mock_read_file.get_reader()
         construct_ram_reader.assert_called_once_with(

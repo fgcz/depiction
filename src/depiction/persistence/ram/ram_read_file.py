@@ -1,14 +1,24 @@
+from __future__ import annotations
 from contextlib import contextmanager
 from functools import cached_property
-from collections.abc import Generator
 from pathlib import Path
 
-from depiction.persistence import ImzmlModeEnum
-from depiction.persistence.ram_reader import RamReader
+from depiction.persistence.ram.ram_reader import RamReader
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from depiction.persistence import ImzmlModeEnum
+    from collections.abc import Generator
+    from numpy.typing import NDArray
 
 
 class RamReadFile:
-    def __init__(self, mz_arr_list, int_arr_list, coordinates) -> None:
+    def __init__(
+        self,
+        mz_arr_list: list[NDArray[float]] | NDArray[float],
+        int_arr_list: list[NDArray[float]] | NDArray[float],
+        coordinates: NDArray[int],
+    ) -> None:
         self._mz_arr_list = mz_arr_list
         self._int_arr_list = int_arr_list
         self._coordinates = coordinates
@@ -44,9 +54,9 @@ class RamReadFile:
             return reader.imzml_mode
 
     @property
-    def coordinates(self):
+    def coordinates(self) -> NDArray[int]:
         return self._coordinates
 
     @property
-    def coordinates_2d(self):
+    def coordinates_2d(self) -> NDArray[int]:
         return self._coordinates[:, :2]

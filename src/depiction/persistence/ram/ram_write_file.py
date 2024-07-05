@@ -1,14 +1,16 @@
 from __future__ import annotations
-from tqdm import tqdm
+
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
+from tqdm import tqdm
 
 from depiction.persistence import ImzmlModeEnum, RamReadFile
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+    from collections.abc import Generator
     from collections.abc import Sequence
-    import numpy as np
 
 
 class RamWriteFile:
@@ -19,7 +21,7 @@ class RamWriteFile:
         self._imzml_mode = imzml_mode
 
     @property
-    def imzml_mode(self):
+    def imzml_mode(self) -> ImzmlModeEnum:
         return self._imzml_mode
 
     # Just for the sake of a clean api this does not really belong here...
@@ -34,7 +36,7 @@ class RamWriteFile:
     #    self._coordinates.append(coordinates)
 
     @contextmanager
-    def writer(self):
+    def writer(self) -> Generator[_Writer, None, None]:
         yield _Writer(self)
 
     def to_read_file(self) -> RamReadFile:
@@ -50,7 +52,7 @@ class _Writer:
     def __init__(self, file: RamWriteFile) -> None:
         self._file = file
 
-    def add_spectrum(self, mz_arr: np.ndarray, int_arr: np.ndarray, coordinates) -> None:
+    def add_spectrum(self, mz_arr: NDArray[float], int_arr: NDArray[float], coordinates: NDArray[int]) -> None:
         self._file._mz_arr_list.append(mz_arr)
         self._file._int_arr_list.append(int_arr)
         self._file._coordinates_list.append(coordinates)
@@ -59,12 +61,12 @@ class _Writer:
         # TODO reuse the implementation from ImzmlWriter as this is 100% identical
         if tqdm_position is not None:
 
-            def progress_fn(x):
+            def progress_fn(x: Sequence[int]) -> Sequence[int] | tqdm:
                 return tqdm(x, desc=" spectrum", position=tqdm_position)
 
         else:
 
-            def progress_fn(x):
+            def progress_fn(x: Sequence[int]) -> Sequence[int] | tqdm:
                 return x
 
         for i_spectrum in progress_fn(spectra_indices):

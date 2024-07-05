@@ -1,7 +1,7 @@
 from __future__ import annotations
 from contextlib import contextmanager, AbstractContextManager
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator
 
 from depiction.persistence.imzml.imzml_writer import ImzmlWriter
 from depiction.persistence.types import GenericWriteFile
@@ -43,7 +43,7 @@ class ImzmlWriteFile(GenericWriteFile):
         return self._imzml_mode
 
     @contextmanager
-    def writer(self) -> AbstractContextManager[ImzmlWriter]:
+    def writer(self) -> Generator[ImzmlWriter, None, None]:
         """Opens the .imzML file for writing and yields an `ImzmlWriter` instance."""
         if self._write_mode == "x":
             if self.imzml_file.exists():

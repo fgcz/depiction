@@ -5,22 +5,20 @@ from typing import TYPE_CHECKING, Self, Protocol
 import numpy as np
 
 if TYPE_CHECKING:
-    from types import TracebackType
+    from pathlib import Path
     from numpy.typing import NDArray
+    from depiction.persistence.pixel_size import PixelSize
+    from collections.abc import Generator
+    from types import TracebackType
     from collections.abc import Sequence
 
 from tqdm import tqdm
 
-from collections.abc import Generator
-from contextlib import contextmanager, AbstractContextManager
+from contextlib import AbstractContextManager
 from functools import cached_property
-from pathlib import Path
-from typing import Optional, TextIO
-
-from numpy.typing import NDArray
+from typing import TextIO
 
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
-from depiction.persistence.pixel_size import PixelSize
 
 
 # TODO better name
@@ -114,7 +112,6 @@ class GenericReader(Protocol):
 
 
 class GenericReadFile(Protocol):
-    @contextmanager
     def reader(self) -> Generator[GenericReader, None, None]:
         """Returns a context manager that yields an `ImzmlReader` instance."""
         ...
@@ -151,7 +148,7 @@ class GenericReadFile(Protocol):
         # TODO should this really be here
         ...
 
-    def is_checksum_valid(self) -> Optional[bool]:
+    def is_checksum_valid(self) -> bool | None:
         """Returns True if the checksum of the .ibd file matches the expected value. False otherwise.
         This operation can be slow for large files, but will be cached after the first call.
         `None` is returned when checksum information is available.
@@ -160,6 +157,7 @@ class GenericReadFile(Protocol):
 
     def summary(self, checksums: bool = True) -> str:
         """Returns a summary of the file."""
+        ...
 
     def print_summary(self, checksums: bool = True, file: TextIO | None = None) -> None:
         """Prints a summary of the file."""
@@ -212,12 +210,12 @@ class GenericWriter(Protocol):
         """
         if tqdm_position is not None:
 
-            def progress_fn(x: Sequence[int]) -> tqdm:
+            def progress_fn(x: Sequence[int]) -> Sequence[int] | tqdm:
                 return tqdm(x, desc=" spectrum", position=tqdm_position)
 
         else:
 
-            def progress_fn(x: Sequence[int]) -> Sequence[int]:
+            def progress_fn(x: Sequence[int]) -> Sequence[int] | tqdm:
                 return x
 
         for spectrum_index in progress_fn(spectra_indices):
@@ -231,7 +229,6 @@ class GenericWriteFile(Protocol):
         """The imzml mode of the .imzML file."""
         ...
 
-    @contextmanager
     def writer(self) -> AbstractContextManager[GenericWriter]:
         """Opens the .imzML file for writing and yields an `ImzmlWriter` instance."""
         ...

@@ -162,3 +162,16 @@ rule qc_plot_scan_direction:
         "python -m depiction_targeted_preproc.workflow.qc.plot_scan_direction"
         " --input-imzml-path {input.imzml[0]}"
         " --output-pdf {output.pdf}"
+
+
+rule qc_plot_intensity_threshold:
+    input:
+        image="{sample}/images_default.hdf5",
+    output:
+        pdf_all="{sample}/qc/plot_intensity_threshold_all.pdf",
+        pdf_fg="{sample}/qc/plot_intensity_threshold_fg.pdf",
+    shell:
+        "python -m depiction_targeted_preproc.workflow.qc.plot_intensity_threshold"
+        " --image-hdf5 {input.image}"
+        " --output-all-pixels-pdf {output.pdf_all}"
+        " --output-foreground-pixels-pdf {output.pdf_fg}"

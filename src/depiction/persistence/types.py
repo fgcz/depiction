@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, Protocol
+
 import numpy as np
 
 if TYPE_CHECKING:
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 from tqdm import tqdm
 
 from collections.abc import Generator
-from contextlib import contextmanager
+from contextlib import contextmanager, AbstractContextManager
 from functools import cached_property
 from pathlib import Path
 from typing import Optional, TextIO
@@ -225,4 +226,12 @@ class GenericWriter(Protocol):
 
 
 class GenericWriteFile(Protocol):
-    pass
+    @property
+    def imzml_mode(self) -> ImzmlModeEnum:
+        """The imzml mode of the .imzML file."""
+        ...
+
+    @contextmanager
+    def writer(self) -> AbstractContextManager[GenericWriter]:
+        """Opens the .imzML file for writing and yields an `ImzmlWriter` instance."""
+        ...

@@ -1,3 +1,4 @@
+import importlib.util
 from unittest.mock import MagicMock
 
 import pytest
@@ -55,6 +56,7 @@ def test_get_peak_picker_when_ms_peak_picker(mock_filtering: MagicMock) -> None:
     assert picker.peak_filtering == mock_filtering
 
 
+@pytest.mark.skipif(importlib.util.find_spec("findmfpy") is None, reason="findmfpy not installed")
 def test_get_peak_picker_when_find_mf_peak_picker(mock_filtering: MagicMock) -> None:
     config = PickPeaksConfig(
         peak_picker=PeakPickerFindMFPyConfig(

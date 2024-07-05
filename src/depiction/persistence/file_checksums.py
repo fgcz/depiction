@@ -5,11 +5,16 @@ from typing import Any
 
 
 class FileChecksums:
+    """Calculates the checksums of a file.
+    :param file_path: the path to the file
+    """
+
     def __init__(self, file_path: Path) -> None:
         self._file_path = file_path
 
     @property
     def file_path(self) -> Path:
+        """The path to the file."""
         return self._file_path
 
     @cached_property

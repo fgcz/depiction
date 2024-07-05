@@ -114,3 +114,6 @@ class MultiChannelImage:
         size_y = self._data.sizes["y"]
         size_x = self._data.sizes["x"]
         return f"MultiChannelImage(size_y={size_y}, size_x={size_x}, n_channels={self.n_channels})"
+
+    def __repr__(self) -> str:
+        return f"MultiChannelImage(data={self._data!r})"

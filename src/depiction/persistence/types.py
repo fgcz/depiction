@@ -3,13 +3,20 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING, Self, Protocol
 
-import numpy as np
+if TYPE_CHECKING:
+    from types import TracebackType
+    from numpy.typing import NDArray
+
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+from tqdm import tqdm
 
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 
 if TYPE_CHECKING:
-    from types import TracebackType
-    from numpy.typing import NDArray
+    from collections.abc import Sequence
+    import numpy as np
 
 
 # TODO better name
@@ -100,3 +107,51 @@ class GenericReader(Protocol):
             mz_min = mz_arr[0] if mz_arr[0] < mz_min else mz_min
             mz_max = mz_arr[-1] if mz_arr[-1] > mz_max else mz_max
         return mz_min, mz_max
+
+
+class GenericWriter(Protocol):
+
+    # TODO this currently does not impl __enter__ and __exit__ as GenericReader
+
+    @classmethod
+    def open(cls, path: str | Path, imzml_mode: ImzmlModeEnum, imzml_alignment_tracking: bool = True) -> Self:
+        """Opens an imzML file."""
+        ...
+
+    def close(self) -> None: ...
+
+    @property
+    def imzml_mode(self) -> ImzmlModeEnum:
+        """Returns the mode of the imzML file."""
+        ...
+
+    def add_spectrum(
+        self,
+        mz_arr: np.ndarray,
+        int_arr: np.ndarray,
+        coordinates: tuple[int, int] | tuple[int, int, int],
+    ) -> None: ...
+
+    def copy_spectra(
+        self,
+        reader: GenericReader,
+        spectra_indices: Sequence[int],
+        tqdm_position: int | None = None,
+    ) -> None:
+        """Copies spectra from an existing reader. Not optimized yet.
+        :param reader: The reader to copy from.
+        :param spectra_indices: The indices of the spectra to copyl.
+        """
+        if tqdm_position is not None:
+
+            def progress_fn(x: Sequence[int]) -> tqdm:
+                return tqdm(x, desc=" spectrum", position=tqdm_position)
+
+        else:
+
+            def progress_fn(x: Sequence[int]) -> Sequence[int]:
+                return x
+
+        for spectrum_index in progress_fn(spectra_indices):
+            mz_arr, int_arr, coordinates = reader.get_spectrum_with_coords(spectrum_index)
+            self.add_spectrum(mz_arr, int_arr, coordinates)

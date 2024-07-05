@@ -1,21 +1,20 @@
 from __future__ import annotations
+
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pyimzml
 import pyimzml.ImzMLWriter
-from tqdm import tqdm
 
 from depiction.persistence.imzml.imzml_alignment_tracker import ImzmlAlignmentTracker
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
+from depiction.persistence.types import GenericWriter
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
     import numpy as np
-    from depiction.persistence.imzml.imzml_reader import ImzmlReader
 
 
-class ImzmlWriter:
+class ImzmlWriter(GenericWriter):
     def __init__(
         self,
         *,
@@ -84,28 +83,3 @@ class ImzmlWriter:
 
         # Write the spectrum.
         self._imzml_writer.addSpectrum(mz_arr, int_arr, coordinates)
-
-    def copy_spectra(
-        self,
-        reader: ImzmlReader,
-        spectra_indices: Sequence[int],
-        tqdm_position: int | None = None,
-    ) -> None:
-        """
-        Copies spectra from an existing reader. Not optimized yet.
-        :param reader: The reader to copy from.
-        :param spectra_indices: The indices of the spectra to copy.
-        """
-        if tqdm_position is not None:
-
-            def progress_fn(x: Sequence[int]) -> tqdm:
-                return tqdm(x, desc=" spectrum", position=tqdm_position)
-
-        else:
-
-            def progress_fn(x: Sequence[int]) -> Sequence[int]:
-                return x
-
-        for spectrum_index in progress_fn(spectra_indices):
-            mz_arr, int_arr, coordinates = reader.get_spectrum_with_coords(spectrum_index)
-            self.add_spectrum(mz_arr, int_arr, coordinates)

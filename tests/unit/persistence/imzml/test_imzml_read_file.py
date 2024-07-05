@@ -8,6 +8,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from depiction.persistence import ImzmlReadFile, ImzmlModeEnum
+from depiction.persistence.pixel_size import PixelSize
 
 
 @pytest.fixture()
@@ -263,6 +264,26 @@ def test_print_summary(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> 
     mock_read_file.print_summary()
     mock_summary.assert_called_once_with(checksums=True)
     mock_print.assert_called_once_with(mock_summary.return_value, file=None)
+
+
+def test_pixel_size_when_present(mocker: MockerFixture, mock_read_file) -> None:
+    mock_parser_constructor = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
+    mock_parser = mocker.MagicMock(name="mock_parser")
+    mock_parser_constructor.return_value.__enter__.return_value = mock_parser
+    mock_parser.metadata.pretty.return_value = {"scan_settings": {1: {"pixel size (x)": 10, "pixel size y": 20}}}
+    assert mock_read_file.pixel_size == PixelSize(10, 20, "micrometer")
+    mock_parser.metadata.pretty.assert_called_once_with()
+    mock_parser_constructor.assert_called_once_with(mock_read_file._path)
+
+
+def test_pixel_size_when_none(mocker: MockerFixture, mock_read_file) -> None:
+    mock_parser_constructor = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
+    mock_parser = mocker.MagicMock(name="mock_parser")
+    mock_parser_constructor.return_value.__enter__.return_value = mock_parser
+    mock_parser.metadata.pretty.return_value = {"scan_settings": {1: {}}}
+    assert mock_read_file.pixel_size is None
+    mock_parser.metadata.pretty.assert_called_once_with()
+    mock_parser_constructor.assert_called_once_with(mock_read_file._path)
 
 
 def test_copy_to(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:

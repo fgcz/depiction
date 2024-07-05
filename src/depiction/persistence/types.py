@@ -1,19 +1,25 @@
 from __future__ import annotations
 
-from functools import cached_property
 from typing import TYPE_CHECKING, Self, Protocol
+import numpy as np
 
 if TYPE_CHECKING:
     from types import TracebackType
     from numpy.typing import NDArray
     from collections.abc import Sequence
-    import numpy as np
-
-from pathlib import Path
 
 from tqdm import tqdm
 
+from collections.abc import Generator
+from contextlib import contextmanager
+from functools import cached_property
+from pathlib import Path
+from typing import Optional, TextIO
+
+from numpy.typing import NDArray
+
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
+from depiction.persistence.pixel_size import PixelSize
 
 
 # TODO better name
@@ -106,6 +112,70 @@ class GenericReader(Protocol):
         return mz_min, mz_max
 
 
+class GenericReadFile(Protocol):
+    @contextmanager
+    def reader(self) -> Generator[GenericReader, None, None]:
+        """Returns a context manager that yields an `ImzmlReader` instance."""
+        ...
+
+    def get_reader(self) -> GenericReader: ...
+
+    @property
+    def n_spectra(self) -> int:
+        """Returns the number of spectra in the .imzML file."""
+        ...
+
+    @property
+    def imzml_mode(self) -> ImzmlModeEnum:
+        """Returns the mode of the .imzML file (continuous or processed)."""
+        ...
+
+    @property
+    def coordinates(self) -> NDArray[int]:
+        """Returns the spatial coordinates of the spectra in the .imzML file.
+        Shape: (n_spectra, n_dimensions) where n_dimensions is 2 or 3 depending on the file."""
+        ...
+
+    @property
+    def coordinates_2d(self) -> NDArray[int]:
+        """Returns the spatial coordinates of the spectra in the .imzML file.
+        Shape: (n_spectra, 2) where the first two columns are the x and y coordinates."""
+        # TODO double check convention and update docstring accordingly
+        return self.coordinates[:, :2]
+
+    @property
+    def compact_metadata(self) -> dict[str, int | str | list[float]]:
+        """Returns a compact representation of general metadata about the .imzML file, useful when comparing a large
+        number of files."""
+        # TODO should this really be here
+        ...
+
+    def is_checksum_valid(self) -> Optional[bool]:
+        """Returns True if the checksum of the .ibd file matches the expected value. False otherwise.
+        This operation can be slow for large files, but will be cached after the first call.
+        `None` is returned when checksum information is available.
+        """
+        ...
+
+    def summary(self, checksums: bool = True) -> str:
+        """Returns a summary of the file."""
+
+    def print_summary(self, checksums: bool = True, file: TextIO | None = None) -> None:
+        """Prints a summary of the file."""
+        print(self.summary(checksums=checksums), file=file)
+
+    @property
+    def pixel_size(self) -> PixelSize | None:
+        """Returns pixel size information, if available."""
+        ...
+
+    # TODO consider including in the generic interface
+    # def copy_to(self, path: Path) -> None:
+    #    """Copies the file of this instance to the given path. Needs to end with .imzML."""
+    #    shutil.copy(self.imzml_file, path)
+    #    shutil.copy(self.ibd_file, path.with_suffix(".ibd"))
+
+
 class GenericWriter(Protocol):
 
     # TODO this currently does not impl __enter__ and __exit__ as GenericReader
@@ -152,3 +222,7 @@ class GenericWriter(Protocol):
         for spectrum_index in progress_fn(spectra_indices):
             mz_arr, int_arr, coordinates = reader.get_spectrum_with_coords(spectrum_index)
             self.add_spectrum(mz_arr, int_arr, coordinates)
+
+
+class GenericWriteFile(Protocol):
+    pass

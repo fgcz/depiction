@@ -1,3 +1,4 @@
+from __future__ import annotations
 import shutil
 from collections import defaultdict
 from collections.abc import Generator
@@ -13,9 +14,10 @@ from depiction.persistence.file_checksums import FileChecksums
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 from depiction.persistence.imzml.imzml_reader import ImzmlReader
 from depiction.persistence.pixel_size import PixelSize
+from depiction.persistence.types import GenericReadFile
 
 
-class ImzmlReadFile:
+class ImzmlReadFile(GenericReadFile):
     """Represents a .imzML file and its accompanying .ibd file.
     It provides several methods and properties to obtain general information about this file and verify its integrity.
     However, to load the actual spectra, use the `reader` context manager or `get_reader` method to obtain a
@@ -67,13 +69,6 @@ class ImzmlReadFile:
         Shape: (n_spectra, n_dimensions) where n_dimensions is 2 or 3 depending on the file."""
         # TODO check if it isn't simply always 3d because of pyimzml
         return self._cached_properties["coordinates"]
-
-    @property
-    def coordinates_2d(self) -> NDArray[int]:
-        """Returns the spatial coordinates of the spectra in the .imzML file.
-        Shape: (n_spectra, 2) where the first two columns are the x and y coordinates."""
-        # TODO double check convention and update docstring accordingly
-        return self.coordinates[:, :2]
 
     @property
     def compact_metadata(self) -> dict[str, int | str | list[float]]:
@@ -164,9 +159,6 @@ class ImzmlReadFile:
             f"{checksum_line}"
             f"{mz_range_line}"
         )
-
-    def print_summary(self, checksums: bool = True, file: TextIO | None = None) -> None:
-        print(self.summary(checksums=checksums), file=file)
 
     @cached_property
     def pixel_size(self) -> PixelSize | None:

@@ -117,9 +117,9 @@ def get_peak_picker(config: PickPeaksConfig, peak_filtering: PeakFilteringType |
         case PeakPickerFindMFPyConfig() as peak_picker_config:
             # TODO refactor this later?
             # NOTE: importing this here since it has non-standard dependencies
-            from depiction.spectrum.peak_picking.findmf_peak_picker import FindMFPeakpicker
+            from depiction.spectrum.peak_picking.findmf_peak_picker import FindMFPeakPicker
 
-            return FindMFPeakpicker(
+            return FindMFPeakPicker(
                 resolution=peak_picker_config.resolution,
                 width=peak_picker_config.width,
                 int_width=peak_picker_config.int_width,

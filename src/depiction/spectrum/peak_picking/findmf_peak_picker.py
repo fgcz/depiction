@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class FindMFPeakpicker:
+class FindMFPeakPicker:
     resolution: float = 10000.0
     width: float = 2.0
     int_width: float = 2.0

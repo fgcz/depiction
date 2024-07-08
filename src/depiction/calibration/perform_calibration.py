@@ -13,7 +13,7 @@ from xarray import DataArray
 from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel, WriteSpectraParallel
 from depiction.parallel_ops.parallel_map import ParallelMap
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
+from depiction.persistence.types import GenericReadFile, GenericWriteFile, GenericReader, GenericWriter
 
 
 class PerformCalibration:
@@ -76,7 +76,7 @@ class PerformCalibration:
             raise ValueError(errors)
 
     def calibrate_image(
-        self, read_peaks: ImzmlReadFile, write_file: ImzmlWriteFile, read_full: Optional[ImzmlReadFile] = None
+        self, read_peaks: GenericReadFile, write_file: GenericWriteFile, read_full: Optional[GenericReadFile] = None
     ) -> None:
         if read_full is None:
             read_full = read_peaks
@@ -99,7 +99,7 @@ class PerformCalibration:
         logger.info("Applying models...")
         self._apply_all_models(read_file=read_full, write_file=write_file, all_model_coefs=model_coefs)
 
-    def _extract_all_features(self, read_peaks: ImzmlReadFile) -> DataArray:
+    def _extract_all_features(self, read_peaks: GenericReadFile) -> DataArray:
         read_parallel = ReadSpectraParallel.from_config(self._parallel_config)
         all_features = read_parallel.map_chunked(
             read_file=read_peaks,
@@ -114,7 +114,7 @@ class PerformCalibration:
         )
 
     def _apply_all_models(
-        self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, all_model_coefs: DataArray
+        self, read_file: GenericReadFile, write_file: GenericWriteFile, all_model_coefs: DataArray
     ) -> None:
         write_parallel = WriteSpectraParallel.from_config(self._parallel_config)
         write_parallel.map_chunked_to_file(
@@ -155,7 +155,7 @@ class PerformCalibration:
 
     @staticmethod
     def _extract_chunk_features(
-        reader: ImzmlReader,
+        reader: GenericReader,
         spectra_indices: list[int],
         calibration: CalibrationMethod,
     ) -> DataArray:
@@ -170,9 +170,9 @@ class PerformCalibration:
 
     @staticmethod
     def _calibrate_spectra(
-        reader: ImzmlReader,
+        reader: GenericReader,
         spectra_indices: list[int],
-        writer: ImzmlWriter,
+        writer: GenericWriter,
         calibration: CalibrationMethod,
         all_model_coefs: DataArray,
     ) -> None:

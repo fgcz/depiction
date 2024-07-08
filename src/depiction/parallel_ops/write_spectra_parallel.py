@@ -10,8 +10,6 @@ from depiction.parallel_ops import ReadSpectraParallel
 from depiction.persistence import (
     ImzmlReadFile,
     ImzmlWriteFile,
-    ImzmlReader,
-    ImzmlWriter,
     ImzmlModeEnum,
 )
 from depiction.tools.merge_imzml import MergeImzml
@@ -19,6 +17,7 @@ from depiction.tools.merge_imzml import MergeImzml
 if TYPE_CHECKING:
     from numpy.typing import NDArray
     from depiction.parallel_ops.parallel_config import ParallelConfig
+    from depiction.persistence.types import GenericReadFile, GenericWriteFile, GenericWriter, GenericReader
 
 
 class WriteSpectraParallel:
@@ -31,11 +30,11 @@ class WriteSpectraParallel:
 
     def map_chunked_to_files(
         self,
-        read_file: ImzmlReadFile,
-        write_files: list[ImzmlWriteFile],
+        read_file: GenericReadFile,
+        write_files: list[GenericWriteFile],
         operation: (
-            Callable[[ImzmlReader, list[int], list[ImzmlWriter], ...], None]
-            | Callable[[ImzmlReader, list[int], list[ImzmlWriteFile], ...], None]
+            Callable[[GenericReader, list[int], list[GenericWriter], ...], None]
+            | Callable[[GenericReader, list[int], list[GenericWriteFile], ...], None]
         ),
         spectra_indices: NDArray[int] | None = None,
         bind_args: dict[str, Any] | None = None,
@@ -82,16 +81,16 @@ class WriteSpectraParallel:
 
     def map_chunked_external_to_files(
         self,
-        read_file: ImzmlReadFile,
-        write_files: list[ImzmlWriteFile],
+        read_file: GenericReadFile,
+        write_files: list[GenericWriteFile],
         operation: Callable[[str, list[str]], None],
         spectra_indices: NDArray[int] | None = None,
         bind_args: dict[str, Any] | None = None,
     ) -> None:
         def op(
-            reader: ImzmlReader,
+            reader: GenericReader,
             spectra_ids: list[int],
-            write_files: list[ImzmlWriteFile],
+            write_files: list[GenericWriteFile],
             **kwargs: dict[str, Any],
         ) -> None:
             # TODO maybe kwarg handling could be done a bit more clean here in the future
@@ -122,8 +121,8 @@ class WriteSpectraParallel:
     def _get_split_modes_and_paths(
         self,
         work_directory: Path,
-        read_file: ImzmlReadFile,
-        write_files: list[ImzmlWriteFile],
+        read_file: GenericReadFile,
+        write_files: list[GenericWriteFile],
         spectra_indices: NDArray[int] | None,
     ) -> list[tuple[ImzmlModeEnum, list[Path]]]:
         # determine the number of tasks
@@ -143,12 +142,12 @@ class WriteSpectraParallel:
 
     @staticmethod
     def _write_transformed_chunked_operation(
-        reader: ImzmlReader,
+        reader: GenericReader,
         spectra_indices: list[int],
         task_index: int,
         operation: (
-            Callable[[ImzmlReader, list[int], list[ImzmlWriter], ...], None]
-            | Callable[[ImzmlReader, list[int], list[ImzmlWriteFile], ...], None]
+            Callable[[GenericReader, list[int], list[GenericWriter], ...], None]
+            | Callable[[GenericReader, list[int], list[GenericWriteFile], ...], None]
         ),
         open_write_files: bool,
         split_modes_and_paths: list[tuple[ImzmlModeEnum, list[Path]]],
@@ -179,7 +178,7 @@ class WriteSpectraParallel:
     def _merge_results(
         self,
         split_modes_and_paths: list[tuple[ImzmlModeEnum, list[str]]],
-        write_files: list[ImzmlWriteFile],
+        write_files: list[GenericWriteFile],
     ) -> None:
         """Merges the results of the parallel operations
         :param split_modes_and_paths: the split modes and paths
@@ -193,14 +192,14 @@ class WriteSpectraParallel:
 
     def map_chunked_to_file(
         self,
-        read_file: ImzmlReadFile,
-        write_file: ImzmlWriteFile,
-        operation: Callable[[ImzmlReader, list[int], ImzmlWriter], None],
+        read_file: GenericReadFile,
+        write_file: GenericWriteFile,
+        operation: Callable[[GenericReader, list[int], GenericWriter], None],
         spectra_indices: NDArray[int] | None = None,
         bind_args: dict[str, Any] | None = None,
     ) -> None:
         def wrap_operation(
-            reader: ImzmlReader, spectra_ids: list[int], writers: list[ImzmlWriter], **kwargs: dict[str, Any]
+            reader: GenericReader, spectra_ids: list[int], writers: list[GenericWriter], **kwargs: dict[str, Any]
         ) -> None:
             operation(reader, spectra_ids, writers[0], **kwargs)
 

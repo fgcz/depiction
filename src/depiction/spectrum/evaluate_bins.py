@@ -1,3 +1,4 @@
+from __future__ import annotations
 import enum
 
 import numba
@@ -5,7 +6,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
+from depiction.persistence.types import GenericReadFile, GenericWriteFile, GenericReader, GenericWriter
 
 
 class BinStatistic(enum.Enum):
@@ -47,7 +48,7 @@ class EvaluateBins:
         )
 
     def evaluate_file(
-        self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, parallel_config: ParallelConfig
+        self, read_file: GenericReadFile, write_file: GenericWriteFile, parallel_config: ParallelConfig
     ) -> None:
         write_parallel = WriteSpectraParallel.from_config(parallel_config)
         write_parallel.map_chunked_to_file(
@@ -62,9 +63,9 @@ class EvaluateBins:
 
     @staticmethod
     def _compute_chunk(
-        reader: ImzmlReader,
+        reader: GenericReader,
         spectra_ids: list[int],
-        writer: ImzmlWriter,
+        writer: GenericWriter,
         bin_edges: NDArray[float],
         statistic: int,
     ) -> None:

@@ -11,6 +11,7 @@ from numpy.typing import NDArray
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlReader, ImzmlWriter
+from depiction.persistence.types import GenericReadFile, GenericWriteFile
 
 
 # TODO experimental/non-prod
@@ -140,8 +141,8 @@ class ChemicalNoiseCalibration:
 
     def align_masses_all(
         self,
-        read_file: ImzmlReadFile,
-        write_file: ImzmlWriteFile,
+        read_file: GenericReadFile,
+        write_file: GenericWriteFile,
         parallel_config: ParallelConfig,
     ) -> None:
         """Applies `align_masses` to all spectra in the given file and writes the results to the output file."""

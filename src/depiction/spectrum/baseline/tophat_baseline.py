@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
@@ -5,8 +6,8 @@ import numpy as np
 from numba import njit
 from numpy.typing import NDArray
 
+from depiction.persistence.types import GenericReadFile
 from depiction.spectrum.baseline.baseline import Baseline
-from depiction.persistence import ImzmlReadFile
 
 
 @dataclass(frozen=True)
@@ -44,7 +45,7 @@ class TophatBaseline(Baseline):
         else:
             raise ValueError(f"Invalid {self.window_unit=}")
 
-    def optimize_window_size(self, read_file: ImzmlReadFile, n_spectra: int, rng_seed: int = 0) -> int:
+    def optimize_window_size(self, read_file: GenericReadFile, n_spectra: int, rng_seed: int = 0) -> int:
         """Optimizes the window size for the provided file, by considering some random spectra. It's possible to set the
         value even to 1, if only one spectrum should be considered.
         :param read_file: The file to optimize the window size for.

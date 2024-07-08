@@ -1,14 +1,16 @@
 # TODO this might need to be refactored in the future, especially how binning is mixed into this
+from __future__ import annotations
 import functools
 from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
 
-from depiction.spectrum.evaluate_bins import EvaluateBins
 from depiction.parallel_ops import ParallelConfig
 from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
-from depiction.persistence import ImzmlReader, ImzmlReadFile, ImzmlModeEnum
+from depiction.persistence import ImzmlModeEnum
+from depiction.persistence.types import GenericReadFile, GenericReader
+from depiction.spectrum.evaluate_bins import EvaluateBins
 
 
 class EvaluateMeanSpectrum:
@@ -24,7 +26,7 @@ class EvaluateMeanSpectrum:
         self._parallel_config = parallel_config
         self._eval_bins = eval_bins
 
-    def evaluate_file(self, input_file: ImzmlReadFile) -> tuple[NDArray[float], NDArray[float]]:
+    def evaluate_file(self, input_file: GenericReadFile) -> tuple[NDArray[float], NDArray[float]]:
         if input_file.imzml_mode != ImzmlModeEnum.CONTINUOUS and self._eval_bins is None:
             raise ValueError("Input file must be in 'continuous' mode.")
 
@@ -42,7 +44,7 @@ class EvaluateMeanSpectrum:
         int_arr = total_sum / input_file.n_spectra
         return mz_arr, int_arr
 
-    def _get_result_mz_arr(self, input_file: ImzmlReadFile) -> NDArray[float]:
+    def _get_result_mz_arr(self, input_file: GenericReadFile) -> NDArray[float]:
         """Returns the m/z array for the result."""
         if self._eval_bins is None:
             with input_file.reader() as reader:
@@ -54,7 +56,7 @@ class EvaluateMeanSpectrum:
     @classmethod
     def _get_spectra_sum(
         cls,
-        input_file: ImzmlReadFile,
+        input_file: GenericReadFile,
         parallel_config: ParallelConfig,
         eval_bins: Optional[EvaluateBins],
     ) -> NDArray[float]:
@@ -68,7 +70,7 @@ class EvaluateMeanSpectrum:
 
     @staticmethod
     def _compute_chunk_sum(
-        reader: ImzmlReader, spectra_ids: list[int], eval_bins: Optional[EvaluateBins]
+        reader: GenericReader, spectra_ids: list[int], eval_bins: Optional[EvaluateBins]
     ) -> NDArray[float]:
         if eval_bins is None:
             chunk_sum = np.array(reader.get_spectrum_int(spectra_ids[0]), copy=True)

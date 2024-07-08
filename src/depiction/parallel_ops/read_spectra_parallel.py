@@ -15,7 +15,7 @@ from depiction.parallel_ops.parallel_map import ParallelMap
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
-    from depiction.persistence import ImzmlReadFile, ImzmlReader
+    from depiction.persistence.types import GenericReadFile, GenericReader
 
     T = TypeVar("T")
     V = TypeVar("V")
@@ -47,8 +47,8 @@ class ReadSpectraParallel:
 
     def map_chunked(
         self,
-        read_file: ImzmlReadFile,
-        operation: Callable[[ImzmlReader, list[int], ...], T] | Callable[[ImzmlReader, list[int], int, ...], T],
+        read_file: GenericReadFile,
+        operation: Callable[[GenericReader, list[int], ...], T] | Callable[[GenericReader, list[int], int, ...], T],
         spectra_indices: NDArray[int] | None = None,
         bind_args: dict[str, Any] | None = None,
         reduce_fn: Callable[[list[T]], V] = list,
@@ -58,8 +58,8 @@ class ReadSpectraParallel:
         :param read_file: the file to read the spectra from
         :param operation: the operation to apply to each chunk of spectra
             there are two possible signatures for the operation:
-            - operation(reader: ImzmlReader, spectra_ids: list[int], **kwargs) -> T
-            - operation(reader: ImzmlReader, spectra_ids: list[int], task_index: int, **kwargs) -> T
+            - operation(reader: GenericReader, spectra_ids: list[int], **kwargs) -> T
+            - operation(reader: GenericReader, spectra_ids: list[int], task_index: int, **kwargs) -> T
             where:
             - reader: the reader object to read the spectra from
             - spectra_ids: the indices of the spectra to process

@@ -1,11 +1,15 @@
-from typing import Optional
+from __future__ import annotations
+
 from collections.abc import Sequence
+from typing import Optional, TYPE_CHECKING
 
 import numpy as np
 
 from depiction.parallel_ops import ParallelConfig
 from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
-from depiction.persistence import ImzmlReader, ImzmlReadFile
+
+if TYPE_CHECKING:
+    from depiction.persistence.types import GenericReadFile, GenericReader
 
 
 class EstimatePPMError:
@@ -16,7 +20,7 @@ class EstimatePPMError:
             parallel_config = ParallelConfig.no_parallelism()
         self._parallel_config = parallel_config
 
-    def estimate(self, read_file: ImzmlReadFile) -> dict[str, float]:
+    def estimate(self, read_file: GenericReadFile) -> dict[str, float]:
         """
         Estimates the PPM error for the given imzML file.
         Returns a dictionary containing the median and std of the PPM error medians (for each spectrum).
@@ -34,7 +38,7 @@ class EstimatePPMError:
 
     @staticmethod
     def _get_ppm_values(
-        reader: ImzmlReader,
+        reader: GenericReader,
         spectra_ids: Sequence[int],
     ) -> tuple[list[float], float, float]:
         result_ppm = []

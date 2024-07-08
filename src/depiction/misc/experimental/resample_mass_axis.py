@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 import numpy as np
@@ -5,7 +7,8 @@ from numpy.typing import NDArray
 from scipy.interpolate import CubicSpline
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter, ImzmlModeEnum
+from depiction.persistence import ImzmlModeEnum
+from depiction.persistence.types import GenericWriteFile, GenericReadFile, GenericWriter, GenericReader
 
 
 @dataclass
@@ -20,8 +23,8 @@ class ResampleMassAxis:
 
     def evaluate_file(
         self,
-        read_file: ImzmlReadFile,
-        write_file: ImzmlWriteFile,
+        read_file: GenericReadFile,
+        write_file: GenericWriteFile,
         parallel_config: ParallelConfig,
         allow_processed: bool = False,
     ) -> None:
@@ -40,7 +43,7 @@ class ResampleMassAxis:
 
     @classmethod
     def _evaluate_file_chunk(
-        cls, reader: ImzmlReader, spectra_ids: list[int], writer: ImzmlWriter, target_mz_arr: NDArray[float]
+        cls, reader: GenericReader, spectra_ids: list[int], writer: GenericWriter, target_mz_arr: NDArray[float]
     ) -> None:
         resampler = ResampleMassAxis(target_mz_arr=target_mz_arr)
 

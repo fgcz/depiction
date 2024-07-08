@@ -8,6 +8,7 @@ import alphapept.constants
 import numpy as np
 from numpy.typing import NDArray
 
+from depiction.persistence.types import GenericReader, GenericReadFile
 from depiction.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 from depiction.misc.numpy_util import NumpyUtil
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
@@ -101,7 +102,7 @@ class IsotopePatternMatcher:
 
     def compute_averagine_agreement_at_mz_positions_for_file(
         self,
-        read_file: ImzmlReadFile,
+        read_file: GenericReadFile,
         parallel_config: ParallelConfig,
         peak_picker: BasicPeakPicker,
         n_limit: int,
@@ -111,7 +112,7 @@ class IsotopePatternMatcher:
     ) -> list[tuple[NDArray[float], NDArray[int]]]:
         # TODO possibly move this method in the future (since it mixes peak_picker into this class)
 
-        def operation_file(reader: ImzmlReader, spectra_ids: list[int]) -> list[tuple[NDArray[float], NDArray[int]]]:
+        def operation_file(reader: GenericReader, spectra_ids: list[int]) -> list[tuple[NDArray[float], NDArray[int]]]:
             results = []
             for spectrum_id in spectra_ids:
                 mz_arr, int_arr = reader.get_spectrum(spectrum_id)

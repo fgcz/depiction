@@ -27,6 +27,9 @@ class SnakemakeInvoke:
         else:
             self._invoke_direct(work_dir, result_files)
 
+    def dry_run(self, work_dir: Path, result_files: list[Path]) -> None:
+        self._invoke_subprocess(work_dir, result_files, extra_args=["--dryrun", "--printshellcmds"])
+
     @property
     def snakefile_path(self) -> Path:
         return Path(__file__).parents[1] / "workflow" / self.snakefile_name
@@ -57,11 +60,11 @@ class SnakemakeInvoke:
             with self._set_env_vars():
                 dag_api.execute_workflow(execution_settings=ExecutionSettings(keep_going=self.continue_on_error))
 
-    def _invoke_subprocess(self, work_dir: Path, result_files: list[Path]) -> None:
+    def _invoke_subprocess(self, work_dir: Path, result_files: list[Path], extra_args: list[str] | None = None) -> None:
         snakemake_bin = shutil.which("snakemake")
         if snakemake_bin is None:
             raise RuntimeError(f"snakemake not found, check PATH: {os.environ['PATH']}")
-        extra_args = []
+        extra_args = extra_args or []
         if self.continue_on_error:
             extra_args.append("--keep-going")
         base_command = self.get_base_command(extra_args=extra_args, snakemake_bin=snakemake_bin, work_dir=work_dir)

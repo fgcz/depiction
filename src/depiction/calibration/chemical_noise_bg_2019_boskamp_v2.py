@@ -10,7 +10,7 @@ import seaborn
 from numpy.typing import NDArray
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlReader, ImzmlWriter
+from depiction.persistence import ImzmlReader, ImzmlWriter
 from depiction.persistence.types import GenericReadFile, GenericWriteFile
 
 

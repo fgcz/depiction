@@ -12,7 +12,6 @@ from depiction.persistence.types import GenericReader, GenericReadFile
 from depiction.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 from depiction.misc.numpy_util import NumpyUtil
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
-from depiction.persistence import ImzmlReadFile, ImzmlReader
 
 
 @dataclass

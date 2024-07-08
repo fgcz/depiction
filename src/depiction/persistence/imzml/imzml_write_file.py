@@ -1,7 +1,8 @@
 from __future__ import annotations
-from contextlib import contextmanager, AbstractContextManager
+from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING
+from collections.abc import Generator
 
 from depiction.persistence.imzml.imzml_writer import ImzmlWriter
 from depiction.persistence.types import GenericWriteFile

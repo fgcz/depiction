@@ -96,7 +96,9 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["ANN", "BLE", "D103", "E", "F", "PLW", "PTH", "SIM", "UP", "TCH"]
-ignore = ["ANN101", "ANN102"]
+# Note: "TCH002" would be useful, but it also has false positives and needs to be deactivated in particular
+#        for the command-line interface module since the inspect module will currently fail everything there.
+ignore = ["ANN101", "ANN102", "TCH002"]
 
 [tool.coverage.report]
 # TODO make it work?

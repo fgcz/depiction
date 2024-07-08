@@ -1,0 +1,4 @@
+line-length = 120
+indent-width = 4
+target-version = "py39"
+ignore = ["ANN101", "ANN102", "TCH002"]

@@ -129,7 +129,7 @@ class EvaluateBins:
         return view
 
     @classmethod
-    def from_mz_values(cls, mz_values: NDArray[float]) -> "EvaluateBins":
+    def from_mz_values(cls, mz_values: NDArray[float]) -> EvaluateBins:
         """Constructs an instance of EvaluateBins from the provided m/z values, i.e. at the center of bins."""
         bin_edges = np.zeros(mz_values.shape[0] + 1, dtype=mz_values.dtype)
         bin_edges[1:-1] = (mz_values[1:] + mz_values[:-1]) / 2

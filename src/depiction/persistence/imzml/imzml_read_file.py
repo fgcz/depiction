@@ -5,7 +5,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Optional, TextIO
+from typing import Any, Optional
 
 import pyimzml.ImzMLParser
 from numpy.typing import NDArray

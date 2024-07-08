@@ -61,13 +61,10 @@ class SnakemakeInvoke:
                 dag_api.execute_workflow(execution_settings=ExecutionSettings(keep_going=self.continue_on_error))
 
     def _invoke_subprocess(self, work_dir: Path, result_files: list[Path], extra_args: list[str] | None = None) -> None:
-        snakemake_bin = shutil.which("snakemake")
-        if snakemake_bin is None:
-            raise RuntimeError(f"snakemake not found, check PATH: {os.environ['PATH']}")
         extra_args = extra_args or []
         if self.continue_on_error:
             extra_args.append("--keep-going")
-        base_command = self.get_base_command(extra_args=extra_args, snakemake_bin=snakemake_bin, work_dir=work_dir)
+        base_command = self.get_base_command(extra_args=extra_args, work_dir=work_dir)
         command = self.get_command_create_results(
             base_command=base_command, result_files=result_files, work_dir=work_dir
         )
@@ -90,13 +87,16 @@ class SnakemakeInvoke:
                 env={**os.environ, **(self.env_variables or {})},
             )
 
-    def get_base_command(self, extra_args: list[str], n_cores: int, snakemake_bin: str, work_dir: Path) -> list[str]:
+    def get_base_command(self, extra_args: list[str], work_dir: Path) -> list[str]:
+        snakemake_bin = shutil.which("snakemake")
+        if snakemake_bin is None:
+            raise RuntimeError(f"snakemake not found, check PATH: {os.environ['PATH']}")
         return [
             snakemake_bin,
             "-d",
             str(work_dir),
             "--cores",
-            str(n_cores),
+            str(self.n_cores),
             "--snakefile",
             str(self.snakefile_path),
             # TODO configurable

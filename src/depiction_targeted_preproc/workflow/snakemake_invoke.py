@@ -71,9 +71,33 @@ class SnakemakeInvoke:
         extra_args = []
         if self.continue_on_error:
             extra_args.append("--keep-going")
-        # if self.report_file:
-        #    extra_args.extend(["--report", self.report_file])
-        base_command = [
+        base_command = self.get_base_command(
+            extra_args=extra_args, n_cores=n_cores, snakemake_bin=snakemake_bin, work_dir=work_dir
+        )
+        command = self.get_command_create_results(
+            base_command=base_command, result_files=result_files, work_dir=work_dir
+        )
+        logger.info("Executing {command}", command=command)
+        subprocess.run(
+            command,
+            cwd=self.workflow_dir,
+            check=True,
+            env={**os.environ, **env_variables},
+        )
+        if self.report_file:
+            command = self.get_command_create_report(
+                base_command=base_command, result_files=result_files, work_dir=work_dir
+            )
+            logger.info("Executing {command}", command=command)
+            subprocess.run(
+                command,
+                cwd=self.workflow_dir,
+                check=True,
+                env={**os.environ, **env_variables},
+            )
+
+    def get_base_command(self, extra_args: list[str], n_cores: int, snakemake_bin: str, work_dir: Path) -> list[str]:
+        return [
             snakemake_bin,
             "-d",
             str(work_dir),
@@ -85,31 +109,22 @@ class SnakemakeInvoke:
             "--rerun-incomplete",
             *extra_args,
         ]
-        command = [
+
+    def get_command_create_results(
+        self, base_command: list[str], result_files: list[Path], work_dir: Path
+    ) -> list[str]:
+        return [
             *base_command,
             *[str(file.relative_to(work_dir)) for file in result_files],
         ]
-        logger.info("Executing {command}", command=command)
-        subprocess.run(
-            command,
-            cwd=self.workflow_dir,
-            check=True,
-            env={**os.environ, **env_variables},
-        )
-        if self.report_file:
-            command = [
-                *base_command,
-                "--report",
-                self.report_file,
-                *[str(file.relative_to(work_dir)) for file in result_files],
-            ]
-            logger.info("Executing {command}", command=command)
-            subprocess.run(
-                command,
-                cwd=self.workflow_dir,
-                check=True,
-                env={**os.environ, **env_variables},
-            )
+
+    def get_command_create_report(self, base_command: list[str], result_files: list[Path], work_dir: Path) -> list[str]:
+        return [
+            *base_command,
+            "--report",
+            self.report_file,
+            *[str(file.relative_to(work_dir)) for file in result_files],
+        ]
 
     @contextlib.contextmanager
     def _set_env_vars(self, env_variables: dict[str, str]) -> None:

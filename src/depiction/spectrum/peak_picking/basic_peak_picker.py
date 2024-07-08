@@ -100,7 +100,9 @@ class BasicPeakPicker:
         if min_distance is None:
             return None
         elif min_distance_unit == "index":
-            return min_distance
+            if round(min_distance) != min_distance:
+                raise ValueError("min_distance must be an integer when using 'index' units.")
+            return int(min_distance)
         elif min_distance_unit == "mz":
             # convert the distance into indices
             med_distance = np.median(np.diff(mz_arr))

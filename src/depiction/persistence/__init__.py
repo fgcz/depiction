@@ -4,6 +4,7 @@ from depiction.persistence.imzml.imzml_reader import ImzmlReader
 from depiction.persistence.imzml.imzml_write_file import ImzmlWriteFile
 from depiction.persistence.imzml.imzml_writer import ImzmlWriter
 from depiction.persistence.ram.ram_read_file import RamReadFile
+from depiction.persistence.ram.ram_reader import RamReader
 
 __all__ = [
     "ImzmlModeEnum",

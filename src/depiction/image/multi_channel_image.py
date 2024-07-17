@@ -43,6 +43,12 @@ class MultiChannelImage:
         """Number of channels."""
         return self._data.sizes["c"]
 
+    @property
+    def n_nonzero(self) -> int:
+        """Number of non-zero values."""
+        # TODO efficient impl
+        return (~self.bg_mask).sum().item()
+
     # TODO sparse_values, sparse_coordinates - these are currently widely used which i guess is a problem
 
     @property

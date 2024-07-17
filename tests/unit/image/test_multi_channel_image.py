@@ -44,6 +44,15 @@ def test_n_channels(mock_image: MultiChannelImage) -> None:
     assert mock_image.n_channels == 1
 
 
+def test_n_nonzero(mock_image: MultiChannelImage) -> None:
+    assert mock_image.n_nonzero == 6
+
+
+def test_n_nonzero_when_sparse(mock_image: MultiChannelImage) -> None:
+    mock_image.data_spatial[1, 0, 0] = 0
+    assert mock_image.n_nonzero == 5
+
+
 def test_dtype(mock_image: MultiChannelImage) -> None:
     assert mock_image.dtype == float
 

@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
 
 class MultiChannelImage:
+    """Represents a multi-channel 2D image, internally backed by a `xarray.DataArray`."""
+
     def __init__(self, data: DataArray) -> None:
         self._data = data.transpose("y", "x", "c")
         if "bg_value" not in self._data.attrs:
@@ -45,16 +47,17 @@ class MultiChannelImage:
 
     @property
     def dtype(self) -> np.dtype:
-        """Returns the data type of the values."""
+        """The data type of the values."""
         return self._data.dtype
 
     @property
     def bg_value(self) -> int | float:
-        """Returns the background value."""
+        """The background value."""
         return self._data.attrs["bg_value"]
 
     @cached_property
     def bg_mask(self) -> DataArray:
+        """A boolean mask indicating the background values as `True` and non-background values as `False`."""
         return ((self._data == self.bg_value) | (self._data.isnull() & np.isnan(self.bg_value))).all(dim="c")
 
     @property

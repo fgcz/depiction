@@ -70,7 +70,10 @@ dev = [
     "spatialdata",
     "spatialdata-plot>=0.2.1",
     "types-tqdm",
-    "pytype"
+    "pytype",
+    "sphinx",
+    "sphinx-autoapi",
+    "furo", # sphinx theme
 ]
 
 # potentially relevant in the future again:

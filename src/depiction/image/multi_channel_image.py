@@ -90,8 +90,6 @@ class MultiChannelImage:
 
     # TODO from_dense_array
 
-    # TODO get_single_channel_dense_array
-
     def retain_channels(
         self, indices: Sequence[int] | None = None, coords: Sequence[Any] | None = None
     ) -> MultiChannelImage:
@@ -102,9 +100,6 @@ class MultiChannelImage:
         return MultiChannelImage(data=data)
 
     # TODO save_single_channel_image... does it belong here or into plotter?
-
-    # TODO to_dense_xarray
-    # TODO from_dense_xarray
 
     def write_hdf5(self, path: Path) -> None:
         """Writes the image to a HDF5 file (actually NETCDF4)."""

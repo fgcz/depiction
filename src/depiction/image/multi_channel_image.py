@@ -7,7 +7,7 @@ import xarray
 from xarray import DataArray
 
 from depiction.image.sparse_representation import SparseRepresentation
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -92,9 +92,14 @@ class MultiChannelImage:
 
     # TODO get_single_channel_dense_array
 
-    def retain_channels(self, channel_indices: Sequence[int]) -> MultiChannelImage:
+    def retain_channels(
+        self, indices: Sequence[int] | None = None, coords: Sequence[Any] | None = None
+    ) -> MultiChannelImage:
         """Returns a copy with only the specified channels retained."""
-        return MultiChannelImage(data=self._data.isel(c=channel_indices))
+        if (indices is not None) == (coords is not None):
+            raise ValueError("Exactly one of indices and coords must be specified.")
+        data = self._data.isel(c=indices) if indices is not None else self._data.sel(c=coords)
+        return MultiChannelImage(data=data)
 
     # TODO save_single_channel_image... does it belong here or into plotter?
 

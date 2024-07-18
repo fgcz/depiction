@@ -12,14 +12,14 @@ from depiction.image.multi_channel_image import MultiChannelImage
 
 @pytest.fixture
 def mock_coords() -> dict[str, list[str]]:
-    return {"c": ["Channel A"]}
+    return {"c": ["Channel A", "Channel B"]}
 
 
 @pytest.fixture
 def mock_data(mock_coords) -> DataArray:
     """Dense mock data without any missing values."""
     return DataArray(
-        [[[2.0], [4]], [[6], [8]], [[10], [12]]],
+        [[[2.0, 5], [4, 5]], [[6, 5], [8, 5]], [[10, 5], [12, 5]]],
         dims=("y", "x", "c"),
         coords=mock_coords,
         attrs={"bg_value": 0},
@@ -41,7 +41,7 @@ def test_from_numpy_sparse() -> None:
 
 
 def test_n_channels(mock_image: MultiChannelImage) -> None:
-    assert mock_image.n_channels == 1
+    assert mock_image.n_channels == 2
 
 
 def test_n_nonzero(mock_image: MultiChannelImage) -> None:
@@ -49,7 +49,7 @@ def test_n_nonzero(mock_image: MultiChannelImage) -> None:
 
 
 def test_n_nonzero_when_sparse(mock_image: MultiChannelImage) -> None:
-    mock_image.data_spatial[1, 0, 0] = 0
+    mock_image.data_spatial[1, 0, :] = 0
     assert mock_image.n_nonzero == 5
 
 
@@ -81,12 +81,12 @@ def test_dimensions(mock_image: MultiChannelImage) -> None:
 
 
 def test_channel_names_when_set(mock_image: MultiChannelImage) -> None:
-    assert mock_image.channel_names == ["Channel A"]
+    assert mock_image.channel_names == ["Channel A", "Channel B"]
 
 
 @pytest.mark.parametrize("mock_coords", [{}])
 def test_channel_names_when_not_set(mock_image: MultiChannelImage) -> None:
-    assert mock_image.channel_names == ["0"]
+    assert mock_image.channel_names == ["0", "1"]
 
 
 def test_data_spatial(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
@@ -94,18 +94,42 @@ def test_data_spatial(mock_data: DataArray, mock_image: MultiChannelImage) -> No
 
 
 def test_data_flat(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
-    mock_data[0, 0, 0] = 0
+    mock_data[0, 0, :] = 0
     mock_data[1, 0, 0] = np.nan
     expected = DataArray(
-        [[4.0, 8, 10, 12]],
+        [[4.0, 8, 10, 12], [5, 5, 5, 5]],
         dims=("c", "i"),
         coords={
-            "c": ["Channel A"],
+            "c": ["Channel A", "Channel B"],
             "i": pd.MultiIndex.from_tuples([(0, 1), (1, 1), (2, 0), (2, 1)], names=("y", "x")),
         },
         attrs={"bg_value": 0},
     )
     xarray.testing.assert_identical(expected, mock_image.data_flat)
+
+
+def test_retain_channels_when_both_none(mock_image: MultiChannelImage) -> None:
+    with pytest.raises(ValueError):
+        mock_image.retain_channels(None, None)
+
+
+def test_retain_channels_by_indices(mock_image: MultiChannelImage) -> None:
+    indices = [1]
+    result = mock_image.retain_channels(indices=indices)
+    assert result.channel_names == ["Channel B"]
+    np.testing.assert_array_equal(result.data_spatial.values, mock_image.data_spatial.values[:, :, [1]])
+
+
+def test_retain_channels_by_coords(mock_image: MultiChannelImage) -> None:
+    coords = ["Channel B"]
+    result = mock_image.retain_channels(coords=coords)
+    assert result.channel_names == coords
+    np.testing.assert_array_equal(result.data_spatial.values, mock_image.data_spatial.values[:, :, [1]])
+
+
+def test_retain_channels_when_both_provided(mock_image: MultiChannelImage) -> None:
+    with pytest.raises(ValueError):
+        mock_image.retain_channels(indices=[0, 1], coords=["red", "blue"])
 
 
 def test_write_hdf5(mocker: MockerFixture, mock_image: MultiChannelImage) -> None:
@@ -122,15 +146,15 @@ def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
 
 
 def test_with_channel_names(mock_image: MultiChannelImage) -> None:
-    image = mock_image.with_channel_names(channel_names=["New Channel Name"])
-    assert image.channel_names == ["New Channel Name"]
+    image = mock_image.with_channel_names(channel_names=["New Channel Name", "B"])
+    assert image.channel_names == ["New Channel Name", "B"]
     assert image.dimensions == mock_image.dimensions
-    assert image.n_channels == mock_image.n_channels == 1
-    # TODO check values
+    assert image.n_channels == mock_image.n_channels == 2
+    np.testing.assert_array_equal(image.data_spatial.values, mock_image.data_spatial.values)
 
 
 def test_str(mock_image: MultiChannelImage) -> None:
-    assert str(mock_image) == "MultiChannelImage(size_y=3, size_x=2, n_channels=1)"
+    assert str(mock_image) == "MultiChannelImage(size_y=3, size_x=2, n_channels=2)"
 
 
 def test_repr(mocker: MockerFixture, mock_image: MultiChannelImage) -> None:

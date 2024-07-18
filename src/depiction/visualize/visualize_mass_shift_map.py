@@ -68,7 +68,7 @@ class VisualizeMassShiftMap:
             self._plot_row(
                 ax_map=axs[i_mass, 0],
                 ax_hist=axs[i_mass, 1],
-                correction_image=correction_image.retain_channels(channel_indices=[i_mass]),
+                correction_image=correction_image.retain_channels(indices=[i_mass]),
                 hist_bins=hist_bins,
                 same_scale=same_scale,
                 scale_percentile=scale_percentile,

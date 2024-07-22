@@ -67,3 +67,20 @@ class StratifiedGrid:
                 (min_x <= coords_x) & (coords_x < max_x) & (min_y <= coords_y) & (coords_y < max_y)
             )[0]
         return assignments
+
+    def assign_num_per_cell(self, n_total: int, assignment: dict[int, NDArray[int]]) -> NDArray[int]:
+        """Returns the number of points to assign to each cell given the total number of points and the assignment,
+        of points to cells.
+        """
+        n_cells = self.cells_x * self.cells_y
+        n_per_cell = np.zeros(n_cells, dtype=int)
+        available_points = np.asarray([len(assignment[i]) for i in range(n_cells)])
+        while np.sum(available_points) > 0 and np.sum(n_per_cell) < n_total:
+            update = (available_points > 0).astype(int)
+            n_per_cell += update
+            available_points -= update
+        # remove excess
+        while np.sum(n_per_cell) > n_total:
+            n_per_cell[np.argmax(n_per_cell)] -= 1
+
+        return n_per_cell

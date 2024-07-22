@@ -89,5 +89,81 @@ def test_assign_points_missing_coordinates(stratified_grid):
         stratified_grid.assign_points(array)
 
 
+def test_assign_num_per_cell_basic(stratified_grid):
+    assignment = {i: np.array([i]) for i in range(8)}
+    n_total = 6
+    result = stratified_grid.assign_num_per_cell(n_total, assignment)
+    np.testing.assert_array_equal(result, np.array([0, 0, 1, 1, 1, 1, 1, 1]))
+
+
+def test_assign_num_per_cell_more_total_than_available(stratified_grid):
+    assignment = {i: np.array([i]) for i in range(8)}
+    n_total = 10
+    result = stratified_grid.assign_num_per_cell(n_total, assignment)
+    np.testing.assert_array_equal(result, np.array([1, 1, 1, 1, 1, 1, 1, 1]))
+
+
+def test_assign_num_per_cell_less_total_than_available(stratified_grid):
+    assignment = {
+        0: np.array([0, 1]),
+        1: np.array([2, 3]),
+        2: np.array([4, 5]),
+        3: np.array([6, 7]),
+        4: np.array([8, 9]),
+        5: np.array([10, 11]),
+        6: np.array([12, 13]),
+        7: np.array([14, 15]),
+    }
+    n_total = 10
+    result = stratified_grid.assign_num_per_cell(n_total, assignment)
+    np.testing.assert_array_equal(np.array([1, 1, 1, 1, 1, 1, 2, 2]), result)
+
+
+def test_assign_num_per_cell_empty_assignment(stratified_grid):
+    assignment = {i: np.array([]) for i in range(8)}
+    n_total = 5
+    result = stratified_grid.assign_num_per_cell(n_total, assignment)
+    np.testing.assert_array_equal(result, np.zeros(8, dtype=int))
+
+
+def test_assign_num_per_cell_uneven_distribution(stratified_grid):
+    assignment = {
+        0: np.array([0, 1, 2, 3, 4]),
+        1: np.array([5]),
+        2: np.array([6, 7]),
+        3: np.array([8, 9]),
+        4: np.array([10]),
+        5: np.array([11, 12]),
+        6: np.array([13]),
+        7: np.array([14, 15, 16]),
+    }
+    n_total = 12
+    result = stratified_grid.assign_num_per_cell(n_total, assignment)
+    np.testing.assert_array_equal(np.array([1, 1, 2, 2, 1, 2, 1, 2]), result)
+
+
+def test_assign_num_per_cell_zero_total(stratified_grid):
+    assignment = {i: np.array([i, i + 1]) for i in range(8)}
+    n_total = 0
+    result = stratified_grid.assign_num_per_cell(n_total, assignment)
+    np.testing.assert_array_equal(result, np.zeros(8, dtype=int))
+
+
+def test_assign_num_per_cell_some_empty_cells(stratified_grid):
+    assignment = {
+        0: np.array([0, 1]),
+        1: np.array([]),
+        2: np.array([2, 3, 4]),
+        3: np.array([]),
+        4: np.array([5]),
+        5: np.array([6, 7]),
+        6: np.array([]),
+        7: np.array([8, 9, 10]),
+    }
+    n_total = 7
+    result = stratified_grid.assign_num_per_cell(n_total, assignment)
+    np.testing.assert_array_equal(np.array([1, 0, 1, 0, 1, 2, 0, 2]), result)
+
+
 if __name__ == "__main__":
     pytest.main()

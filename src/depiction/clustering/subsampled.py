@@ -84,3 +84,12 @@ class StratifiedGrid:
             n_per_cell[np.argmax(n_per_cell)] -= 1
 
         return n_per_cell
+
+    def sample_points(self, array: DataArray, n_samples: int, rng: np.random.Generator) -> DataArray:
+        """Sample points from the given array such that the points are stratified across the grid cells."""
+        assignment = self.assign_points(array)
+        n_per_cell = self.assign_num_per_cell(n_total=n_samples, assignment=assignment)
+        sampled_indices = np.concatenate(
+            [rng.choice(assignment[i], n_per_cell[i], replace=False) for i in range(len(n_per_cell))]
+        )
+        return array.isel(i=sampled_indices)

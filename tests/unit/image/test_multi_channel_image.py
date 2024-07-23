@@ -4,10 +4,9 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray
+from depiction.image.multi_channel_image import MultiChannelImage
 from pytest_mock import MockerFixture
 from xarray import DataArray
-
-from depiction.image.multi_channel_image import MultiChannelImage
 
 
 @pytest.fixture
@@ -144,6 +143,18 @@ def test_retain_channels_by_coords(mock_image: MultiChannelImage) -> None:
 def test_retain_channels_when_both_provided(mock_image: MultiChannelImage) -> None:
     with pytest.raises(ValueError):
         mock_image.retain_channels(indices=[0, 1], coords=["red", "blue"])
+
+
+def test_drop_channels_when_coords_and_allow_missing(mock_image: MultiChannelImage) -> None:
+    image = mock_image.drop_channels(coords=["Channel A", "Channel NeverExisted"], allow_missing=True)
+    assert image.channel_names == ["Channel B"]
+
+
+def test_drop_channels_when_coords_and_not_allow_missing(mock_image: MultiChannelImage) -> None:
+    assert mock_image.drop_channels(coords=["Channel A"], allow_missing=False).channel_names == ["Channel B"]
+    with pytest.raises(KeyError) as error:
+        mock_image.drop_channels(coords=["Channel A", "Channel NeverExisted"], allow_missing=False)
+    assert "Channel NeverExisted" in str(error.value)
 
 
 def test_write_hdf5(mocker: MockerFixture, mock_image: MultiChannelImage) -> None:

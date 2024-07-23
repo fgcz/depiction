@@ -117,6 +117,11 @@ class MultiChannelImage:
         data = self._data.isel(c=indices) if indices is not None else self._data.sel(c=coords)
         return MultiChannelImage(data=data)
 
+    def drop_channels(self, *, coords: Sequence[Any], allow_missing: bool) -> MultiChannelImage:
+        """Returns a copy with the specified channels dropped."""
+        data = self._data.drop_sel(c=coords, errors="ignore" if allow_missing else "raise")
+        return MultiChannelImage(data=data)
+
     # TODO save_single_channel_image... does it belong here or into plotter?
 
     def write_hdf5(self, path: Path) -> None:

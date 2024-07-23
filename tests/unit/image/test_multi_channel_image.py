@@ -108,6 +108,20 @@ def test_data_flat(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
     xarray.testing.assert_identical(expected, mock_image.data_flat)
 
 
+def test_coordinates_flat(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
+    mock_data[0, 0, :] = 0
+    mock_data[1, 0, 0] = np.nan
+    expected = DataArray(
+        [[0, 1, 2, 2], [1, 1, 0, 1]],
+        dims=("d", "i"),
+        coords={
+            "d": ["y", "x"],
+            "i": pd.MultiIndex.from_tuples([(0, 1), (1, 1), (2, 0), (2, 1)], names=("y", "x")),
+        },
+    )
+    xarray.testing.assert_identical(mock_image.coordinates_flat, expected)
+
+
 def test_retain_channels_when_both_none(mock_image: MultiChannelImage) -> None:
     with pytest.raises(ValueError):
         mock_image.retain_channels(None, None)

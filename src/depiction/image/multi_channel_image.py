@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from functools import cached_property
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import xarray
-from xarray import DataArray
-
 from depiction.image.sparse_representation import SparseRepresentation
-from typing import TYPE_CHECKING, Any
+from numpy.typing import NDArray
+from xarray import DataArray
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -24,12 +24,16 @@ class MultiChannelImage:
 
     @classmethod
     def from_numpy_sparse(
-        cls, values: np.ndarray, coordinates: np.ndarray, channel_names: list[str] | None, bg_value: float = 0.0
+        cls,
+        values: NDArray[float] | DataArray,
+        coordinates: NDArray[int] | DataArray,
+        channel_names: list[str] | None,
+        bg_value: float = 0.0,
     ) -> MultiChannelImage:
         """Creates a MultiChannelImage instance from numpy arrays providing values and coordinates."""
         data = SparseRepresentation.sparse_to_dense(
-            sparse_values=DataArray(values, dims=("i", "c")),
-            coordinates=DataArray(coordinates, dims=("i", "d")),
+            sparse_values=cls._validate_sparse_values(values),
+            coordinates=cls._validate_coordinates(coordinates),
             bg_value=bg_value,
         )
         data.attrs["bg_value"] = bg_value
@@ -48,8 +52,6 @@ class MultiChannelImage:
         """Number of non-zero values."""
         # TODO efficient impl
         return (~self.bg_mask).sum().item()
-
-    # TODO sparse_values, sparse_coordinates - these are currently widely used which i guess is a problem
 
     @property
     def dtype(self) -> np.dtype:
@@ -87,6 +89,16 @@ class MultiChannelImage:
     def data_flat(self) -> DataArray:
         """Returns the underlying data, in its flat form, i.e. dimensions (i, c), omitting any background values."""
         return self._data.where(~self.bg_mask).stack(i=("y", "x")).dropna(dim="i")
+
+    @property
+    def coordinates_flat(self) -> DataArray:
+        """Returns the coordinates of the non-background values."""
+        orig_coords = self.data_flat.coords
+        return DataArray(
+            np.stack((orig_coords["y"].values, orig_coords["x"].values), axis=0),
+            dims=("d", "i"),
+            coords={"d": ["y", "x"], "i": orig_coords["i"]},
+        )
 
     # TODO from_dense_array
 
@@ -126,3 +138,23 @@ class MultiChannelImage:
 
     def __repr__(self) -> str:
         return f"MultiChannelImage(data={self._data!r})"
+
+    @staticmethod
+    def _validate_sparse_values(values: NDArray[float] | DataArray) -> DataArray:
+        """Converts the sparse values to a DataArray, if necessary."""
+        if hasattr(values, "coords"):
+            return values.transpose("i", "c")
+        else:
+            if values.ndim != 2:
+                raise ValueError("Values must be a 2D array.")
+            return DataArray(values, dims=("i", "c"))
+
+    @staticmethod
+    def _validate_coordinates(coordinates: NDArray[int] | DataArray) -> DataArray:
+        """Converts the coordinates to a DataArray, if necessary."""
+        if hasattr(coordinates, "coords"):
+            return coordinates.trnaspose("i", "d")
+        else:
+            if coordinates.ndim != 2:
+                raise ValueError("Coordinates must be a 2D array.")
+            return DataArray(coordinates, dims=("i", "d"))

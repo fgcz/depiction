@@ -1,4 +1,6 @@
+from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 from depiction.clustering.extrapolate import extrapolate_labels
 from numpy.typing import NDArray
@@ -8,11 +10,13 @@ import cyclopts
 import numpy as np
 from depiction.clustering.stratified_grid import StratifiedGrid
 from depiction.image.multi_channel_image import MultiChannelImage
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, BisectingKMeans
+from xarray import DataArray
 
 
 class MethodEnum(Enum):
     KMEANS = "kmeans"
+    BISECTINGKMEANS = "bisectingkmeans"
 
 
 app = cyclopts.App()
@@ -29,6 +33,8 @@ def clustering(
     n_samples = 5000
     grid = StratifiedGrid(cells_x=20, cells_y=20)
     rng = np.random.default_rng(42)
+    if "featscv" in method_params:
+        image = select_features_cv(image)
     sampled_features = grid.sample_points(array=image.data_flat, n_samples=n_samples, rng=rng)
     sampled_labels = compute_labels(features=sampled_features.T, method=method, method_params=method_params)
     full_labels = extrapolate_labels(
@@ -42,9 +48,18 @@ def clustering(
     label_image.write_hdf5(output_hdf5)
 
 
+def select_features_cv(image: MultiChannelImage, n_keep: int = 30) -> DataArray:
+    image_data = image.data_flat
+    cv_score = image_data.std("i") / image_data.mean("i")
+    return image.retain_channels(coords=cv_score.sortby("c")[-n_keep:].c.values)
+
+
 def compute_labels(features: NDArray[float], method: MethodEnum, method_params: str) -> NDArray[int]:
     if method == MethodEnum.KMEANS:
         clu = KMeans(n_clusters=10).fit(features)
+        return clu.labels_
+    elif method == MethodEnum.BISECTINGKMEANS:
+        clu = BisectingKMeans(n_clusters=10).fit(features)
         return clu.labels_
     else:
         raise ValueError(f"Method {method} not implemented")

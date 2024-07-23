@@ -13,8 +13,17 @@ def main():
     samples = available_samples()
     snakefile_path = Path(__file__).parent / "workflow" / "Snakefile"
 
+    samples = []
     samples += ["concatenated"]
-    result_files = [work_dir / "work" / sample / "cluster_kmeans_default.png" for sample in samples]
+    cluster_variants = [
+        "cluster_kmeans_default.png",
+        "cluster_bisectingkmeans_default.png",
+        "cluster_kmeans_featscv.png",
+        "cluster_bisectingkmeans_featscv.png",
+    ]
+    result_files = [
+        work_dir / "work" / sample / cluster_variant for sample in samples for cluster_variant in cluster_variants
+    ]
 
     snakemake = SnakemakeInvoke(continue_on_error=False, snakefile_name=snakefile_path)
     snakemake.invoke(

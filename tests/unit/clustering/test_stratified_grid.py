@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
-from depiction.clustering.subsampled import StratifiedGrid
+from depiction.clustering.stratified_grid import StratifiedGrid
 from numpy.random import default_rng
 from xarray import DataArray
 

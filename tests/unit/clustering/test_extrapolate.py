@@ -6,6 +6,7 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 @pytest.fixture
 def basic_features():
+    """4 samples with 2 features each."""
     return np.array([[1, 2], [3, 4], [5, 6], [7, 8]])
 
 
@@ -21,6 +22,7 @@ def basic_expected_centers():
 
 @pytest.fixture
 def high_dim_features():
+    """4 samples with 3 features each."""
     return np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
 
 
@@ -103,7 +105,6 @@ def test_get_cluster_centers_single_cluster():
     features = np.array([[1, 2], [3, 4], [5, 6]])
     labels = np.array([0, 0, 0])
     expected_centers = np.array([[3, 4]])
-
     result = get_cluster_centers(features, labels)
     assert_array_almost_equal(result, expected_centers)
 

@@ -30,7 +30,13 @@ class MultiChannelImage:
         channel_names: list[str] | None,
         bg_value: float = 0.0,
     ) -> MultiChannelImage:
-        """Creates a MultiChannelImage instance from sparse arrays providing values and coordinates."""
+        """Creates a MultiChannelImage instance from sparse arrays providing values and coordinates.
+        :param values: The sparse values (n_nonzero, n_channels) (or a DataArray with dims (i, c)).
+        :param coordinates: The coordinates of the non-background values (n_nonzero, 2)
+            (or a DataArray with dims (i, d)).
+        :param channel_names: The names of the channels.
+        :param bg_value: The background value.
+        """
         data = SparseRepresentation.sparse_to_dense(
             sparse_values=cls._validate_sparse_values(values),
             coordinates=cls._validate_coordinates(coordinates),

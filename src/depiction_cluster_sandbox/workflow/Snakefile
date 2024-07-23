@@ -5,19 +5,29 @@ rule read_ome_tiff:
     input:
         tiff="raw/{sample}/images_default.ome.tiff",
     output:
-        hdf5="{sample}/images_default.hdf5",
+        hdf5="work/{sample}/images_default.hdf5",
     shell:
         "python -m depiction.tools.ometiff_to_hdf5 {input.tiff} {output.hdf5}"
 
 
 rule cluster_generic:
     input:
-        hdf5="{sample}/images_default.hdf5",
+        hdf5="work/{sample}/images_default.hdf5",
     output:
-        hdf5="{sample}/cluster_{method}_{method_params}.hdf5",
+        hdf5="work/{sample}/cluster_{method}_{method_params}.hdf5",
     shell:
         "python -m depiction.tools.clustering "
         " --input-hdf5 {input.hdf5}"
         " --output-hdf5 {output.hdf5}"
         " --method {wildcards.method}"
         " --method-params {wildcards.method_params}"
+
+
+rule render_cluster_png:
+    input:
+        hdf5="work/{sample}/cluster_{variant}.hdf5",
+    output:
+        png="work/{sample}/cluster_{variant}.png",
+    shell:
+        "python -m depiction_cluster_sandbox.workflow.proc.render_single_channel_png"
+        " {input.hdf5} {output.png}"

@@ -14,7 +14,8 @@ def main():
     snakefile_path = Path(__file__).parent / "workflow" / "Snakefile"
     snakemake = SnakemakeInvoke(continue_on_error=False, snakefile_name=snakefile_path)
     snakemake.invoke(
-        work_dir=work_dir, result_files=[work_dir / sample / "cluster_kmeans_default.hdf5" for sample in samples]
+        work_dir=work_dir,
+        result_files=[work_dir / "work" / sample / "cluster_kmeans_default.png" for sample in samples],
     )
 
 

@@ -36,6 +36,16 @@ rule render_cluster_png:
         " {input.hdf5} {output.png}"
 
 
+rule render_cluster_umap_png:
+    input:
+        hdf5="work/{sample}/cluster_{variant}.hdf5",
+    output:
+        png="work/{sample}/cluster-umap_{variant}.png",
+    shell:
+        "python -m depiction_cluster_sandbox.workflow.proc.render_umap_png"
+        " {input.hdf5} {output.png}"
+
+
 rule concatenate_input_images:
     priority: 100
     input:

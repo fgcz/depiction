@@ -1,15 +1,13 @@
-from dataclasses import dataclass
 from enum import Enum
-from typing import Any
-
-from depiction.clustering.extrapolate import extrapolate_labels
-from numpy.typing import NDArray
 from pathlib import Path
 
 import cyclopts
 import numpy as np
+import xarray
+from depiction.clustering.extrapolate import extrapolate_labels
 from depiction.clustering.stratified_grid import StratifiedGrid
 from depiction.image.multi_channel_image import MultiChannelImage
+from numpy.typing import NDArray
 from sklearn.cluster import KMeans, BisectingKMeans
 from xarray import DataArray
 
@@ -45,7 +43,9 @@ def clustering(
     label_image = MultiChannelImage.from_sparse(
         values=full_labels[:, np.newaxis], coordinates=image.coordinates_flat, channel_names=["cluster"]
     )
-    label_image.write_hdf5(output_hdf5)
+
+    output_image = MultiChannelImage(xarray.concat([label_image.data_spatial, image.data_spatial], dim="c"))
+    output_image.write_hdf5(output_hdf5)
 
 
 def select_features_cv(image: MultiChannelImage, n_keep: int = 30) -> DataArray:

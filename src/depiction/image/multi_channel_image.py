@@ -159,7 +159,7 @@ class MultiChannelImage:
     def _validate_coordinates(coordinates: NDArray[int] | DataArray) -> DataArray:
         """Converts the coordinates to a DataArray, if necessary."""
         if hasattr(coordinates, "coords"):
-            return coordinates.trnaspose("i", "d")
+            return coordinates.transpose("i", "d")
         else:
             if coordinates.ndim != 2:
                 raise ValueError("Coordinates must be a 2D array.")

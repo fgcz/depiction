@@ -16,7 +16,7 @@ def render_umap_png(input_hdf5: Path, output_png: Path) -> None:
     umap = UMAP().fit_transform(image.data_flat.drop_sel(c="cluster").values.T)
     plt.figure()
     ax = plt.gca()
-    ax.scatter(umap[:, 0], umap[:, 1], c=image.data_flat.sel(c="cluster").values.ravel(), s=1)
+    ax.scatter(umap[:, 0], umap[:, 1], c=image.data_flat.sel(c="cluster").values.ravel(), s=1, cmap="tab10")
     ax.axis("off")
     plt.savefig(output_png, bbox_inches="tight", pad_inches=0)
 

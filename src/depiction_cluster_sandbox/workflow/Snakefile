@@ -1,0 +1,11 @@
+rule cluster_generic:
+    input:
+        hdf5="{sample}/images_default.hdf5",
+    output:
+        hdf5="{sample}/cluster_{method}_{method_params}.hdf5",
+    shell:
+        "python -m depiction.tools.clustering "
+        " --input-hdf5 {input.hdf5}"
+        " --output-hdf5 {output.hdf5}"
+        " --method {wildcards.method}"
+        " --method-params {wildcards.method_params}"

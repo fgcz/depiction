@@ -104,9 +104,7 @@ class GutenTagLabeledOutputs:
         sparse_values = intensity_df.values
         channel_names = list(intensity_df.columns)
         coordinates = coords_df[["x", "y"]].values.astype(int)
-        return MultiChannelImage.from_numpy_sparse(
-            values=sparse_values, coordinates=coordinates, channel_names=channel_names
-        )
+        return MultiChannelImage.from_sparse(values=sparse_values, coordinates=coordinates, channel_names=channel_names)
 
 
 def _get_rlist_key(r_list, name: str):

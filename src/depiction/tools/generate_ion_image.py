@@ -84,7 +84,7 @@ class GenerateIonImage:
             bind_args=dict(mz_ranges=mz_ranges),
             reduce_fn=lambda chunks: np.concatenate(chunks, axis=0),
         )
-        return MultiChannelImage.from_numpy_sparse(
+        return MultiChannelImage.from_sparse(
             values=channel_values,
             coordinates=input_file.coordinates_2d,
             channel_names=channel_names,

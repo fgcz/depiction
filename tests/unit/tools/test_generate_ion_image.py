@@ -128,13 +128,13 @@ def test_generate_range_images_for_file(mocker, mock_generate: GenerateIonImage,
     reduced = reduce_fn([np.array([[1], [2]]), np.array([[3], [4]])])
     np.testing.assert_array_equal(np.array([[1], [2], [3], [4]]), reduced)
 
-    mock_multi_channel_image.from_numpy_sparse.assert_called_once_with(
+    mock_multi_channel_image.from_sparse.assert_called_once_with(
         values=mock_parallelize.map_chunked.return_value,
         coordinates=mock_input_file.coordinates_2d,
         channel_names=None,
         bg_value=np.nan,
     )
-    assert result == mock_multi_channel_image.from_numpy_sparse.return_value
+    assert result == mock_multi_channel_image.from_sparse.return_value
 
 
 if __name__ == "__main__":

@@ -18,9 +18,7 @@ def vis_calib_heatmap(
 
     # compute the mean across channels
     shifts_mean = np.nanmean(coef_processed, axis=1, keepdims=True)
-    shifts_map = MultiChannelImage.from_numpy_sparse(
-        values=shifts_mean, coordinates=coordinates_2d, channel_names=["mean"]
-    )
+    shifts_map = MultiChannelImage.from_sparse(values=shifts_mean, coordinates=coordinates_2d, channel_names=["mean"])
 
     # save the data
     shifts_map.write_hdf5(output_hdf5_path)

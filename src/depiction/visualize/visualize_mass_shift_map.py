@@ -28,7 +28,7 @@ class VisualizeMassShiftMap:
             ),
             axis=1,
         )
-        return MultiChannelImage.from_numpy_sparse(
+        return MultiChannelImage.from_sparse(
             values=correction_values,
             coordinates=self._coordinates,
             channel_names=[f"test mass {mass:.2f}" for mass in test_masses],

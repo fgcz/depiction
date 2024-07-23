@@ -23,14 +23,14 @@ class MultiChannelImage:
             raise ValueError("The bg_value attribute must be set.")
 
     @classmethod
-    def from_numpy_sparse(
+    def from_sparse(
         cls,
         values: NDArray[float] | DataArray,
         coordinates: NDArray[int] | DataArray,
         channel_names: list[str] | None,
         bg_value: float = 0.0,
     ) -> MultiChannelImage:
-        """Creates a MultiChannelImage instance from numpy arrays providing values and coordinates."""
+        """Creates a MultiChannelImage instance from sparse arrays providing values and coordinates."""
         data = SparseRepresentation.sparse_to_dense(
             sparse_values=cls._validate_sparse_values(values),
             coordinates=cls._validate_coordinates(coordinates),

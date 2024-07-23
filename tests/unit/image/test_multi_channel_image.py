@@ -34,7 +34,7 @@ def mock_image(mock_data) -> MultiChannelImage:
 def test_from_numpy_sparse() -> None:
     values = np.array([[1, 2, 3], [4, 5, 6]])
     coordinates = np.array([[0, 0], [1, 1]])
-    image = MultiChannelImage.from_numpy_sparse(values=values, coordinates=coordinates, channel_names=["A", "B", "C"])
+    image = MultiChannelImage.from_sparse(values=values, coordinates=coordinates, channel_names=["A", "B", "C"])
     assert image.channel_names == ["A", "B", "C"]
     values = image.data_spatial.sel(c="B")
     xarray.testing.assert_equal(DataArray([[2, 0], [0, 5]], dims=("y", "x"), coords={"c": "B"}, name="values"), values)

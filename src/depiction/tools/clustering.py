@@ -28,6 +28,7 @@ def clustering(
     method_params: str,
 ) -> None:
     image = MultiChannelImage.read_hdf5(path=input_hdf5)
+    image = image.drop_channels(coords=["image_index", "cluster"], allow_missing=True)
     n_samples = 5000
     grid = StratifiedGrid(cells_x=20, cells_y=20)
     rng = np.random.default_rng(42)

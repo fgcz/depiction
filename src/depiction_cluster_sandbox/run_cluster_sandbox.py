@@ -12,10 +12,14 @@ def available_samples() -> list[str]:
 def main():
     samples = available_samples()
     snakefile_path = Path(__file__).parent / "workflow" / "Snakefile"
+
+    samples += ["concatenated"]
+    result_files = [work_dir / "work" / sample / "cluster_kmeans_default.png" for sample in samples]
+
     snakemake = SnakemakeInvoke(continue_on_error=False, snakefile_name=snakefile_path)
     snakemake.invoke(
         work_dir=work_dir,
-        result_files=[work_dir / "work" / sample / "cluster_kmeans_default.png" for sample in samples],
+        result_files=result_files,
     )
 
 

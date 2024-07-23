@@ -1,4 +1,7 @@
+from pathlib import Path
 
+
+ALL_SAMPLES = [p.name for p in Path("raw").iterdir() if p.is_dir()]
 
 
 rule read_ome_tiff:
@@ -31,3 +34,14 @@ rule render_cluster_png:
     shell:
         "python -m depiction_cluster_sandbox.workflow.proc.render_single_channel_png"
         " {input.hdf5} {output.png}"
+
+
+rule concatenate_input_images:
+    priority: 100
+    input:
+        hdf5=expand("work/{sample}/images_default.hdf5", sample=ALL_SAMPLES),
+    output:
+        hdf5="work/concatenated/images_default.hdf5",
+    shell:
+        "python -m depiction_cluster_sandbox.workflow.proc.concatenate_images "
+        " {output.hdf5} {input.hdf5}"

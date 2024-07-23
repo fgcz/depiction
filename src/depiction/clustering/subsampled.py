@@ -58,7 +58,6 @@ class StratifiedGrid:
 
         coords_x = array.coords["x"].values
         coords_y = array.coords["y"].values
-        print(coords_x)
 
         assignments = {}
         for i_cell in range(self.cells_x * self.cells_y):

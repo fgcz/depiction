@@ -44,7 +44,6 @@ def test_assign_points_basic(stratified_grid):
     )
 
     assignments = stratified_grid.assign_points(array)
-    print(assignments)
 
     assert len(assignments) == 8  # 2x4 grid
     assert set(assignments.keys()) == set(range(8))

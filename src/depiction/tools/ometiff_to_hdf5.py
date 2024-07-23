@@ -14,6 +14,10 @@ def ometiff_to_hdf5(
 ) -> None:
     """Writes input_ometiff to output_hdf5 using our MultiChannelImage representation."""
     data = OmeTiff.read(input_ometiff)
+    if "pixel_size" in data.attrs:
+        # TODO this is quite broken and should be fixed in the future, but currently the pixel size cannot
+        # be persisted
+        del data.attrs["pixel_size"]
     image = MultiChannelImage(data)
     image.write_hdf5(output_hdf5)
 

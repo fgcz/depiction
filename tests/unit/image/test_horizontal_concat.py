@@ -29,6 +29,24 @@ def test_horizontal_concat_success(sample_image):
     assert list(result.data_spatial.x.values) == [0, 1, 2, 3, 4, 5, 6, 7]
 
 
+def test_horizontal_concat_when_add_index(sample_image):
+    image1 = sample_image
+    image2 = copy.deepcopy(sample_image)
+
+    result = horizontal_concat([image1, image2], add_index=True)
+
+    assert isinstance(result, MultiChannelImage)
+    assert result.data_spatial.shape == (3, 8, 3)  # y, x, c
+    assert list(result.data_spatial.x.values) == [0, 1, 2, 3, 4, 5, 6, 7]
+    assert list(result.data_spatial.c.values) == ["red", "green", "image_index"]
+
+    assert result.data_spatial.sel(c="image_index").values.tolist() == [
+        [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+        [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+        [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+    ]
+
+
 def test_horizontal_concat_single_image(sample_image):
     with pytest.raises(ValueError, match="At least two images are required for concatenation."):
         horizontal_concat([sample_image])

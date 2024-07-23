@@ -10,6 +10,11 @@ from xarray import DataArray
 
 @dataclass
 class StratifiedGrid:
+    """Defines a uniform rectangular grid to stratify sampling points from a 2D domain.
+    The algorithm first determines the number of points to sample per cell, balancing the number across cells as much as
+    possible, and then samples the desired number of points from the input array for each cell.
+    """
+
     cells_x: int
     cells_y: int
 
@@ -85,7 +90,7 @@ class StratifiedGrid:
         return n_per_cell
 
     def sample_points(self, array: DataArray, n_samples: int, rng: np.random.Generator) -> DataArray:
-        """Sample points from the given array such that the points are stratified across the grid cells."""
+        """Samples points from the given array such that the points are stratified across the grid cells."""
         assignment = self.assign_points(array)
         n_per_cell = self.assign_num_per_cell(n_total=n_samples, assignment=assignment)
         sampled_indices = np.concatenate(

@@ -26,7 +26,7 @@ def horizontal_concat(
         x_extent = data.x.values.max() - data.x.values.min() + 1
         data_shifted = data.assign_coords(x=data.x - data.x.values.min() + xoffset)
         if add_index:
-            data_index = xarray.full_like(data_shifted.isel(c=[0]), i_image).assign_coords(c=index_channel)
+            data_index = xarray.full_like(data_shifted.isel(c=[0]), i_image).assign_coords({"c": [index_channel]})
             data_shifted = xarray.concat([data_shifted, data_index], dim="c")
         concat.append(data_shifted)
         xoffset += x_extent

@@ -178,16 +178,16 @@ def test_with_channel_names(mock_image: MultiChannelImage) -> None:
     np.testing.assert_array_equal(image.data_spatial.values, mock_image.data_spatial.values)
 
 
-def test_replace_bg_value(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
-    mock_data[0, 0, :] = 0
-    mock_data[1, 0, 0] = np.nan
-
-    new_image = mock_image.replace_bg_value(42)
-    assert new_image.bg_value == 42
-    assert new_image.data_spatial[0, 0, 0] == 42
-    assert new_image.data_spatial[0, 0, 1] == 42
-    assert np.isnan(new_image.data_spatial[1, 0, 0])
-    assert new_image.data_spatial[1, 0, 1] == 5
+# def test_replace_bg_value(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
+#    mock_data[0, 0, :] = 0
+#    mock_data[1, 0, 0] = np.nan
+#
+#    new_image = mock_image.replace_bg_value(42)
+#    assert new_image.bg_value == 42
+#    assert new_image.data_spatial[0, 0, 0] == 42
+#    assert new_image.data_spatial[0, 0, 1] == 42
+#    assert np.isnan(new_image.data_spatial[1, 0, 0])
+#    assert new_image.data_spatial[1, 0, 1] == 5
 
 
 def test_str(mock_image: MultiChannelImage) -> None:

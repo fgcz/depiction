@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import xarray
+
+from depiction.image.image_channel_stats import ImageChannelStats
 from depiction.image.sparse_representation import SparseRepresentation
 from numpy.typing import NDArray
 from xarray import DataArray
@@ -140,6 +142,11 @@ class MultiChannelImage:
     def with_channel_names(self, channel_names: Sequence[str]) -> MultiChannelImage:
         """Returns a copy with the specified channel names."""
         return MultiChannelImage(data=self._data.assign_coords(c=channel_names))
+
+    @cached_property
+    def channel_stats(self) -> ImageChannelStats:
+        """Returns an object providing channel statistics."""
+        return ImageChannelStats(image=self)
 
     # TODO reconsider:there is actually a problem, whether it should use bg_mask only or also replace individual values
     #     since both could be necessary it should be implemented in a sane and maintainable manner

@@ -178,6 +178,14 @@ def test_with_channel_names(mock_image: MultiChannelImage) -> None:
     np.testing.assert_array_equal(image.data_spatial.values, mock_image.data_spatial.values)
 
 
+def test_channel_stats(mocker: MockerFixture, mock_image: MultiChannelImage) -> None:
+    mock_image_channel_stats = mocker.patch("depiction.image.multi_channel_image.ImageChannelStats")
+    assert mock_image.channel_stats == mock_image_channel_stats.return_value
+    # call twice
+    assert mock_image.channel_stats == mock_image_channel_stats.return_value
+    mock_image_channel_stats.assert_called_once_with(image=mock_image)
+
+
 # def test_replace_bg_value(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
 #    mock_data[0, 0, :] = 0
 #    mock_data[1, 0, 0] = np.nan

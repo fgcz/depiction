@@ -72,7 +72,7 @@ rule visualize_cluster_umap_coefs:
         umap_hdf5="work/{sample}/images_default.umap.hdf5",
         cluster_hdf5="work/{sample}/cluster_{variant}.hdf5",
     output:
-        png="work/{sample}/cluster-umap2-{variant}.png",
+        png="work/{sample}/cluster-umap2-{variant}-{channel}.png",
     shell:
         "python -m depiction_cluster_sandbox.workflow.visualize.visualize_cluster_umap_coefs "
-        " {input.umap_hdf5} {input.cluster_hdf5} {output.png}"
+        " {input.umap_hdf5} {input.cluster_hdf5} {output.png} {wildcards.channel}"

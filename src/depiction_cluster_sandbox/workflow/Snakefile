@@ -55,3 +55,13 @@ rule concatenate_input_images:
     shell:
         "python -m depiction_cluster_sandbox.workflow.proc.concatenate_images "
         " {output.hdf5} {input.hdf5}"
+
+
+rule compute_image_umap_coefs:
+    input:
+        hdf5="work/{sample}/images_{variant}.hdf5",
+    output:
+        hdf5="work/{sample}/images_{variant}.umap.hdf5",
+    shell:
+        "python -m depiction_cluster_sandbox.workflow.proc.compute_image_umap_coefs"
+        " {input.hdf5} {output.hdf5}"

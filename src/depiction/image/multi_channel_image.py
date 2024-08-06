@@ -141,6 +141,13 @@ class MultiChannelImage:
         """Returns a copy with the specified channel names."""
         return MultiChannelImage(data=self._data.assign_coords(c=channel_names))
 
+    def replace_bg_value(self, new_bg_value: float) -> MultiChannelImage:
+        """Returns a copy with the background value replaced, i.e. changing all occurrences of the current background
+        value to the new background value and setting the new background value in the attributes."""
+        data = self._data.where(~self.bg_mask, new_bg_value)
+        data.attrs["bg_value"] = new_bg_value
+        return MultiChannelImage(data=data)
+
     def __str__(self) -> str:
         # TODO indicate sparse vs dense repr
         size_y = self._data.sizes["y"]

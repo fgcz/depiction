@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import cyclopts
+from loguru import logger
 from umap import UMAP
 
 from depiction.image.feature_selection import FeatureSelectionIQR, select_features
@@ -29,9 +30,11 @@ def compute_image_umap_coefs(
     input_image_conc = MultiChannelImageConcatenation.read_hdf5(path=input_image_path, allow_individual=True)
     input_image = input_image_conc.get_combined_image()
     if enable_feature_selection:
+        logger.info(f"Feature selection requested: {feature_selection}")
         input_image = select_features(feature_selection=feature_selection, image=input_image)
 
     # compute the umap transformation into 2D
+    logger.info(f"Computing UMAP for input image with shape {input_image.dimensions}")
     umap = UMAP(n_components=2, n_jobs=n_jobs, random_state=random_state)
     values = umap.fit_transform(input_image.data_flat.values.T)
 

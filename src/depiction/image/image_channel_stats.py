@@ -39,6 +39,18 @@ class ImageChannelStats:
         ).fill_nan(None)
 
     @cached_property
+    def coefficient_of_variation(self) -> pl.DataFrame:
+        """Returns a DataFrame with the cv for each sample, columns 'c', and 'cv'."""
+        data = np.zeros(self._image.n_channels)
+        for i_channel in range(self._image.n_channels):
+            values = self._get_channel_values(i_channel=i_channel, drop_missing=True)
+            if len(values) == 0:
+                data[i_channel] = np.nan
+                continue
+            data[i_channel] = np.std(values) / np.mean(values)
+        return pl.DataFrame({"c": self._image.channel_names, "cv": data}).fill_nan(None)
+
+    @cached_property
     def interquartile_range(self) -> pl.DataFrame:
         """Returns a DataFrame with the iqr for each sample, columns 'c', and 'iqr'."""
         data = np.zeros(self._image.n_channels)

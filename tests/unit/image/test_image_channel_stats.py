@@ -1,7 +1,7 @@
 import numpy as np
 import polars as pl
 import pytest
-
+import polars.testing
 from depiction.image.image_channel_stats import ImageChannelStats
 
 
@@ -41,16 +41,25 @@ def test_five_number_summary(mocker, image_channel_stats, mock_multi_channel_ima
     assert result.equals(expected)
 
 
+def test_coefficient_of_variation(mocker, image_channel_stats, mock_multi_channel_image):
+    mock_data = np.array([[1, 2, 3, 4, 5], [1, 1, 1, 1, 1], [0, 0, 0, 0, 0]])
+    mocker.patch.object(
+        image_channel_stats, "_get_channel_values", side_effect=[mock_data[0], mock_data[1], mock_data[2]]
+    )
+    result = image_channel_stats.coefficient_of_variation
+    expected = pl.DataFrame(
+        {"c": ["channel1", "channel2", "channel3"], "cv": np.array([0.471404, 0.0, np.nan])}
+    ).fill_nan(None)
+    pl.testing.assert_frame_equal(result, expected, check_dtype=False, atol=1e-5)
+
+
 def test_interquartile_range(mocker, image_channel_stats, mock_multi_channel_image):
     mock_data = np.array([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15]])
-
     mocker.patch.object(
         image_channel_stats, "_get_channel_values", side_effect=[mock_data[0], mock_data[1], mock_data[2]]
     )
     result = image_channel_stats.interquartile_range
-
     expected = pl.DataFrame({"c": ["channel1", "channel2", "channel3"], "iqr": [2, 2, 2]})
-
     assert result.equals(expected)
 
 

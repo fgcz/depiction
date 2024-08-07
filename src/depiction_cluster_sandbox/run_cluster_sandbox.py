@@ -15,17 +15,19 @@ def main():
 
     samples = []
     samples += ["concatenated"]
-    cluster_variants = [
-        "cluster_kmeans_default.png",
-        "cluster_bisectingkmeans_default.png",
-        "cluster_kmeans_featscv.png",
-        "cluster_bisectingkmeans_featscv.png",
-        "cluster-umap_kmeans_default.png",
-        "cluster-umap_kmeans_featscv.png",
+
+    cluster_algos = ["kmeans", "bisectingkmeans", "birch"]
+    cluster_artifacts = [
+        file
+        for algo in cluster_algos
+        for file in [
+            f"cluster_{algo}_default.png",
+            f"cluster-umap2-{algo}_default-cluster.png",
+            f"cluster-umap2-{algo}_default-image_index.png",
+        ]
     ]
-    result_files = [
-        work_dir / "work" / sample / cluster_variant for sample in samples for cluster_variant in cluster_variants
-    ]
+
+    result_files = [work_dir / "work" / sample / artifact for sample in samples for artifact in cluster_artifacts]
 
     snakemake = SnakemakeInvoke(continue_on_error=False, snakefile_name=snakefile_path)
     snakemake.invoke(

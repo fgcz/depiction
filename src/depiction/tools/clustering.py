@@ -5,7 +5,7 @@ import cyclopts
 import numpy as np
 import xarray
 from numpy.typing import NDArray
-from sklearn.cluster import KMeans, BisectingKMeans
+from sklearn.cluster import KMeans, BisectingKMeans, Birch
 
 from depiction.clustering.extrapolate import extrapolate_labels
 from depiction.clustering.maxmin_sampling import maxmin_sampling
@@ -19,6 +19,7 @@ from depiction.image.multi_channel_image import MultiChannelImage
 class MethodEnum(Enum):
     KMEANS = "kmeans"
     BISECTINGKMEANS = "bisectingkmeans"
+    BIRCH = "birch"
 
 
 app = cyclopts.App()
@@ -55,7 +56,7 @@ def clustering(
     method_params: str,
     n_best_features: int = 30,
     n_samples_cluster: int = 10000,
-    n_landmarks: int = 50,
+    n_landmarks: int = 200,
 ) -> None:
     rng = np.random.default_rng(42)
 
@@ -115,6 +116,9 @@ def compute_labels(features: NDArray[float], method: MethodEnum, method_params: 
         return clu.labels_
     elif method == MethodEnum.BISECTINGKMEANS:
         clu = BisectingKMeans(n_clusters=10).fit(features)
+        return clu.labels_
+    elif method == MethodEnum.BIRCH:
+        clu = Birch(n_clusters=10).fit(features)
         return clu.labels_
     else:
         raise ValueError(f"Method {method} not implemented")

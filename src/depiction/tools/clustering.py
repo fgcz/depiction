@@ -26,7 +26,11 @@ app = cyclopts.App()
 
 
 def get_landmark_indices(
-    image_features: MultiChannelImage, image_index: MultiChannelImage, n_landmarks: int, rng: np.random.Generator
+    image_features: MultiChannelImage,
+    image_index: MultiChannelImage,
+    n_landmarks: int,
+    rng: np.random.Generator,
+    metric: str,
 ) -> NDArray[int]:
     image_joined = image_features.append_channels(image_index)
     image_joined_flat = image_joined.data_flat
@@ -41,7 +45,7 @@ def get_landmark_indices(
 
         # determine the landmark indices
         features_image = image_joined_flat.drop_sel(c="image_index").isel(i=indices_image)
-        indices_image_landmarks = maxmin_sampling(features_image.values.T, k=n_samples, rng=rng)
+        indices_image_landmarks = maxmin_sampling(features_image.values.T, k=n_samples, rng=rng, metric=metric)
 
         # revert these indices into the original space
         indices.extend(indices_image[indices_image_landmarks])
@@ -57,6 +61,7 @@ def clustering(
     n_best_features: int = 30,
     n_samples_cluster: int = 10000,
     n_landmarks: int = 200,
+    landmark_metric: str = "correlation",
 ) -> None:
     rng = np.random.default_rng(42)
 
@@ -65,7 +70,7 @@ def clustering(
     assert "cluster" not in image_full_combined.channel_names
     image_full_features = image_full_combined.drop_channels(coords=["image_index"], allow_missing=True)
     image_full_features = ImageNormalization().normalize_image(
-        image=image_full_features, variant=ImageNormalizationVariant.VEC_NORM
+        image=image_full_features, variant=ImageNormalizationVariant.STD
     )
     image_full_image_index = image_full_combined.retain_channels(coords=["image_index"])
 
@@ -77,7 +82,11 @@ def clustering(
     # sample a number of landmark features which will be used for correlation-based clustering
     # since we might have more than one image, we want to make sure that we sample a bit of each
     landmark_indices = get_landmark_indices(
-        image_features=image_features, image_index=image_full_image_index, n_landmarks=n_landmarks, rng=rng
+        image_features=image_features,
+        image_index=image_full_image_index,
+        n_landmarks=n_landmarks,
+        rng=rng,
+        metric=landmark_metric,
     )
 
     landmark_features = image_features.data_flat.values.T[landmark_indices]

@@ -4,7 +4,7 @@ import numpy as np
 from numpy.random import Generator
 
 
-def maxmin_sampling(vectors: np.ndarray, k: int, rng: Generator) -> np.ndarray:
+def maxmin_sampling(vectors: np.ndarray, k: int, rng: Generator, metric="euclidean") -> np.ndarray:
     """
     Sample k diverse vectors from the given set of vectors using the MaxMin algorithm.
 
@@ -35,7 +35,17 @@ def maxmin_sampling(vectors: np.ndarray, k: int, rng: Generator) -> np.ndarray:
     selected = [rng.integers(n)]
 
     # Compute distances to the selected point
-    distances = np.sum((vectors - vectors[selected[0]]) ** 2, axis=1)
+    # TODO this can be done more nicely with a scipy method later
+    if metric == "euclidean":
+        distances = np.sum((vectors - vectors[selected[0]]) ** 2, axis=1)
+    elif metric == "cosine":
+        distances = 1 - np.dot(vectors, vectors[selected[0]]) / (
+            np.linalg.norm(vectors, axis=1) * np.linalg.norm(vectors[selected[0]])
+        )
+    elif metric == "correlation":
+        distances = 1 - np.dot(vectors, vectors[selected[0]]) / n
+    else:
+        raise ValueError(f"Unsupported metric: {metric}")
 
     for _ in range(1, k):
         # Select the point with maximum distance to the already selected points

@@ -2,6 +2,8 @@ import enum
 
 import xarray
 
+from depiction.image.multi_channel_image import MultiChannelImage
+
 
 # TODO experimental code, untested etc
 # TODO in principle the interface this method would require is to apply over the pixels of the image
@@ -28,13 +30,19 @@ class ImageNormalization:
         else:
             raise NotImplementedError("Multiple index columns are not supported yet.")
 
+    def normalize_image(self, image: MultiChannelImage, variant: ImageNormalizationVariant) -> MultiChannelImage:
+        return MultiChannelImage(self.normalize_xarray(image.data_spatial, variant=variant))
+
     def _normalize_single_xarray(self, image: xarray.DataArray, variant: ImageNormalizationVariant) -> xarray.DataArray:
-        if variant == ImageNormalizationVariant.VEC_NORM:
-            return image / (((image**2).sum(["c"])) ** 0.5)
-        elif variant == ImageNormalizationVariant.STD:
-            return (image - image.mean("c")) / image.std("c")
-        else:
-            raise NotImplementedError(f"Unknown variant: {variant}")
+        with xarray.set_options(keep_attrs=True):
+            if variant == ImageNormalizationVariant.VEC_NORM:
+                norm = ((image**2).sum(["c"])) ** 0.5
+                return xarray.where(norm != 0, image / norm, 0)
+            elif variant == ImageNormalizationVariant.STD:
+                std = image.std("c")
+                return xarray.where(std != 0, (image - image.mean("c")) / std, 0)
+            else:
+                raise NotImplementedError(f"Unknown variant: {variant}")
 
     def _normalize_multiple_xarray(
         self, image: xarray.DataArray, index_dim: str, variant: ImageNormalizationVariant

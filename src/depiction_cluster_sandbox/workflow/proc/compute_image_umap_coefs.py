@@ -3,6 +3,7 @@ from pathlib import Path
 import cyclopts
 from umap import UMAP
 
+from depiction.image.feature_selection import FeatureSelectionIQR, select_features
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.image.multi_channel_image_concatenation import MultiChannelImageConcatenation
 
@@ -12,8 +13,9 @@ app = cyclopts.App()
 #  - extra coordinates preserved
 #  - umap multi-channel image generated at output path
 
-# TODO add option to perform feature selection here as well (and define the feature selection in a standardized
-#  place because currently it is a bit redundant, or actually just export the feature selected image)
+
+# TODO make customizable
+feature_selection = FeatureSelectionIQR.validate({"n_features": 30})
 
 
 @app.default
@@ -22,9 +24,12 @@ def compute_image_umap_coefs(
     output_image_path: Path,
     n_jobs: int = -1,
     random_state: int | None = None,
+    enable_feature_selection: bool = False,
 ) -> None:
     input_image_conc = MultiChannelImageConcatenation.read_hdf5(path=input_image_path, allow_individual=True)
     input_image = input_image_conc.get_combined_image()
+    if enable_feature_selection:
+        input_image = select_features(feature_selection=feature_selection, image=input_image)
 
     # compute the umap transformation into 2D
     umap = UMAP(n_components=2, n_jobs=n_jobs, random_state=random_state)

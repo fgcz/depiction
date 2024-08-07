@@ -64,7 +64,7 @@ rule compute_image_umap_coefs:
         hdf5="work/{sample}/images_{variant}.umap.hdf5",
     shell:
         "python -m depiction_cluster_sandbox.workflow.proc.compute_image_umap_coefs"
-        " {input.hdf5} {output.hdf5}"
+        " {input.hdf5} {output.hdf5} --enable-feature-selection"
 
 
 rule visualize_cluster_umap_coefs:

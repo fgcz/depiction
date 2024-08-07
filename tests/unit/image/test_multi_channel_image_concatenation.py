@@ -97,6 +97,40 @@ def test_get_single_images(concat_image: MultiChannelImageConcatenation, mocker:
     assert mock_get_single_image.mock_calls == [mocker.call(index=0), mocker.call(index=1)]
 
 
+def test_relabel_combined_image(
+    concat_image: MultiChannelImageConcatenation,
+) -> None:
+    new_data = np.ones((3, 7, 4))
+    new_combined_image = MultiChannelImage(
+        data=xarray.DataArray(
+            data=new_data,
+            dims=("y", "x", "c"),
+            coords={"c": ["A", "B", "C", "D"]},
+            attrs={"bg_value": np.nan},
+        )
+    )
+    relabeled_image = concat_image.relabel_combined_image(new_combined_image)
+    assert relabeled_image.get_combined_image().channel_names == ["A", "B", "C", "D"]
+    assert relabeled_image.n_individual_images == 2
+
+
+def test_relabel_combined_image_different_shape(
+    concat_image: MultiChannelImageConcatenation, channel_names: list[str]
+) -> None:
+    new_data = np.ones((4, 8, len(channel_names))) * 5.0
+    new_combined_image = MultiChannelImage(
+        data=xarray.DataArray(
+            data=new_data,
+            dims=("y", "x", "c"),
+            coords={"c": channel_names},
+            attrs={"bg_value": np.nan},
+        )
+    )
+
+    with pytest.raises(ValueError, match="The new image must have the same shape as the original combined image"):
+        concat_image.relabel_combined_image(new_combined_image)
+
+
 def test_read_hdf5(mocker: MockerFixture) -> None:
     mock_read_hdf5 = mocker.patch.object(MultiChannelImage, "read_hdf5")
     mock_path = mocker.Mock(name="path", spec=[])

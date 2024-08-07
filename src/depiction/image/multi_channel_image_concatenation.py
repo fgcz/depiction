@@ -4,7 +4,6 @@ from functools import cached_property
 from pathlib import Path
 
 import numpy as np
-import xarray
 
 from depiction.image.horizontal_concat import horizontal_concat
 from depiction.image.multi_channel_image import MultiChannelImage
@@ -62,15 +61,17 @@ class MultiChannelImageConcatenation:
     def get_single_images(self) -> list[MultiChannelImage]:
         return [self.get_single_image(index=index) for index in range(self.n_individual_images)]
 
-    def with_replaced_combined_image(self, image: MultiChannelImage) -> MultiChannelImageConcatenation:
-        """Returns a new instance with the provided image as the new combined image, assuming the same indices for
-        individual images in the 2D concatenation."""
-        # TODO needs unit test and probably a better name
-        # combine the data
-        image_index = self._data.data_flat.sel(c="image_index")
-        new_data = xarray.concat([image.data_flat, image_index], dim="c")
-        # return the instance
-        return MultiChannelImageConcatenation(data=MultiChannelImage(data=new_data))
+    def relabel_combined_image(self, image: MultiChannelImage) -> MultiChannelImageConcatenation:
+        """Returns a new instance of ``MultiChannelImageConcatenation`` with the provided image as the new combined
+        image, i.e. this method takes an image in the combined form and assigns the image_index labels from ``self``
+        to the result.
+        """
+        # Ensure the new image has the same shape as the original combined image
+        original_combined = self.get_combined_image()
+        if image.dimensions != original_combined.dimensions:
+            raise ValueError("The new image must have the same shape as the original combined image")
+        labeled = image.append_channels(self._data.retain_channels(coords=["image_index"]))
+        return MultiChannelImageConcatenation(data=labeled)
 
     @classmethod
     def read_hdf5(cls, path: Path) -> MultiChannelImageConcatenation:

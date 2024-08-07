@@ -165,6 +165,14 @@ class MultiChannelImage:
     #        data.attrs["bg_value"] = new_bg_value
     #        return MultiChannelImage(data=data)
 
+    # def crop_bounding_box(self) -> MultiChannelImage:
+    #    #TODO correctly implement this
+    #    present_values = np.where(~self.bg_mask)
+    #    min_y, max_y = present_values[0].min(), present_values[0].max()
+    #    min_x, max_x = present_values[1].min(), present_values[1].max()
+    #    data = self._data.isel(y=slice(min_y, max_y + 1), x=slice(min_x, max_x + 1))
+    #    return MultiChannelImage(data=data)
+
     def __str__(self) -> str:
         # TODO indicate sparse vs dense repr
         size_y = self._data.sizes["y"]

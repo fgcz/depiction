@@ -1,5 +1,5 @@
-baseline_adjustment:
-  baseline_type: Tophat
+baseline_correction:
+  baseline_type: TopHat
   window_size: 3000
   window_unit: ppm
 pick_peaks:

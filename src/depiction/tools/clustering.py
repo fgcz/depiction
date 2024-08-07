@@ -100,7 +100,10 @@ def clustering(
         full_features=image_features.data_flat.values.T,
     )
     label_image = MultiChannelImage.from_sparse(
-        values=full_labels[:, np.newaxis], coordinates=image_full_features.coordinates_flat, channel_names=["cluster"]
+        values=full_labels[:, np.newaxis],
+        coordinates=image_full_features.coordinates_flat,
+        channel_names=["cluster"],
+        bg_value=np.nan,
     )
 
     # write the result of the operation

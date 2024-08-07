@@ -37,10 +37,10 @@ class ImageNormalization:
         with xarray.set_options(keep_attrs=True):
             if variant == ImageNormalizationVariant.VEC_NORM:
                 norm = ((image**2).sum(["c"])) ** 0.5
-                return xarray.where(norm != 0, image / norm, 0)
+                return xarray.where(norm != 0, image / norm, image.attrs.get("bg_value", 0))
             elif variant == ImageNormalizationVariant.STD:
                 std = image.std("c")
-                return xarray.where(std != 0, (image - image.mean("c")) / std, 0)
+                return xarray.where(std != 0, (image - image.mean("c")) / std, image.attrs.get("bg_value", 0))
             else:
                 raise NotImplementedError(f"Unknown variant: {variant}")
 

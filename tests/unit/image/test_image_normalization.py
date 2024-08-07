@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 import xarray as xr
 
@@ -31,6 +32,22 @@ def test_normalize_xarray_single_vec_norm(image_normalizer, single_image):
     )
     xr.testing.assert_allclose(expected, norm_vec)
     assert norm_vec.attrs["bg_value"] == single_image.attrs["bg_value"]
+
+
+def test_normalize_xarray_single_vec_norm_with_nans(image_normalizer):
+    image_with_nans = xr.DataArray(
+        data=[[[2, np.nan], [0, 2]], [[1, 1], [4, np.nan]], [[np.nan, 0], [0, 0]]],
+        dims=["y", "x", "c"],
+        attrs={"bg_value": np.nan},
+    )
+    norm_vec = image_normalizer.normalize_xarray(image_with_nans, variant=ImageNormalizationVariant.VEC_NORM)
+    expected = xr.DataArray(
+        data=[[[1, np.nan], [0, 1]], [[0.707107, 0.707107], [1, np.nan]], [[np.nan, np.nan], [np.nan, np.nan]]],
+        dims=["y", "x", "c"],
+        attrs={"bg_value": np.nan},
+    )
+    xr.testing.assert_allclose(expected, norm_vec)
+    assert np.isnan(norm_vec.attrs["bg_value"])
 
 
 def test_normalize_xarray_single_std(image_normalizer, single_image):

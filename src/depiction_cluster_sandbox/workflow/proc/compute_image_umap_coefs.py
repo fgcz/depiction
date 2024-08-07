@@ -4,7 +4,7 @@ import cyclopts
 from loguru import logger
 from umap import UMAP
 
-from depiction.image.feature_selection import FeatureSelectionIQR, select_features
+from depiction.image.feature_selection import FeatureSelectionIQR, retain_features
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.image.multi_channel_image_concatenation import MultiChannelImageConcatenation
 
@@ -31,7 +31,7 @@ def compute_image_umap_coefs(
     input_image = input_image_conc.get_combined_image()
     if enable_feature_selection:
         logger.info(f"Feature selection requested: {feature_selection}")
-        input_image = select_features(feature_selection=feature_selection, image=input_image)
+        input_image = retain_features(feature_selection=feature_selection, image=input_image)
 
     # compute the umap transformation into 2D
     logger.info(f"Computing UMAP for input image with shape {input_image.dimensions}")

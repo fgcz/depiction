@@ -16,23 +16,16 @@ def visualize_cluster_umap_coefs(
     channel: str = "cluster",
 ) -> None:
     # load the input data
-    umap_image = MultiChannelImageConcatenation.read_hdf5(path=input_umap_hdf5_path, allow_individual=True)
+    umap_image = MultiChannelImage.read_hdf5(path=input_umap_hdf5_path).retain_channels(coords=["umap_x", "umap_y"])
     cluster_image = MultiChannelImage.read_hdf5(path=input_cluster_hdf5_path)
+    combined_image = umap_image.append_channels(cluster_image)
 
-    # read the labels to visualize
-    if channel == "cluster":
-        labels = cluster_image.data_flat.sel(c="cluster").values.ravel()
-    elif channel == "image_index":
-        # TODO multi-channel-image currently has a conceptional hole when it comes to dealing with background vs foreground
-        #      TODO how to fix it...
-        index_image = umap_image.get_combined_image_index()
-        joined = index_image.append_channels(cluster_image)
-        labels = joined.data_flat.sel(c="image_index").values.ravel()
+    # read the umap coords and labels to visualize
+    if channel in ("cluster", "image_index"):
+        labels = combined_image.data_flat.sel(c=channel).values.ravel()
+        umap_coords = combined_image.data_flat.sel(c=["umap_x", "umap_y"]).values.T
     else:
         raise ValueError(f"Unknown channel: {channel}")
-
-    # read the umap coordinates
-    umap_coords = umap_image.get_combined_image().data_flat.values.T
 
     # scatter
     fig, ax = plt.subplots(figsize=(10, 10))

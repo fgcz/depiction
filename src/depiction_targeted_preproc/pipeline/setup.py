@@ -48,8 +48,12 @@ def setup_workdir(params: PipelineParameters, input_imzml_file: Path, input_pane
 
 
 def copy_standardized_table(input_csv: Path, output_csv: Path):
-    # TODO this is a total hack for a quick setup
     input_df = pl.read_csv(input_csv)
+    write_standardized_table(input_df, output_csv)
+
+
+def write_standardized_table(input_df: pl.DataFrame, output_csv: Path) -> None:
+    # TODO this is a total hack for a quick setup
     mapping = {}
     for column in input_df.columns:
         if column.lower() in ["marker", "label"]:

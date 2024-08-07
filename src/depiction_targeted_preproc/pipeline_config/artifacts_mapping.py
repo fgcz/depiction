@@ -14,7 +14,7 @@ ARTIFACT_FILES_MAPPING = {
         "qc/plot_peak_counts_per_mass_range.pdf",
         "qc/plot_scan_direction.pdf",
     ],
-    PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff", "images_default_norm.ome.tiff"],
+    PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff"],
     # PipelineArtifact.CALIB_HEATMAP: ["images_calib_heatmap.ome.tiff"],
     # TODO
     PipelineArtifact.CALIB_HEATMAP: [
@@ -31,6 +31,7 @@ ARTIFACT_FILES_MAPPING = {
         "cluster_default_hdbscan.png",
         "qc/plot_intensity_threshold_all.pdf",
         "qc/plot_intensity_threshold_fg.pdf",
+        "images_default_norm.ome.tiff",
         # "exp_plot_map_comparison.pdf",
         # "qc/plot_marker_presence_mini.pdf",
     ],

@@ -136,7 +136,6 @@ class MultiChannelImage:
         return cls(data=xarray.open_dataarray(path))
 
     # TODO is_valid_hdf5
-
     # TODO combine_in_parallel, combine_sequentially: consider moving this somewhere else
 
     def with_channel_names(self, channel_names: Sequence[str]) -> MultiChannelImage:
@@ -147,6 +146,15 @@ class MultiChannelImage:
     def channel_stats(self) -> ImageChannelStats:
         """Returns an object providing channel statistics."""
         return ImageChannelStats(image=self)
+
+    def append_channels(self, other: MultiChannelImage) -> MultiChannelImage:
+        """Returns a copy with the channels from the other image appended."""
+        common_channels = set(self.channel_names) & set(other.channel_names)
+        if common_channels:
+            msg = f"Channels {common_channels} are present in both images."
+            raise ValueError(msg)
+        data = xarray.concat([self._data, other._data], dim="c")
+        return MultiChannelImage(data=data)
 
     # TODO reconsider:there is actually a problem, whether it should use bg_mask only or also replace individual values
     #     since both could be necessary it should be implemented in a sane and maintainable manner

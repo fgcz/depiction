@@ -74,7 +74,13 @@ class MultiChannelImageConcatenation:
         return MultiChannelImageConcatenation(data=labeled)
 
     @classmethod
-    def read_hdf5(cls, path: Path) -> MultiChannelImageConcatenation:
+    def read_hdf5(cls, path: Path, allow_individual: bool = False) -> MultiChannelImageConcatenation:
+        """Reads the concatenation from the provided HDF5 file.
+        :param path: Path to the HDF5 file.
+        :param allow_individual: Whether to allow reading individual images, otherwise an error will be raised when
+            loading a non-concatenated image.
+        """
+        # TODO implement allow_individual distinction here
         return cls(data=MultiChannelImage.read_hdf5(path=path))
 
     def write_hdf5(self, path: Path) -> None:

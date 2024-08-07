@@ -12,6 +12,9 @@ app = cyclopts.App()
 #  - extra coordinates preserved
 #  - umap multi-channel image generated at output path
 
+# TODO add option to perform feature selection here as well (and define the feature selection in a standardized
+#  place because currently it is a bit redundant, or actually just export the feature selected image)
+
 
 @app.default
 def compute_image_umap_coefs(
@@ -36,7 +39,7 @@ def compute_image_umap_coefs(
     )
 
     # write it to the output path
-    umap_image_conc = input_image_conc.with_replaced_combined_image(image=umap_image)
+    umap_image_conc = input_image_conc.relabel_combined_image(image=umap_image)
     umap_image_conc.write_hdf5(path=output_image_path)
 
 

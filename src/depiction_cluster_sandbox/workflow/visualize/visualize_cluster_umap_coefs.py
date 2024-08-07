@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import cyclopts
 
 from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.image.multi_channel_image_concatenation import MultiChannelImageConcatenation
 
 app = cyclopts.App()
 

@@ -33,7 +33,8 @@ dependencies = [
     "cyclopts",
     "vegafusion[embed]>=1.6.5",
     "xarray",
-    "netCDF4",
+    # TODO unpin when https://github.com/Unidata/netcdf4-python/issues/1343 is resolved
+    "netCDF4<=1.7.1",
     # TODO actually figure out which is the most useful, there is also tifffile and ome-types
     "pyometiff>=1.0.0",
     "ome-types>=0.5.1",

@@ -1,11 +1,9 @@
 import shutil
-import warnings
 from pathlib import Path
 from typing import Annotated
 from zipfile import ZipFile
 
 import typer
-import yaml
 from depiction_targeted_preproc.example.run import (
     export_results,
 )
@@ -13,12 +11,11 @@ from loguru import logger
 
 from depiction.misc.find_file_util import find_one_by_extension
 from depiction.persistence import ImzmlReadFile
+from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
 from depiction_targeted_preproc.pipeline.setup import setup_workdir
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import ARTIFACT_FILES_MAPPING, get_result_files
 from depiction_targeted_preproc.pipeline_config.model import (
     PipelineParameters,
-    PipelineArtifact,
-    PipelineParametersPreset,
 )
 from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 
@@ -98,38 +95,8 @@ def zip_results(output_dir: Path, sample_name: str) -> None:
 
 
 def parse_parameters(yaml_file: Path) -> PipelineParameters:
-    # TODO refactor this method away later
-    warnings.warn("Obsoleted by WorkunitConfig, use it instead", DeprecationWarning)
-    data = yaml.safe_load(yaml_file.read_text())
-
-    # Find the correct preset
-    preset_name = Path(data["application"]["parameters"]["config_preset"]).name
-    preset_path = Path(__file__).parent / "config_presets" / f"{preset_name}.yml"
-    # Load the presets
-    preset = PipelineParametersPreset.validate(yaml.safe_load(preset_path.read_text()))
-
-    # Add n_jobs and requested_artifacts information to build a PipelineParameters
-    requested_artifacts = []
-    if parse_app_boolean_parameter(data, "output_activate_calibrated_imzml"):
-        requested_artifacts.append(PipelineArtifact.CALIB_IMZML)
-    if parse_app_boolean_parameter(data, "output_activate_calibrated_ometiff"):
-        requested_artifacts.append(PipelineArtifact.CALIB_IMAGES)
-    if parse_app_boolean_parameter(data, "output_activate_calibration_qc"):
-        requested_artifacts.append(PipelineArtifact.CALIB_QC)
-    return PipelineParameters.from_preset_and_settings(
-        preset=preset, requested_artifacts=requested_artifacts, n_jobs=32
-    )
-
-
-def parse_app_boolean_parameter(data: dict, key: str) -> bool:
-    str_value = data["application"]["parameters"][key]
-    if str_value == "true":
-        return True
-    elif str_value == "false":
-        return False
-    else:
-        logger.warning(f"Unknown boolean value: {str_value}")
-        return False
+    workunit_config = WorkunitConfig.from_yaml(yaml_file)
+    return workunit_config.pipeline_parameters
 
 
 def main() -> None:

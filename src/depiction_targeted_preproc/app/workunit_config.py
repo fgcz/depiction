@@ -34,7 +34,7 @@ class WorkunitConfigData(BaseModel):
     output_uri: str = Field(validation_alias=AliasPath("application", "output", 0))
     config_preset: str = Field(validation_alias=AliasPath("application", "parameters", "config_preset"))
     input_dataset_id: int | None = Field(
-        default=None, validation_alias=AliasPath("application", "parameters", "input_dataset_id")
+        default=None, validation_alias=AliasPath("job_configuration", "inputdataset", "_id")
     )
 
     output_activate_calibrated_imzml: BooleanString = Field(

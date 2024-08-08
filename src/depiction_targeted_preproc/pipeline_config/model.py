@@ -46,6 +46,11 @@ class PipelineParametersPreset(Model, use_enum_values=True, validate_default=Tru
     calibration: CalibrationConfig
     pick_peaks: PickPeaksConfig
 
+    @classmethod
+    def load_named_preset(cls, name: str) -> PipelineParametersPreset:
+        """Loads named presets distributed with depiction_targeted_preproc."""
+        return cls.parse_yaml(Path(__file__).parents[1] / "app" / "config_presets" / f"{name}.yml")
+
 
 class PipelineParameters(PipelineParametersPreset, use_enum_values=True, validate_default=True):
     requested_artifacts: list[PipelineArtifact]

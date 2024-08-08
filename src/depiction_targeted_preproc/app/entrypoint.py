@@ -1,4 +1,5 @@
 import shutil
+import warnings
 from pathlib import Path
 from typing import Annotated
 from zipfile import ZipFile
@@ -97,6 +98,8 @@ def zip_results(output_dir: Path, sample_name: str) -> None:
 
 
 def parse_parameters(yaml_file: Path) -> PipelineParameters:
+    # TODO refactor this method away later
+    warnings.warn("Obsoleted by WorkunitConfig, use it instead", DeprecationWarning)
     data = yaml.safe_load(yaml_file.read_text())
 
     # Find the correct preset

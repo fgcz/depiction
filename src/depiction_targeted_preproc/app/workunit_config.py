@@ -33,6 +33,9 @@ class WorkunitConfigData(BaseModel):
     project_id: int = Field(validation_alias=AliasPath("job_configuration", "project_id"))
     output_uri: str = Field(validation_alias=AliasPath("application", "output", 0))
     config_preset: str = Field(validation_alias=AliasPath("application", "parameters", "config_preset"))
+    input_dataset_id: int | None = Field(
+        default=None, validation_alias=AliasPath("application", "parameters", "input_dataset_id")
+    )
 
     output_activate_calibrated_imzml: BooleanString = Field(
         validation_alias=AliasPath("application", "parameters", "output_activate_calibrated_imzml")
@@ -61,19 +64,23 @@ class WorkunitConfig:
     def from_yaml(cls, workunit_yaml_path: Path) -> WorkunitConfig:
         return cls(data=WorkunitConfigData.from_yaml(workunit_yaml_path))
 
-    @cached_property
+    @property
     def workunit_id(self) -> int:
         return self._data.workunit_id
 
-    @cached_property
+    @property
     def project_id(self) -> int:
         return self._data.project_id
 
-    @cached_property
+    @property
+    def input_dataset_id(self) -> int | None:
+        return self._data.input_dataset_id
+
+    @property
     def output_uri(self) -> Path:
         return Path(self._data.output_uri)
 
-    @cached_property
+    @property
     def output_folder_absolute_path(self) -> Path:
         return Path(self._data.output_uri.split(":", 1)[1]).parent
 

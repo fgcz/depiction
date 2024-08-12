@@ -54,7 +54,7 @@ class JobPrepareInputs:
 
         # perform the copies
         for scp_uri, result_name in zip(scp_uris, ["raw.imzML", "raw.ibd"]):
-            scp(scp_uri, str(self._sample_dir / result_name))
+            scp(scp_uri, str(self._sample_dir / result_name), username=self._job.ssh_user)
 
         # check the checksum
         actual_checksum = FileChecksums(file_path=self._sample_dir / "raw.imzML").checksum_md5

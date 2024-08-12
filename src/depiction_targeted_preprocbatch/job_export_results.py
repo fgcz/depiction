@@ -15,12 +15,18 @@ class JobExportResults:
     """Exports the results of the job to the output storage and registers it in B-Fabric."""
 
     def __init__(
-        self, client: Bfabric, work_dir: Path, workunit_config: WorkunitConfig, output_storage: Storage
+        self,
+        client: Bfabric,
+        work_dir: Path,
+        workunit_config: WorkunitConfig,
+        output_storage: Storage,
+        force_ssh_user: str | None = None,
     ) -> None:
         self._client = client
         self._workunit_config = workunit_config
         self.output_dir = work_dir / "output"
         self._output_storage = output_storage
+        self._force_ssh_user = force_ssh_user
 
     @classmethod
     def export(
@@ -31,9 +37,16 @@ class JobExportResults:
         sample_name: str,
         result_files: list[Path],
         output_storage: Storage,
+        force_ssh_user: str | None,
     ) -> None:
         """Exports the results of one job."""
-        instance = cls(client=client, work_dir=work_dir, workunit_config=workunit_config, output_storage=output_storage)
+        instance = cls(
+            client=client,
+            work_dir=work_dir,
+            workunit_config=workunit_config,
+            output_storage=output_storage,
+            force_ssh_user=force_ssh_user,
+        )
         instance.export_results(sample_name, result_files)
 
     def export_results(self, sample_name: str, result_files: list[Path]) -> None:
@@ -70,5 +83,5 @@ class JobExportResults:
         output_path = self._workunit_config.output_folder_absolute_path / zip_file_path.name
         output_path_relative = output_path.relative_to(self._output_storage.base_path)
         output_uri = f"{self._output_storage.scp_prefix}{output_path_relative}"
-        scp(zip_file_path, output_uri)
+        scp(zip_file_path, output_uri, username=self._force_ssh_user)
         return output_path_relative

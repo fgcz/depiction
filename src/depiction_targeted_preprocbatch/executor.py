@@ -30,6 +30,7 @@ class BatchJob:
     imzml_checksum: str
     panel_df: pl.DataFrame
     pipeline_parameters: Path
+    ssh_user: str | None = None
 
 
 class Executor:
@@ -65,6 +66,7 @@ class Executor:
                 imzml_checksum=job.imzml["filechecksum"],
                 panel_df=job.panel.to_polars(),
                 pipeline_parameters=pipeline_parameters,
+                ssh_user=self._force_ssh_user,
             )
             for job in batch_dataset.jobs
         ]

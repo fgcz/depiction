@@ -97,6 +97,7 @@ class Executor:
             sample_name=sample_dir.name,
             result_files=result_files,
             output_storage=output_storage,
+            force_ssh_user=self._force_ssh_user,
         )
 
     def _determine_result_files(self, job_dir: Path) -> list[Path]:

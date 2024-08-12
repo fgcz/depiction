@@ -78,8 +78,7 @@ class Executor:
         sample_dir.mkdir(parents=True, exist_ok=True)
 
         # stage input
-        prepare_inputs = JobPrepareInputs(job=job, sample_dir=sample_dir)
-        prepare_inputs.prepare()
+        JobPrepareInputs.prepare(job=job, sample_dir=sample_dir)
 
         # invoke the pipeline
         result_files = self._determine_result_files(job_dir=job_dir)

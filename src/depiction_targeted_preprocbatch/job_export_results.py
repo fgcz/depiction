@@ -13,6 +13,8 @@ from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
 
 
 class JobExportResults:
+    """Exports the results of the job to the output storage and registers it in B-Fabric."""
+
     def __init__(self, client: Bfabric, work_dir: Path, workunit_config: WorkunitConfig) -> None:
         self._client = client
         self._workunit_config = workunit_config

@@ -76,6 +76,9 @@ dev = [
     "sphinx-autoapi",
     "furo", # sphinx theme
 ]
+apps = [
+    "bfabricPy @ git+https://github.com/fgcz/bfabricPy.git@stable"
+]
 
 # potentially relevant in the future again:
 # - pybaselines

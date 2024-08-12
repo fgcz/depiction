@@ -20,21 +20,19 @@ class JobExportResults:
 
     def export(self, sample_name: str, result_files: list[Path], output_storage: Storage) -> None:
         """Exports the results of one job."""
-        # TODO export result as a zip file for the particular sample
-        # create the zip file
+        zip_file_path = self._create_zip_file(result_files, sample_name)
+        output_path_relative = self._copy_zip_to_storage(zip_file_path, output_storage)
+        self._register_zip_in_workunit(output_path_relative, output_storage, zip_file_path)
+
+    def _create_zip_file(self, result_files, sample_name):
         self.output_dir.mkdir(exist_ok=True, parents=True)
         zip_file_path = self.output_dir / f"{sample_name}.zip"
         with zipfile.ZipFile(zip_file_path, "w") as zip_file:
             for result_file in result_files:
                 zip_file.write(result_file, arcname=Path(sample_name) / result_file.name)
+        return zip_file_path
 
-        # Copy the zip file
-        output_path = self._workunit_config.output_folder_absolute_path / zip_file_path.name
-        output_path_relative = output_path.relative_to(output_storage.base_path)
-        output_uri = f"{output_storage.scp_prefix}{output_path_relative}"
-        self._scp(zip_file_path, output_uri)
-
-        # Register the zip file in the workunit
+    def _register_zip_in_workunit(self, output_path_relative, output_storage, zip_file_path):
         checksum = FileChecksums(file_path=zip_file_path).checksum_md5
         self._client.save(
             "resource",
@@ -48,6 +46,13 @@ class JobExportResults:
                 "size": zip_file_path.stat().st_size,
             },
         )
+
+    def _copy_zip_to_storage(self, zip_file_path, output_storage):
+        output_path = self._workunit_config.output_folder_absolute_path / zip_file_path.name
+        output_path_relative = output_path.relative_to(output_storage.base_path)
+        output_uri = f"{output_storage.scp_prefix}{output_path_relative}"
+        self._scp(zip_file_path, output_uri)
+        return output_path_relative
 
     def _scp(self, source: str | Path, target: str | Path) -> None:
         """Performs scp source target.

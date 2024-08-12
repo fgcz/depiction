@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import subprocess
-import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,9 +9,7 @@ import polars as pl
 import yaml
 from bfabric import Bfabric
 from bfabric.entities import Storage
-from loguru import logger
 
-from depiction.persistence.file_checksums import FileChecksums
 from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import (
     get_result_files,
@@ -109,13 +105,6 @@ class Executor:
         with result_file.open("w") as file:
             yaml.dump(self._workunit_config.pipeline_parameters.model_dump(mode="json"), file)
         return result_file
-
-    def _scp(self, source: str | Path, target: str | Path) -> None:
-        """Performs scp source target.
-        Make sure that either the source or target specifies a host, otherwise you should just use shutil.copyfile.
-        """
-        logger.info(f"scp {source} {target}")
-        subprocess.run(["scp", source, target], check=True)
 
 
 app = cyclopts.App()

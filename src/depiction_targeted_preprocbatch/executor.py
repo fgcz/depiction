@@ -54,6 +54,7 @@ class Executor:
 
     def run(self, n_jobs: int) -> None:
         """Runs all jobs, executing up to `n_jobs` in parallel."""
+        self._set_workunit_processing()
         self._work_dir.mkdir(exist_ok=True, parents=True)
         batch_dataset = BatchDataset(dataset_id=self._workunit_config.input_dataset_id, client=self._client)
         pipeline_parameters = self._prepare_pipeline_parameters()
@@ -113,6 +114,17 @@ class Executor:
         with result_file.open("w") as file:
             yaml.dump(self._workunit_config.pipeline_parameters.model_dump(mode="json"), file)
         return result_file
+
+    def _set_workunit_processing(self) -> None:
+        """Sets the workunit to processing and deletes the default resource if it is available."""
+        self._client.save(
+            "workunit",
+            {
+                "id": self._workunit_config.workunit_id,
+                "status": "processing",
+            },
+        )
+        JobExportResults.delete_default_resource(workunit_id=self._workunit_config.workunit_id, client=self._client)
 
 
 app = cyclopts.App()

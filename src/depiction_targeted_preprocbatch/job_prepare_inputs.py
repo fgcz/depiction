@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import shutil
-import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from loguru import logger
-
 from depiction.persistence.file_checksums import FileChecksums
 from depiction_targeted_preproc.pipeline.setup import write_standardized_table
+from depiction_targeted_preprocbatch.scp_util import scp
 
 if TYPE_CHECKING:
     from depiction_targeted_preprocbatch.executor import BatchJob
@@ -56,7 +54,7 @@ class JobPrepareInputs:
 
         # perform the copies
         for scp_uri, result_name in zip(scp_uris, ["raw.imzML", "raw.ibd"]):
-            self._scp(scp_uri, str(self._sample_dir / result_name))
+            scp(scp_uri, str(self._sample_dir / result_name))
 
         # check the checksum
         actual_checksum = FileChecksums(file_path=self._sample_dir / "raw.imzML").checksum_md5
@@ -73,11 +71,3 @@ class JobPrepareInputs:
             self._sample_dir.parents[1] / "pipeline_params.yml",
             self._sample_dir / "pipeline_params.yml",
         )
-
-    def _scp(self, source: str | Path, target: str | Path) -> None:
-        """Performs scp source target.
-        Make sure that either the source or target specifies a host, otherwise you should just use shutil.copyfile.
-        """
-        # TODO this should be moved to a central location
-        logger.info(f"scp {source} {target}")
-        subprocess.run(["scp", source, target], check=True)

@@ -1,15 +1,14 @@
 from __future__ import annotations
 
-import subprocess
 import zipfile
 from pathlib import Path
 
 from bfabric import Bfabric
 from bfabric.entities import Storage
-from loguru import logger
 
 from depiction.persistence.file_checksums import FileChecksums
 from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
+from depiction_targeted_preprocbatch.scp_util import scp
 
 
 class JobExportResults:
@@ -53,13 +52,5 @@ class JobExportResults:
         output_path = self._workunit_config.output_folder_absolute_path / zip_file_path.name
         output_path_relative = output_path.relative_to(output_storage.base_path)
         output_uri = f"{output_storage.scp_prefix}{output_path_relative}"
-        self._scp(zip_file_path, output_uri)
+        scp(zip_file_path, output_uri)
         return output_path_relative
-
-    def _scp(self, source: str | Path, target: str | Path) -> None:
-        """Performs scp source target.
-        Make sure that either the source or target specifies a host, otherwise you should just use shutil.copyfile.
-        """
-        # TODO this should be moved to a central location
-        logger.info(f"scp {source} {target}")
-        subprocess.run(["scp", source, target], check=True)

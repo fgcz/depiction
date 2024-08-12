@@ -60,13 +60,13 @@ class Executor:
         batch_dataset = BatchDataset(dataset_id=self._workunit_config.input_dataset_id, client=self._client)
         pipeline_parameters = self._prepare_pipeline_parameters()
 
-        storage_ids = {job.imzml.data_dict["storage"]["id"] for job in batch_dataset.jobs}
+        storage_ids = {job.imzml["storage"]["id"] for job in batch_dataset.jobs}
         storages = Storage.find_all(ids=sorted(storage_ids), client=self._client)
         jobs = [
             BatchJob(
-                imzml_relative_path=Path(job.imzml.data_dict["relativepath"]),
-                imzml_storage=storages[job.imzml.data_dict["storage"]["id"]],
-                imzml_checksum=job.imzml.data_dict["filechecksum"],
+                imzml_relative_path=Path(job.imzml["relativepath"]),
+                imzml_storage=storages[job.imzml["storage"]["id"]],
+                imzml_checksum=job.imzml["filechecksum"],
                 panel_df=job.panel.to_polars(),
                 pipeline_parameters=pipeline_parameters,
             )

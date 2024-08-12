@@ -77,7 +77,7 @@ dev = [
     "furo", # sphinx theme
 ]
 apps = [
-    "bfabricPy @ git+https://github.com/fgcz/bfabricPy.git@stable"
+    "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main"
 ]
 
 # potentially relevant in the future again:

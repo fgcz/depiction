@@ -27,7 +27,7 @@ BooleanString = Annotated[bool, WrapValidator(parse_boolean_string)]
 
 class WorkunitConfigData(BaseModel):
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
 
     workunit_id: int = Field(validation_alias=AliasPath("job_configuration", "workunit_id"))
     project_id: int = Field(validation_alias=AliasPath("job_configuration", "project_id"))

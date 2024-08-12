@@ -9,9 +9,11 @@ import subprocess
 import yaml
 import zipfile
 from bfabric import Bfabric
+from bfabric.entities import Storage
 from dataclasses import dataclass
 from loguru import logger
 from pathlib import Path
+
 
 from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
 from depiction_targeted_preproc.pipeline.setup import write_standardized_table
@@ -28,7 +30,7 @@ class BatchJob:
     """Defines one job to be executed, including all required information."""
 
     imzml_relative_path: Path
-    imzml_storage_id: int
+    imzml_storage: Storage
     imzml_checksum: str
     panel_df: pl.DataFrame
     pipeline_parameters: Path
@@ -57,10 +59,13 @@ class Executor:
         self._work_dir.mkdir(exist_ok=True, parents=True)
         batch_dataset = BatchDataset(dataset_id=self._workunit_config.input_dataset_id, client=self._client)
         pipeline_parameters = self._prepare_pipeline_parameters()
+
+        storage_ids = {job.imzml.data_dict["storage"]["id"] for job in batch_dataset.jobs}
+        storages = Storage.find_all(ids=sorted(storage_ids), client=self._client)
         jobs = [
             BatchJob(
                 imzml_relative_path=Path(job.imzml.data_dict["relativepath"]),
-                imzml_storage_id=job.imzml.data_dict["storage"]["id"],
+                imzml_storage=storages[job.imzml.data_dict["storage"]["id"]],
                 imzml_checksum=job.imzml.data_dict["filechecksum"],
                 panel_df=job.panel.to_polars(),
                 pipeline_parameters=pipeline_parameters,
@@ -80,33 +85,19 @@ class Executor:
         self._stage_inputs(job=job, sample_dir=sample_dir)
 
         # invoke the pipeline
-        # TODO we need to make sure each sample is processed in a isolated snakemake folder basically, since
-        #      otherwise there will be conflicts due to locking
-        #  -> might require creating an additional subdirectory
         result_files = self._determine_result_files(job_dir=job_dir)
         SnakemakeInvoke().invoke(work_dir=job_dir, result_files=result_files)
 
         # export the results
-        self._export_results(sample_name=sample_dir.name, result_files=result_files)
-
-    @property
-    def _ssh_prefix_no_path(self) -> str:
-        """SSH prefix without storage base path included."""
-        uri = "fgcz-r-035:"
-        if self._force_ssh_user:
-            uri = f"{self._force_ssh_user}@{uri}"
-        return uri
-
-    @property
-    def _ssh_prefix(self) -> str:
-        """SSH prefix with storage base path included."""
-        return f"{self._ssh_prefix_no_path}/srv/www/htdocs"
+        # TODO do not hardcode id
+        output_storage = Storage.find(id=2, client=self._client)
+        self._export_results(sample_name=sample_dir.name, result_files=result_files, output_storage=output_storage)
 
     def _stage_inputs(self, job: BatchJob, sample_dir: Path) -> None:
         """Stages all required input files for a particular job."""
         self._stage_imzml(
             relative_path=job.imzml_relative_path,
-            storage_id=job.imzml_storage_id,
+            input_storage=job.imzml_storage,
             sample_dir=sample_dir,
             checksum=job.imzml_checksum,
         )
@@ -116,7 +107,7 @@ class Executor:
         )
         self._stage_pipeline_parameters(sample_dir=sample_dir)
 
-    def _export_results(self, sample_name: str, result_files: list[Path]) -> None:
+    def _export_results(self, sample_name: str, result_files: list[Path], output_storage: Storage) -> None:
         """Exports the results of one job."""
         # TODO export result as a zip file for the particular sample
         # create the zip file
@@ -128,8 +119,8 @@ class Executor:
 
         # Copy the zip file
         output_path = self._workunit_config.output_folder_absolute_path / zip_file_path.name
-        output_path_relative = output_path.relative_to("/srv/www/htdocs")
-        output_uri = f"{self._ssh_prefix_no_path}/{output_path}"
+        output_path_relative = output_path.relative_to(output_storage.base_path)
+        output_uri = f"{output_storage.scp_prefix}{output_path_relative}"
         self._scp(zip_file_path, output_uri)
 
         # Register the zip file in the workunit
@@ -139,7 +130,7 @@ class Executor:
             {
                 "name": zip_file_path.name,
                 "workunitid": self._workunit_config.workunit_id,
-                "storageid": 2,
+                "storageid": output_storage.id,
                 "relativepath": output_path_relative,
                 "filechecksum": checksum,
                 "status": "available",
@@ -152,11 +143,11 @@ class Executor:
         pipeline_params = PipelineParameters.parse_yaml(path=job_dir / job_dir.stem / "pipeline_params.yml")
         return get_result_files(params=pipeline_params, work_dir=job_dir, sample_name=job_dir.stem)
 
-    def _stage_imzml(self, relative_path: Path, storage_id: int, sample_dir: Path, checksum: str) -> None:
+    def _stage_imzml(self, relative_path: Path, input_storage: Storage, sample_dir: Path, checksum: str) -> None:
         """Copies the `raw.imzML` and `raw.ibd` files to the sample directory.
         This method assumes the position will be on a remote server, and first needs to be copied with scp.
         :param relative_path: Relative path of the imzML file (relative to storage roo-).
-        :param storage_id: Storage ID of the imzML file.
+        :param input_storage: Storage of the imzML file.
         :param sample_dir: Directory to copy the files to.
         :param checksum: Expected checksum of the imzML file.
         """
@@ -166,12 +157,10 @@ class Executor:
             raise NotImplementedError(
                 "Currently only .imzML files are supported, .imzML.zip will be supported in the future"
             )
-        if storage_id != 2:
-            raise NotImplementedError("Currently only prx storage (ID=2) is supported")
 
         # determine the paths to copy from
         input_paths = [relative_path, relative_path.with_suffix(".ibd")]
-        scp_uris = [f"{self._ssh_prefix}/{path}" for path in input_paths]
+        scp_uris = [f"{input_storage.scp_prefix}{path}" for path in input_paths]
 
         # perform the copies
         for scp_uri, result_name in zip(scp_uris, ["raw.imzML", "raw.ibd"]):

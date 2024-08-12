@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import multiprocessing
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -133,4 +134,5 @@ def process_app(
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     app()

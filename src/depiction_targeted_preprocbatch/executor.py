@@ -21,6 +21,7 @@ from depiction_targeted_preproc.pipeline_config.artifacts_mapping import (
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 from depiction_targeted_preprocbatch.batch_dataset import BatchDataset
+from depiction_targeted_preprocbatch.job_export_results import JobExportResults
 from depiction_targeted_preprocbatch.job_prepare_inputs import JobPrepareInputs
 
 
@@ -91,37 +92,8 @@ class Executor:
         # export the results
         # TODO do not hardcode id
         output_storage = Storage.find(id=2, client=self._client)
-        self._export_results(sample_name=sample_dir.name, result_files=result_files, output_storage=output_storage)
-
-    def _export_results(self, sample_name: str, result_files: list[Path], output_storage: Storage) -> None:
-        """Exports the results of one job."""
-        # TODO export result as a zip file for the particular sample
-        # create the zip file
-        self.output_dir.mkdir(exist_ok=True, parents=True)
-        zip_file_path = self.output_dir / f"{sample_name}.zip"
-        with zipfile.ZipFile(zip_file_path, "w") as zip_file:
-            for result_file in result_files:
-                zip_file.write(result_file, arcname=Path(sample_name) / result_file.name)
-
-        # Copy the zip file
-        output_path = self._workunit_config.output_folder_absolute_path / zip_file_path.name
-        output_path_relative = output_path.relative_to(output_storage.base_path)
-        output_uri = f"{output_storage.scp_prefix}{output_path_relative}"
-        self._scp(zip_file_path, output_uri)
-
-        # Register the zip file in the workunit
-        checksum = FileChecksums(file_path=zip_file_path).checksum_md5
-        self._client.save(
-            "resource",
-            {
-                "name": zip_file_path.name,
-                "workunitid": self._workunit_config.workunit_id,
-                "storageid": output_storage.id,
-                "relativepath": output_path_relative,
-                "filechecksum": checksum,
-                "status": "available",
-                "size": zip_file_path.stat().st_size,
-            },
+        JobExportResults(client=self._client, work_dir=self._work_dir, workunit_config=self._workunit_config).export(
+            sample_name=sample_dir.name, result_files=result_files, output_storage=output_storage
         )
 
     def _determine_result_files(self, job_dir: Path) -> list[Path]:

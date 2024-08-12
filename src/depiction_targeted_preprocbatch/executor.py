@@ -1,27 +1,27 @@
 from __future__ import annotations
 
+import subprocess
+import zipfile
+from dataclasses import dataclass
+from pathlib import Path
+
 import cyclopts
 import joblib
 import polars as pl
-import shutil
-import subprocess
 import yaml
-import zipfile
 from bfabric import Bfabric
 from bfabric.entities import Storage
-from dataclasses import dataclass
 from loguru import logger
-from pathlib import Path
 
 from depiction.persistence.file_checksums import FileChecksums
 from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
-from depiction_targeted_preproc.pipeline.setup import write_standardized_table
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import (
     get_result_files,
 )
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 from depiction_targeted_preprocbatch.batch_dataset import BatchDataset
+from depiction_targeted_preprocbatch.job_prepare_inputs import JobPrepareInputs
 
 
 @dataclass
@@ -81,7 +81,8 @@ class Executor:
         sample_dir.mkdir(parents=True, exist_ok=True)
 
         # stage input
-        self._stage_inputs(job=job, sample_dir=sample_dir)
+        prepare_inputs = JobPrepareInputs(job=job, sample_dir=sample_dir)
+        prepare_inputs.prepare()
 
         # invoke the pipeline
         result_files = self._determine_result_files(job_dir=job_dir)
@@ -91,20 +92,6 @@ class Executor:
         # TODO do not hardcode id
         output_storage = Storage.find(id=2, client=self._client)
         self._export_results(sample_name=sample_dir.name, result_files=result_files, output_storage=output_storage)
-
-    def _stage_inputs(self, job: BatchJob, sample_dir: Path) -> None:
-        """Stages all required input files for a particular job."""
-        self._stage_imzml(
-            relative_path=job.imzml_relative_path,
-            input_storage=job.imzml_storage,
-            sample_dir=sample_dir,
-            checksum=job.imzml_checksum,
-        )
-        self._stage_panel(
-            sample_dir=sample_dir,
-            panel_df=job.panel_df,
-        )
-        self._stage_pipeline_parameters(sample_dir=sample_dir)
 
     def _export_results(self, sample_name: str, result_files: list[Path], output_storage: Storage) -> None:
         """Exports the results of one job."""
@@ -141,45 +128,6 @@ class Executor:
         """Returns the requested result files based on the pipeline parameters for a particular job."""
         pipeline_params = PipelineParameters.parse_yaml(path=job_dir / job_dir.stem / "pipeline_params.yml")
         return get_result_files(params=pipeline_params, work_dir=job_dir, sample_name=job_dir.stem)
-
-    def _stage_imzml(self, relative_path: Path, input_storage: Storage, sample_dir: Path, checksum: str) -> None:
-        """Copies the `raw.imzML` and `raw.ibd` files to the sample directory.
-        This method assumes the position will be on a remote server, and first needs to be copied with scp.
-        :param relative_path: Relative path of the imzML file (relative to storage roo-).
-        :param input_storage: Storage of the imzML file.
-        :param sample_dir: Directory to copy the files to.
-        :param checksum: Expected checksum of the imzML file.
-        """
-        # Check for some not-yet supported functionality (TODO)
-        if relative_path.suffix != ".imzML":
-            # TODO implement this later
-            raise NotImplementedError(
-                "Currently only .imzML files are supported, .imzML.zip will be supported in the future"
-            )
-
-        # determine the paths to copy from
-        input_paths = [relative_path, relative_path.with_suffix(".ibd")]
-        scp_uris = [f"{input_storage.scp_prefix}{path}" for path in input_paths]
-
-        # perform the copies
-        for scp_uri, result_name in zip(scp_uris, ["raw.imzML", "raw.ibd"]):
-            self._scp(scp_uri, str(sample_dir / result_name))
-
-        # check the checksum
-        actual_checksum = FileChecksums(file_path=sample_dir / "raw.imzML").checksum_md5
-        if actual_checksum != checksum:
-            raise ValueError(f"Checksum mismatch: expected {checksum}, got {actual_checksum}")
-
-    def _stage_panel(self, sample_dir: Path, panel_df: pl.DataFrame) -> None:
-        """Writes the marker panel to the sample directory."""
-        write_standardized_table(input_df=panel_df, output_csv=sample_dir / "mass_list.raw.csv")
-
-    def _stage_pipeline_parameters(self, sample_dir: Path) -> None:
-        """Copies the `pipeline_params.yml` file to the particular sample's directory."""
-        shutil.copyfile(
-            sample_dir.parents[1] / "pipeline_params.yml",
-            sample_dir / "pipeline_params.yml",
-        )
 
     def _prepare_pipeline_parameters(self) -> Path:
         """Creates the `pipeline_params.yml` file in the work dir, which can then be copied for each sample.

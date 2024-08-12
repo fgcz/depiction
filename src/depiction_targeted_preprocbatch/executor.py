@@ -70,7 +70,7 @@ class Executor:
             )
             for job in batch_dataset.jobs
         ]
-        parallel = joblib.Parallel(n_jobs=n_jobs, verbose=10)
+        parallel = joblib.Parallel(n_jobs=n_jobs, verbose=10, backend="multiprocessing")
         parallel(joblib.delayed(self.run_job)(job) for job in jobs)
 
     def run_job(self, job: BatchJob) -> None:

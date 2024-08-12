@@ -87,8 +87,13 @@ class Executor:
         # export the results
         # TODO do not hardcode id
         output_storage = Storage.find(id=2, client=self._client)
-        JobExportResults(client=self._client, work_dir=self._work_dir, workunit_config=self._workunit_config).export(
-            sample_name=sample_dir.name, result_files=result_files, output_storage=output_storage
+        JobExportResults.export(
+            client=self._client,
+            work_dir=self._work_dir,
+            workunit_config=self._workunit_config,
+            sample_name=sample_dir.name,
+            result_files=result_files,
+            output_storage=output_storage,
         )
 
     def _determine_result_files(self, job_dir: Path) -> list[Path]:

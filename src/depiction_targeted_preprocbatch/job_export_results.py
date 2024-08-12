@@ -19,7 +19,21 @@ class JobExportResults:
         self._workunit_config = workunit_config
         self.output_dir = work_dir / "output"
 
-    def export(self, sample_name: str, result_files: list[Path], output_storage: Storage) -> None:
+    @classmethod
+    def export(
+        cls,
+        client: Bfabric,
+        work_dir: Path,
+        workunit_config: WorkunitConfig,
+        sample_name: str,
+        result_files: list[Path],
+        output_storage: Storage,
+    ) -> None:
+        """Exports the results of one job."""
+        instance = cls(client=client, work_dir=work_dir, workunit_config=workunit_config)
+        instance.export_results(sample_name, result_files, output_storage)
+
+    def export_results(self, sample_name: str, result_files: list[Path], output_storage: Storage) -> None:
         """Exports the results of one job."""
         zip_file_path = self._create_zip_file(result_files, sample_name)
         output_path_relative = self._copy_zip_to_storage(zip_file_path, output_storage)

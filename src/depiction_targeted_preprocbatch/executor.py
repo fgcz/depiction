@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import cyclopts
-import hashlib
 import joblib
 import polars as pl
 import shutil
@@ -14,7 +13,7 @@ from dataclasses import dataclass
 from loguru import logger
 from pathlib import Path
 
-
+from depiction.persistence.file_checksums import FileChecksums
 from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
 from depiction_targeted_preproc.pipeline.setup import write_standardized_table
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import (
@@ -124,7 +123,7 @@ class Executor:
         self._scp(zip_file_path, output_uri)
 
         # Register the zip file in the workunit
-        checksum = self._md5sum(zip_file_path)
+        checksum = FileChecksums(file_path=zip_file_path).checksum_md5
         self._client.save(
             "resource",
             {
@@ -167,7 +166,7 @@ class Executor:
             self._scp(scp_uri, str(sample_dir / result_name))
 
         # check the checksum
-        actual_checksum = self._md5sum(sample_dir / "raw.imzML")
+        actual_checksum = FileChecksums(file_path=sample_dir / "raw.imzML").checksum_md5
         if actual_checksum != checksum:
             raise ValueError(f"Checksum mismatch: expected {checksum}, got {actual_checksum}")
 
@@ -190,14 +189,6 @@ class Executor:
         with result_file.open("w") as file:
             yaml.dump(self._workunit_config.pipeline_parameters.model_dump(mode="json"), file)
         return result_file
-
-    def _md5sum(self, path: Path) -> str:
-        """Returns the MD5 checksum of the file at the given path."""
-        hasher = hashlib.md5()
-        with path.open("rb") as f:
-            for chunk in iter(lambda: f.read(16384), b""):
-                hasher.update(chunk)
-        return hasher.hexdigest()
 
     def _scp(self, source: str | Path, target: str | Path) -> None:
         """Performs scp source target.

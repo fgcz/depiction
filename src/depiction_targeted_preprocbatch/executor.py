@@ -101,6 +101,9 @@ class Executor:
             force_ssh_user=self._force_ssh_user,
         )
 
+        # finish
+        self._set_workunit_available()
+
     def _determine_result_files(self, job_dir: Path) -> list[Path]:
         """Returns the requested result files based on the pipeline parameters for a particular job."""
         pipeline_params = PipelineParameters.parse_yaml(path=job_dir / job_dir.stem / "pipeline_params.yml")
@@ -125,6 +128,16 @@ class Executor:
             },
         )
         JobExportResults.delete_default_resource(workunit_id=self._workunit_config.workunit_id, client=self._client)
+
+    def _set_workunit_available(self) -> None:
+        # TODO not clear if it needs to be addressed here or in the shell script
+        self._client.save(
+            "workunit",
+            {
+                "id": self._workunit_config.workunit_id,
+                "status": "available",
+            },
+        )
 
 
 app = cyclopts.App()

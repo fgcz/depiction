@@ -9,7 +9,7 @@ class ParallelConfig:
     """Encapsulates the configuration for parallel processing, and some common functionality to use this information.
     :param n_jobs: the number of parallel jobs to run
     :param task_size: the size of each task, if None, the number of tasks will be divided by the number of jobs
-    :param verbose: the verbosity level of the parallel processing (passed to joblib currently)
+    :param verbose: the verbosity level of the parallel processing (TODO currently unused)
     """
 
     n_jobs: int

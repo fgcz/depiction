@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import functools
 import operator
-
-import joblib
-
 from typing import TypeVar, TYPE_CHECKING, Callable, Any
+
+import multiprocess.pool
 
 if TYPE_CHECKING:
     from depiction.parallel_ops import ParallelConfig
@@ -41,9 +40,8 @@ class ParallelMap:
         reduce_fn: Callable[[list[T]], U] | None = None,
     ) -> list[T] | U:
         reduce_fn = reduce_fn if reduce_fn is not None else list
-        joblib_parallel = joblib.Parallel(n_jobs=self.config.n_jobs, verbose=self.config.verbose)
-        operation = self._bind(operation=operation, bind_kwargs=bind_kwargs)
-        return reduce_fn(joblib_parallel(joblib.delayed(operation)(task) for task in tasks))
+        with multiprocess.pool.Pool(self.config.n_jobs) as pool:
+            return reduce_fn(pool.map(self._bind(operation=operation, bind_kwargs=bind_kwargs), tasks))
 
     def _bind(
         self,

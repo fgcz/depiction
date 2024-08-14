@@ -1,5 +1,7 @@
 from collections.abc import Sequence
-
+from pathlib import Path
+import polars as pl
+import cyclopts
 import numpy as np
 from xarray import DataArray
 
@@ -73,3 +75,27 @@ class GenerateLabelImage:
         data = DataArray(blended, dims=("y", "x", "c"), coords={"c": [f"synthetic_{i}" for i in range(self._n_labels)]})
         data.attrs["bg_value"] = 0.0
         return MultiChannelImage(data)
+
+
+app = cyclopts.App()
+
+
+@app.command
+def circle_pattern_0(
+    panel_csv: Path,
+    output_image: Path,
+    height: int = 100,
+    width: int = 100,
+    seed: int = 1,
+) -> None:
+    """Generates a label image with a circle pattern."""
+    panel = pl.read_csv(panel_csv)
+    generator = GenerateLabelImage(image_height=height, image_width=width, n_labels=len(panel), seed=seed)
+    circles = [circle for _ in range(10) for circle in generator.sample_circles()]
+    generator.add_circles(circles)
+    image = generator.render().with_channel_names(panel["label"].to_list())
+    image.write_hdf5(output_image)
+
+
+if __name__ == "__main__":
+    app()

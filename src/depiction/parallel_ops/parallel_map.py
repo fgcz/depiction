@@ -3,8 +3,8 @@ from __future__ import annotations
 import functools
 import operator
 from typing import TypeVar, TYPE_CHECKING, Callable, Any
+from mpire import WorkerPool
 
-import multiprocess.pool
 
 if TYPE_CHECKING:
     from depiction.parallel_ops import ParallelConfig
@@ -40,7 +40,7 @@ class ParallelMap:
         reduce_fn: Callable[[list[T]], U] | None = None,
     ) -> list[T] | U:
         reduce_fn = reduce_fn if reduce_fn is not None else list
-        with multiprocess.pool.Pool(self.config.n_jobs) as pool:
+        with WorkerPool(n_jobs=self.config.n_jobs) as pool:
             return reduce_fn(pool.map(self._bind(operation=operation, bind_kwargs=bind_kwargs), tasks))
 
     def _bind(

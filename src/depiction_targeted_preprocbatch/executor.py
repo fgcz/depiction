@@ -19,6 +19,7 @@ from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 from depiction_targeted_preprocbatch.batch_dataset import BatchDataset
 from depiction_targeted_preprocbatch.job_export_results import JobExportResults
 from depiction_targeted_preprocbatch.job_prepare_inputs import JobPrepareInputs
+from loguru import logger
 
 
 @dataclass
@@ -81,13 +82,16 @@ class Executor:
         sample_dir.mkdir(parents=True, exist_ok=True)
 
         # stage input
+        logger.debug(f"Preparing inputs for {job}")
         JobPrepareInputs.prepare(job=job, sample_dir=sample_dir)
 
         # invoke the pipeline
+        logger.debug(f"Running pipeline for {job}")
         result_files = self._determine_result_files(job_dir=job_dir)
         SnakemakeInvoke().invoke(work_dir=job_dir, result_files=result_files)
 
         # export the results
+        logger.debug(f"Exporting results for {job}")
         # TODO do not hardcode id
         output_storage = Storage.find(id=2, client=self._client)
         JobExportResults.export(

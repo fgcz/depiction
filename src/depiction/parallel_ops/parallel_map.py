@@ -5,6 +5,7 @@ import operator
 from typing import TypeVar, TYPE_CHECKING, Callable, Any
 
 import multiprocess.pool
+from loguru import logger
 
 if TYPE_CHECKING:
     from depiction.parallel_ops import ParallelConfig
@@ -40,8 +41,17 @@ class ParallelMap:
         reduce_fn: Callable[[list[T]], U] | None = None,
     ) -> list[T] | U:
         reduce_fn = reduce_fn if reduce_fn is not None else list
+        operation_bound = self._bind(operation=operation, bind_kwargs=bind_kwargs)
+
+        def wrapped_operation(tasks: list[S]) -> list[T]:
+            try:
+                return [operation_bound(task) for task in tasks]
+            except Exception as e:
+                logger.exception(f"Error in parallel operation: {e}")
+                raise
+
         with multiprocess.pool.Pool(self.config.n_jobs) as pool:
-            return reduce_fn(pool.map(self._bind(operation=operation, bind_kwargs=bind_kwargs), tasks))
+            return reduce_fn(pool.map(wrapped_operation, tasks))
 
     def _bind(
         self,

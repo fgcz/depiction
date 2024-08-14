@@ -43,6 +43,7 @@ dependencies = [
     "loguru",
     "ms-peak-picker",
     "kdepy>=1.1.8",
+    "perlin-noise==1.13",
 ]
 
 [project.scripts]

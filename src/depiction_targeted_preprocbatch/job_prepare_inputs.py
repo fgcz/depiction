@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from depiction.persistence.file_checksums import FileChecksums
 from depiction_targeted_preproc.pipeline.setup import write_standardized_table
 from depiction_targeted_preprocbatch.scp_util import scp
+from loguru import logger
 
 if TYPE_CHECKING:
     from depiction_targeted_preprocbatch.executor import BatchJob
@@ -41,6 +42,8 @@ class JobPrepareInputs:
         """Copies the `raw.imzML` and `raw.ibd` files to the sample directory.
         This method assumes the position will be on a remote server, and first needs to be copied with scp.
         """
+        logger.debug(f"Staging imzML and ibd files for {self._job.imzml_relative_path}")
+
         # Check for some not-yet supported functionality (TODO)
         if self._job.imzml_relative_path.suffix != ".imzML":
             # TODO implement this later
@@ -63,10 +66,12 @@ class JobPrepareInputs:
 
     def stage_panel(self) -> None:
         """Writes the marker panel to the sample directory."""
+        logger.debug(f"Staging panel for {self._job.imzml_relative_path}")
         write_standardized_table(input_df=self._job.panel_df, output_csv=self._sample_dir / "mass_list.raw.csv")
 
     def stage_pipeline_parameters(self) -> None:
         """Copies the `pipeline_params.yml` file to the particular sample's directory."""
+        logger.debug(f"Staging pipeline parameters for {self._job.imzml_relative_path}")
         shutil.copyfile(
             self._sample_dir.parents[1] / "pipeline_params.yml",
             self._sample_dir / "pipeline_params.yml",

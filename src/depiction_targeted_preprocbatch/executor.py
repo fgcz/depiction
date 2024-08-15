@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import cyclopts
+import joblib
 import polars as pl
 import yaml
 from bfabric import Bfabric
@@ -72,8 +73,13 @@ class Executor:
             )
             for job in batch_dataset.jobs
         ]
-        with multiprocessing.Pool(n_jobs) as pool:
-            pool.map(self.run_job, jobs)
+        # TODO parallelization is currently broken
+        if n_jobs != 1:
+            logger.error("Parallelization is currently broken and will be disabled.")
+        for job in jobs:
+            self.run_job(job)
+        # parallel = joblib.Parallel(n_jobs=n_jobs, verbose=10)
+        # parallel(joblib.delayed(self.run_job)(job) for job in jobs)
 
     def run_job(self, job: BatchJob) -> None:
         """Runs a single job."""

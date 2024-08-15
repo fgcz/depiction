@@ -16,6 +16,8 @@ def sample_random_mz(
     The samples will include the min and max values (roughly)."""
     mz_range = max_mz - min_mz
     max_distance_mz = mz_range / n
+    if min_distance_mz > max_distance_mz:
+        raise ValueError("min_distance_mz is too high for the given range and number of samples.")
 
     distances = rng.uniform(min_distance_mz, max_distance_mz, n)
     mz_offsets = np.cumsum(distances)

@@ -11,6 +11,8 @@ from depiction.image.sparse_representation import SparseRepresentation
 from numpy.typing import NDArray
 from xarray import DataArray
 
+from depiction.persistence.format_ome_tiff import OmeTiff
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
@@ -137,6 +139,11 @@ class MultiChannelImage:
 
     # TODO is_valid_hdf5
     # TODO combine_in_parallel, combine_sequentially: consider moving this somewhere else
+
+    @classmethod
+    def read_ome_tiff(cls, path: Path) -> MultiChannelImage:
+        """Reads a MultiChannelImage from a OME-TIFF file."""
+        return MultiChannelImage(data=OmeTiff.read(path))
 
     def with_channel_names(self, channel_names: Sequence[str]) -> MultiChannelImage:
         """Returns a copy with the specified channel names."""

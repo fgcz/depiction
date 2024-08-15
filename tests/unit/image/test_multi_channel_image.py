@@ -8,6 +8,8 @@ from depiction.image.multi_channel_image import MultiChannelImage
 from pytest_mock import MockerFixture
 from xarray import DataArray
 
+from depiction.persistence.format_ome_tiff import OmeTiff
+
 
 @pytest.fixture
 def mock_coords() -> dict[str, list[str]]:
@@ -168,6 +170,13 @@ def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
     image = MultiChannelImage.read_hdf5(Path("test.h5"))
     xarray.open_dataarray.assert_called_once_with(Path("test.h5"))
     xarray.testing.assert_equal(image.data_spatial, mock_data)
+
+
+def test_read_ome_tiff(mocker: MockerFixture, mock_data: DataArray) -> None:
+    mock_read = mocker.patch.object(OmeTiff, "read", return_value=mock_data)
+    image = MultiChannelImage.read_ome_tiff(Path("test.ome.tiff"))
+    xarray.testing.assert_equal(image.data_spatial, mock_data)
+    mock_read.assert_called_once_with(Path("test.ome.tiff"))
 
 
 def test_with_channel_names(mock_image: MultiChannelImage) -> None:

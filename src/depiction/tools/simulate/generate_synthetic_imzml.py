@@ -1,9 +1,13 @@
+from pathlib import Path
+
+import cyclopts
 import numpy as np
+import polars as pl
 from numpy.typing import NDArray
 from perlin_noise import PerlinNoise
 
 from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.parallel_ops import WriteSpectraParallel, ParallelConfig
+from depiction.persistence import ImzmlWriteFile, ImzmlModeEnum
 from depiction.persistence.types import GenericWriteFile
 
 
@@ -101,3 +105,30 @@ class GenerateSyntheticImzml:
         for target in target_mz:
             sel_idx &= np.abs(noise_mz - target) > target_min_distance_mz
         return noise_mz[sel_idx], noise_int[sel_idx]
+
+
+app = cyclopts.App()
+
+
+@app.default
+def generate_imzml(
+    label_image_file: Path,
+    mass_list_file: Path,
+    output_file: Path,
+):
+    label_img = MultiChannelImage.read_hdf5(label_image_file)
+    panel_df = pl.read_csv(mass_list_file)
+
+    gen = GenerateSyntheticImzml(
+        height=label_img.dimensions[1],
+        width=label_img.dimensions[0],
+        rng=np.random.default_rng(),
+        mz_min=panel_df["mass"].min(),
+        mz_max=panel_df["mass"].max(),
+    )
+    write_file = ImzmlWriteFile(output_file, imzml_mode=ImzmlModeEnum.PROCESSED)
+    gen.write_file(labels=label_img, target_masses=panel_df["mass"].to_numpy(), output=write_file)
+
+
+if __name__ == "__main__":
+    app()

@@ -1,3 +1,5 @@
+# TODO use generate_synthetic_imzml.py instead
+
 from collections.abc import Sequence
 
 import numpy as np

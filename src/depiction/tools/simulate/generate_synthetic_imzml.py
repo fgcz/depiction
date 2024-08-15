@@ -76,11 +76,12 @@ class GenerateSyntheticImzml:
 
         # actually create the file
         with output.writer() as writer:
-            for i_spectrum, coordinates in enumerate(np.ndindex(self._height, self._width)):
-                shift_value = shift_map[coordinates]
+            for i_spectrum, coordinates_yx in enumerate(np.ndindex(self._height, self._width)):
+                shift_value = shift_map[coordinates_yx]
                 target_mz_i = self.get_shifted_target_masses(target_masses, shift=shift_value)
-                mz_arr, int_arr = self.generate_centroided_spectrum(target_mz_i, label_map[coordinates])
-                writer.add_spectrum(mz_arr, int_arr, coordinates)
+                mz_arr, int_arr = self.generate_centroided_spectrum(target_mz_i, label_map[coordinates_yx])
+                coordinates_xy = (coordinates_yx[1], coordinates_yx[0])
+                writer.add_spectrum(mz_arr, int_arr, coordinates_xy)
 
     def _generate_isotopic_peaks(
         self, mz_arr: NDArray[float], int_arr: NDArray[float], n_isotopes: int

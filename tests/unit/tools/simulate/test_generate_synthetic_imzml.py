@@ -5,6 +5,8 @@ from depiction.tools.simulate.generate_synthetic_imzml import GenerateSyntheticI
 
 height = 3
 width = 5
+mz_min = 800
+mz_max = 2400
 
 
 @pytest.fixture()
@@ -14,7 +16,7 @@ def mock_rng(mocker):
 
 @pytest.fixture()
 def generate_synthetic_imzml(mock_rng) -> GenerateSyntheticImzml:
-    return GenerateSyntheticImzml(height, width, rng=mock_rng)
+    return GenerateSyntheticImzml(height, width, rng=mock_rng, mz_min=mz_min, mz_max=mz_max)
 
 
 def test_generate_shift_map(mocker, mock_rng, generate_synthetic_imzml):

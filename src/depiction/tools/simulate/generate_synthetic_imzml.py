@@ -4,10 +4,12 @@ from perlin_noise import PerlinNoise
 
 
 class GenerateSyntheticImzml:
-    def __init__(self, height: int, width: int, rng: np.random.Generator) -> None:
+    def __init__(self, height: int, width: int, rng: np.random.Generator, mz_min: float, mz_max: float) -> None:
         self._height = height
         self._width = width
         self._rng = rng
+        self._mz_min = mz_min
+        self._mz_max = mz_max
 
     def generate_shift_map(self, mean: float = 0.3, std: float = 0.1) -> NDArray[float]:
         """Generates a mass shift map"""
@@ -27,3 +29,51 @@ class GenerateSyntheticImzml:
         the masses.
         """
         return mass_list + shift + self._rng.normal(scale=std_noise, size=mass_list.shape)
+
+    def generate_centroided_spectrum(
+        self, target_masses: NDArray[float], target_intensities: NDArray[float], snr: float = 3.0, n_isotopes: int = 3
+    ) -> tuple[NDArray[float], NDArray[float]]:
+        """Generates a centroided spectrum with the given target masses and intensities,
+        scaled relative to the maximal value in target_intensities.
+        """
+        target_mz, target_int = self._generate_isotopic_peaks(
+            mz_arr=target_masses, int_arr=target_intensities, n_isotopes=n_isotopes
+        )
+        n_noise_peaks = round((self._mz_max - self._mz_min))
+        noise_mz, noise_int = self._generate_noise_peaks(
+            n=n_noise_peaks, target_mz=target_mz, target_min_distance_mz=0.5
+        )
+        mz_arr = np.concatenate([target_mz, noise_mz])
+        int_arr = np.concatenate([target_int * snr, noise_int])
+        idx = np.argsort(mz_arr)
+        return mz_arr[idx], int_arr[idx]
+
+    def _generate_isotopic_peaks(
+        self, mz_arr: NDArray[float], int_arr: NDArray[float], n_isotopes: int
+    ) -> tuple[NDArray[float], NDArray[float]]:
+        n_peaks = len(mz_arr)
+        result_mz = np.zeros(n_isotopes * n_peaks)
+        result_int = np.zeros(n_isotopes * n_peaks)
+        int_max = int_arr.max()
+
+        for i_peak in range(n_peaks):
+            for i_isotope in range(n_isotopes):
+                i_result = i_peak * n_isotopes + i_isotope
+                result_mz[i_result] = mz_arr[i_peak] + i_isotope * 1.00235
+                result_int[i_result] = int_arr[i_peak] / int_max * (1 / (i_isotope + 1))
+
+        return result_mz, result_int
+
+    def _generate_noise_peaks(
+        self, n: int, target_mz: NDArray[float], target_min_distance_mz: float
+    ) -> tuple[NDArray[float], NDArray[float]]:
+        mz_arr = np.linspace(self._mz_min, self._mz_max, n)
+        int_arr = self._rng.uniform(0, 1, n)
+        baseline = np.exp(np.linspace(3, 0, len(mz_arr))) / np.exp(3)
+        noise_mz, noise_int = mz_arr, (int_arr + baseline) * 0.5
+
+        # clear the ones which are too close to a target
+        sel_idx = np.ones(n, dtype=bool)
+        for target in target_mz:
+            sel_idx &= np.abs(noise_mz - target) > target_min_distance_mz
+        return noise_mz[sel_idx], noise_int[sel_idx]

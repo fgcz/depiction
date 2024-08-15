@@ -3,7 +3,10 @@ from __future__ import annotations
 import functools
 import operator
 from typing import TypeVar, TYPE_CHECKING, Callable, Any
-from mpire import WorkerPool
+
+import joblib
+
+# from mpire import WorkerPool
 
 
 if TYPE_CHECKING:
@@ -40,8 +43,11 @@ class ParallelMap:
         reduce_fn: Callable[[list[T]], U] | None = None,
     ) -> list[T] | U:
         reduce_fn = reduce_fn if reduce_fn is not None else list
-        with WorkerPool(n_jobs=self.config.n_jobs) as pool:
-            return reduce_fn(pool.map(self._bind(operation=operation, bind_kwargs=bind_kwargs), tasks))
+        joblib_parallel = joblib.Parallel(n_jobs=self.config.n_jobs, verbose=self.config.verbose)
+        operation = self._bind(operation=operation, bind_kwargs=bind_kwargs)
+        return reduce_fn(joblib_parallel(joblib.delayed(operation)(task) for task in tasks))
+        # with WorkerPool(n_jobs=self.config.n_jobs) as pool:
+        #    return reduce_fn(pool.map(self._bind(operation=operation, bind_kwargs=bind_kwargs), tasks))
 
     def _bind(
         self,

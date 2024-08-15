@@ -12,6 +12,12 @@ from depiction.persistence.types import GenericWriteFile
 
 
 class GenerateSyntheticImzml:
+    """Generates a synthetic .imzML file based on a label image and a mass list.
+
+    Limitations:
+    - Within a window of 0.5 m/z around each target mass, no noise peaks are generated.
+    """
+
     def __init__(self, height: int, width: int, rng: np.random.Generator, mz_min: float, mz_max: float) -> None:
         self._height = height
         self._width = width

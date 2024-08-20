@@ -75,6 +75,7 @@ class JobExportResults:
 
     def _register_zip_in_workunit(self, output_path_relative: Path, zip_file_path: Path) -> None:
         checksum = FileChecksums(file_path=zip_file_path).checksum_md5
+        # TODO this somehow seems to be executed multiple times and fails...
         self._client.save(
             "resource",
             {
@@ -100,15 +101,20 @@ class JobExportResults:
         """Deletes the default resource created by the wrapper creator if it exists. Returns true if the resource was
         successfully deleted.
         """
-        resources = Resource.find_by(
-            {"name": "MSI_Targeted_PreprocBatch 0 - resource", "workunitid": workunit_id}, client=client
+        logger.warning(
+            "Currently, the wrapper creator has a limitation that makes it impossible to remove "
+            "this resource. This will be addressed in the future."
         )
-        if len(resources) == 1:
-            resource_id = list(resources.values())[0].id
-            logger.info(f"Deleting default resource with ID {resource_id}")
-            result = client.delete("resource", resource_id, check=False)
-            return result.is_success
-        elif len(resources) > 1:
-            raise ValueError("There should never be more than one default resource.")
-        else:
-            return False
+        if False:
+            resources = Resource.find_by(
+                {"name": "MSI_Targeted_PreprocBatch 0 - resource", "workunitid": workunit_id}, client=client
+            )
+            if len(resources) == 1:
+                resource_id = list(resources.values())[0].id
+                logger.info(f"Deleting default resource with ID {resource_id}")
+                result = client.delete("resource", resource_id, check=False)
+                return result.is_success
+            elif len(resources) > 1:
+                raise ValueError("There should never be more than one default resource.")
+            else:
+                return False

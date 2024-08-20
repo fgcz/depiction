@@ -79,6 +79,7 @@ class Executor:
             self.run_job(job)
         # parallel = joblib.Parallel(n_jobs=n_jobs, verbose=10)
         # parallel(joblib.delayed(self.run_job)(job) for job in jobs)
+        self._set_workunit_available()
 
     def run_job(self, job: BatchJob) -> None:
         """Runs a single job."""
@@ -108,9 +109,6 @@ class Executor:
             output_storage=output_storage,
             force_ssh_user=self._force_ssh_user,
         )
-
-        # finish
-        self._set_workunit_available()
 
     def _determine_result_files(self, job_dir: Path) -> list[Path]:
         """Returns the requested result files based on the pipeline parameters for a particular job."""

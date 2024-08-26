@@ -11,7 +11,7 @@ def get_centroids(data_flat: xarray.DataArray, n_clusters: int) -> np.ndarray:
     :param data_flat: (n_samples, n_features) the data array with a cluster label
     :param n_clusters: the number of clusters
     """
-    # TODO consider if n_clusters can be refactored away by infering the value
+    # TODO consider if n_clusters can be refactored away by inferring the value
     n_classes = data_flat.sizes["c"] - 1
     centroids = np.zeros((n_clusters, n_classes))
     for i_cluster in range(n_clusters):

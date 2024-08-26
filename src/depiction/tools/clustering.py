@@ -52,31 +52,34 @@ def get_landmark_indices(
     return np.asarray(indices)
 
 
-@app.default()
-def clustering(
-    input_hdf5: Path,
-    output_hdf5: Path,
+def compute_clustering(
+    input_image: MultiChannelImage,
     method: MethodEnum,
     method_params: str,
     n_best_features: int = 30,
     n_samples_cluster: int = 10000,
     n_landmarks: int = 200,
     landmark_metric: str = "correlation",
-) -> None:
+) -> MultiChannelImage:
     rng = np.random.default_rng(42)
 
-    # read the input image
-    image_full_combined = MultiChannelImage.read_hdf5(path=input_hdf5)
-    assert "cluster" not in image_full_combined.channel_names
-    image_full_features = image_full_combined.drop_channels(coords=["image_index"], allow_missing=True)
+    # massage the input image
+    assert "cluster" not in input_image.channel_names
+    image_full_features = input_image.drop_channels(coords=["image_index"], allow_missing=True)
     image_full_features = ImageNormalization().normalize_image(
         image=image_full_features, variant=ImageNormalizationVariant.STD
     )
-    image_full_image_index = image_full_combined.retain_channels(coords=["image_index"])
+    if "image_index" in input_image.channel_names:
+        image_full_image_index = input_image.retain_channels(coords=["image_index"])
+    else:
+        with xarray.set_options(keep_attrs=True):
+            image_full_image_index = MultiChannelImage(
+                xarray.zeros_like(input_image.data_spatial.isel(c=[0])).assign_coords(c=["image_index"])
+            )
 
     # retain the most relevant features
     image_features = retain_features(
-        feature_selection=FeatureSelectionIQR.validate({"n_features": n_best_features}), image=image_full_features
+        feature_selection=FeatureSelectionIQR.model_validate({"n_features": n_best_features}), image=image_full_features
     )
 
     # sample a number of landmark features which will be used for correlation-based clustering
@@ -115,9 +118,30 @@ def clustering(
         bg_value=np.nan,
     )
 
-    # write the result of the operation
-    output_image = MultiChannelImage(
-        xarray.concat([label_image.data_spatial, image_full_combined.data_spatial], dim="c")
+    # return the result of the operation
+    return MultiChannelImage(xarray.concat([label_image.data_spatial, input_image.data_spatial], dim="c"))
+
+
+@app.default()
+def clustering(
+    input_hdf5: Path,
+    output_hdf5: Path,
+    method: MethodEnum,
+    method_params: str,
+    n_best_features: int = 30,
+    n_samples_cluster: int = 10000,
+    n_landmarks: int = 200,
+    landmark_metric: str = "correlation",
+) -> None:
+    image_full_combined = MultiChannelImage.read_hdf5(path=input_hdf5)
+    output_image = compute_clustering(
+        input_image=image_full_combined,
+        method=method,
+        method_params=method_params,
+        n_best_features=n_best_features,
+        n_samples_cluster=n_samples_cluster,
+        n_landmarks=n_landmarks,
+        landmark_metric=landmark_metric,
     )
     output_image.write_hdf5(output_hdf5)
 

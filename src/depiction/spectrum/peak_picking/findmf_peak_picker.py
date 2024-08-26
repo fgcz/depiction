@@ -37,9 +37,12 @@ class FindMFPeakPicker:
             area=self.area,
             max_peaks=self.max_peaks,
         )
-        return self.peak_filtering.filter_peaks(
-            spectrum_mz_arr=mz_arr,
-            spectrum_int_arr=int_arr,
-            peak_mz_arr=peak_mz_arr,
-            peak_int_arr=peak_int_arr,
-        )
+        if self.peak_filtering is not None:
+            return self.peak_filtering.filter_peaks(
+                spectrum_mz_arr=mz_arr,
+                spectrum_int_arr=int_arr,
+                peak_mz_arr=peak_mz_arr,
+                peak_int_arr=peak_int_arr,
+            )
+        else:
+            return peak_mz_arr, peak_int_arr

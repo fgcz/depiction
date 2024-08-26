@@ -1,3 +1,4 @@
+import json
 from enum import Enum
 from pathlib import Path
 
@@ -21,6 +22,8 @@ class MethodEnum(Enum):
     BISECTINGKMEANS = "bisectingkmeans"
     BIRCH = "birch"
 
+
+MethodParamsType = dict[str, bool | str | float | int | None]
 
 app = cyclopts.App()
 
@@ -55,7 +58,7 @@ def get_landmark_indices(
 def compute_clustering(
     input_image: MultiChannelImage,
     method: MethodEnum,
-    method_params: str,
+    method_params: MethodParamsType,
     n_best_features: int = 30,
     n_samples_cluster: int = 10000,
     n_landmarks: int = 200,
@@ -127,7 +130,7 @@ def clustering(
     input_hdf5: Path,
     output_hdf5: Path,
     method: MethodEnum,
-    method_params: str,
+    method_params: str = "{}",
     n_best_features: int = 30,
     n_samples_cluster: int = 10000,
     n_landmarks: int = 200,
@@ -137,7 +140,7 @@ def clustering(
     output_image = compute_clustering(
         input_image=image_full_combined,
         method=method,
-        method_params=method_params,
+        method_params=json.loads(method_params) | {},
         n_best_features=n_best_features,
         n_samples_cluster=n_samples_cluster,
         n_landmarks=n_landmarks,
@@ -146,9 +149,10 @@ def clustering(
     output_image.write_hdf5(output_hdf5)
 
 
-def compute_labels(features: NDArray[float], method: MethodEnum, method_params: str) -> NDArray[int]:
+def compute_labels(features: NDArray[float], method: MethodEnum, method_params: MethodParamsType) -> NDArray[int]:
     if method == MethodEnum.KMEANS:
-        clu = KMeans(n_clusters=10).fit(features)
+        params = method_params | {"n_clusters": 10}
+        clu = KMeans(**params).fit(features)
         return clu.labels_
     elif method == MethodEnum.BISECTINGKMEANS:
         clu = BisectingKMeans(n_clusters=10).fit(features)

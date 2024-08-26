@@ -36,12 +36,15 @@ def compute_remapping(centroids_fixed: np.ndarray, centroids_moving: np.ndarray)
             cost_matrix[i, j] = 1 - np.abs(np.corrcoef(centroids_fixed[i], centroids_moving[j])[0, 1])
     row_ind, col_ind = linear_sum_assignment(cost_matrix)
     # print info about the costs
+    logger.debug(f"cost of original assignment: {np.diag(cost_matrix).sum():.4f}")
+    logger.debug(f"cost of original assignment per label: {repr(np.diag(cost_matrix).round(4))}")
     logger.debug(f"cost of chosen assignment: {cost_matrix[row_ind, col_ind].sum():.4f}")
+    logger.debug(f"cost of chosen assignment per label: {repr(cost_matrix[row_ind, col_ind].round(4))}")
     # compute the cost of the worst possible assignment (by inverse problem)
     worst_row_ind, worst_col_ind = linear_sum_assignment(-cost_matrix)
     worst_cost = cost_matrix[worst_row_ind, worst_col_ind].sum()
     logger.debug(f"cost of worst assignment: {worst_cost:.4f}")
-    logger.debug(f"cost of original assignment: {np.diag(cost_matrix).sum():.4f}")
+    # return the mapping
     return dict(zip(col_ind, row_ind))
 
 

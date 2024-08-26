@@ -23,7 +23,7 @@ def run_config(
     output_imzml: Path,
 ) -> None:
     """Runs the configured peak picker on input imzml file and writes the output to output imzml file."""
-    config = PickPeaksConfig.validate(yaml.safe_load(config.read_text()))
+    config = PickPeaksConfig.model_validate(yaml.safe_load(config.read_text()))
     pick_peaks(
         config=config,
         input_file=ImzmlReadFile(input_imzml),

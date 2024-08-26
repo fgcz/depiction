@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING
 
 import findmfpy
 
+from depiction.spectrum.peak_filtering import PeakFilteringType
+
 if TYPE_CHECKING:
     import numpy as np
     from numpy.typing import NDArray
@@ -20,11 +22,12 @@ class FindMFPeakPicker:
     int_threshold: float = 10.0
     area: bool = True
     max_peaks: int = 0
+    peak_filtering: PeakFilteringType | None = None
 
     def pick_peaks(
         self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
-        return findmfpy.pick_peaks(
+        peak_mz_arr, peak_int_arr = findmfpy.pick_peaks(
             mz_arr,
             int_arr,
             resolution=self.resolution,
@@ -33,4 +36,10 @@ class FindMFPeakPicker:
             int_threshold=self.int_threshold,
             area=self.area,
             max_peaks=self.max_peaks,
+        )
+        return self.peak_filtering.filter_peaks(
+            spectrum_mz_arr=mz_arr,
+            spectrum_int_arr=int_arr,
+            peak_mz_arr=peak_mz_arr,
+            peak_int_arr=peak_int_arr,
         )

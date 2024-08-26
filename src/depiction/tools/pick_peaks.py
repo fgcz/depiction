@@ -126,6 +126,7 @@ def get_peak_picker(config: PickPeaksConfig, peak_filtering: PeakFilteringType |
                 int_threshold=peak_picker_config.int_threshold,
                 area=peak_picker_config.area,
                 max_peaks=peak_picker_config.max_peaks,
+                peak_filtering=peak_filtering,
             )
         case _:
             raise ValueError(f"Unsupported peak picker type: {config.peak_picker.peak_picker_type}")

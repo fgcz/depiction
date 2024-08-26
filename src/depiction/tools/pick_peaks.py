@@ -147,5 +147,6 @@ def pick_peaks(
         logger.info("Peak picking is deactivated")
         input_file.copy_to(output_file.imzml_file)
     else:
+        logger.info(f"Using peak picker: {peak_picker=}")
         pick_peaks = PickPeaks(peak_picker=peak_picker, parallel_config=parallel_config)
         pick_peaks.evaluate_file(read_file=input_file, write_file=output_file)

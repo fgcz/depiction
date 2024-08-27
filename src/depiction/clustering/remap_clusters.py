@@ -6,18 +6,18 @@ from scipy.optimize import linear_sum_assignment
 from depiction.image.multi_channel_image import MultiChannelImage
 
 
-def get_centroids(data_flat: xarray.DataArray, n_clusters: int) -> np.ndarray:
+def get_centroids(data_flat: xarray.DataArray) -> np.ndarray:
     """Returns the centroids of the clusters in the data array.
     :param data_flat: (n_samples, n_features) the data array with a cluster label
-    :param n_clusters: the number of clusters
     """
-    # TODO consider if n_clusters can be refactored away by inferring the value
+    data_feature = data_flat.drop_sel(c="cluster")
+    data_cluster = data_flat.sel(c="cluster")
+    n_clusters = round(data_cluster.max().item()) + 1
+    assert data_cluster.min().item() == 0
     n_classes = data_flat.sizes["c"] - 1
     centroids = np.zeros((n_clusters, n_classes))
     for i_cluster in range(n_clusters):
-        centroids[i_cluster] = (
-            data_flat.where(data_flat.sel(c="cluster") == i_cluster).drop_sel(c="cluster").mean(dim="i").values
-        )
+        centroids[i_cluster] = data_feature.where(data_cluster == i_cluster).mean(dim="i").values
     return centroids
 
 

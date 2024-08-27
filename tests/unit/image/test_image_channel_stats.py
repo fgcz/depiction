@@ -1,6 +1,5 @@
 import numpy as np
 import polars as pl
-import polars.testing
 import pytest
 import xarray.testing
 
@@ -49,10 +48,9 @@ def test_coefficient_of_variation(mocker, image_channel_stats, mock_multi_channe
         image_channel_stats, "_get_channel_values", side_effect=[mock_data[0], mock_data[1], mock_data[2]]
     )
     result = image_channel_stats.coefficient_of_variation
-    expected = pl.DataFrame(
-        {"c": ["channel1", "channel2", "channel3"], "cv": np.array([0.471404, 0.0, np.nan])}
-    ).fill_nan(None)
-    pl.testing.assert_frame_equal(result, expected, check_dtype=False, atol=1e-5)
+    xarray.testing.assert_allclose(
+        result, xarray.DataArray([0.471404, 0.0, np.nan], coords={"c": ["channel1", "channel2", "channel3"]}, dims="c")
+    )
 
 
 def test_interquartile_range(mocker, image_channel_stats, mock_multi_channel_image):

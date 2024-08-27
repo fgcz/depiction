@@ -40,20 +40,13 @@ class ImageChannelStats:
         ).fill_nan(None)
 
     @cached_property
-    def coefficient_of_variation(self) -> pl.DataFrame:
+    def coefficient_of_variation(self) -> xarray.DataArray:
         """Returns a DataFrame with the cv for each channel, columns 'c', and 'cv'."""
-        data = np.zeros(self._image.n_channels)
-        for i_channel in range(self._image.n_channels):
-            values = self._get_channel_values(i_channel=i_channel, drop_missing=True)
-            if len(values) == 0:
-                data[i_channel] = np.nan
-                continue
-            data[i_channel] = np.std(values) / np.mean(values)
-        return pl.DataFrame({"c": self._image.channel_names, "cv": data}).fill_nan(None)
+        return self._compute_scalar_metric(fn=lambda x: np.std(x) / np.mean(x), min_values=2)
 
     @cached_property
     def interquartile_range(self) -> xarray.DataArray:
-        """Returns a DataFrame with the iqr for each channel c, columns 'c', and 'iqr'."""
+        """Returns a DataArray with the iqr for each channel c, columns 'c', and 'iqr'."""
         return self._compute_scalar_metric(fn=lambda x: np.percentile(x, 75) - np.percentile(x, 25), min_values=2)
 
     @cached_property

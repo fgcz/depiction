@@ -35,9 +35,8 @@ def retain_features(feature_selection: FeatureSelection, image: MultiChannelImag
 
 
 def _select_features_cv(image: MultiChannelImage, n_features: int) -> list[str]:
-    cv = image.channel_stats.coefficient_of_variation
-    n_channels = len(cv)
-    return cv.drop_nulls().sort("cv").tail(min(n_features, n_channels))["c"].to_list()
+    cv = image.channel_stats.coefficient_of_variation.dropna("c")
+    return list(cv.sortby(cv, ascending=False).c.values[:n_features])
 
 
 def _select_features_iqr(image: MultiChannelImage, n_features: int) -> list[str]:

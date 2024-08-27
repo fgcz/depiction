@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from xarray import DataArray
 
-from depiction.image.feature_selection import FeatureSelectionIQR, select_features
+from depiction.image.feature_selection import FeatureSelectionIQR, select_features, FeatureSelectionCV
 from depiction.image.multi_channel_image import MultiChannelImage
 
 
@@ -16,6 +16,12 @@ def image() -> MultiChannelImage:
             attrs={"bg_value": np.nan},
         )
     )
+
+
+def test_select_features_cv(image):
+    fs = FeatureSelectionCV.model_validate(dict(n_features=2))
+    selection = select_features(feature_selection=fs, image=image)
+    assert selection == ["channel3", "channel2"]
 
 
 def test_select_features_iqr(image):

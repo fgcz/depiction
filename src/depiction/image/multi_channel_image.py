@@ -164,11 +164,10 @@ class MultiChannelImage:
         return MultiChannelImage(data=data)
 
     def get_z_scaled(self) -> MultiChannelImage:
-        means = xarray.DataArray(self.channel_stats.mean["mean"], dims="c", coords={"c": self.channel_names})
-        stds = xarray.DataArray(self.channel_stats.std["std"], dims="c", coords={"c": self.channel_names})
+        """Returns a copy of self with each feature z-scaled."""
         eps = 1e-12
         with xarray.set_options(keep_attrs=True):
-            return MultiChannelImage(data=(self._data - means + eps) / (stds + eps))
+            return MultiChannelImage(data=(self._data - self.channel_stats.mean + eps) / (self.channel_stats.std + eps))
 
     # TODO reconsider:there is actually a problem, whether it should use bg_mask only or also replace individual values
     #     since both could be necessary it should be implemented in a sane and maintainable manner

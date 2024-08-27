@@ -212,7 +212,6 @@ def test_append_channels(mock_image: MultiChannelImage) -> None:
 
 def test_get_z_scaled(mock_image: MultiChannelImage) -> None:
     result = mock_image.get_z_scaled()
-    # TODO I am not fully sure this is correct yet
     np.testing.assert_almost_equal(
         np.array([[-1.46385011, -0.87831007], [-0.29277002, 0.29277002], [0.87831007, 1.46385011]]),
         result.data_spatial[:, :, 0].values,

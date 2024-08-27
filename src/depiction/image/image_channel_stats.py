@@ -18,7 +18,7 @@ class ImageChannelStats:
 
     @cached_property
     def five_number_summary(self) -> pl.DataFrame:
-        """Returns a DataFrame with the five number summary for each sample,
+        """Returns a DataFrame with the five number summary for each channel,
         columns 'c', 'min', 'q1', 'median', 'q3', and 'max'."""
         data = np.zeros((self._image.n_channels, 5))
         for i_channel in range(self._image.n_channels):
@@ -40,7 +40,7 @@ class ImageChannelStats:
 
     @cached_property
     def coefficient_of_variation(self) -> pl.DataFrame:
-        """Returns a DataFrame with the cv for each sample, columns 'c', and 'cv'."""
+        """Returns a DataFrame with the cv for each channel, columns 'c', and 'cv'."""
         data = np.zeros(self._image.n_channels)
         for i_channel in range(self._image.n_channels):
             values = self._get_channel_values(i_channel=i_channel, drop_missing=True)
@@ -52,7 +52,7 @@ class ImageChannelStats:
 
     @cached_property
     def interquartile_range(self) -> pl.DataFrame:
-        """Returns a DataFrame with the iqr for each sample, columns 'c', and 'iqr'."""
+        """Returns a DataFrame with the iqr for each channel c, columns 'c', and 'iqr'."""
         data = np.zeros(self._image.n_channels)
         for i_channel in range(self._image.n_channels):
             values = self._get_channel_values(i_channel=i_channel, drop_missing=True)
@@ -63,6 +63,30 @@ class ImageChannelStats:
             q3 = np.percentile(values, 75)
             data[i_channel] = q3 - q1
         return pl.DataFrame({"c": self._image.channel_names, "iqr": data}).fill_nan(None)
+
+    @cached_property
+    def mean(self) -> pl.DataFrame:
+        """Returns a DataFrame with the mean for each channel, columns 'c', and 'mean'."""
+        data = np.zeros(self._image.n_channels)
+        for i_channel in range(self._image.n_channels):
+            values = self._get_channel_values(i_channel=i_channel, drop_missing=True)
+            if len(values) == 0:
+                data[i_channel] = np.nan
+                continue
+            data[i_channel] = np.mean(values)
+        return pl.DataFrame({"c": self._image.channel_names, "mean": data}).fill_nan(None)
+
+    @cached_property
+    def std(self) -> pl.DataFrame:
+        """Returns a DataFrame with the standard deviation for each channel, columns 'c', and 'std'."""
+        data = np.zeros(self._image.n_channels)
+        for i_channel in range(self._image.n_channels):
+            values = self._get_channel_values(i_channel=i_channel, drop_missing=True)
+            if len(values) == 0:
+                data[i_channel] = np.nan
+                continue
+            data[i_channel] = np.std(values)
+        return pl.DataFrame({"c": self._image.channel_names, "std": data}).fill_nan(None)
 
     def _get_channel_values(self, i_channel: int, drop_missing: bool) -> np.ndarray:
         """Returns the values of the given channel."""

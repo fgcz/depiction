@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray
-from depiction.image.multi_channel_image import MultiChannelImage
 from pytest_mock import MockerFixture
 from xarray import DataArray
 
+from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.persistence.format_ome_tiff import OmeTiff
 
 
@@ -29,6 +29,7 @@ def mock_data(mock_coords) -> DataArray:
 
 @pytest.fixture
 def mock_image(mock_data) -> MultiChannelImage:
+    """Dense mock image without any missing values."""
     return MultiChannelImage(data=mock_data)
 
 
@@ -207,6 +208,16 @@ def test_append_channels(mock_image: MultiChannelImage) -> None:
     assert result.channel_names == ["Channel A", "Channel B", "Channel X", "Channel Y"]
     assert result.retain_channels(coords=["Channel A", "Channel B"]).data_spatial.identical(mock_image.data_spatial)
     assert result.retain_channels(coords=["Channel X", "Channel Y"]).data_spatial.identical(extra_image.data_spatial)
+
+
+def test_get_z_scaled(mock_image: MultiChannelImage) -> None:
+    result = mock_image.get_z_scaled()
+    # TODO I am not fully sure this is correct yet
+    np.testing.assert_almost_equal(
+        np.array([[-1.46385011, -0.87831007], [-0.29277002, 0.29277002], [0.87831007, 1.46385011]]),
+        result.data_spatial[:, :, 0].values,
+    )
+    np.testing.assert_almost_equal([[1.0, 1], [1, 1], [1, 1]], result.data_spatial[:, :, 1].values)
 
 
 # def test_replace_bg_value(mock_data: DataArray, mock_image: MultiChannelImage) -> None:

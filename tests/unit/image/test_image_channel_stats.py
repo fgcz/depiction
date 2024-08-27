@@ -2,6 +2,8 @@ import numpy as np
 import polars as pl
 import pytest
 import polars.testing
+import xarray.testing
+
 from depiction.image.image_channel_stats import ImageChannelStats
 
 
@@ -61,6 +63,29 @@ def test_interquartile_range(mocker, image_channel_stats, mock_multi_channel_ima
     result = image_channel_stats.interquartile_range
     expected = pl.DataFrame({"c": ["channel1", "channel2", "channel3"], "iqr": [2, 2, 2]})
     assert result.equals(expected)
+
+
+def test_mean(mocker, image_channel_stats, mock_multi_channel_image):
+    mock_data = np.array([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15]])
+    mocker.patch.object(
+        image_channel_stats, "_get_channel_values", side_effect=[mock_data[0], mock_data[1], mock_data[2]]
+    )
+    result = image_channel_stats.mean
+    xarray.testing.assert_allclose(
+        result, xarray.DataArray([3, 8, 13], coords={"c": ["channel1", "channel2", "channel3"]}, dims="c")
+    )
+
+
+def test_std(mocker, image_channel_stats, mock_multi_channel_image):
+    mock_data = np.array([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15]])
+    mocker.patch.object(
+        image_channel_stats, "_get_channel_values", side_effect=[mock_data[0], mock_data[1], mock_data[2]]
+    )
+    result = image_channel_stats.std
+    xarray.testing.assert_allclose(
+        result,
+        xarray.DataArray([1.414214, 1.414214, 1.414214], coords={"c": ["channel1", "channel2", "channel3"]}, dims="c"),
+    )
 
 
 def test_get_channel_values(image_channel_stats, mock_multi_channel_image):

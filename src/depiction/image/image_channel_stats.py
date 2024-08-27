@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import polars as pl
+import xarray
 
 if TYPE_CHECKING:
     from depiction.image.multi_channel_image import MultiChannelImage
@@ -65,28 +66,24 @@ class ImageChannelStats:
         return pl.DataFrame({"c": self._image.channel_names, "iqr": data}).fill_nan(None)
 
     @cached_property
-    def mean(self) -> pl.DataFrame:
-        """Returns a DataFrame with the mean for each channel, columns 'c', and 'mean'."""
-        data = np.zeros(self._image.n_channels)
-        for i_channel in range(self._image.n_channels):
-            values = self._get_channel_values(i_channel=i_channel, drop_missing=True)
-            if len(values) == 0:
-                data[i_channel] = np.nan
-                continue
-            data[i_channel] = np.mean(values)
-        return pl.DataFrame({"c": self._image.channel_names, "mean": data}).fill_nan(None)
+    def mean(self) -> xarray.DataArray:
+        """Returns a DataArray with the mean for each channel."""
+        return self._compute_scalar_metric(fn=np.mean, min_values=1)
 
     @cached_property
-    def std(self) -> pl.DataFrame:
+    def std(self) -> xarray.DataArray:
         """Returns a DataFrame with the standard deviation for each channel, columns 'c', and 'std'."""
+        return self._compute_scalar_metric(fn=np.std, min_values=2)
+
+    def _compute_scalar_metric(self, fn, min_values: int):
         data = np.zeros(self._image.n_channels)
         for i_channel in range(self._image.n_channels):
             values = self._get_channel_values(i_channel=i_channel, drop_missing=True)
-            if len(values) == 0:
+            if min_values <= len(values):
+                data[i_channel] = fn(values)
+            else:
                 data[i_channel] = np.nan
-                continue
-            data[i_channel] = np.std(values)
-        return pl.DataFrame({"c": self._image.channel_names, "std": data}).fill_nan(None)
+        return xarray.DataArray(data, dims="c", coords={"c": self._image.channel_names})
 
     def _get_channel_values(self, i_channel: int, drop_missing: bool) -> np.ndarray:
         """Returns the values of the given channel."""

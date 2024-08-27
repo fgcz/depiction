@@ -1,5 +1,4 @@
 import numpy as np
-import polars as pl
 import pytest
 import xarray.testing
 
@@ -28,18 +27,12 @@ def test_five_number_summary(mocker, image_channel_stats, mock_multi_channel_ima
     )
     result = image_channel_stats.five_number_summary
 
-    expected = pl.DataFrame(
-        {
-            "c": ["channel1", "channel2", "channel3"],
-            "min": [1, 6, 11],
-            "q1": [2, 7, 12],
-            "median": [3, 8, 13],
-            "q3": [4, 9, 14],
-            "max": [5, 10, 15],
-        }
+    expected = xarray.DataArray(
+        [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15]],
+        dims=("c", "metric"),
+        coords={"c": ["channel1", "channel2", "channel3"], "metric": ["min", "q1", "median", "q3", "max"]},
     )
-
-    assert result.equals(expected)
+    xarray.testing.assert_equal(result, expected)
 
 
 def test_coefficient_of_variation(mocker, image_channel_stats, mock_multi_channel_image):
@@ -118,11 +111,11 @@ def test_five_number_summary_when_empty_channel(mocker, image_channel_stats, moc
     mock_data = np.array([])
     mocker.patch.object(image_channel_stats, "_get_channel_values", return_value=mock_data)
     five_number_summary = image_channel_stats.five_number_summary
-    assert five_number_summary["min"][0] is None
-    assert five_number_summary["q1"][0] is None
-    assert five_number_summary["median"][0] is None
-    assert five_number_summary["q3"][0] is None
-    assert five_number_summary["max"][0] is None
+    assert np.isnan(five_number_summary.sel(metric="min", c="channel1").item())
+    assert np.isnan(five_number_summary.sel(metric="q1", c="channel1").item())
+    assert np.isnan(five_number_summary.sel(metric="median", c="channel1").item())
+    assert np.isnan(five_number_summary.sel(metric="q3", c="channel1").item())
+    assert np.isnan(five_number_summary.sel(metric="max", c="channel1").item())
 
 
 def test_interquartile_range_when_emtpy_channel(mocker, image_channel_stats, mock_multi_channel_image):

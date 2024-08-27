@@ -4,7 +4,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 import numpy as np
-import polars as pl
 import xarray
 
 if TYPE_CHECKING:
@@ -18,8 +17,8 @@ class ImageChannelStats:
         self._image = image
 
     @cached_property
-    def five_number_summary(self) -> pl.DataFrame:
-        """Returns a DataFrame with the five number summary for each channel,
+    def five_number_summary(self) -> xarray.DataArray:
+        """Returns a DataArray with the five number summary for each channel,
         columns 'c', 'min', 'q1', 'median', 'q3', and 'max'."""
         data = np.zeros((self._image.n_channels, 5))
         for i_channel in range(self._image.n_channels):
@@ -28,16 +27,12 @@ class ImageChannelStats:
                 data[i_channel] = np.nan
                 continue
             data[i_channel] = np.percentile(values, [0, 25, 50, 75, 100])
-        return pl.DataFrame(
-            {
-                "c": self._image.channel_names,
-                "min": data[:, 0],
-                "q1": data[:, 1],
-                "median": data[:, 2],
-                "q3": data[:, 3],
-                "max": data[:, 4],
-            }
-        ).fill_nan(None)
+
+        return xarray.DataArray(
+            data,
+            dims=("c", "metric"),
+            coords={"c": self._image.channel_names, "metric": ["min", "q1", "median", "q3", "max"]},
+        ).fillna(None)
 
     @cached_property
     def coefficient_of_variation(self) -> xarray.DataArray:
@@ -71,6 +66,7 @@ class ImageChannelStats:
 
     def _get_channel_values(self, i_channel: int, drop_missing: bool) -> np.ndarray:
         """Returns the values of the given channel."""
+        # TODO maybe caching data_flat would already make this faster, could be tested easily by temporarily adding the cache in the MultiChannelImage class
         data_channel = self._image.data_flat.isel(c=i_channel).values
         if drop_missing:
             bg = self._image.bg_value

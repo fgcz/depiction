@@ -25,14 +25,15 @@ def compute_remapping(centroids_fixed: np.ndarray, centroids_moving: np.ndarray)
     """Computes a mapping of original to new cluster labels for the moving label image.
     This is done by solving the linear sum assignment problem with a cost matrix based on the correlation of the
     centroids.
-    :param centroids_fixed: (n_clusters, n_features) the centroids of the fixed image
-    :param centroids_moving: (n_clusters, n_features) the centroids of the moving image
+    :param centroids_fixed: (n_clusters_fixed, n_features) the centroids of the fixed image
+    :param centroids_moving: (n_clusters_moving, n_features) the centroids of the moving image
     :return: a dictionary mapping the old cluster labels to the new ones
     """
-    n_clusters = centroids_fixed.shape[0]
-    cost_matrix = np.zeros((n_clusters, n_clusters))
-    for i in range(n_clusters):
-        for j in range(n_clusters):
+    n_clusters_fixed = centroids_fixed.shape[0]
+    n_clusters_moving = centroids_moving.shape[0]
+    cost_matrix = np.zeros((n_clusters_fixed, n_clusters_moving))
+    for i in range(n_clusters_fixed):
+        for j in range(n_clusters_moving):
             cost_matrix[i, j] = 1 - np.abs(np.corrcoef(centroids_fixed[i], centroids_moving[j])[0, 1])
     row_ind, col_ind = linear_sum_assignment(cost_matrix)
     # print info about the costs

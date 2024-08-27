@@ -14,7 +14,6 @@ def label_image() -> MultiChannelImage:
 
 
 def test_get_centroids():
-    n_clusters = 3
     expected_centroids = np.array([[0.5, 0.5], [0.0, 0.0], [1.0, 1.0]])
     points = []
     labels = [0, 1, 2]
@@ -23,7 +22,7 @@ def test_get_centroids():
         points.append([*(centroid - [0.1, 0.1]), label])
         points.append([*(centroid + [0.1, 0.1]), label])
     data_flat = xarray.DataArray(points, dims=("i", "c"), coords={"c": ["f1", "f2", "cluster"]})
-    centroids = get_centroids(data_flat, n_clusters)
+    centroids = get_centroids(data_flat)
     np.testing.assert_allclose(centroids, expected_centroids)
 
 

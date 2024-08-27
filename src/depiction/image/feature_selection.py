@@ -41,6 +41,5 @@ def _select_features_cv(image: MultiChannelImage, n_features: int) -> list[str]:
 
 
 def _select_features_iqr(image: MultiChannelImage, n_features: int) -> list[str]:
-    iqr = image.channel_stats.interquartile_range
-    n_channels = len(iqr)
-    return iqr.drop_nulls().sort("iqr").tail(min(n_features, n_channels))["c"].to_list()
+    iqr = image.channel_stats.interquartile_range.dropna("c")
+    return list(iqr.sortby(iqr, ascending=False).c.values[:n_features])

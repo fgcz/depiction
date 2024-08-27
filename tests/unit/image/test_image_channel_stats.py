@@ -1,7 +1,7 @@
 import numpy as np
 import polars as pl
-import pytest
 import polars.testing
+import pytest
 import xarray.testing
 
 from depiction.image.image_channel_stats import ImageChannelStats
@@ -61,8 +61,9 @@ def test_interquartile_range(mocker, image_channel_stats, mock_multi_channel_ima
         image_channel_stats, "_get_channel_values", side_effect=[mock_data[0], mock_data[1], mock_data[2]]
     )
     result = image_channel_stats.interquartile_range
-    expected = pl.DataFrame({"c": ["channel1", "channel2", "channel3"], "iqr": [2, 2, 2]})
-    assert result.equals(expected)
+    xarray.testing.assert_allclose(
+        result, xarray.DataArray([2, 2, 2], coords={"c": ["channel1", "channel2", "channel3"]}, dims="c")
+    )
 
 
 def test_mean(mocker, image_channel_stats, mock_multi_channel_image):
@@ -115,19 +116,25 @@ def test_get_channel_values_with_nan(image_channel_stats, mock_multi_channel_ima
     np.testing.assert_array_equal(result, np.array([1, 2, 3, 5]))
 
 
-def test_empty_channel(mocker, image_channel_stats, mock_multi_channel_image):
+def test_five_number_summary_when_empty_channel(mocker, image_channel_stats, mock_multi_channel_image):
     mock_data = np.array([])
-
     mocker.patch.object(image_channel_stats, "_get_channel_values", return_value=mock_data)
     five_number_summary = image_channel_stats.five_number_summary
-    interquartile_range = image_channel_stats.interquartile_range
-
     assert five_number_summary["min"][0] is None
     assert five_number_summary["q1"][0] is None
     assert five_number_summary["median"][0] is None
     assert five_number_summary["q3"][0] is None
     assert five_number_summary["max"][0] is None
-    assert interquartile_range["iqr"][0] is None
+
+
+def test_interquartile_range_when_emtpy_channel(mocker, image_channel_stats, mock_multi_channel_image):
+    mock_data = np.array([])
+    mocker.patch.object(image_channel_stats, "_get_channel_values", return_value=mock_data)
+    interquartile_range = image_channel_stats.interquartile_range
+    xarray.testing.assert_equal(
+        interquartile_range,
+        xarray.DataArray([None, None, None], coords={"c": ["channel1", "channel2", "channel3"]}, dims="c"),
+    )
 
 
 if __name__ == "__main__":

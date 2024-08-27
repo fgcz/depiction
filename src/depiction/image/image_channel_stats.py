@@ -52,18 +52,9 @@ class ImageChannelStats:
         return pl.DataFrame({"c": self._image.channel_names, "cv": data}).fill_nan(None)
 
     @cached_property
-    def interquartile_range(self) -> pl.DataFrame:
+    def interquartile_range(self) -> xarray.DataArray:
         """Returns a DataFrame with the iqr for each channel c, columns 'c', and 'iqr'."""
-        data = np.zeros(self._image.n_channels)
-        for i_channel in range(self._image.n_channels):
-            values = self._get_channel_values(i_channel=i_channel, drop_missing=True)
-            if len(values) == 0:
-                data[i_channel] = np.nan
-                continue
-            q1 = np.percentile(values, 25)
-            q3 = np.percentile(values, 75)
-            data[i_channel] = q3 - q1
-        return pl.DataFrame({"c": self._image.channel_names, "iqr": data}).fill_nan(None)
+        return self._compute_scalar_metric(fn=lambda x: np.percentile(x, 75) - np.percentile(x, 25), min_values=2)
 
     @cached_property
     def mean(self) -> xarray.DataArray:
@@ -72,7 +63,7 @@ class ImageChannelStats:
 
     @cached_property
     def std(self) -> xarray.DataArray:
-        """Returns a DataFrame with the standard deviation for each channel, columns 'c', and 'std'."""
+        """Returns a DataArray with the standard deviation for each channel, columns 'c', and 'std'."""
         return self._compute_scalar_metric(fn=np.std, min_values=2)
 
     def _compute_scalar_metric(self, fn, min_values: int):

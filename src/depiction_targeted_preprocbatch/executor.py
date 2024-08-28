@@ -27,7 +27,7 @@ class BatchJob:
     """Defines one job to be executed, including all required information."""
 
     imzml_resource_id: int
-    panel_df: pl.DataFrame
+    # panel_df: pl.DataFrame
     pipeline_parameters: Path
     dataset_id: int
     ssh_user: str | None = None
@@ -61,7 +61,7 @@ class Executor:
         jobs = [
             BatchJob(
                 imzml_resource_id=job.imzml["id"],
-                panel_df=job.panel.to_polars(),
+                # panel_df=job.panel.to_polars(),
                 pipeline_parameters=pipeline_parameters,
                 ssh_user=self._force_ssh_user,
                 dataset_id=self._workunit_config.input_dataset_id,

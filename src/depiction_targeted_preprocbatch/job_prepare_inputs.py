@@ -28,6 +28,7 @@ class JobPrepareInputs:
         self._client = client
         self._dataset_id = job.dataset_id
         self._imzml_resource_id = job.imzml_resource_id
+        self._ssh_user = job.ssh_user
 
     @classmethod
     def prepare(cls, job: BatchJob, sample_dir: Path, client: Bfabric) -> None:
@@ -88,7 +89,7 @@ class JobPrepareInputs:
                 "resource",
                 {"name": expected_name, "containerid": imzml_resource["container"]["id"]},
                 max_results=1,
-                return_only_ids=True,
+                return_id_only=True,
             )
             return results[0]["id"]
         else:
@@ -97,8 +98,8 @@ class JobPrepareInputs:
 
     def stage_pipeline_parameters(self) -> None:
         """Copies the `pipeline_params.yml` file to the particular sample's directory."""
-        logger.debug(f"Staging pipeline parameters for {self._job.imzml_relative_path}")
+        logger.debug(f"Staging pipeline parameters to {self._sample_dir}")
         shutil.copyfile(
-            self._sample_dir.parents[1] / "pipeline_params.yml",
+            self._job.pipeline_parameters,
             self._sample_dir / "pipeline_params.yml",
         )

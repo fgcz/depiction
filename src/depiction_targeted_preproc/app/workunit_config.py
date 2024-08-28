@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-import yaml
 from functools import cached_property
 from pathlib import Path
-from pydantic import BaseModel, AliasPath, Field, WrapValidator
 from typing import Annotated
+
+import yaml
+from bfabric import Bfabric
+from bfabric.entities import Workunit, Project
+from pydantic import BaseModel, AliasPath, Field, WrapValidator
 
 from depiction_targeted_preproc.pipeline_config.model import (
     PipelineParameters,
@@ -52,6 +55,26 @@ class WorkunitConfigData(BaseModel):
         with workunit_yaml_path.open(mode="r") as f:
             parsed = yaml.safe_load(f)
         return cls.model_validate(parsed)
+
+    @classmethod
+    def from_bfabric(cls, workunit_id: int, client: Bfabric) -> WorkunitConfigData:
+        workunit_id = int(workunit_id)
+        workunit = Workunit.find(id=workunit_id, client=client)
+
+        return WorkunitConfigData.model_validate(
+            dict(
+                workunit_id=workunit_id,
+                project_id=(
+                    workunit.container.id if isinstance(workunit.container, Project) else workunit.container.project.id
+                ),
+                output_uri="TODO",
+                config_preset=workunit.parameter_values["config_preset"],
+                input_dataset_id=workunit.input_dataset.id,
+                output_activate_calibrated_imzml=workunit.parameter_values["output_activate_calibrated_imzml"],
+                output_activate_calibrated_ometiff=workunit.parameter_values["output_activate_calibrated_ometiff"],
+                output_activate_calibration_qc=workunit.parameter_values["output_activate_calibration_qc"],
+            )
+        )
 
 
 class WorkunitConfig:
@@ -105,3 +128,13 @@ class WorkunitConfig:
         if self._data.output_activate_calibration_qc:
             requested_artifacts.add(PipelineArtifact.CALIB_QC)
         return requested_artifacts
+
+
+def debug():
+    client = Bfabric.from_config()
+    workunit_config = WorkunitConfigData.from_bfabric(workunit_id=313051, client=client)
+    print(workunit_config)
+
+
+if __name__ == "__main__":
+    debug()

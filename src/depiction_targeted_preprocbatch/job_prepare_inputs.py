@@ -51,8 +51,9 @@ class JobPrepareInputs:
         output_path = self._sample_dir / "mass_list.raw.csv"
         copy_standardized_table(input_path, output_path)
 
-    def stage_bfabric_inputs(self) -> None:
-        specs = Specs.model_validate(
+    @cached_property
+    def input_specs(self):
+        return Specs.model_validate(
             {
                 "specs": [
                     {
@@ -76,8 +77,10 @@ class JobPrepareInputs:
                 ]
             }
         ).specs
+
+    def stage_bfabric_inputs(self) -> None:
         PrepareInputs(client=self._client, working_dir=self._sample_dir, ssh_user=self._ssh_user).prepare_all(
-            specs=specs
+            specs=self.input_specs
         )
 
     @cached_property

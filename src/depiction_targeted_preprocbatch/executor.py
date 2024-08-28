@@ -26,11 +26,10 @@ from loguru import logger
 class BatchJob:
     """Defines one job to be executed, including all required information."""
 
-    imzml_relative_path: Path
-    imzml_storage: Storage
-    imzml_checksum: str
+    imzml_resource_id: int
     panel_df: pl.DataFrame
     pipeline_parameters: Path
+    dataset_id: int
     ssh_user: str | None = None
 
 
@@ -59,16 +58,13 @@ class Executor:
         batch_dataset = BatchDataset(dataset_id=self._workunit_config.input_dataset_id, client=self._client)
         pipeline_parameters = self._prepare_pipeline_parameters()
 
-        storage_ids = {job.imzml["storage"]["id"] for job in batch_dataset.jobs}
-        storages = Storage.find_all(ids=sorted(storage_ids), client=self._client)
         jobs = [
             BatchJob(
-                imzml_relative_path=Path(job.imzml["relativepath"]),
-                imzml_storage=storages[job.imzml["storage"]["id"]],
-                imzml_checksum=job.imzml["filechecksum"],
+                imzml_resource_id=job.imzml["id"],
                 panel_df=job.panel.to_polars(),
                 pipeline_parameters=pipeline_parameters,
                 ssh_user=self._force_ssh_user,
+                dataset_id=self._workunit_config.input_dataset_id,
             )
             for job in batch_dataset.jobs
         ]

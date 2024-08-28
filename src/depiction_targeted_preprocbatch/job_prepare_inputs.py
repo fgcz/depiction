@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import shutil
+from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from depiction.persistence.file_checksums import FileChecksums
-from depiction_targeted_preproc.pipeline.setup import write_standardized_table
-from depiction_targeted_preprocbatch.scp_util import scp
+from bfabric import Bfabric
+from bfabric.entities import Resource
+from bfabric.experimental.app_interface.input_preparation.prepare import PrepareInputs
+from bfabric.experimental.app_interface.input_preparation.specs import Specs
+from depiction_targeted_preproc.pipeline.setup import copy_standardized_table
 from loguru import logger
 
 if TYPE_CHECKING:
@@ -19,55 +22,78 @@ class JobPrepareInputs:
     :param sample_dir: The directory where the inputs should be staged.
     """
 
-    def __init__(self, job: BatchJob, sample_dir: Path) -> None:
+    def __init__(self, job: BatchJob, sample_dir: Path, client: Bfabric) -> None:
         self._job = job
         self._sample_dir = sample_dir
+        self._client = client
+        self._dataset_id = job.dataset_id
+        self._imzml_resource_id = job.imzml_resource_id
 
     @classmethod
-    def prepare(cls, job: BatchJob, sample_dir: Path) -> None:
+    def prepare(cls, job: BatchJob, sample_dir: Path, client: Bfabric) -> None:
         """Prepares the inputs for a particular job.
         :param job: The job to prepare the inputs for.
         :param sample_dir: The directory where the inputs should be staged.
+        :param client: The Bfabric client to use.
         """
-        instance = cls(job=job, sample_dir=sample_dir)
+        instance = cls(job=job, sample_dir=sample_dir, client=client)
         instance.stage_all()
 
     def stage_all(self) -> None:
         """Stages all required input files for a particular job."""
-        self.stage_imzml()
-        self.stage_panel()
+        self.stage_bfabric_inputs()
+        self._standardize_input_table()
         self.stage_pipeline_parameters()
 
-    def stage_imzml(self) -> None:
-        """Copies the `raw.imzML` and `raw.ibd` files to the sample directory.
-        This method assumes the position will be on a remote server, and first needs to be copied with scp.
-        """
-        logger.debug(f"Staging imzML and ibd files for {self._job.imzml_relative_path}")
+    def _standardize_input_table(self):
+        input_path = self._sample_dir / "mass_list.unstandardized.raw.csv"
+        output_path = self._sample_dir / "mass_list.raw.csv"
+        copy_standardized_table(input_path, output_path)
 
-        # Check for some not-yet supported functionality (TODO)
-        if self._job.imzml_relative_path.suffix != ".imzML":
-            # TODO implement this later
-            raise NotImplementedError(
-                "Currently only .imzML files are supported, .imzML.zip will be supported in the future"
+    def stage_bfabric_inputs(self) -> None:
+        specs = Specs.model_validate(
+            {
+                "specs": [
+                    {
+                        "type": "bfabric_dataset",
+                        "id": self._dataset_id,
+                        "filename": "mass_list.unstandardized.raw.csv",
+                        "separator": ",",
+                    },
+                    {
+                        "type": "bfabric_resource",
+                        "id": self._imzml_resource_id,
+                        "filename": "raw.imzML",
+                        "check_checksum": True,
+                    },
+                    {
+                        "type": "bfabric_resource",
+                        "id": self._ibd_resource_id,
+                        "filename": "raw.ibd",
+                        "check_checksum": True,
+                    },
+                ]
+            }
+        ).specs
+        PrepareInputs(client=self._client, working_dir=self._sample_dir, ssh_user=self._ssh_user).prepare_all(
+            specs=specs
+        )
+
+    @cached_property
+    def _ibd_resource_id(self) -> int:
+        imzml_resource = Resource.find(id=self._imzml_resource_id, client=self._client)
+        if imzml_resource["name"].endswith(".imzML"):
+            expected_name = imzml_resource["name"][:-6] + ".ibd"
+            results = self._client.read(
+                "resource",
+                {"name": expected_name, "containerid": imzml_resource["container"]["id"]},
+                max_results=1,
+                return_only_ids=True,
             )
-
-        # determine the paths to copy from
-        input_paths = [self._job.imzml_relative_path, self._job.imzml_relative_path.with_suffix(".ibd")]
-        scp_uris = [f"{self._job.imzml_storage.scp_prefix}{path}" for path in input_paths]
-
-        # perform the copies
-        for scp_uri, result_name in zip(scp_uris, ["raw.imzML", "raw.ibd"]):
-            scp(scp_uri, str(self._sample_dir / result_name), username=self._job.ssh_user)
-
-        # check the checksum
-        actual_checksum = FileChecksums(file_path=self._sample_dir / "raw.imzML").checksum_md5
-        if actual_checksum != self._job.imzml_checksum:
-            raise ValueError(f"Checksum mismatch: expected {self._job.imzml_checksum}, got {actual_checksum}")
-
-    def stage_panel(self) -> None:
-        """Writes the marker panel to the sample directory."""
-        logger.debug(f"Staging panel for {self._job.imzml_relative_path}")
-        write_standardized_table(input_df=self._job.panel_df, output_csv=self._sample_dir / "mass_list.raw.csv")
+            return results[0]["id"]
+        else:
+            # TODO this will have to be refactored later
+            raise NotImplementedError("Only .imzML files are supported for now")
 
     def stage_pipeline_parameters(self) -> None:
         """Copies the `pipeline_params.yml` file to the particular sample's directory."""

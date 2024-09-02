@@ -7,8 +7,7 @@ from typing import TYPE_CHECKING
 import yaml
 from bfabric import Bfabric
 from bfabric.entities import Resource
-from bfabric.experimental.app_interface.input_preparation.prepare import PrepareInputs
-from bfabric.experimental.app_interface.input_preparation.specs import Specs
+from bfabric.experimental.app_interface.input_preparation.prepare import prepare_folder
 from depiction_targeted_preproc.pipeline.setup import copy_standardized_table
 from loguru import logger
 
@@ -52,35 +51,36 @@ class JobPrepareInputs:
         copy_standardized_table(input_path, output_path)
 
     @cached_property
-    def input_specs(self):
-        return Specs.model_validate(
-            {
-                "specs": [
-                    {
-                        "type": "bfabric_dataset",
-                        "id": self._dataset_id,
-                        "filename": "mass_list.unstandardized.raw.csv",
-                        "separator": ",",
-                    },
-                    {
-                        "type": "bfabric_resource",
-                        "id": self._imzml_resource_id,
-                        "filename": "raw.imzML",
-                        "check_checksum": True,
-                    },
-                    {
-                        "type": "bfabric_resource",
-                        "id": self._ibd_resource_id,
-                        "filename": "raw.ibd",
-                        "check_checksum": True,
-                    },
-                ]
-            }
-        ).specs
+    def input_specs(self) -> dict[str, list[dict[str, str | int | bool]]]:
+        return {
+            "inputs": [
+                {
+                    "type": "bfabric_dataset",
+                    "id": self._dataset_id,
+                    "filename": "mass_list.unstandardized.raw.csv",
+                    "separator": ",",
+                },
+                {
+                    "type": "bfabric_resource",
+                    "id": self._imzml_resource_id,
+                    "filename": "raw.imzML",
+                    "check_checksum": True,
+                },
+                {
+                    "type": "bfabric_resource",
+                    "id": self._ibd_resource_id,
+                    "filename": "raw.ibd",
+                    "check_checksum": True,
+                },
+            ]
+        }
 
     def stage_bfabric_inputs(self) -> None:
-        PrepareInputs(client=self._client, working_dir=self._sample_dir, ssh_user=self._ssh_user).prepare_all(
-            specs=self.input_specs
+        inputs_yaml = self._sample_dir / "input_specs.yml"
+        with inputs_yaml.open("w") as file:
+            yaml.dump(self.input_specs, file)
+        prepare_folder(
+            inputs_yaml=inputs_yaml, target_folder=self._sample_dir, client=self._client, ssh_user=self._ssh_user
         )
 
     @cached_property

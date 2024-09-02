@@ -90,11 +90,11 @@ rule qc_plot_calibration_map:
         " --output-pdf {output.pdf}"
 
 
-rule qc_plot_calibration_map_v2:
+rule qc_plot_test_mass_shifts:
     input:
         mass_shifts="{sample}/test_mass_shifts.hdf5",
     output:
-        pdf="{sample}/qc/plot_calibration_map_v2.pdf",
+        pdf="{sample}/qc/plot_test_mass_shifts.pdf",
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.plot_calibration_map_v2"
         " --input-mass-shifts {input.mass_shifts}"

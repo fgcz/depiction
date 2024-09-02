@@ -13,13 +13,17 @@ ARTIFACT_FILES_MAPPING = {
         "qc/plot_peak_counts_per_spectrum.pdf",
         "qc/plot_peak_counts_per_mass_range.pdf",
         "qc/plot_scan_direction.pdf",
+        # TODO figure out if the coefficients should be optional, by checking the sizes of this information
+        # "qc/calibration_model_coefficients.hdf5",
+        "qc/plot_test_mass_shifts.pdf",
     ],
     PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff"],
     # PipelineArtifact.CALIB_HEATMAP: ["images_calib_heatmap.ome.tiff"],
     # TODO
     PipelineArtifact.CALIB_HEATMAP: [
         "qc/plot_calibration_map.pdf",
-        "qc/plot_calibration_map_v2.pdf",
+        # ->renamed into plot_test_mass_shifts.pdf
+        # "qc/plot_calibration_map_v2.pdf",
     ],
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",
@@ -50,12 +54,10 @@ def get_all_output_files(folders: list[Path]) -> list[Path]:
     return all_files
 
 
-def get_result_files(params: PipelineParameters, work_dir: Path, sample_name: str):
-    result_files = list(
-        {
-            work_dir / sample_name / file
-            for artifact in params.requested_artifacts
-            for file in ARTIFACT_FILES_MAPPING[artifact]
-        }
-    )
-    return result_files
+def get_result_files(params: PipelineParameters, work_dir: Path, sample_name: str) -> list[Path]:
+    result_files = {
+        work_dir / sample_name / file
+        for artifact in params.requested_artifacts
+        for file in ARTIFACT_FILES_MAPPING[artifact]
+    }
+    return sorted(result_files)

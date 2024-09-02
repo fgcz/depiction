@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from pydantic import ConfigDict
 from functools import cached_property
 from pathlib import Path
 from typing import Annotated
@@ -17,20 +17,14 @@ from depiction_targeted_preproc.pipeline_config.model import (
 
 
 def parse_boolean_string(v: str, handler, info) -> bool:
-    if v == "true":
-        return True
-    elif v == "false":
-        return False
-    else:
-        raise ValueError(f"Unknown boolean value: {v}")
+    return {"true": True, "false": False}[v]
 
 
 BooleanString = Annotated[bool, WrapValidator(parse_boolean_string)]
 
 
 class WorkunitConfigData(BaseModel):
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
     workunit_id: int = Field(validation_alias=AliasPath("job_configuration", "workunit_id"))
     project_id: int = Field(validation_alias=AliasPath("job_configuration", "project_id"))

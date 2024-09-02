@@ -90,6 +90,16 @@ rule qc_plot_calibration_map:
         " --output-pdf {output.pdf}"
 
 
+rule qc_export_model_coefs:
+    input:
+        calib_data="{sample}/calib_data.hdf5",
+    output:
+        hdf5="{sample}/qc/calibration_model_coefficients.hdf5",
+    shell:
+        "python -m depiction_targeted_preproc.workflow.qc.export_model_coefs"
+        " {input.calib_data} {output.hdf5}"
+
+
 rule qc_plot_test_mass_shifts:
     input:
         mass_shifts="{sample}/test_mass_shifts.hdf5",

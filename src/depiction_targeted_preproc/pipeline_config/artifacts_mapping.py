@@ -13,9 +13,8 @@ ARTIFACT_FILES_MAPPING = {
         "qc/plot_peak_counts_per_spectrum.pdf",
         "qc/plot_peak_counts_per_mass_range.pdf",
         "qc/plot_scan_direction.pdf",
-        # TODO figure out if the coefficients should be optional, by checking the sizes of this information
-        # "qc/calibration_model_coefficients.hdf5",
         "qc/plot_test_mass_shifts.pdf",
+        "qc/calibration_model_coefficients.hdf5",
     ],
     PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff"],
     # PipelineArtifact.CALIB_HEATMAP: ["images_calib_heatmap.ome.tiff"],

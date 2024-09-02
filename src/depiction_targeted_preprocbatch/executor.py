@@ -5,9 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import cyclopts
-import yaml
 from bfabric import Bfabric
-from bfabric.entities import Storage
+from bfabric.entities import Storage, Resource
 from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import (
     get_result_files,
@@ -25,10 +24,20 @@ class BatchJob:
     """Defines one job to be executed, including all required information."""
 
     imzml_resource_id: int
-    pipeline_parameters: Path
+    pipeline_parameters: PipelineParameters
     dataset_id: int
     sample_name: str
     ssh_user: str | None = None
+
+    @classmethod
+    def from_bfabric(cls, imzml_resource: Resource, workunit_config: WorkunitConfig, ssh_user: str | None) -> BatchJob:
+        return cls(
+            imzml_resource_id=imzml_resource.id,
+            pipeline_parameters=workunit_config.pipeline_parameters,
+            dataset_id=workunit_config.input_dataset_id,
+            sample_name=Path(imzml_resource["name"]).stem,
+            ssh_user=ssh_user,
+        )
 
 
 class Executor:
@@ -38,31 +47,26 @@ class Executor:
 
     def __init__(
         self,
-        work_dir: Path,
+        proc_dir: Path,
+        output_dir: Path,
         workunit_config: WorkunitConfig,
         client: Bfabric,
         force_ssh_user: str | None = None,
     ) -> None:
         self._client = client
-        self._work_dir = work_dir
         self._workunit_config = workunit_config
         self._force_ssh_user = force_ssh_user
-        self.output_dir = work_dir / "output"
+        self.proc_dir = proc_dir
+        self.output_dir = output_dir
 
     def run(self, n_jobs: int) -> None:
         """Runs all jobs, executing up to `n_jobs` in parallel."""
         self._set_workunit_processing()
-        self._work_dir.mkdir(exist_ok=True, parents=True)
         batch_dataset = BatchDataset(dataset_id=self._workunit_config.input_dataset_id, client=self._client)
-        pipeline_parameters = self._prepare_pipeline_parameters()
 
         jobs = [
-            BatchJob(
-                imzml_resource_id=job.imzml["id"],
-                pipeline_parameters=pipeline_parameters,
-                ssh_user=self._force_ssh_user,
-                dataset_id=self._workunit_config.input_dataset_id,
-                sample_name=Path(job.imzml["name"]).stem,
+            BatchJob.from_bfabric(
+                imzml_resource=job.imzml, workunit_config=self._workunit_config, ssh_user=self._force_ssh_user
             )
             for job in batch_dataset.jobs
         ]
@@ -77,8 +81,8 @@ class Executor:
 
     def run_job(self, job: BatchJob) -> None:
         """Runs a single job."""
-        job_dir = self._work_dir / job.sample_name
-        sample_dir = job_dir / job.sample_name
+        workflow_dir = self.proc_dir / job.sample_name
+        sample_dir = workflow_dir / job.sample_name
         sample_dir.mkdir(parents=True, exist_ok=True)
 
         # stage input
@@ -87,8 +91,8 @@ class Executor:
 
         # invoke the pipeline
         logger.debug(f"Running pipeline for {job}")
-        result_files = self._determine_result_files(job_dir=job_dir)
-        SnakemakeInvoke().invoke(work_dir=job_dir, result_files=result_files)
+        result_files = self._determine_result_files(job=job, workflow_dir=workflow_dir)
+        SnakemakeInvoke().invoke(work_dir=workflow_dir, result_files=result_files)
 
         # export the results
         logger.debug(f"Exporting results for {job}")
@@ -96,7 +100,7 @@ class Executor:
         output_storage = Storage.find(id=2, client=self._client)
         JobExportResults.export(
             client=self._client,
-            work_dir=self._work_dir,
+            work_dir=workflow_dir,
             workunit_config=self._workunit_config,
             sample_name=sample_dir.name,
             result_files=result_files,
@@ -104,19 +108,9 @@ class Executor:
             force_ssh_user=self._force_ssh_user,
         )
 
-    def _determine_result_files(self, job_dir: Path) -> list[Path]:
+    def _determine_result_files(self, job: BatchJob, workflow_dir: Path) -> list[Path]:
         """Returns the requested result files based on the pipeline parameters for a particular job."""
-        pipeline_params = PipelineParameters.parse_yaml(path=job_dir / job_dir.stem / "pipeline_params.yml")
-        return get_result_files(params=pipeline_params, work_dir=job_dir, sample_name=job_dir.stem)
-
-    def _prepare_pipeline_parameters(self) -> Path:
-        """Creates the `pipeline_params.yml` file in the work dir, which can then be copied for each sample.
-        The path to the created file will be returned.
-        """
-        result_file = self._work_dir / "pipeline_params.yml"
-        with result_file.open("w") as file:
-            yaml.dump(self._workunit_config.pipeline_parameters.model_dump(mode="json"), file)
-        return result_file
+        return get_result_files(params=job.pipeline_parameters, work_dir=workflow_dir, sample_name=job.sample_name)
 
     def _set_workunit_processing(self) -> None:
         """Sets the workunit to processing and deletes the default resource if it is available."""
@@ -145,7 +139,8 @@ app = cyclopts.App()
 
 @app.default
 def process_app(
-    work_dir: Path,
+    proc_dir: Path,
+    output_dir: Path,
     workunit_yaml: Path,
     n_jobs: int = 32,
     force_ssh_user: str | None = None,
@@ -154,7 +149,11 @@ def process_app(
     workunit_config = WorkunitConfig.from_yaml(workunit_yaml)
     client = Bfabric.from_config()
     executor = Executor(
-        work_dir=work_dir, workunit_config=workunit_config, client=client, force_ssh_user=force_ssh_user
+        proc_dir=proc_dir,
+        output_dir=output_dir,
+        workunit_config=workunit_config,
+        client=client,
+        force_ssh_user=force_ssh_user,
     )
     executor.run(n_jobs=n_jobs)
 

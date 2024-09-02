@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import shutil
 from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import yaml
 from bfabric import Bfabric
 from bfabric.entities import Resource
 from bfabric.experimental.app_interface.input_preparation.prepare import PrepareInputs
@@ -101,8 +101,7 @@ class JobPrepareInputs:
 
     def stage_pipeline_parameters(self) -> None:
         """Copies the `pipeline_params.yml` file to the particular sample's directory."""
+        output_path = self._sample_dir / "pipeline_params.yml"
         logger.debug(f"Staging pipeline parameters to {self._sample_dir}")
-        shutil.copyfile(
-            self._job.pipeline_parameters,
-            self._sample_dir / "pipeline_params.yml",
-        )
+        with output_path.open("w") as file:
+            yaml.dump(self._job.pipeline_parameters.model_dump(mode="json"), file)

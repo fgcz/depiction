@@ -94,7 +94,7 @@ class SnakemakeInvoke:
         return [
             snakemake_bin,
             "-d",
-            str(work_dir),
+            str(work_dir.absolute()),
             "--cores",
             str(self.n_cores),
             "--snakefile",

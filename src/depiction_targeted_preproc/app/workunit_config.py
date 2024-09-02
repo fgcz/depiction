@@ -69,7 +69,9 @@ class WorkunitConfigData(BaseModel):
                 ),
                 output_uri="TODO",
                 config_preset=workunit.parameter_values["config_preset"],
-                input_dataset_id=workunit.input_dataset.id,
+                input_dataset_id=(
+                    workunit.input_dataset.id if workunit.input_dataset else workunit.parameter_values["mass_list_id"]
+                ),
                 output_activate_calibrated_imzml=workunit.parameter_values["output_activate_calibrated_imzml"],
                 output_activate_calibrated_ometiff=workunit.parameter_values["output_activate_calibrated_ometiff"],
                 output_activate_calibration_qc=workunit.parameter_values["output_activate_calibration_qc"],

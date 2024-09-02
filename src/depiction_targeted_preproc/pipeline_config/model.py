@@ -47,9 +47,14 @@ class PipelineParametersPreset(Model, use_enum_values=True, validate_default=Tru
     pick_peaks: PickPeaksConfig
 
     @classmethod
+    def get_preset_path(cls, name: str) -> Path:
+        """Returns the path to the preset file with the specified name."""
+        return Path(__file__).parents[1] / "app" / "config_presets" / f"{name}.yml"
+
+    @classmethod
     def load_named_preset(cls, name: str) -> PipelineParametersPreset:
         """Loads named presets distributed with depiction_targeted_preproc."""
-        return cls.parse_yaml(Path(__file__).parents[1] / "app" / "config_presets" / f"{name}.yml")
+        return cls.parse_yaml(cls.get_preset_path(name))
 
 
 class PipelineParameters(PipelineParametersPreset, use_enum_values=True, validate_default=True):

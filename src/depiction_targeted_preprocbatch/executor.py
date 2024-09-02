@@ -5,11 +5,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import cyclopts
-import polars as pl
 import yaml
 from bfabric import Bfabric
 from bfabric.entities import Storage
-
 from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import (
     get_result_files,
@@ -27,9 +25,9 @@ class BatchJob:
     """Defines one job to be executed, including all required information."""
 
     imzml_resource_id: int
-    # panel_df: pl.DataFrame
     pipeline_parameters: Path
     dataset_id: int
+    sample_name: str
     ssh_user: str | None = None
 
 
@@ -61,10 +59,10 @@ class Executor:
         jobs = [
             BatchJob(
                 imzml_resource_id=job.imzml["id"],
-                # panel_df=job.panel.to_polars(),
                 pipeline_parameters=pipeline_parameters,
                 ssh_user=self._force_ssh_user,
                 dataset_id=self._workunit_config.input_dataset_id,
+                sample_name=Path(job.imzml["name"]).stem,
             )
             for job in batch_dataset.jobs
         ]
@@ -79,13 +77,13 @@ class Executor:
 
     def run_job(self, job: BatchJob) -> None:
         """Runs a single job."""
-        job_dir = self._work_dir / job.imzml_relative_path.stem
-        sample_dir = job_dir / job.imzml_relative_path.stem
+        job_dir = self._work_dir / job.sample_name
+        sample_dir = job_dir / job.sample_name
         sample_dir.mkdir(parents=True, exist_ok=True)
 
         # stage input
         logger.debug(f"Preparing inputs for {job}")
-        JobPrepareInputs.prepare(job=job, sample_dir=sample_dir)
+        JobPrepareInputs.prepare(job=job, sample_dir=sample_dir, client=self._client)
 
         # invoke the pipeline
         logger.debug(f"Running pipeline for {job}")

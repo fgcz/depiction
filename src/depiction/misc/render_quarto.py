@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 
 import yaml
+from loguru import logger
 
 
 class RenderQuarto:
@@ -28,6 +29,7 @@ class RenderQuarto:
         output_format: str = "html",
         delete_qmd: bool = False,
     ) -> Path:
+        logger.debug(f"Rendering {document=} to {output_format=} with {parameters=}")
         document = Path(document)
         output_dir = Path(output_dir)
 

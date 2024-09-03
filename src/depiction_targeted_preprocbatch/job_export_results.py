@@ -70,7 +70,8 @@ class JobExportResults:
         zip_file_path = self.output_dir / f"{sample_name}.zip"
         with zipfile.ZipFile(zip_file_path, "w") as zip_file:
             for result_file in result_files:
-                zip_file.write(result_file, arcname=Path(sample_name) / result_file.name)
+                zip_entry_path = result_file.relative_to(self.output_dir.parent)
+                zip_file.write(result_file, arcname=zip_entry_path)
         return zip_file_path
 
     def _register_zip_in_workunit(self, output_path_relative: Path, zip_file_path: Path) -> None:

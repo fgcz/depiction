@@ -4,7 +4,7 @@ from pathlib import Path
 import cyclopts
 import yaml
 from bfabric import Bfabric
-from bfabric.entities import Workunit
+from bfabric.entities import Workunit, Resource
 from depiction_targeted_preproc.pipeline.prepare_inputs import prepare_inputs
 from depiction_targeted_preproc.pipeline.prepare_params import prepare_params, Params
 from depiction_targeted_preproc.pipeline.store_outputs import store_outputs
@@ -60,8 +60,24 @@ def run(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> None:
         imzml_resource_id=imzml_resource_id,
         ssh_user=ssh_user,
     )
+    _set_workunit_processing(client=client, workunit_id=workunit_id)
     zip_file_path = run_workflow(sample_dir=sample_dir)
     store_outputs(client=client, zip_file_path=zip_file_path, workunit_id=workunit_id, ssh_user=ssh_user)
+    _set_workunit_available(client=client, workunit_id=workunit_id)
+
+
+def _set_workunit_processing(client: Bfabric, workunit_id: int) -> None:
+    """Sets the workunit to processing and deletes the default resource if it is available."""
+    client.save("workunit", {"id": workunit_id, "status": "processing"})
+    # TODO the default resource should be deleted in the future, but right now we simply set it to 0 and available
+    #      (it will not be possible before updated wrapper creator)
+    resources = Resource.find_by({"name": "% - resource", "workunitid": workunit_id}, client=client, max_results=1)
+    if len(resources):
+        client.save("resource", {"id": resources[0].id, "status": "available"})
+
+
+def _set_workunit_available(client: Bfabric, workunit_id: int) -> None:
+    client.save("workunit", {"id": workunit_id, "status": "available"})
 
 
 if __name__ == "__main__":

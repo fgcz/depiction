@@ -72,8 +72,8 @@ def _set_workunit_processing(client: Bfabric, workunit_id: int) -> None:
     # TODO the default resource should be deleted in the future, but right now we simply set it to 0 and available
     #      (it will not be possible before updated wrapper creator)
     resources = Resource.find_by({"name": "% - resource", "workunitid": workunit_id}, client=client, max_results=1)
-    if len(resources):
-        client.save("resource", {"id": resources[0].id, "status": "available"})
+    if resources:
+        client.save("resource", {"id": list(resources.values())[0].id, "status": "available"})
 
 
 def _set_workunit_available(client: Bfabric, workunit_id: int) -> None:

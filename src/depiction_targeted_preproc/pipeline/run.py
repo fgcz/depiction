@@ -31,7 +31,8 @@ def run_workflow(sample_dir: Path) -> Path:
     result_files = get_result_files_new(requested_artifacts=params.requested_artifacts, sample_dir=sample_dir)
 
     # invoke snakemake
-    SnakemakeInvoke().invoke(work_dir=sample_dir.parent, result_files=result_files)
+    # TODO note report file is deactivated because it's currently broken due to dependencies (jinja2)
+    SnakemakeInvoke(report_file=None).invoke(work_dir=sample_dir.parent, result_files=result_files)
 
     # zip the results
     sample_name = sample_dir.name

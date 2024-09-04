@@ -29,7 +29,7 @@ def main():
 
     result_files = [work_dir / "work" / sample / artifact for sample in samples for artifact in cluster_artifacts]
 
-    snakemake = SnakemakeInvoke(continue_on_error=False, snakefile_name=snakefile_path)
+    snakemake = SnakemakeInvoke(continue_on_error=False, snakefile_name=snakefile_path, n_cores=4)
     snakemake.invoke(
         work_dir=work_dir,
         result_files=result_files,

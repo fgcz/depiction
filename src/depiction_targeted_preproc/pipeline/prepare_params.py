@@ -32,6 +32,7 @@ def prepare_params(
     sample_dir: Path,
     workunit_id: int,
 ) -> None:
+    sample_dir.mkdir(parents=True, exist_ok=True)
     params_yaml = sample_dir / "params.yml"
     with params_yaml.open("w") as file:
         yaml.safe_dump(_get_params(client=client, workunit_id=workunit_id), file)

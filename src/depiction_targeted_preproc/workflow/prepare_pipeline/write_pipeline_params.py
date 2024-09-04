@@ -15,9 +15,9 @@ def write_pipeline_params(
     output_pipeline_params_yml_path: Path,
 ):
     params = Params.model_validate(yaml.safe_load(input_params_yml_path.read_text()))
-    logger.info(f"Preparing pipeline parameters for preset {params.preset_name}")
+    logger.info(f"Preparing pipeline parameters for preset {params.config_preset}")
 
-    preset = PipelineParametersPreset.load_named_preset(name=params.preset_name)
+    preset = PipelineParametersPreset.load_named_preset(name=params.config_preset)
     # Add n_jobs and requested_artifacts information to build a PipelineParameters
     pipeline_params = PipelineParameters.from_preset_and_settings(
         preset=preset, requested_artifacts=params.requested_artifacts, n_jobs=params.n_jobs

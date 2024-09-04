@@ -46,12 +46,16 @@ def run_workflow(sample_dir: Path) -> Path:
     return zip_file_path
 
 
-@app.default()
-def run(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> None:
-    client = Bfabric.from_config()
-    dataset_id, imzml_resource_id, sample_name = _get_resource_flow_ids(client=client, workunit_id=workunit_id)
+def run_one_job(
+    client: Bfabric,
+    work_dir: Path,
+    sample_name: str,
+    dataset_id: int,
+    workunit_id: int,
+    imzml_resource_id: int,
+    ssh_user: str | None,
+) -> None:
     sample_dir = work_dir / sample_name
-
     prepare_params(client=client, sample_dir=sample_dir, workunit_id=workunit_id)
     prepare_inputs(
         client=client,
@@ -60,10 +64,30 @@ def run(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> None:
         imzml_resource_id=imzml_resource_id,
         ssh_user=ssh_user,
     )
-    _set_workunit_processing(client=client, workunit_id=workunit_id)
     zip_file_path = run_workflow(sample_dir=sample_dir)
     store_outputs(client=client, zip_file_path=zip_file_path, workunit_id=workunit_id, ssh_user=ssh_user)
+
+
+@app.default()
+def run_resource_flow(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> None:
+    client = Bfabric.from_config()
+    _set_workunit_processing(client=client, workunit_id=workunit_id)
+    dataset_id, imzml_resource_id, sample_name = _get_resource_flow_ids(client=client, workunit_id=workunit_id)
+    run_one_job(
+        client=client,
+        work_dir=work_dir,
+        sample_name=sample_name,
+        dataset_id=dataset_id,
+        workunit_id=workunit_id,
+        imzml_resource_id=imzml_resource_id,
+        ssh_user=ssh_user,
+    )
     _set_workunit_available(client=client, workunit_id=workunit_id)
+
+
+def run_batch(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> None:
+    # TODO maybe it will make sense to still implement this is in a dedicated file
+    pass
 
 
 def _set_workunit_processing(client: Bfabric, workunit_id: int) -> None:

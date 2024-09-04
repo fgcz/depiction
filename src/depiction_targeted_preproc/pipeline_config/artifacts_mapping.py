@@ -54,9 +54,15 @@ def get_all_output_files(folders: list[Path]) -> list[Path]:
 
 
 def get_result_files(params: PipelineParameters, work_dir: Path, sample_name: str) -> list[Path]:
+    # TODO delete and replace by new method
     result_files = {
         work_dir / sample_name / file
         for artifact in params.requested_artifacts
         for file in ARTIFACT_FILES_MAPPING[artifact]
     }
+    return sorted(result_files)
+
+
+def get_result_files_new(requested_artifacts: list[PipelineArtifact], sample_dir: Path) -> list[Path]:
+    result_files = {sample_dir / file for artifact in requested_artifacts for file in ARTIFACT_FILES_MAPPING[artifact]}
     return sorted(result_files)

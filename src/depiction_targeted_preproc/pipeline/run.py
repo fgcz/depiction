@@ -71,7 +71,7 @@ def run_one_job(
 @app.default()
 def run_resource_flow(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> None:
     client = Bfabric.from_config()
-    _set_workunit_processing(client=client, workunit_id=workunit_id)
+    set_workunit_processing(client=client, workunit_id=workunit_id)
     dataset_id, imzml_resource_id, sample_name = _get_resource_flow_ids(client=client, workunit_id=workunit_id)
     run_one_job(
         client=client,
@@ -82,15 +82,10 @@ def run_resource_flow(workunit_id: int, work_dir: Path, ssh_user: str | None = N
         imzml_resource_id=imzml_resource_id,
         ssh_user=ssh_user,
     )
-    _set_workunit_available(client=client, workunit_id=workunit_id)
+    set_workunit_available(client=client, workunit_id=workunit_id)
 
 
-def run_batch(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> None:
-    # TODO maybe it will make sense to still implement this is in a dedicated file
-    pass
-
-
-def _set_workunit_processing(client: Bfabric, workunit_id: int) -> None:
+def set_workunit_processing(client: Bfabric, workunit_id: int) -> None:
     """Sets the workunit to processing and deletes the default resource if it is available."""
     client.save("workunit", {"id": workunit_id, "status": "processing"})
     # TODO the default resource should be deleted in the future, but right now we simply set it to 0 and available
@@ -100,7 +95,7 @@ def _set_workunit_processing(client: Bfabric, workunit_id: int) -> None:
         client.save("resource", {"id": list(resources.values())[0].id, "status": "available"})
 
 
-def _set_workunit_available(client: Bfabric, workunit_id: int) -> None:
+def set_workunit_available(client: Bfabric, workunit_id: int) -> None:
     client.save("workunit", {"id": workunit_id, "status": "available"})
 
 

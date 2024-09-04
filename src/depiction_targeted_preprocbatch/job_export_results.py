@@ -6,6 +6,7 @@ from pathlib import Path
 import yaml
 from bfabric import Bfabric
 from bfabric.entities import Storage, Resource
+from bfabric.experimental.app_interface.output_registration import register_outputs
 from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
 from loguru import logger
 
@@ -94,6 +95,11 @@ class JobExportResults:
         outputs_yaml = self.output_dir / f"{self._sample_name}_outputs_spec.yml"
         with outputs_yaml.open("w") as file:
             yaml.safe_dump(self._outputs_spec, file)
+        register_outputs(
+            outputs_yaml=outputs_yaml,
+            client=self._client,
+            ssh_user=self._force_ssh_user,
+        )
 
     @staticmethod
     def delete_default_resource(workunit_id: int, client: Bfabric) -> bool:

@@ -3,13 +3,11 @@ from __future__ import annotations
 import zipfile
 from pathlib import Path
 
+import yaml
 from bfabric import Bfabric
 from bfabric.entities import Storage, Resource
-from loguru import logger
-
-from depiction.persistence.file_checksums import FileChecksums
 from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
-from depiction_targeted_preprocbatch.scp_util import scp
+from loguru import logger
 
 
 class JobExportResults:
@@ -21,12 +19,14 @@ class JobExportResults:
         work_dir: Path,
         workunit_config: WorkunitConfig,
         output_storage: Storage,
+        sample_name: str,
         force_ssh_user: str | None = None,
     ) -> None:
         self._client = client
         self._workunit_config = workunit_config
         self.output_dir = work_dir / "output"
         self._output_storage = output_storage
+        self._sample_name = sample_name
         self._force_ssh_user = force_ssh_user
 
     @property
@@ -50,52 +50,50 @@ class JobExportResults:
             work_dir=work_dir,
             workunit_config=workunit_config,
             output_storage=output_storage,
+            sample_name=sample_name,
             force_ssh_user=force_ssh_user,
         )
-        instance.export_results(sample_name, result_files)
+        instance.export_results(result_files)
 
-    def export_results(self, sample_name: str, result_files: list[Path]) -> None:
+    def export_results(self, result_files: list[Path]) -> None:
         """Exports the results of one job."""
-        zip_file_path = self._create_zip_file(result_files, sample_name)
-        output_path_relative = self._copy_zip_to_storage(zip_file_path)
-        self._register_zip_in_workunit(output_path_relative, zip_file_path)
+        self._create_zip_file(result_files)
+        self._register_result()
 
     def delete_local(self):
         # TODO this functionality will be needed when processing large jobs
         raise NotImplementedError
 
-    def _create_zip_file(self, result_files: list[Path], sample_name: str) -> Path:
-        """Creates a ZIP file containing the results for one sample, and returns the zip file's path."""
+    @property
+    def _zip_file_path(self) -> Path:
+        return self.output_dir / f"{self._sample_name}.zip"
+
+    def _create_zip_file(self, result_files: list[Path]) -> None:
+        """Creates a ZIP file containing the results for one sample."""
         self.output_dir.mkdir(exist_ok=True, parents=True)
-        zip_file_path = self.output_dir / f"{sample_name}.zip"
-        with zipfile.ZipFile(zip_file_path, "w") as zip_file:
+        with zipfile.ZipFile(self._zip_file_path, "w") as zip_file:
             for result_file in result_files:
                 zip_entry_path = result_file.relative_to(self.output_dir.parent)
                 zip_file.write(result_file, arcname=zip_entry_path)
-        return zip_file_path
 
-    def _register_zip_in_workunit(self, output_path_relative: Path, zip_file_path: Path) -> None:
-        checksum = FileChecksums(file_path=zip_file_path).checksum_md5
-        # TODO this somehow seems to be executed multiple times and fails...
-        self._client.save(
-            "resource",
-            {
-                "name": zip_file_path.name,
-                "workunitid": self._workunit_id,
-                "storageid": self._output_storage.id,
-                "relativepath": output_path_relative,
-                "filechecksum": checksum,
-                "status": "available",
-                "size": zip_file_path.stat().st_size,
-            },
-        )
+    @property
+    def _outputs_spec(self) -> dict[str, list[dict[str, str | int]]]:
+        return {
+            "outputs": [
+                {
+                    "type": "bfabric_copy_resource",
+                    "local_path": str(self._zip_file_path),
+                    "remote_path": str(self._zip_file_path.relative_to(self.output_dir)),
+                    "workunit_id": self._workunit_id,
+                    "storage_id": self._output_storage.id,
+                }
+            ]
+        }
 
-    def _copy_zip_to_storage(self, zip_file_path: Path) -> Path:
-        output_path = self._workunit_config.output_folder_absolute_path / zip_file_path.name
-        output_path_relative = output_path.relative_to(self._output_storage.base_path)
-        output_uri = f"{self._output_storage.scp_prefix}{output_path_relative}"
-        scp(zip_file_path, output_uri, username=self._force_ssh_user)
-        return output_path_relative
+    def _register_result(self) -> None:
+        outputs_yaml = self.output_dir / f"{self._sample_name}_outputs_spec.yml"
+        with outputs_yaml.open("w") as file:
+            yaml.safe_dump(self._outputs_spec, file)
 
     @staticmethod
     def delete_default_resource(workunit_id: int, client: Bfabric) -> bool:

@@ -78,7 +78,7 @@ class JobPrepareInputs:
     def stage_bfabric_inputs(self) -> None:
         inputs_yaml = self._sample_dir / "inputs_spec.yml"
         with inputs_yaml.open("w") as file:
-            yaml.dump(self._inputs_spec, file)
+            yaml.safe_dump(self._inputs_spec, file)
         prepare_folder(
             inputs_yaml=inputs_yaml, target_folder=self._sample_dir, client=self._client, ssh_user=self._ssh_user
         )

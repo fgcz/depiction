@@ -60,7 +60,7 @@ def run(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> None:
         ssh_user=ssh_user,
     )
     zip_file_path = run_workflow(sample_dir=sample_dir)
-    store_outputs(client=client, zip_file_path=zip_file_path, workunit_id=workunit_id)
+    store_outputs(client=client, zip_file_path=zip_file_path, workunit_id=workunit_id, ssh_user=ssh_user)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import contextlib
 import os
+import shlex
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -68,7 +69,7 @@ class SnakemakeInvoke:
         command = self.get_command_create_results(
             base_command=base_command, result_files=result_files, work_dir=work_dir
         )
-        logger.info("Executing {command}", command=command)
+        logger.info("Executing {command}", command=self._args_to_shell_command(command))
         subprocess.run(
             command,
             cwd=self.workflow_dir,
@@ -130,3 +131,8 @@ class SnakemakeInvoke:
         finally:
             os.environ.clear()
             os.environ.update(old_env)
+
+    @staticmethod
+    def _args_to_shell_command(args):
+        escaped_args = [shlex.quote(arg) for arg in args]
+        return " ".join(escaped_args)

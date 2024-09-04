@@ -17,6 +17,8 @@ def run_batch(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> 
     workunit = Workunit.find(id=workunit_id, client=client)
     batch_dataset = BatchDataset(dataset_id=workunit.input_dataset.id, client=client)
 
+    # TODO there is currently a serious bug which prevents the parallelization here, but this would be the place to
+    #      implement it
     for job in batch_dataset.jobs:
         run_one_job(
             client=client,

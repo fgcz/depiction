@@ -44,6 +44,8 @@ dependencies = [
     "ms-peak-picker",
     "kdepy>=1.1.8",
     "perlin-noise==1.13",
+    # TODO demote to optional again later, but necessary for pycharm right now
+    "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main",
 ]
 
 [project.scripts]

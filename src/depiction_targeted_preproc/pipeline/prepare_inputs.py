@@ -64,19 +64,9 @@ def write_inputs_spec(dataset_id: int, imzml_resource_id: int, client: Bfabric, 
 def prepare_inputs(
     client: Bfabric,
     sample_dir: Path,
-    workunit_id: int,
+    dataset_id: int,
+    imzml_resource_id: int,
     ssh_user: str | None,
 ) -> None:
-    dataset_id, imzml_resource_id = _get_resource_flow_ids(client=client, workunit_id=workunit_id)
     write_inputs_spec(dataset_id=dataset_id, imzml_resource_id=imzml_resource_id, client=client, sample_dir=sample_dir)
     prepare_folder(inputs_yaml=sample_dir / "inputs.yml", target_folder=sample_dir, client=client, ssh_user=ssh_user)
-
-
-def _get_resource_flow_ids(client: Bfabric, workunit_id: int) -> tuple[int, int]:
-    workunit = Workunit.find(id=workunit_id, client=client)
-    dataset_id = workunit.parameter_values["mass_list_id"]
-    imzml_resources = [r for r in workunit.input_resources if r["name"].endswith(".imzML")]
-    if len(imzml_resources) != 1:
-        raise ValueError(f"Expected exactly one .imzML resource, found {len(imzml_resources)}")
-    imzml_resource_id = imzml_resources[0].id
-    return dataset_id, imzml_resource_id

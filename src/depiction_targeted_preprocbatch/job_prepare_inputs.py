@@ -8,7 +8,7 @@ import yaml
 from bfabric import Bfabric
 from bfabric.entities import Resource
 from bfabric.experimental.app_interface.input_preparation import prepare_folder
-from depiction_targeted_preproc.pipeline.setup import copy_standardized_table
+from depiction_targeted_preproc.pipeline.setup_old import copy_standardized_table
 from loguru import logger
 
 if TYPE_CHECKING:

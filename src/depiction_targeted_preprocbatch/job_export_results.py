@@ -84,7 +84,7 @@ class JobExportResults:
                 {
                     "type": "bfabric_copy_resource",
                     "local_path": str(self._zip_file_path),
-                    "remote_path": str(self._zip_file_path.relative_to(self.output_dir)),
+                    "store_entry_path": self._zip_file_path.name,
                     "workunit_id": self._workunit_id,
                     "storage_id": self._output_storage.id,
                 }

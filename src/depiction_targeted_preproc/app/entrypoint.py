@@ -12,7 +12,7 @@ from loguru import logger
 from depiction.misc.find_file_util import find_one_by_extension
 from depiction.persistence import ImzmlReadFile
 from depiction_targeted_preproc.app.workunit_config import WorkunitConfig
-from depiction_targeted_preproc.pipeline.setup import setup_workdir
+from depiction_targeted_preproc.pipeline.setup_old import setup_workdir
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import ARTIFACT_FILES_MAPPING, get_result_files
 from depiction_targeted_preproc.pipeline_config.model import (
     PipelineParameters,

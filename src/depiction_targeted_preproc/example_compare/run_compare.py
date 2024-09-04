@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from depiction_targeted_preproc.pipeline.setup import initial_setup
+from depiction_targeted_preproc.pipeline.setup_old import initial_setup
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import get_all_output_files
 from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
 

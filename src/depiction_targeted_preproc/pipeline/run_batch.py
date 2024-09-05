@@ -36,5 +36,24 @@ def run_batch(workunit_id: int, work_dir: Path, ssh_user: str | None = None, rea
         set_workunit_available(client=client, workunit_id=workunit_id)
 
 
+@app.command
+def prepare(workunit_id: int, work_dir: Path, ssh_user: str | None = None):
+    client = Bfabric.from_config()
+    workunit = Workunit.find(id=workunit_id, client=client)
+    batch_dataset = BatchDataset(dataset_id=workunit.input_dataset.id, client=client)
+    for job in batch_dataset.jobs:
+        run_one_job(
+            client=client,
+            work_dir=work_dir,
+            sample_name=str(Path(job.imzml["name"]).stem),
+            dataset_id=job.panel.id,
+            workunit_id=workunit_id,
+            imzml_resource_id=job.imzml.id,
+            ssh_user=ssh_user,
+            read_only=True,
+            prepare_only=True,
+        )
+
+
 if __name__ == "__main__":
     app()

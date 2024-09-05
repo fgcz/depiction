@@ -20,7 +20,7 @@ def run_config(
     input_mass_list: Path | None = None,
     output_calib_data: Path | None = None,
 ) -> None:
-    parsed = CalibrationConfig.validate(yaml.safe_load(config.read_text()))
+    parsed = CalibrationConfig.model_validate(yaml.safe_load(config.read_text()))
     input_file = ImzmlReadFile(input_imzml)
     output_file = ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED)
     calibrate(

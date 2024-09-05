@@ -13,7 +13,7 @@ app = cyclopts.App()
 def calibrate_config(input_config: Path, output_config: Path) -> None:
     config = PipelineParameters.parse_yaml(input_config)
     with output_config.open("w") as file:
-        yaml.dump(config.calibration.dict(), file)
+        yaml.dump(config.calibration.model_dump(mode="json"), file)
 
 
 if __name__ == "__main__":

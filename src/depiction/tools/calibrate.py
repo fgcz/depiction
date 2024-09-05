@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal, Annotated
 
+import h5py
 import numpy as np
 import polars as pl
 from loguru import logger
@@ -68,7 +69,7 @@ class CalibrationConfig(BaseModel, use_enum_values=True, validate_default=True):
         | None
     )
 
-    n_jobs: int | None = None
+    n_jobs: int = 1
 
 
 def extract_reference_masses(mass_list: Path) -> NDArray[float]:
@@ -127,6 +128,9 @@ def calibrate(
     if config.method is None:
         logger.info("No calibration requested")
         input_file.copy_to(output_file.imzml_file)
+        if coefficient_output_path:
+            # TODO not sure if this is the correct action here
+            h5py.File(coefficient_output_path, "w").close()
     else:
         calibration = get_calibration_instance(config=config, mass_list=mass_list)
         parallel_config = ParallelConfig(n_jobs=config.n_jobs)

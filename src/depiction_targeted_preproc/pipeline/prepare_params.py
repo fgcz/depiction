@@ -1,10 +1,12 @@
 from pathlib import Path
 
+import cyclopts
 import yaml
 from bfabric import Bfabric
 from bfabric.entities import Workunit
-from depiction_targeted_preproc.pipeline_config.model import PipelineArtifact
 from pydantic import BaseModel
+
+from depiction_targeted_preproc.pipeline_config.model import PipelineArtifact
 
 
 class Params(BaseModel):
@@ -36,3 +38,28 @@ def prepare_params(
     params_yaml = sample_dir / "params.yml"
     with params_yaml.open("w") as file:
         yaml.safe_dump(_get_params(client=client, workunit_id=workunit_id), file)
+
+
+app = cyclopts.App()
+
+
+@app.default
+def prepare_params_from_cli(
+    sample_dir: Path,
+    config_preset: str,
+    requested_artifacts: list[str],
+    n_jobs: int = 32,
+) -> None:
+    sample_dir.mkdir(parents=True, exist_ok=True)
+    params_yaml = sample_dir / "params.yml"
+    with params_yaml.open("w") as file:
+        yaml.safe_dump(
+            Params(config_preset=config_preset, requested_artifacts=requested_artifacts, n_jobs=n_jobs).model_dump(
+                mode="json"
+            ),
+            file,
+        )
+
+
+if __name__ == "__main__":
+    app()

@@ -54,6 +54,7 @@ def run_one_job(
     workunit_id: int,
     imzml_resource_id: int,
     ssh_user: str | None,
+    read_only: bool,
 ) -> None:
     sample_dir = work_dir / sample_name
     prepare_params(client=client, sample_dir=sample_dir, workunit_id=workunit_id)
@@ -65,13 +66,15 @@ def run_one_job(
         ssh_user=ssh_user,
     )
     zip_file_path = run_workflow(sample_dir=sample_dir)
-    store_outputs(client=client, zip_file_path=zip_file_path, workunit_id=workunit_id, ssh_user=ssh_user)
+    if not read_only:
+        store_outputs(client=client, zip_file_path=zip_file_path, workunit_id=workunit_id, ssh_user=ssh_user)
 
 
 @app.default()
-def run_resource_flow(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> None:
+def run_resource_flow(workunit_id: int, work_dir: Path, ssh_user: str | None = None, read_only: bool = False) -> None:
     client = Bfabric.from_config()
-    set_workunit_processing(client=client, workunit_id=workunit_id)
+    if not read_only:
+        set_workunit_processing(client=client, workunit_id=workunit_id)
     dataset_id, imzml_resource_id, sample_name = _get_resource_flow_ids(client=client, workunit_id=workunit_id)
     run_one_job(
         client=client,
@@ -81,8 +84,10 @@ def run_resource_flow(workunit_id: int, work_dir: Path, ssh_user: str | None = N
         workunit_id=workunit_id,
         imzml_resource_id=imzml_resource_id,
         ssh_user=ssh_user,
+        read_only=read_only,
     )
-    set_workunit_available(client=client, workunit_id=workunit_id)
+    if not read_only:
+        set_workunit_available(client=client, workunit_id=workunit_id)
 
 
 def set_workunit_processing(client: Bfabric, workunit_id: int) -> None:

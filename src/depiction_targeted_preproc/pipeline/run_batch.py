@@ -10,9 +10,10 @@ app = cyclopts.App()
 
 
 @app.default()
-def run_batch(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> None:
+def run_batch(workunit_id: int, work_dir: Path, ssh_user: str | None = None, read_only: bool = False) -> None:
     client = Bfabric.from_config()
-    set_workunit_processing(client=client, workunit_id=workunit_id)
+    if not read_only:
+        set_workunit_processing(client=client, workunit_id=workunit_id)
 
     workunit = Workunit.find(id=workunit_id, client=client)
     batch_dataset = BatchDataset(dataset_id=workunit.input_dataset.id, client=client)
@@ -28,9 +29,11 @@ def run_batch(workunit_id: int, work_dir: Path, ssh_user: str | None = None) -> 
             workunit_id=workunit_id,
             imzml_resource_id=job.imzml.id,
             ssh_user=ssh_user,
+            read_only=read_only,
         )
 
-    set_workunit_available(client=client, workunit_id=workunit_id)
+    if not read_only:
+        set_workunit_available(client=client, workunit_id=workunit_id)
 
 
 if __name__ == "__main__":

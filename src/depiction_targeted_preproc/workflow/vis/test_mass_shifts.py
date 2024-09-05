@@ -5,10 +5,9 @@ import numpy as np
 import polars as pl
 import typer
 import xarray as xr
+import yaml
+from depiction.tools.calibrate import get_calibration_instance, CalibrationConfig
 from typer import Option
-
-from depiction.tools.calibrate import get_calibration_instance
-from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 
 
 def vis_test_mass_shifts(
@@ -19,9 +18,10 @@ def vis_test_mass_shifts(
 ) -> None:
     # load inputs
     model_coefs = xr.open_dataarray(calib_hdf5_path, group="model_coefs")
-    config = PipelineParameters.parse_yaml(config_path)
+    config = CalibrationConfig.model_validate(yaml.safe_load(config_path.read_text()))
+
     mass_list = pl.read_csv(mass_list_path)
-    calibration = get_calibration_instance(config=config.calibration, mass_list=mass_list_path)
+    calibration = get_calibration_instance(config=config, mass_list=mass_list_path)
 
     # define test masses
     # to keep it simple for now only 1

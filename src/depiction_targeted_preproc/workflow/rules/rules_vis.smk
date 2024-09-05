@@ -47,7 +47,7 @@ rule vis_clustering:
 rule vis_test_mass_shifts:
     input:
         calib_hdf5="{sample}/calib_data.hdf5",
-        config="{sample}/pipeline_params.yml",
+        config="{sample}/config/proc_calibrate.yml",
         mass_list="{sample}/mass_list.calibration.csv",
     output:
         hdf5="{sample}/test_mass_shifts.hdf5",

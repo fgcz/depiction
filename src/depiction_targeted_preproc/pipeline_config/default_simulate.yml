@@ -1,6 +1,0 @@
-image_width: 200
-image_height: 100
-n_labels: 30
-bin_width_ppm: 80
-target_mass_min: 850
-target_mass_max: 1900

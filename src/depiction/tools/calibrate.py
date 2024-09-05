@@ -3,22 +3,21 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal, Annotated
 
-import h5py
 import numpy as np
 import polars as pl
-from loguru import logger
-from numpy.typing import NDArray
-from pydantic import BaseModel, Field
-
 from depiction.calibration.perform_calibration import PerformCalibration
 from depiction.calibration.spectrum.calibration_method_chemical_peptide_noise import (
     CalibrationMethodChemicalPeptideNoise,
 )
+from depiction.calibration.spectrum.calibration_method_dummy import CalibrationMethodDummy
 from depiction.calibration.spectrum.calibration_method_global_constant_shift import CalibrationMethodGlobalConstantShift
 from depiction.calibration.spectrum.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
 from depiction.calibration.spectrum.calibration_method_regress_shift import CalibrationMethodRegressShift
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
+from loguru import logger
+from numpy.typing import NDArray
+from pydantic import BaseModel, Field
 
 
 class CalibrationRegressShiftConfig(BaseModel):
@@ -114,6 +113,8 @@ def get_calibration_instance(config: CalibrationConfig, mass_list: Path | None):
                 model_smoothing_kernel_size=config.method.coef_smoothing_kernel_size,
                 model_smoothing_kernel_std=config.method.coef_smoothing_kernel_std,
             )
+        case None:
+            return CalibrationMethodDummy()
         case _:
             raise NotImplementedError("should be unreachable")
 
@@ -125,27 +126,18 @@ def calibrate(
     mass_list: Path | None = None,
     coefficient_output_path: Path | None = None,
 ) -> None:
-    if config.method is None:
-        logger.info("No calibration requested")
-        input_file.copy_to(output_file.imzml_file)
-        if coefficient_output_path:
-            # TODO not sure if this is the correct action here
-            h5py.File(coefficient_output_path, "w").close()
-    else:
-        calibration = get_calibration_instance(config=config, mass_list=mass_list)
-        parallel_config = ParallelConfig(n_jobs=config.n_jobs)
-        logger.info("Using calibration method: {calibration}", calibration=calibration)
+    calibration = get_calibration_instance(config=config, mass_list=mass_list)
+    parallel_config = ParallelConfig(n_jobs=config.n_jobs)
+    logger.info("Using calibration method: {calibration}", calibration=calibration)
 
-        # TODO is output_store still used
-        perform_calibration = PerformCalibration(
-            calibration=calibration,
-            parallel_config=parallel_config,
-            output_store=None,
-            coefficient_output_file=coefficient_output_path,
-        )
-        perform_calibration.calibrate_image(
-            read_peaks=input_file,
-            write_file=output_file,
-            # TODO:make it possible to customize this
-            read_full=None,
-        )
+    perform_calibration = PerformCalibration(
+        calibration=calibration,
+        parallel_config=parallel_config,
+        coefficient_output_file=coefficient_output_path,
+    )
+    perform_calibration.calibrate_image(
+        read_peaks=input_file,
+        write_file=output_file,
+        # TODO:make it possible to customize this
+        read_full=None,
+    )

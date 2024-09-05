@@ -1,0 +1,23 @@
+baseline_correction:
+  baseline_type: TopHat
+  window_size: 3000
+  window_unit: ppm
+pick_peaks:
+  peak_picker:
+    peak_picker_type: FindMFPy
+    int_threshold: 0.0
+  force_peak_picker: no
+  peak_filtering:
+    filters:
+      - method: FilterNHighestIntensityPartitioned
+        max_count: 300
+        n_partitions: 8
+  n_jobs: 10
+filter_peaks:
+  filters:
+    - method: FilterNHighestIntensityPartitioned
+      max_count: 300
+      n_partitions: 8
+calibration:
+  method: null
+  n_jobs: 10

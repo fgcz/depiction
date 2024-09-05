@@ -21,12 +21,10 @@ class PerformCalibration:
         self,
         calibration: CalibrationMethod,
         parallel_config: ParallelConfig,
-        output_store: h5py.Group | None = None,
         coefficient_output_file: Path | None = None,
     ) -> None:
         self._calibration = calibration
         self._parallel_config = parallel_config
-        self._output_store = output_store
         self._coefficient_output_file = coefficient_output_file
 
     # def _reshape(self, pattern: str, data: DataArray, coordinates) -> DataArray:

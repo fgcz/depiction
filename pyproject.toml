@@ -9,7 +9,7 @@ dependencies = [
     "setuptools",
     "alphapept>=0.5.2",
     # TODO investigate
-    "altair<5.4.0",
+    "altair<5.5.0",
     "h5py>=3.10.0",
     "matplotlib>=3.8.2",
     "multiprocess",
@@ -36,7 +36,7 @@ dependencies = [
     "vegafusion[embed]>=1.6.5",
     "xarray",
     # TODO unpin when https://github.com/Unidata/netcdf4-python/issues/1343 is resolved
-    "netCDF4<=1.7.1",
+    "netCDF4<=1.7.1.post2",
     # TODO actually figure out which is the most useful, there is also tifffile and ome-types
     "pyometiff>=1.0.0",
     "ome-types>=0.5.1",

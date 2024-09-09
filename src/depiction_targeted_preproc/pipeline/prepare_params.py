@@ -4,6 +4,7 @@ import cyclopts
 import yaml
 from bfabric import Bfabric
 from bfabric.entities import Workunit
+from bfabric.experimental.app_interface.workunit.definition import WorkunitExecutionDefinition
 from pydantic import BaseModel
 
 from depiction_targeted_preproc.pipeline_config.model import PipelineArtifact
@@ -15,17 +16,16 @@ class Params(BaseModel):
     n_jobs: int = 32
 
 
-def _get_params(client: Bfabric, workunit_id: int) -> dict[str, str | int | bool]:
-    workunit = Workunit.find(id=workunit_id, client=client)
+def parse_params(definition: WorkunitExecutionDefinition) -> dict[str, str | int | bool]:
     requested_artifacts = []
-    if workunit.parameter_values["output_activate_calibrated_imzml"] == "true":
+    if definition.raw_parameters["output_activate_calibrated_imzml"] == "true":
         requested_artifacts.append(PipelineArtifact.CALIB_IMZML)
-    if workunit.parameter_values["output_activate_calibrated_ometiff"] == "true":
+    if definition.raw_parameters["output_activate_calibrated_ometiff"] == "true":
         requested_artifacts.append(PipelineArtifact.CALIB_IMAGES)
-    if workunit.parameter_values["output_activate_calibration_qc"] == "true":
+    if definition.raw_parameters["output_activate_calibration_qc"] == "true":
         requested_artifacts.append(PipelineArtifact.CALIB_QC)
     return Params(
-        config_preset=workunit.parameter_values["config_preset"], requested_artifacts=requested_artifacts
+        config_preset=definition.raw_parameters["config_preset"], requested_artifacts=requested_artifacts
     ).model_dump(mode="json")
 
 
@@ -36,8 +36,9 @@ def prepare_params(
 ) -> None:
     sample_dir.mkdir(parents=True, exist_ok=True)
     params_yaml = sample_dir / "params.yml"
+    definition = WorkunitExecutionDefinition.from_workunit(Workunit.find(id=workunit_id, client=client))
     with params_yaml.open("w") as file:
-        yaml.safe_dump(_get_params(client=client, workunit_id=workunit_id), file)
+        yaml.safe_dump(parse_params(definition), file)
 
 
 app = cyclopts.App()

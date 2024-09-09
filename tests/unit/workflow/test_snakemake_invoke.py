@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from pytest_mock import MockerFixture
 
@@ -16,7 +18,7 @@ def test_get_base_command(mocker: MockerFixture, default_invoke: SnakemakeInvoke
     mocker.patch.object(SnakemakeInvoke, "snakefile_path", "/tmp/workflow/Snakefile")
     base_command = default_invoke.get_base_command(
         extra_args=["--keep-going"],
-        work_dir="/tmp/work",
+        work_dir=Path("/tmp/work"),
     )
     assert base_command == [
         "/custom/bin/snakemake",
@@ -37,7 +39,7 @@ def test_get_base_command_when_snakemake_not_found(mocker: MockerFixture, defaul
     with pytest.raises(RuntimeError) as excinfo:
         default_invoke.get_base_command(
             extra_args=[],
-            work_dir="/tmp/work",
+            work_dir=Path("/tmp/work"),
         )
     assert str(excinfo.value).startswith("snakemake not found, check PATH:")
 

@@ -28,7 +28,7 @@ class SpatialSmoothingSparseAware:
 
     def smooth(self, image: DataArray, bg_value: float = 0.0) -> DataArray:
         image = image.transpose("y", "x", "c")
-        image = image.astype(np.promote_types(image.dtype, np.obj2sctype(type(bg_value))))
+        image = image.astype(np.promote_types(image.dtype, np.dtype(type(bg_value)).type))
         image = XarrayHelper.ensure_dense(image)
         image = xr.apply_ufunc(
             self._smooth_dense,

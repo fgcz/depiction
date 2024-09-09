@@ -33,7 +33,7 @@ class SparseRepresentation:
         coordinates_extent = coordinates.max(axis=0) - coordinates.min(axis=0) + 1
         coordinates_shifted = coordinates - coordinates.min(axis=0)
 
-        dtype = np.promote_types(sparse_values.dtype, np.obj2sctype(type(bg_value)))
+        dtype = np.promote_types(sparse_values.dtype, np.dtype(type(bg_value)).type)
         values_grid = np.full(
             (coordinates_extent[0], coordinates_extent[1], n_channels), fill_value=bg_value, dtype=dtype
         )

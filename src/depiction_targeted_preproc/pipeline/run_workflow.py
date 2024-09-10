@@ -3,10 +3,10 @@ from pathlib import Path
 
 import cyclopts
 import yaml
+
 from depiction_targeted_preproc.pipeline.prepare_params import Params
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import get_result_files_new
 from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
-
 
 app = cyclopts.App()
 

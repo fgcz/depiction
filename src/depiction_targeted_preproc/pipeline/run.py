@@ -3,6 +3,7 @@ from pathlib import Path
 import cyclopts
 from bfabric import Bfabric
 from bfabric.entities import Workunit, Resource
+
 from depiction_targeted_preproc.pipeline.prepare_inputs import prepare_inputs
 from depiction_targeted_preproc.pipeline.prepare_params import prepare_params
 from depiction_targeted_preproc.pipeline.run_workflow import run_workflow

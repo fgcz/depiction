@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 from bfabric import Bfabric
-from bfabric.entities import Resource, Workunit
+from bfabric.entities import Resource
 from bfabric.experimental.app_interface.input_preparation import prepare_folder
 
 

@@ -33,7 +33,8 @@ def dispatch_app(workunit_ref: int | Path, work_dir: Path) -> None:
 
         # dispatch each input
         for imzml_resource_id in imzml_resource_ids:
-            chunk_dir = work_dir / str(imzml_resource_id)
+            imzml_resource = Resource.find(id=imzml_resource_id, client=client)
+            chunk_dir = work_dir / Path(imzml_resource["name"]).stem
             write_inputs_spec(
                 dataset_id=dataset_id, imzml_resource_id=imzml_resource_id, client=client, sample_dir=chunk_dir
             )
@@ -42,7 +43,7 @@ def dispatch_app(workunit_ref: int | Path, work_dir: Path) -> None:
     elif workunit_definition.execution.dataset:
         batch_dataset = BatchDataset(dataset_id=workunit_definition.execution.dataset, client=client)
         for job in batch_dataset.jobs:
-            chunk_dir = work_dir / str(job.imzml.id)
+            chunk_dir = work_dir / Path(job.imzml["name"]).stem
             write_inputs_spec(
                 dataset_id=job.panel.id, imzml_resource_id=job.imzml.id, client=client, sample_dir=chunk_dir
             )

@@ -33,9 +33,10 @@ def run_one_job(
     ssh_user: str | None,
     read_only: bool,
     prepare_only: bool = False,
+    override_params: bool = False,
 ) -> None:
     sample_dir = work_dir / sample_name
-    prepare_params(client=client, sample_dir=sample_dir, workunit_id=workunit_id)
+    prepare_params(client=client, sample_dir=sample_dir, workunit_id=workunit_id, override=override_params)
     prepare_inputs(
         client=client,
         sample_dir=sample_dir,

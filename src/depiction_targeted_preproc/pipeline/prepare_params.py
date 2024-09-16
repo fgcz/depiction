@@ -5,6 +5,7 @@ import yaml
 from bfabric import Bfabric
 from bfabric.entities import Workunit
 from bfabric.experimental.app_interface.workunit.definition import WorkunitExecutionDefinition
+from loguru import logger
 from pydantic import BaseModel
 
 from depiction_targeted_preproc.pipeline_config.model import PipelineArtifact
@@ -33,9 +34,13 @@ def prepare_params(
     client: Bfabric,
     sample_dir: Path,
     workunit_id: int,
+    override: bool,
 ) -> None:
     sample_dir.mkdir(parents=True, exist_ok=True)
     params_yaml = sample_dir / "params.yml"
+    if params_yaml.is_file() and not override:
+        logger.info(f"Skipping params generation for {workunit_id} as it already exists and override is not set")
+        return
     definition = WorkunitExecutionDefinition.from_workunit(Workunit.find(id=workunit_id, client=client))
     with params_yaml.open("w") as file:
         yaml.safe_dump(parse_params(definition), file)

@@ -23,7 +23,7 @@ def run_workflow(sample_dir: Path) -> Path:
 
     # zip the results
     sample_name = sample_dir.name
-    output_dir = sample_dir.parent / "output"
+    output_dir = sample_dir / "outputs"
     output_dir.mkdir(exist_ok=True)
     zip_file_path = output_dir / f"{sample_name}.zip"
     with zipfile.ZipFile(zip_file_path, "w") as zip_file:

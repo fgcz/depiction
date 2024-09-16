@@ -49,6 +49,11 @@ def dispatch_app(workunit_ref: int | Path, work_dir: Path) -> None:
             write_params(params_dict=params, file=chunk_dir / "params.yml")
             chunks.append(chunk_dir)
 
+    # TODO consider how to best handle this
+    with (work_dir / "chunks.yml").open("w") as f:
+        data = {"chunks": [str(chunk) for chunk in chunks]}
+        yaml.safe_dump(data, f)
+
 
 def write_params(params_dict: dict, file: Path) -> None:
     with file.open("w") as f:

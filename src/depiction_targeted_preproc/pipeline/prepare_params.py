@@ -15,6 +15,7 @@ class Params(BaseModel):
     config_preset: str
     requested_artifacts: list[PipelineArtifact]
     n_jobs: int = 32
+    mass_list_id: int | None = None
 
 
 def parse_params(definition: WorkunitExecutionDefinition) -> dict[str, str | int | bool]:
@@ -26,7 +27,9 @@ def parse_params(definition: WorkunitExecutionDefinition) -> dict[str, str | int
     if definition.raw_parameters["output_activate_calibration_qc"] == "true":
         requested_artifacts.append(PipelineArtifact.CALIB_QC)
     return Params(
-        config_preset=definition.raw_parameters["config_preset"], requested_artifacts=requested_artifacts
+        config_preset=definition.raw_parameters["config_preset"],
+        requested_artifacts=requested_artifacts,
+        mass_list_id=definition.raw_parameters.get("mass_list_id"),
     ).model_dump(mode="json")
 
 

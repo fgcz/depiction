@@ -11,15 +11,16 @@ app = cyclopts.App()
 @app.default()
 def run_chunk(chunk_dir: Path):
     zip_file_path = run_workflow(sample_dir=chunk_dir)
-    results = [
+    outputs = [
         {
             "type": "bfabric_copy_resource",
             "local_path": str(zip_file_path.absolute()),
             "store_entry_path": zip_file_path.name,
         }
     ]
+    result = {"outputs": outputs}
     with (chunk_dir / "outputs.yml").open("w") as f:
-        yaml.safe_dump(results, f)
+        yaml.safe_dump(result, f)
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ rule prepare_pipeline_standardize_panel:
     output:
         csv="{sample}/mass_list.raw.csv",
     run:
-        from depiction_targeted_preproc.pipeline.standardize_table import copy_standardized_table
+        from depiction_targeted_preproc.workflow.prepare_pipeline.standardize_table import copy_standardized_table
         from pathlib import Path
 
         copy_standardized_table(input_csv=Path(input.csv), output_csv=Path(output.csv))

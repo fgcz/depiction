@@ -16,10 +16,6 @@ def run_chunk(chunk_dir: Path):
             "type": "bfabric_copy_resource",
             "local_path": str(zip_file_path.absolute()),
             "store_entry_path": zip_file_path.name,
-            # TODO figure out how to abstract this (needs some design changes)
-            "workunit_id": None,
-            "storage_id": None,
-            "update_existing": "if_exists",
         }
     ]
     with (chunk_dir / "outputs.yml").open("w") as f:

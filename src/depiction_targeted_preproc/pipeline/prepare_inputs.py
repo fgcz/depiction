@@ -3,9 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import yaml
+
 from bfabric import Bfabric
 from bfabric.entities import Resource
-from bfabric.experimental.app_interface.input_preparation import prepare_folder
 
 
 def _get_ibd_resource_id(imzml_resource_id: int, client: Bfabric) -> int:
@@ -58,14 +58,3 @@ def write_inputs_spec(dataset_id: int, imzml_resource_id: int, client: Bfabric, 
     inputs_yaml = sample_dir / "inputs.yml"
     with inputs_yaml.open("w") as file:
         yaml.safe_dump(inputs_spec, file)
-
-
-def prepare_inputs(
-    client: Bfabric,
-    sample_dir: Path,
-    dataset_id: int,
-    imzml_resource_id: int,
-    ssh_user: str | None,
-) -> None:
-    write_inputs_spec(dataset_id=dataset_id, imzml_resource_id=imzml_resource_id, client=client, sample_dir=sample_dir)
-    prepare_folder(inputs_yaml=sample_dir / "inputs.yml", target_folder=sample_dir, client=client, ssh_user=ssh_user)

@@ -25,35 +25,41 @@ class DispatchIndividualResources:
         self._config = config
         self._out_dir = out_dir
 
-    def dispatch_job(self, resource: Resource, params: dict[str, Any]):
+    def dispatch_job(self, resource: Resource, params: dict[str, Any]) -> Path:
         raise NotImplementedError
 
     def dispatch_workunit(self, definition: WorkunitDefinition):
         params = definition.execution.raw_parameters
         if definition.execution.resources:
-            self._dispatch_jobs_resource_flow(definition, params)
+            paths = self._dispatch_jobs_resource_flow(definition, params)
         elif definition.execution.dataset:
-            self._dispatch_jobs_dataset_flow(definition, params)
+            paths = self._dispatch_jobs_dataset_flow(definition, params)
         else:
             raise ValueError("either dataset or resources must be provided")
+        # TODO persist the paths here? (instead of returning)
+        return paths
 
-    def _dispatch_jobs_resource_flow(self, definition: WorkunitDefinition, params: dict[str, Any]):
+    def _dispatch_jobs_resource_flow(self, definition: WorkunitDefinition, params: dict[str, Any]) -> list[Path]:
         resources = Resource.find_all(ids=definition.execution.resources, client=self._client)
+        paths = []
         for resource in sorted(resources.values()):
             if self._config.input_resources_suffix_filter is not None and not resource["name"].endswith(
                 self._config.input_resources_suffix_filter
             ):
                 logger.info(f"Skipping resource {resource['name']!r} as it does not match the extension filter.")
                 continue
-            self.dispatch_job(resource=resource, params=params)
+            paths.append(self.dispatch_job(resource=resource, params=params))
+        return paths
 
-    def _dispatch_jobs_dataset_flow(self, definition: WorkunitDefinition, params: dict[str, Any]):
+    def _dispatch_jobs_dataset_flow(self, definition: WorkunitDefinition, params: dict[str, Any]) -> list[Path]:
         dataset = Dataset.find(id=definition.execution.dataset, client=self._client)
         dataset_df = dataset.to_polars()
         resources = Resource.find_all(
             ids=dataset_df[self._config.dataset_resource_column].unique().to_list(), client=self._client
         )
+        paths = []
         for row in dataset_df.iter_rows(named=True):
             resource_id = row[self._config.dataset_resource_column]
             row_params = {name: row[dataset_name] for dataset_name, name in self._config.dataset_param_columns}
-            self.dispatch_job(resource=resources[resource_id], params=params | row_params)
+            paths.append(self.dispatch_job(resource=resources[resource_id], params=params | row_params))
+        return paths

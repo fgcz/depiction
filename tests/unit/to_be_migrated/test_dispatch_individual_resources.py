@@ -30,8 +30,12 @@ def test_dispatch_workunit_when_resources(mocker, mock_dispatch):
     mock_definition = mocker.MagicMock(name="mock_definition")
     mock_definition.execution.resources = [1, 2, 3]
     dispatch_jobs = mocker.patch.object(mock_dispatch, "_dispatch_jobs_resource_flow")
+    write_chunks = mocker.patch.object(mock_dispatch, "_write_chunks")
+    write_workunit_definition = mocker.patch.object(mock_dispatch, "_write_workunit_definition")
     mock_dispatch.dispatch_workunit(definition=mock_definition)
     dispatch_jobs.assert_called_once_with(mock_definition, mock_definition.execution.raw_parameters)
+    write_chunks.assert_called_once_with(chunks=mock_dispatch._dispatch_jobs_resource_flow.return_value)
+    write_workunit_definition.assert_called_once_with(definition=mock_definition)
 
 
 def test_dispatch_workunit_when_dataset(mocker, mock_dispatch):
@@ -39,8 +43,12 @@ def test_dispatch_workunit_when_dataset(mocker, mock_dispatch):
     mock_definition.execution.resources = []
     mock_definition.execution.dataset = 1
     dispatch_jobs = mocker.patch.object(mock_dispatch, "_dispatch_jobs_dataset_flow")
+    write_chunks = mocker.patch.object(mock_dispatch, "_write_chunks")
+    write_workunit_definition = mocker.patch.object(mock_dispatch, "_write_workunit_definition")
     mock_dispatch.dispatch_workunit(definition=mock_definition)
     dispatch_jobs.assert_called_once_with(mock_definition, mock_definition.execution.raw_parameters)
+    write_chunks.assert_called_once_with(chunks=mock_dispatch._dispatch_jobs_dataset_flow.return_value)
+    write_workunit_definition.assert_called_once_with(definition=mock_definition)
 
 
 def test_dispatch_workunit_invalid_input(mocker, mock_dispatch):

@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+import yaml
 from loguru import logger
 from pydantic import BaseModel
 
@@ -28,7 +29,7 @@ class DispatchIndividualResources:
     def dispatch_job(self, resource: Resource, params: dict[str, Any]) -> Path:
         raise NotImplementedError
 
-    def dispatch_workunit(self, definition: WorkunitDefinition):
+    def dispatch_workunit(self, definition: WorkunitDefinition) -> None:
         params = definition.execution.raw_parameters
         if definition.execution.resources:
             paths = self._dispatch_jobs_resource_flow(definition, params)
@@ -36,8 +37,19 @@ class DispatchIndividualResources:
             paths = self._dispatch_jobs_dataset_flow(definition, params)
         else:
             raise ValueError("either dataset or resources must be provided")
-        # TODO persist the paths here? (instead of returning)
-        return paths
+        self._write_workunit_definition(definition=definition)
+        self._write_chunks(chunks=paths)
+
+    def _write_workunit_definition(self, definition: WorkunitDefinition) -> None:
+        self._out_dir.mkdir(exist_ok=True, parents=True)
+        with (self._out_dir / "workunit_definition.yml").open("w") as f:
+            yaml.safe_dump(definition.model_dump(mode="json"), f)
+
+    def _write_chunks(self, chunks: list[Path]) -> None:
+        self._out_dir.mkdir(exist_ok=True, parents=True)
+        with (self._out_dir / "chunks.yml").open("w") as f:
+            data = {"chunks": [str(chunk) for chunk in chunks]}
+            yaml.safe_dump(data, f)
 
     def _dispatch_jobs_resource_flow(self, definition: WorkunitDefinition, params: dict[str, Any]) -> list[Path]:
         resources = Resource.find_all(ids=definition.execution.resources, client=self._client)

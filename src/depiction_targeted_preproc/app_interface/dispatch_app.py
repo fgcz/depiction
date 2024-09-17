@@ -34,17 +34,9 @@ class DispatchApp(DispatchIndividualResources):
 @app.default
 def dispatch_app(workunit_ref: int | Path, work_dir: Path) -> None:
     client = Bfabric.from_config()
-    work_dir.mkdir(exist_ok=True, parents=True)
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client)
-    workunit_definition.to_yaml(work_dir / "workunit_definition.yml")
-
     dispatcher = DispatchApp(client=client, config=DispatchIndividualResourcesConfig(), out_dir=work_dir)
-    chunks = dispatcher.dispatch_workunit(definition=workunit_definition)
-
-    # TODO consider how to best handle this
-    with (work_dir / "chunks.yml").open("w") as f:
-        data = {"chunks": [str(chunk) for chunk in chunks]}
-        yaml.safe_dump(data, f)
+    dispatcher.dispatch_workunit(definition=workunit_definition)
 
 
 def write_params(params_dict: dict, file: Path) -> None:

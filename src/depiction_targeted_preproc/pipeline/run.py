@@ -6,7 +6,7 @@ from bfabric.entities import Workunit, Resource
 
 from depiction_targeted_preproc.pipeline.prepare_inputs import prepare_inputs
 from depiction_targeted_preproc.pipeline.prepare_params import prepare_params
-from depiction_targeted_preproc.pipeline.run_workflow import run_workflow
+from depiction_targeted_preproc.app_interface.run_chunk import run_workflow
 from depiction_targeted_preproc.pipeline.store_outputs import store_outputs
 
 app = cyclopts.App()

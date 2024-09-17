@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import polars as pl
 import pytest
 
@@ -21,7 +23,7 @@ def mock_config():
 
 @pytest.fixture()
 def mock_dispatch(mock_client, mock_config) -> DispatchIndividualResources:
-    return DispatchIndividualResources(client=mock_client, config=mock_config)
+    return DispatchIndividualResources(client=mock_client, config=mock_config, out_dir=Path("/dev/null"))
 
 
 def test_dispatch_workunit_when_resources(mocker, mock_dispatch):

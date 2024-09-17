@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from loguru import logger
@@ -19,9 +20,10 @@ class DispatchIndividualResourcesConfig(BaseModel):
 class DispatchIndividualResources:
     """Dispatches jobs on individual resources specified in the workunit."""
 
-    def __init__(self, client: Bfabric, config: DispatchIndividualResourcesConfig) -> None:
+    def __init__(self, client: Bfabric, config: DispatchIndividualResourcesConfig, out_dir: Path) -> None:
         self._client = client
         self._config = config
+        self._out_dir = out_dir
 
     def dispatch_job(self, resource: Resource, params: dict[str, Any]):
         raise NotImplementedError

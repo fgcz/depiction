@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import cyclopts
 import yaml
@@ -8,11 +9,26 @@ import yaml
 from bfabric import Bfabric
 from bfabric.entities import Resource
 from bfabric.experimental.app_interface.workunit.definition import WorkunitDefinition
+from depiction_targeted_preproc.app_interface.dispatch_individual_resources import (
+    DispatchIndividualResources,
+    DispatchIndividualResourcesConfig,
+)
 from depiction_targeted_preproc.pipeline.prepare_inputs import write_inputs_spec
 from depiction_targeted_preproc.pipeline.prepare_params import parse_params
-from depiction_targeted_preprocbatch.batch_dataset import BatchDataset
 
 app = cyclopts.App()
+
+
+class DispatchApp(DispatchIndividualResources):
+    def dispatch_job(self, resource: Resource, params: dict[str, Any]) -> Path:
+        params_parsed = parse_params(params)
+        chunk_dir = self._out_dir / Path(resource["name"]).stem
+        chunk_dir.mkdir(exist_ok=True, parents=True)
+        write_inputs_spec(
+            dataset_id=params["mass_list_id"], imzml_resource_id=resource.id, client=self._client, sample_dir=chunk_dir
+        )
+        write_params(params_dict=params_parsed, file=chunk_dir / "params.yml")
+        return chunk_dir
 
 
 @app.default
@@ -22,33 +38,8 @@ def dispatch_app(workunit_ref: int | Path, work_dir: Path) -> None:
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client)
     workunit_definition.to_yaml(work_dir / "workunit_definition.yml")
 
-    params = parse_params(workunit_definition.execution)
-    chunks = []
-
-    if workunit_definition.execution.resources:
-        # resource flow
-        dataset_id = int(params["mass_list_id"])
-        input_resources = Resource.find_all(ids=workunit_definition.execution.resources, client=client).values()
-        imzml_resource_ids = [resource.id for resource in input_resources if resource["name"].endswith(".imzML")]
-
-        # dispatch each input
-        for imzml_resource_id in imzml_resource_ids:
-            imzml_resource = Resource.find(id=imzml_resource_id, client=client)
-            chunk_dir = work_dir / Path(imzml_resource["name"]).stem
-            write_inputs_spec(
-                dataset_id=dataset_id, imzml_resource_id=imzml_resource_id, client=client, sample_dir=chunk_dir
-            )
-            write_params(params_dict=params, file=chunk_dir / "params.yml")
-            chunks.append(chunk_dir)
-    elif workunit_definition.execution.dataset:
-        batch_dataset = BatchDataset(dataset_id=workunit_definition.execution.dataset, client=client)
-        for job in batch_dataset.jobs:
-            chunk_dir = work_dir / Path(job.imzml["name"]).stem
-            write_inputs_spec(
-                dataset_id=job.panel.id, imzml_resource_id=job.imzml.id, client=client, sample_dir=chunk_dir
-            )
-            write_params(params_dict=params, file=chunk_dir / "params.yml")
-            chunks.append(chunk_dir)
+    dispatcher = DispatchApp(client=client, config=DispatchIndividualResourcesConfig(), out_dir=work_dir)
+    chunks = dispatcher.dispatch_workunit(definition=workunit_definition)
 
     # TODO consider how to best handle this
     with (work_dir / "chunks.yml").open("w") as f:

@@ -153,6 +153,7 @@ class GenericReadFile(Protocol):
         This operation can be slow for large files, but will be cached after the first call.
         `None` is returned when checksum information is available.
         """
+        # TODO should this really be here
         ...
 
     def summary(self, checksums: bool = True) -> str:

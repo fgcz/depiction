@@ -71,7 +71,7 @@ class DispatchIndividualResources:
         )
         paths = []
         for row in dataset_df.iter_rows(named=True):
-            resource_id = row[self._config.dataset_resource_column]
+            resource_id = int(row[self._config.dataset_resource_column])
             row_params = {name: row[dataset_name] for dataset_name, name in self._config.dataset_param_columns}
             paths.append(self.dispatch_job(resource=resources[resource_id], params=params | row_params))
         return paths

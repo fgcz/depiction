@@ -1,7 +1,7 @@
 from __future__ import annotations
 import pytest
 import numpy as np
-from numpy.testing import assert_array_equal, assert_array_almost_equal
+from numpy.testing import assert_array_equal
 
 from depiction.clustering.maxmin_sampling import maxmin_sampling
 

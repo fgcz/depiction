@@ -52,7 +52,7 @@ class GenerateSyntheticImzml:
         target_mz, target_int = self._generate_isotopic_peaks(
             mz_arr=target_masses, int_arr=target_intensities, n_isotopes=n_isotopes
         )
-        n_noise_peaks = round((self._mz_max - self._mz_min))
+        n_noise_peaks = round(self._mz_max - self._mz_min)
         noise_mz, noise_int = self._generate_noise_peaks(
             n=n_noise_peaks, target_mz=target_mz, target_min_distance_mz=0.5
         )

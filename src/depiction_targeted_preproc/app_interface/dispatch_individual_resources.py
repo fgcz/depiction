@@ -5,23 +5,40 @@ from typing import Any
 
 import yaml
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
 from bfabric.experimental.app_interface.workunit.definition import WorkunitDefinition
 
 
-class DispatchIndividualResourcesConfig(BaseModel):
-    input_resources_suffix_filter: str | None = ".imzML"
-    dataset_resource_column: str = "Imzml"
-    dataset_param_columns: list[tuple[str, str]] = [("PanelDataset", "mass_list_id")]
+class ConfigResourceFlow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    filter_suffix: str | None = None
+
+
+class ConfigDatasetFlow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    resource_column: str = "Imzml"
+    param_columns: list[tuple[str, str]] = [("PanelDataset", "mass_list_id")]
+
+
+class ConfigDispatchIndividualResources(BaseModel):
+    resource_flow: ConfigResourceFlow
+    dataset_flow: ConfigDatasetFlow
+
+
+def config_msi_imzml():
+    return ConfigDispatchIndividualResources(
+        resource_flow=ConfigResourceFlow(filter_suffix=".imzML"),
+        dataset_flow=ConfigDatasetFlow(resource_column="Imzml", param_columns=[("PanelDataset", "mass_list_id")]),
+    )
 
 
 class DispatchIndividualResources:
     """Dispatches jobs on individual resources specified in the workunit."""
 
-    def __init__(self, client: Bfabric, config: DispatchIndividualResourcesConfig, out_dir: Path) -> None:
+    def __init__(self, client: Bfabric, config: ConfigDispatchIndividualResources, out_dir: Path) -> None:
         self._client = client
         self._config = config
         self._out_dir = out_dir
@@ -55,8 +72,8 @@ class DispatchIndividualResources:
         resources = Resource.find_all(ids=definition.execution.resources, client=self._client)
         paths = []
         for resource in sorted(resources.values()):
-            if self._config.input_resources_suffix_filter is not None and not resource["name"].endswith(
-                self._config.input_resources_suffix_filter
+            if self._config.resource_flow.filter_suffix is not None and not resource["name"].endswith(
+                self._config.resource_flow.filter_suffix
             ):
                 logger.info(f"Skipping resource {resource['name']!r} as it does not match the extension filter.")
                 continue
@@ -67,11 +84,11 @@ class DispatchIndividualResources:
         dataset = Dataset.find(id=definition.execution.dataset, client=self._client)
         dataset_df = dataset.to_polars()
         resources = Resource.find_all(
-            ids=dataset_df[self._config.dataset_resource_column].unique().to_list(), client=self._client
+            ids=dataset_df[self._config.dataset_flow.resource_column].unique().to_list(), client=self._client
         )
         paths = []
         for row in dataset_df.iter_rows(named=True):
-            resource_id = int(row[self._config.dataset_resource_column])
-            row_params = {name: row[dataset_name] for dataset_name, name in self._config.dataset_param_columns}
+            resource_id = int(row[self._config.dataset_flow.resource_column])
+            row_params = {name: row[dataset_name] for dataset_name, name in self._config.dataset_flow.param_columns}
             paths.append(self.dispatch_job(resource=resources[resource_id], params=params | row_params))
         return paths

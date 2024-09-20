@@ -77,6 +77,7 @@ dev = [
     "spatialdata",
     "spatialdata-plot>=0.2.1",
     "types-tqdm",
+    "rpy2",
     "pytype",
     "sphinx",
     "sphinx-autoapi",

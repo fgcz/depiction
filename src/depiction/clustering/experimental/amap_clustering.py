@@ -11,9 +11,7 @@ class AmapClustering:
     If this works nicely, we could consider reimplementing some of these methods in Python.
     """
 
-    def corr_kmeans(
-        self, data: np.ndarray, clusters: int, *, abs_correlation: bool = False, metric: str = None
-    ) -> np.ndarray:
+    def corr_kmeans(self, data: np.ndarray, clusters: int, *, abs_correlation: bool = False) -> np.ndarray:
         """
         Call R's amap::Kmeans from Python using rpy2.
 
@@ -29,10 +27,6 @@ class AmapClustering:
         amap = importr("amap")
 
         with np_cv_rules.context():
-            method = metric or ("abscorrelation" if abs_correlation else "correlation")
-
-            # Call the R function
+            method = "abscorrelation" if abs_correlation else "correlation"
             kmeans_result = amap.Kmeans(x=data, centers=clusters, method=method, nstart=10, iter_max=100)
-
-            # Convert to numpy
             return np.array(kmeans_result["cluster"])

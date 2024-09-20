@@ -5,6 +5,7 @@ from pathlib import Path
 import cyclopts
 import numpy as np
 import xarray
+from depiction.clustering.experimental.amap_clustering import AmapClustering
 from numpy.typing import NDArray
 from sklearn.cluster import KMeans, BisectingKMeans, Birch
 
@@ -21,6 +22,7 @@ class MethodEnum(Enum):
     KMEANS = "kmeans"
     BISECTINGKMEANS = "bisectingkmeans"
     BIRCH = "birch"
+    AMAP_CORR_KMEANS = "amap_corr_kmeans"
 
 
 MethodParamsType = dict[str, bool | str | float | int | None]
@@ -150,16 +152,22 @@ def clustering(
 
 
 def compute_labels(features: NDArray[float], method: MethodEnum, method_params: MethodParamsType) -> NDArray[int]:
+    if "n_clusters" in method_params:
+        n_clusters = method_params.pop("n_clusters")
+    else:
+        n_clusters = 10
     if method == MethodEnum.KMEANS:
-        params = method_params | {"n_clusters": 10}
-        clu = KMeans(**params).fit(features)
+        clu = KMeans(n_clusters=n_clusters, **method_params).fit(features)
         return clu.labels_
     elif method == MethodEnum.BISECTINGKMEANS:
-        clu = BisectingKMeans(n_clusters=10).fit(features)
+        clu = BisectingKMeans(n_clusters=n_clusters).fit(features)
         return clu.labels_
     elif method == MethodEnum.BIRCH:
-        clu = Birch(n_clusters=10).fit(features)
+        clu = Birch(n_clusters=n_clusters).fit(features)
         return clu.labels_
+    elif method == MethodEnum.AMAP_CORR_KMEANS:
+        clu = AmapClustering()
+        return clu.corr_kmeans(data=features, clusters=10, abs_correlation=False)
     else:
         raise ValueError(f"Method {method} not implemented")
 

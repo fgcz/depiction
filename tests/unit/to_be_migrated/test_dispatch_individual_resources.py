@@ -2,13 +2,13 @@ from pathlib import Path
 
 import polars as pl
 import pytest
+from depiction_targeted_preproc.app_interface.dispatch_individual_resources import (
+    DispatchIndividualResources,
+    config_msi_imzml,
+)
 
 from bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
-from depiction_targeted_preproc.app_interface.dispatch_individual_resources import (
-    DispatchIndividualResourcesConfig,
-    DispatchIndividualResources,
-)
 
 
 @pytest.fixture()
@@ -18,7 +18,7 @@ def mock_client(mocker):
 
 @pytest.fixture()
 def mock_config():
-    return DispatchIndividualResourcesConfig()
+    return config_msi_imzml()
 
 
 @pytest.fixture()
@@ -107,21 +107,3 @@ def test_dispatch_jobs_dataset_flow(mocker, mock_dispatch, mock_client):
 def test_dispatch_job(mock_dispatch):
     with pytest.raises(NotImplementedError):
         mock_dispatch.dispatch_job(resource=None, params={})
-
-
-def test_config_default_values():
-    config = DispatchIndividualResourcesConfig()
-    assert config.input_resources_suffix_filter == ".imzML"
-    assert config.dataset_resource_column == "Imzml"
-    assert config.dataset_param_columns == [("PanelDataset", "mass_list_id")]
-
-
-def test_config_custom_values():
-    config = DispatchIndividualResourcesConfig(
-        input_resources_suffix_filter=".txt",
-        dataset_resource_column="CustomColumn",
-        dataset_param_columns=[("CustomParam", "custom_id")],
-    )
-    assert config.input_resources_suffix_filter == ".txt"
-    assert config.dataset_resource_column == "CustomColumn"
-    assert config.dataset_param_columns == [("CustomParam", "custom_id")]

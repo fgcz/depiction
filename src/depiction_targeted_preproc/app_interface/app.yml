@@ -1,3 +1,4 @@
 commands:
   dispatch: python -m depiction_targeted_preproc.app_interface.dispatch_app
-  process: python -m depiction_targeted_preproc.app_interface.run_chunk
+  process: python -m depiction_targeted_preproc.app_interface.process_chunk
+  collect: python -m depiction_targeted_preproc.app_interface.collect_chunk

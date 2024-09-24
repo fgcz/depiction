@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from typing import Literal, Any
-
-from loguru import logger
-from pydantic import BaseModel, Field
+from typing import Literal, Any, Self, Annotated
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction.persistence import ImzmlModeEnum
 from depiction.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader
 from depiction.spectrum.peak_filtering import PeakFilteringType
-from depiction.spectrum.peak_picking import BasicInterpolatedPeakPicker
+from depiction.spectrum.peak_picking import BasicInterpolatedPeakPicker, BasicPeakPicker
 from depiction.spectrum.peak_picking.ms_peak_picker_wrapper import MSPeakPicker
 from depiction.tools.filter_peaks import FilterPeaksConfig, get_peak_filter
+from loguru import logger
+from pydantic import BaseModel, Field, model_validator
 
 
 class PeakPickerBasicInterpolatedConfig(BaseModel):
@@ -20,9 +19,30 @@ class PeakPickerBasicInterpolatedConfig(BaseModel):
     min_distance: int | float | None = None
     min_distance_unit: Literal["index", "mz"] | None = None
 
-    # TODO ensure min_distance are both either present or missing
-    # (ideally we would just have a better typing support here and provide as tuple,
-    #  but postpone for later)
+    @model_validator(mode="after")
+    def validate_min_distance(self) -> Self:
+        if self.min_distance is not None and self.min_distance_unit is None:
+            raise ValueError("min_distance_unit must be provided if min_distance is set")
+        if self.min_distance_unit is not None and self.min_distance is None:
+            raise ValueError("min_distance must be provided if min_distance_unit is set")
+        return self
+
+
+class PeakPickerBasicUninterpolatedConfig(BaseModel):
+    peak_picker_type: Literal["BasicUninterpolated"] = "BasicUninterpolated"
+    min_prominence: float
+    min_distance: int | float | None = None
+    min_distance_unit: Literal["index", "mz"] | None = None
+    # TODO make optional later
+    smooth_sigma: Annotated[float, Field(gt=0)] = 0.0
+
+    @model_validator(mode="after")
+    def validate_min_distance(self) -> Self:
+        if self.min_distance is not None and self.min_distance_unit is None:
+            raise ValueError("min_distance_unit must be provided if min_distance is set")
+        if self.min_distance_unit is not None and self.min_distance is None:
+            raise ValueError("min_distance must be provided if min_distance_unit is set")
+        return self
 
 
 class PeakPickerMSPeakPickerConfig(BaseModel):
@@ -41,9 +61,12 @@ class PeakPickerFindMFPyConfig(BaseModel):
 
 
 class PickPeaksConfig(BaseModel, use_enum_values=True, validate_default=True):
-    peak_picker: PeakPickerBasicInterpolatedConfig | PeakPickerMSPeakPickerConfig | PeakPickerFindMFPyConfig = Field(
-        ..., discriminator="peak_picker_type"
-    )
+    peak_picker: (
+        PeakPickerBasicInterpolatedConfig
+        | PeakPickerBasicUninterpolatedConfig
+        | PeakPickerMSPeakPickerConfig
+        | PeakPickerFindMFPyConfig
+    ) = Field(..., discriminator="peak_picker_type")
     n_jobs: int
     force_peak_picker: bool = False
     peak_filtering: FilterPeaksConfig | None = None
@@ -112,6 +135,14 @@ def get_peak_picker(config: PickPeaksConfig, peak_filtering: PeakFilteringType |
                 min_distance_unit=peak_picker_config.min_distance_unit,
                 peak_filtering=peak_filtering,
             )
+        case PeakPickerBasicUninterpolatedConfig() as peak_picker_config:
+            return BasicPeakPicker(
+                smooth_sigma=peak_picker_config.smooth_sigma,
+                min_prominence=peak_picker_config.min_prominence,
+                min_distance=peak_picker_config.min_distance,
+                min_distance_unit=peak_picker_config.min_distance_unit,
+                peak_filtering=peak_filtering,
+            )
         case PeakPickerMSPeakPickerConfig() as peak_picker_config:
             return MSPeakPicker(fit_type=peak_picker_config.fit_type, peak_filtering=peak_filtering)
         case PeakPickerFindMFPyConfig() as peak_picker_config:
@@ -137,7 +168,7 @@ def pick_peaks(
     input_file: ImzmlReadFile,
     output_file: ImzmlWriteFile,
 ) -> None:
-    peak_filtering = get_peak_filter(config.peak_filtering)
+    peak_filtering = get_peak_filter(config.peak_filtering) if config.peak_filtering else None
     peak_picker = get_peak_picker(config, peak_filtering)
     parallel_config = ParallelConfig(n_jobs=config.n_jobs)
 

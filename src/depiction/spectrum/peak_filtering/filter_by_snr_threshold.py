@@ -62,7 +62,8 @@ class FilterBySnrThreshold(PeakFilteringType):
             signal=spectrum_int_arr, kernel_size=self.config.window_size.convert_to_index_scalar(mz_arr=spectrum_mz_arr)
         )
         peak_noise_level = np.interp(peak_mz_arr, spectrum_mz_arr, noise_level)
-        snr = peak_int_arr / peak_noise_level
+        eps = 1e-30
+        snr = (peak_int_arr + eps) / (peak_noise_level + eps)
         return snr > self.config.snr_threshold
 
     @staticmethod

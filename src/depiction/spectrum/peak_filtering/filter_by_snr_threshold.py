@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 import scipy
@@ -10,6 +11,7 @@ from pydantic import BaseModel
 
 
 class FilterBySnrThresholdConfig(BaseModel):
+    method: Literal["FilterBySnrThreshold"] = "FilterBySnrThreshold"
     snr_threshold: float
     window_size: WindowSize
 
@@ -30,7 +32,8 @@ class FilterBySnrThreshold(PeakFilteringType):
         noise_level = self._estimate_noise_level(
             signal=spectrum_int_arr, kernel_size=self.config.window_size.convert_to_index_scalar(mz_arr=spectrum_mz_arr)
         )
-        snr = spectrum_int_arr / noise_level
+        peak_noise_level = np.interp(peak_mz_arr, spectrum_mz_arr, noise_level)
+        snr = peak_int_arr / peak_noise_level
         selection = snr > self.config.snr_threshold
         return peak_mz_arr[selection], peak_int_arr[selection]
 

@@ -165,13 +165,18 @@ def get_peak_picker(config: PickPeaksConfig, peak_filtering: PeakFilteringType |
             raise ValueError(f"Unsupported peak picker type: {config.peak_picker.peak_picker_type}")
 
 
+def get_peak_picker_from_config(config: PickPeaksConfig) -> Any:
+    peak_filtering = get_peak_filter(config.peak_filtering) if config.peak_filtering else None
+    peak_picker = get_peak_picker(config, peak_filtering)
+    return peak_picker
+
+
 def pick_peaks(
     config: PickPeaksConfig,
     input_file: ImzmlReadFile,
     output_file: ImzmlWriteFile,
 ) -> None:
-    peak_filtering = get_peak_filter(config.peak_filtering) if config.peak_filtering else None
-    peak_picker = get_peak_picker(config, peak_filtering)
+    peak_picker = get_peak_picker_from_config(config)
     parallel_config = ParallelConfig(n_jobs=config.n_jobs)
 
     if config.peak_picker is None or (

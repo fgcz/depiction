@@ -9,7 +9,7 @@ class PeakFilteringType(Protocol):
         spectrum_int_arr: NDArray[float],
         peak_idx_arr: NDArray[int],
     ) -> NDArray[int]:
-        pass
+        raise NotImplementedError
 
     def filter_peaks(
         self,
@@ -18,4 +18,4 @@ class PeakFilteringType(Protocol):
         peak_mz_arr: NDArray[float],
         peak_int_arr: NDArray[float],
     ) -> tuple[NDArray[float], NDArray[float]]:
-        pass
+        raise NotImplementedError

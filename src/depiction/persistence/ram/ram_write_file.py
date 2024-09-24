@@ -3,14 +3,14 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
+from depiction.persistence.ram.ram_read_file import RamReadFile
 from tqdm import tqdm
-
-from depiction.persistence import ImzmlModeEnum, RamReadFile
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
     from collections.abc import Generator
     from collections.abc import Sequence
+    from depiction.persistence import ImzmlModeEnum
 
 
 class RamWriteFile:

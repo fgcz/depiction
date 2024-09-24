@@ -97,10 +97,12 @@ class PickPeaks:
         for spectrum_index in spectra_ids:
             mz_arr, int_arr, coords = reader.get_spectrum_with_coords(spectrum_index)
             peak_mz, peak_int = peak_picker.pick_peaks(mz_arr, int_arr)
-            if len(peak_mz) > 0:
+            if len(peak_mz) > 1:
                 writer.add_spectrum(peak_mz, peak_int, coords)
             else:
-                logger.warning(f"Dropped spectrum {spectrum_index} as no peaks were found")
+                logger.warning(
+                    f"Dropped spectrum {spectrum_index} as insufficient ({len(peak_mz)} <= 1) peaks were found"
+                )
 
 
 # def debug_diagnose_threshold_correspondence(

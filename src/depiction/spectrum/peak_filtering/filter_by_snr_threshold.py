@@ -58,18 +58,16 @@ class FilterBySnrThreshold(PeakFilteringType):
         peak_mz_arr: NDArray[float],
         peak_int_arr: NDArray[float],
     ) -> NDArray[bool]:
-        noise_level = self._estimate_noise_level(
-            signal=spectrum_int_arr, kernel_size=self.config.window_size.convert_to_index_scalar(mz_arr=spectrum_mz_arr)
-        )
+        noise_level = self.estimate_noise_level(mz_arr=spectrum_mz_arr, int_arr=spectrum_int_arr)
         peak_noise_level = np.interp(peak_mz_arr, spectrum_mz_arr, noise_level)
         eps = 1e-30
         snr = (peak_int_arr + eps) / (peak_noise_level + eps)
         return snr > self.config.snr_threshold
 
-    @staticmethod
-    def _estimate_noise_level(signal: NDArray[float], kernel_size: int) -> NDArray[float]:
+    def estimate_noise_level(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
         """Estimates the noise level in the signal using median absolute deviation (MAD)."""
+        kernel_size = self.config.window_size.convert_to_index_scalar(mz_arr=mz_arr)
         # Ensure kernel size is odd
         kernel_size += 1 - (kernel_size % 2)
-        filtered_signal = scipy.signal.medfilt(signal, kernel_size=kernel_size)
-        return np.abs(signal - filtered_signal)
+        filtered_signal = scipy.signal.medfilt(int_arr, kernel_size=kernel_size)
+        return np.abs(int_arr - filtered_signal)

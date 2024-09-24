@@ -113,7 +113,7 @@ def correct_baseline(config: BaselineCorrectionConfig, input_imzml: Path, output
             # TODO define some sane default for None and -1 n_jobs e.g. use all available up to a limit (None) or use all (1-r)
             n_jobs = 10
         else:
-            n_jobs = config.n_jobsf
+            n_jobs = config.n_jobs
         parallel_config = ParallelConfig(n_jobs=n_jobs)
         output_file = ImzmlWriteFile(output_imzml, imzml_mode=input_file.imzml_mode)
         correct_baseline = CorrectBaseline.from_variant(

@@ -68,5 +68,7 @@ class FilterBySnrThreshold(PeakFilteringType):
     @staticmethod
     def _estimate_noise_level(signal: NDArray[float], kernel_size: int) -> NDArray[float]:
         """Estimates the noise level in the signal using median absolute deviation (MAD)."""
+        # Ensure kernel size is odd
+        kernel_size += 1 - (kernel_size % 2)
         filtered_signal = scipy.signal.medfilt(signal, kernel_size=kernel_size)
         return np.abs(signal - filtered_signal)

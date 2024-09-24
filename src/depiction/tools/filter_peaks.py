@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
+from depiction.spectrum.peak_filtering.filter_by_snr_threshold import FilterBySnrThresholdConfig, FilterBySnrThreshold
 from pydantic import BaseModel, PositiveInt
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
@@ -16,7 +17,7 @@ class FilterNHighestIntensityPartitionedConfig(BaseModel):
 
 
 class FilterPeaksConfig(BaseModel, use_enum_values=True, validate_default=True):
-    filters: list[FilterNHighestIntensityPartitionedConfig]
+    filters: list[FilterNHighestIntensityPartitionedConfig | FilterBySnrThresholdConfig]
     n_jobs: PositiveInt | None = None
 
 
@@ -27,6 +28,8 @@ def get_peak_filter(config: FilterPeaksConfig) -> PeakFilteringType:
         match filter:
             case FilterNHighestIntensityPartitionedConfig(max_count=max_count, n_partitions=n_partitions):
                 filters.append(FilterNHighestIntensityPartitioned(max_count=max_count, n_partitions=n_partitions))
+            case FilterBySnrThresholdConfig():
+                filters.append(FilterBySnrThreshold(config=filter))
             case _:
                 raise ValueError(f"Unknown filter method: {filter.method}")
     if len(filters) == 1:

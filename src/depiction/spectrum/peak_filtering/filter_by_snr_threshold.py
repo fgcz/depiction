@@ -6,14 +6,19 @@ import scipy.signal
 from depiction.spectrum.peak_filtering import PeakFilteringType
 from depiction.spectrum.unit_conversion import WindowSize
 from numpy.typing import NDArray
+from pydantic import BaseModel
+
+
+class FilterBySnrThresholdConfig(BaseModel):
+    snr_threshold: float
+    window_size: WindowSize
 
 
 @dataclass
 class FilterBySnrThreshold(PeakFilteringType):
     """Implements SNR threshold based on a median absolute deviation (MAD) estimate of the noise level."""
 
-    snr_threshold: float
-    window_size: WindowSize
+    config: FilterBySnrThresholdConfig
 
     def filter_peaks(
         self,
@@ -23,10 +28,10 @@ class FilterBySnrThreshold(PeakFilteringType):
         peak_int_arr: NDArray[float],
     ) -> tuple[NDArray[float], NDArray[float]]:
         noise_level = self._estimate_noise_level(
-            signal=spectrum_int_arr, kernel_size=self.window_size.convert_to_index_scalar(mz_arr=spectrum_mz_arr)
+            signal=spectrum_int_arr, kernel_size=self.config.window_size.convert_to_index_scalar(mz_arr=spectrum_mz_arr)
         )
         snr = spectrum_int_arr / noise_level
-        selection = snr > self.snr_threshold
+        selection = snr > self.config.snr_threshold
         return peak_mz_arr[selection], peak_int_arr[selection]
 
     @staticmethod

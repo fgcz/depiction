@@ -29,13 +29,41 @@ class FilterBySnrThreshold(PeakFilteringType):
         peak_mz_arr: NDArray[float],
         peak_int_arr: NDArray[float],
     ) -> tuple[NDArray[float], NDArray[float]]:
+        selection = self._select_peaks(
+            spectrum_mz_arr=spectrum_mz_arr,
+            spectrum_int_arr=spectrum_int_arr,
+            peak_mz_arr=peak_mz_arr,
+            peak_int_arr=peak_int_arr,
+        )
+        return peak_mz_arr[selection], peak_int_arr[selection]
+
+    def filter_index_peaks(
+        self,
+        spectrum_mz_arr: NDArray[float],
+        spectrum_int_arr: NDArray[float],
+        peak_idx_arr: NDArray[int],
+    ) -> NDArray[int]:
+        selection = self._select_peaks(
+            spectrum_mz_arr=spectrum_mz_arr,
+            spectrum_int_arr=spectrum_int_arr,
+            peak_mz_arr=spectrum_mz_arr[peak_idx_arr],
+            peak_int_arr=spectrum_int_arr[peak_idx_arr],
+        )
+        return peak_idx_arr[selection]
+
+    def _select_peaks(
+        self,
+        spectrum_mz_arr: NDArray[float],
+        spectrum_int_arr: NDArray[float],
+        peak_mz_arr: NDArray[float],
+        peak_int_arr: NDArray[float],
+    ) -> NDArray[bool]:
         noise_level = self._estimate_noise_level(
             signal=spectrum_int_arr, kernel_size=self.config.window_size.convert_to_index_scalar(mz_arr=spectrum_mz_arr)
         )
         peak_noise_level = np.interp(peak_mz_arr, spectrum_mz_arr, noise_level)
         snr = peak_int_arr / peak_noise_level
-        selection = snr > self.config.snr_threshold
-        return peak_mz_arr[selection], peak_int_arr[selection]
+        return snr > self.config.snr_threshold
 
     @staticmethod
     def _estimate_noise_level(signal: NDArray[float], kernel_size: int) -> NDArray[float]:

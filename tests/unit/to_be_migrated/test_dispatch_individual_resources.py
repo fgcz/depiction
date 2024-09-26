@@ -2,7 +2,7 @@ from pathlib import Path
 
 import polars as pl
 import pytest
-from depiction_targeted_preproc.app_interface.dispatch_individual_resources import (
+from bfabric.experimental.app_interface.dispatch.dispatch_individual_resources import (
     DispatchIndividualResources,
     config_msi_imzml,
 )

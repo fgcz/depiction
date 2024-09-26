@@ -9,7 +9,7 @@ import yaml
 from bfabric import Bfabric
 from bfabric.entities import Resource
 from bfabric.experimental.app_interface.workunit.definition import WorkunitDefinition
-from depiction_targeted_preproc.app_interface.dispatch_individual_resources import (
+from bfabric.experimental.app_interface.dispatch.dispatch_individual_resources import (
     DispatchIndividualResources,
     DispatchIndividualResourcesConfig,
 )

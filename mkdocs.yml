@@ -1,6 +1,4 @@
 site_name: depiction docs
-nav:
-  - index.md
 theme:
   name: material
   features:

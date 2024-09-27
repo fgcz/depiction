@@ -25,6 +25,8 @@ from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 
 
 class GenericReader(Protocol):
+    """Reader for an .imzML file."""
+
     def __enter__(self) -> Self:
         return self
 
@@ -112,41 +114,45 @@ class GenericReader(Protocol):
 
 
 class GenericReadFile(Protocol):
+    """Encodes a container file handle, from which we can obtain GenericReader instances."""
+
     def reader(self) -> Generator[GenericReader, None, None]:
         """Returns a context manager that yields an `ImzmlReader` instance."""
-        ...
+        raise NotImplementedError
 
-    def get_reader(self) -> GenericReader: ...
+    def get_reader(self) -> GenericReader:
+        """Returns an instance of the reader."""
+        raise NotImplementedError
 
     @property
     def n_spectra(self) -> int:
-        """Returns the number of spectra in the .imzML file."""
-        ...
+        """Number of spectra in the .imzML file."""
+        raise NotImplementedError
 
     @property
     def imzml_mode(self) -> ImzmlModeEnum:
-        """Returns the mode of the .imzML file (continuous or processed)."""
-        ...
+        """Mode of the .imzML file (continuous or processed)."""
+        raise NotImplementedError
 
     @property
     def coordinates(self) -> NDArray[int]:
-        """Returns the spatial coordinates of the spectra in the .imzML file.
+        """Spatial coordinates of the spectra in the .imzML file.
         Shape: (n_spectra, n_dimensions) where n_dimensions is 2 or 3 depending on the file."""
-        ...
+        raise NotImplementedError
 
     @property
     def coordinates_2d(self) -> NDArray[int]:
-        """Returns the spatial coordinates of the spectra in the .imzML file.
+        """Spatial coordinates of the spectra in the .imzML file.
         Shape: (n_spectra, 2) where the first two columns are the x and y coordinates."""
         # TODO double check convention and update docstring accordingly
         return self.coordinates[:, :2]
 
     @property
     def compact_metadata(self) -> dict[str, int | str | list[float]]:
-        """Returns a compact representation of general metadata about the .imzML file, useful when comparing a large
+        """Compact representation of general metadata about the .imzML file, useful when comparing a large
         number of files."""
         # TODO should this really be here
-        ...
+        raise NotImplementedError
 
     def is_checksum_valid(self) -> bool | None:
         """Returns True if the checksum of the .ibd file matches the expected value. False otherwise.
@@ -154,11 +160,11 @@ class GenericReadFile(Protocol):
         `None` is returned when checksum information is available.
         """
         # TODO should this really be here
-        ...
+        raise NotImplementedError
 
     def summary(self, checksums: bool = True) -> str:
         """Returns a summary of the file."""
-        ...
+        raise NotImplementedError
 
     def print_summary(self, checksums: bool = True, file: TextIO | None = None) -> None:
         """Prints a summary of the file."""
@@ -167,7 +173,7 @@ class GenericReadFile(Protocol):
     @property
     def pixel_size(self) -> PixelSize | None:
         """Returns pixel size information, if available."""
-        ...
+        raise NotImplementedError
 
     # TODO consider including in the generic interface
     # def copy_to(self, path: Path) -> None:

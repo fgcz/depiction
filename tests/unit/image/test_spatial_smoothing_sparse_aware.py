@@ -1,4 +1,5 @@
 import unittest
+import warnings
 from datetime import timedelta
 from functools import cached_property
 
@@ -8,7 +9,15 @@ from sparse import GCXS
 from xarray import DataArray
 
 from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
-from depiction.misc.integration_test_utils import IntegrationTestUtils
+
+
+def _treat_warnings_as_error(test_case) -> None:
+    """To be called from setUp."""
+    # TODO reuse or refactor (and move out of integration_test_utils and rather a more general test_utils?)
+    warnings_ctx = warnings.catch_warnings()
+    warnings_ctx.__enter__()
+    warnings.simplefilter("error")
+    test_case.addCleanup(warnings_ctx.__exit__, None, None, None)
 
 
 class TestSpatialSmoothingSparseAware(unittest.TestCase):
@@ -16,7 +25,7 @@ class TestSpatialSmoothingSparseAware(unittest.TestCase):
         self.mock_kernel_size = 5
         self.mock_kernel_std = 1.0
         self.mock_use_interpolation = False
-        IntegrationTestUtils.treat_warnings_as_error(self)
+        _treat_warnings_as_error(self)
 
     @cached_property
     def mock_smooth(self) -> SpatialSmoothingSparseAware:

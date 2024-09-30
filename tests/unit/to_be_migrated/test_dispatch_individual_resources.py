@@ -65,9 +65,9 @@ def test_dispatch_jobs_resource_flow(mocker, mock_dispatch, mock_client):
     mock_definition.execution.raw_parameters = {"param1": "value1"}
 
     mock_resources = {
-        1: Resource({"id": 1, "name": "resource1.imzML"}),
-        2: Resource({"id": 2, "name": "resource2.imzML"}),
-        3: Resource({"id": 3, "name": "resource3.txt"}),
+        1: Resource({"id": 1, "relativepath": "resource1.imzML"}),
+        2: Resource({"id": 2, "relativepath": "resource2.imzML"}),
+        3: Resource({"id": 3, "relativepath": "resource3.txt"}),
     }
     mocker.patch.object(Resource, "find_all", return_value=mock_resources)
 

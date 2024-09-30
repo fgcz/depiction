@@ -31,7 +31,7 @@ def test_call_when_default():
         return x * 2
 
     tasks = [1, 2, 3, 4, 5]
-    mock_config = ParallelConfig(n_jobs=3, verbose=0, task_size=None)
+    mock_config = ParallelConfig(n_jobs=3, verbose=0)
     mock_parallel = ParallelMap(config=mock_config)
     result = mock_parallel(operation=mock_operation, tasks=tasks)
 
@@ -43,7 +43,7 @@ def test_call_when_bind_kwargs():
         return x * y
 
     tasks = [1, 2, 3, 4, 5]
-    mock_config = ParallelConfig(n_jobs=3, verbose=0, task_size=None)
+    mock_config = ParallelConfig(n_jobs=3, verbose=0)
     mock_parallel = ParallelMap(config=mock_config)
     result = mock_parallel(operation=mock_operation, tasks=tasks, bind_kwargs={"y": 3})
 
@@ -58,7 +58,7 @@ def test_call_when_reduce_fn(reduce_fn, expected_result):
         return [x * 2 for x in x_list]
 
     tasks = [[1, 2], [3, 4], [5]]
-    mock_config = ParallelConfig(n_jobs=3, verbose=0, task_size=None)
+    mock_config = ParallelConfig(n_jobs=3, verbose=0)
     mock_parallel = ParallelMap(config=mock_config)
 
     result = mock_parallel(operation=mock_operation, tasks=tasks, reduce_fn=reduce_fn)

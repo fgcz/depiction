@@ -102,7 +102,7 @@ def main_align_imzml(input_imzml: str, output_imzml: str, method: str, n_jobs: i
         input_file=ImzmlReadFile(input_imzml),
         output_file_path=output_imzml,
         method=AlignImzmlMethod(method),
-        parallel_config=ParallelConfig(n_jobs=n_jobs, task_size=None, verbose=10),
+        parallel_config=ParallelConfig(n_jobs=n_jobs),
     )
     aligned_file = align.evaluate()
     print(f"Aligned file: {aligned_file.imzml_file}")

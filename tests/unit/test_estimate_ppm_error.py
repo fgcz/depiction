@@ -16,7 +16,7 @@ class TestEstimatePPMError(unittest.TestCase):
             (np.array([1005, np.nan, np.nan]), 700, 1000),
         ]
 
-        parallel_config = ParallelConfig(n_jobs=2, task_size=None)
+        parallel_config = ParallelConfig(n_jobs=2)
         estimate_ppm = EstimatePPMError(parallel_config=parallel_config)
         result = estimate_ppm.estimate(mock_read_file)
 

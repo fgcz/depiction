@@ -16,7 +16,7 @@ class TestAlignImzmlIntegration(unittest.TestCase):
         self.addCleanup(self.tmp_dir.cleanup)
         self.mock_input_file_path = os.path.join(self.tmp_dir.name, "input.imzML")
         self.mock_output_file_path = os.path.join(self.tmp_dir.name, "output.imzML")
-        self.mock_parallel_config = ParallelConfig(n_jobs=2, task_size=None)
+        self.mock_parallel_config = ParallelConfig(n_jobs=2)
 
     def mock_input_file(self, mz_arr_list: list[list[int]], imzml_mode: ImzmlModeEnum) -> ImzmlReadFile:
         write_file = ImzmlWriteFile(path=self.mock_input_file_path, imzml_mode=imzml_mode)

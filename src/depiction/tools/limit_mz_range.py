@@ -57,7 +57,7 @@ def main_limit_mz_range(input_file: str, output_file: str, mz_range: tuple[float
     read_file.print_summary()
     # set up for output
     write_file = ImzmlWriteFile(output_file, imzml_mode=read_file.imzml_mode)
-    parallel_config = ParallelConfig(n_jobs=n_jobs, task_size=None)
+    parallel_config = ParallelConfig(n_jobs=n_jobs)
     # perform the operation
     print("Starting file transformation")
     limit = LimitMzRange(mz_range=mz_range)

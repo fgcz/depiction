@@ -68,7 +68,7 @@ def _normalize_vec_norm(int_arr):
 def main_normalize_intensities(
     input_imzml: str, output_imzml: str, variant: NormalizeSpectraIntensitiesVariant, n_jobs: int
 ) -> None:
-    parallel_config = ParallelConfig(n_jobs=n_jobs, task_size=None)
+    parallel_config = ParallelConfig(n_jobs=n_jobs)
     with ImzmlReadFile(input_imzml) as read_file:
         with ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode) as write_file:
             normalize_intensities = NormalizeSpectraIntensities(variant=variant)

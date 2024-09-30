@@ -42,7 +42,7 @@ class TestCorrectBaselineIntegration(unittest.TestCase):
 
     def test_evaluate_file(self) -> None:
         correct_baseline = CorrectBaseline(
-            parallel_config=ParallelConfig(n_jobs=2, task_size=2),
+            parallel_config=ParallelConfig(n_jobs=2),
             baseline_correction=LocalMediansBaseline(window_size=5, window_unit="index"),
         )
         correct_baseline.evaluate_file(

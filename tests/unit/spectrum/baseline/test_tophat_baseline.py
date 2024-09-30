@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 import pytest
 
@@ -8,7 +6,7 @@ from depiction.spectrum.baseline import TophatBaseline
 
 
 @pytest.fixture(autouse=True)
-def mock_environ(monkeypatch):
+def mock_environ(monkeypatch, treat_warnings_as_error):
     monkeypatch.setenv("NUMBA_DEBUGINFO", "1")
 
 
@@ -25,13 +23,6 @@ def mock_window_unit():
 @pytest.fixture
 def mock_baseline(mock_window_size, mock_window_unit):
     return TophatBaseline(window_size=mock_window_size, window_unit=mock_window_unit)
-
-
-@pytest.fixture(autouse=True)
-def treat_warnings_as_error():
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        yield
 
 
 def test_compute_erosion():

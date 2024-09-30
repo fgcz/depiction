@@ -12,16 +12,24 @@ which perform the actual reading of the data.
 In general the idea is that creating the file should be quick, whereas additional parsing might be necessary to create the reader instance.
 
 ::: depiction.persistence.types.GenericReadFile
-options:
-annotations_path: source
-show_category_heading: yes
-show_root_heading: yes
-show_symbol_type_heading: yes
-show_source: no
-members_order: alphabetical
-heading_level: 4
+    options:
+        annotations_path: source
+        show_category_heading: yes
+        show_root_heading: yes
+        show_symbol_type_heading: yes
+        show_source: no
+        members_order: alphabetical
+        heading_level: 4
 
 ::: depiction.persistence.types.GenericReader
+    options:
+        annotations_path: source
+        show_category_heading: yes
+        show_root_heading: yes
+        show_symbol_type_heading: yes
+        show_source: no
+        members_order: alphabetical
+        heading_level: 4
 
 ## ImzML
 

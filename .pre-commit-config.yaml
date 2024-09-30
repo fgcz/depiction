@@ -50,8 +50,7 @@ repos:
     rev: "0.7.17"
     hooks:
       - id: mdformat
-        additional_dependencies:
-          - mdformat-mkdocs>=2.1.0
+        exclude: "docs/.*"
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: "v0.16"
     hooks:

@@ -31,7 +31,7 @@ def checksum_chunked(file: Path, chunksize=4096) -> str:
 
 def main():
     # create test file of size 200 MiB
-    file = Path("testfile.png")
+    file = Path("../../msi/examples/testfile.png")
     with file.open("wb") as f:
         f.seek(200 * 1024 * 1024 - 1)
         f.write(b"\0")

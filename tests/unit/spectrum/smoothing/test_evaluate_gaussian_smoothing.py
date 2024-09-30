@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from depiction.evaluate_signal_proc import EvaluateGaussianSmoothing
+from depiction.spectrum.smoothing.evaluate_gaussian_smoothing import EvaluateGaussianSmoothing
 from depiction.misc.integration_test_utils import IntegrationTestUtils
 
 

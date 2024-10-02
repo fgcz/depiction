@@ -96,6 +96,9 @@ apps = [
 requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.package-data]
+depiction = ["*.smk", "Snakefile"]
+
 [tool.black]
 line-length = 120
 
@@ -128,3 +131,8 @@ testpaths = ["tests"]
 
 [tool.codespell]
 ignore-words-list = "averagine,coo"
+
+[tool.check-tests-structure]
+sources_path = "src/depiction"
+tests_path = "tests/unit"
+allow_missing_tests = true

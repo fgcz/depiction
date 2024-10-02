@@ -8,11 +8,11 @@ import yaml
 
 from bfabric import Bfabric
 from bfabric.entities import Resource
-from bfabric.experimental.app_interface.workunit.definition import WorkunitDefinition
 from bfabric.experimental.app_interface.dispatch.dispatch_individual_resources import (
     DispatchIndividualResources,
-    DispatchIndividualResourcesConfig,
+    config_msi_imzml,
 )
+from bfabric.experimental.app_interface.workunit.definition import WorkunitDefinition
 from depiction_targeted_preproc.pipeline.prepare_inputs import write_inputs_spec
 from depiction_targeted_preproc.pipeline.prepare_params import parse_params
 
@@ -35,7 +35,7 @@ class DispatchApp(DispatchIndividualResources):
 def dispatch_app(workunit_ref: int | Path, work_dir: Path) -> None:
     client = Bfabric.from_config()
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client)
-    dispatcher = DispatchApp(client=client, config=DispatchIndividualResourcesConfig(), out_dir=work_dir)
+    dispatcher = DispatchApp(client=client, config=config_msi_imzml(), out_dir=work_dir)
     dispatcher.dispatch_workunit(definition=workunit_definition)
 
 

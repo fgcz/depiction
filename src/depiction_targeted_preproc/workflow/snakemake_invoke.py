@@ -1,11 +1,11 @@
 import contextlib
 import os
 import shlex
-import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+import sys
 from loguru import logger
 
 
@@ -95,11 +95,10 @@ class SnakemakeInvoke:
             )
 
     def get_base_command(self, extra_args: list[str], work_dir: Path) -> list[str]:
-        snakemake_bin = shutil.which("snakemake")
-        if snakemake_bin is None:
-            raise RuntimeError(f"snakemake not found, check PATH: {os.environ['PATH']}")
         return [
-            snakemake_bin,
+            sys.executable,
+            "-m",
+            "snakemake",
             "-d",
             str(work_dir.absolute()),
             "--cores",

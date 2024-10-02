@@ -24,9 +24,9 @@ def collect_chunk(workunit_ref: int | Path, chunk_dir: Path) -> None:
             "store_entry_path": f"WU{workunit_id}_result_{chunk_dir.name}.zip",
         }
     ]
-    result = {"outputs": outputs}
+
     with (chunk_dir / "outputs.yml").open("w") as f:
-        yaml.safe_dump(result, f)
+        yaml.safe_dump({"outputs": outputs}, f)
 
 
 if __name__ == "__main__":

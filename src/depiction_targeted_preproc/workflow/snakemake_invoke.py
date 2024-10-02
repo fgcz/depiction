@@ -40,8 +40,14 @@ class SnakemakeInvoke:
         return Path(__file__).parents[1] / "workflow"
 
     def _invoke_direct(self, work_dir: Path, result_files: list[Path]) -> None:
-        from snakemake.api import SnakemakeApi
-        from snakemake.settings import OutputSettings, StorageSettings, ResourceSettings, DAGSettings, ExecutionSettings
+        from snakemake.api import (
+            SnakemakeApi,
+            OutputSettings,
+            StorageSettings,
+            ResourceSettings,
+            DAGSettings,
+            ExecutionSettings,
+        )
 
         with SnakemakeApi(
             OutputSettings(

@@ -34,7 +34,9 @@ class DispatchApp(DispatchIndividualResources):
 @app.default
 def dispatch_app(workunit_ref: int | Path, work_dir: Path) -> None:
     client = Bfabric.from_config()
-    workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client)
+    workunit_definition = WorkunitDefinition.from_ref(
+        workunit_ref, client, cache_file=work_dir / "workunit_definition.yml"
+    )
     dispatcher = DispatchApp(client=client, config=config_msi_imzml(), out_dir=work_dir)
     dispatcher.dispatch_workunit(definition=workunit_definition)
 

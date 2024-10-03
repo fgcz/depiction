@@ -14,6 +14,7 @@ def collect_chunk(workunit_ref: int | Path, chunk_dir: Path) -> None:
     chunk_dir = chunk_dir.absolute()
     zip_file_path = chunk_dir / f"{chunk_dir.name}.zip"
 
+    # TODO how to incorporate the cache_file parameter here, without "assuming" that it's in the parent directory?
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=Bfabric.from_config())
     workunit_id = workunit_definition.registration.workunit_id
 

@@ -20,12 +20,16 @@ app = cyclopts.App()
 
 
 class DispatchApp(DispatchIndividualResources):
+    # TODO rename params to raw_params?
     def dispatch_job(self, resource: Resource, params: dict[str, Any]) -> Path:
         params_parsed = parse_params(params)
         chunk_dir = self._out_dir / Path(resource["name"]).stem
         chunk_dir.mkdir(exist_ok=True, parents=True)
         write_inputs_spec(
-            dataset_id=params["mass_list_id"], imzml_resource_id=resource.id, client=self._client, sample_dir=chunk_dir
+            dataset_id=params["mass_list_id"],
+            imzml_resource_id=resource.id,
+            client=self._client,
+            sample_dir=chunk_dir,
         )
         write_params(params_dict=params_parsed, file=chunk_dir / "params.yml")
         return chunk_dir

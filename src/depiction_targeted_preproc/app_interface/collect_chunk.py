@@ -12,7 +12,7 @@ app = cyclopts.App()
 @app.default
 def collect_chunk(workunit_ref: int | Path, chunk_dir: Path) -> None:
     chunk_dir = chunk_dir.absolute()
-    zip_file_path = chunk_dir / f"{chunk_dir.name}.zip"
+    zip_file_path = chunk_dir / "outputs" / f"{chunk_dir.name}.zip"
 
     # TODO how to incorporate the cache_file parameter here, without "assuming" that it's in the parent directory?
     workunit_definition = WorkunitDefinition.from_ref(workunit_ref, client=Bfabric.from_config())
@@ -21,7 +21,7 @@ def collect_chunk(workunit_ref: int | Path, chunk_dir: Path) -> None:
     outputs = [
         {
             "type": "bfabric_copy_resource",
-            "local_path": str(zip_file_path.absolute()),
+            "local_path": str(zip_file_path),
             "store_entry_path": f"WU{workunit_id}_result_{chunk_dir.name}.zip",
         }
     ]

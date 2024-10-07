@@ -5,6 +5,17 @@ theme:
     - navigation.sections
     - navigation.instant
     - content.code.copy
+  palette:
+    - scheme: slate
+      primary: black
+      toggle:
+        icon: material/brightness-7
+        name: Light
+    - scheme: default
+      primary: black
+      toggle:
+        icon: material/brightness-4
+        name: Dark
 markdown_extensions:
   - admonition
   - pymdownx.highlight:

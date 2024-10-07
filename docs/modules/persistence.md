@@ -14,10 +14,13 @@ In general the idea is that creating the file should be quick, whereas additiona
 ::: depiction.persistence.types.GenericReadFile
     options:
         heading_level: 4
+        members_order: source
 
 ::: depiction.persistence.types.GenericReader
     options:
         heading_level: 4
+        members_order: source
+
 
 ### Writing data
 

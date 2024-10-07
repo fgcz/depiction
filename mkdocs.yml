@@ -15,4 +15,13 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
 plugins:
-  - mkdocstrings
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            annotations_path: source
+            show_category_heading: yes
+            show_root_heading: yes
+            show_symbol_type_heading: yes
+            show_source: no
+            members_order: alphabetical

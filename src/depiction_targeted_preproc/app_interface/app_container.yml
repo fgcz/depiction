@@ -1,0 +1,17 @@
+commands:
+  dispatch:
+    type: docker
+    engine: podman
+    image: service_msi_targeted_preproc:0.0.1
+    command: python -m depiction_targeted_preproc.app_interface.dispatch_app
+  process:
+    type: docker
+    image: service_msi_targeted_preproc:0.0.1
+    command: python -m depiction_targeted_preproc.app_interface.process_chunk
+    mounts:
+      read_only:
+        - [~/code/depiction/src/depiction/, /usr/local/lib/python3.12/site-packages/depiction]
+        - [~/code/depiction/src/depiction_targeted_preproc/, /usr/local/lib/python3.12/site-packages/depiction_targeted_preproc]
+  collect:
+    type: shell
+    command: python -m depiction_targeted_preproc.app_interface.collect_chunk

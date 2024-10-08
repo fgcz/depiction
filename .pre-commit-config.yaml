@@ -50,7 +50,7 @@ repos:
     rev: "0.7.17"
     hooks:
       - id: mdformat
-        exclude: "docs/.*"
+        exclude: "^docs/"
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: "v0.20.2"
     hooks:

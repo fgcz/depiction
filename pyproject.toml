@@ -84,6 +84,7 @@ doc = [
     "mkdocs",
     "mkdocs-material",
     "mkdocstrings[python]",
+    "mkdocs-awesome-pages-plugin",
 ]
 apps = [
     "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main"

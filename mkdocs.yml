@@ -36,3 +36,4 @@ plugins:
             show_symbol_type_heading: yes
             show_source: no
             members_order: alphabetical
+  - awesome-pages

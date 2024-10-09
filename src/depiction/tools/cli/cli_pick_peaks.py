@@ -24,12 +24,12 @@ def run_config(
     output_imzml: Path,
 ) -> None:
     """Runs the configured peak picker on input imzml file and writes the output to output imzml file."""
-    raw_data = yaml.safe_load(config.read_text())
-    if raw_data is None:
+    raw_config = yaml.safe_load(config.read_text())
+    if raw_config is None:
         logger.info("Peak picking deactivated, copying input to output.")
         ImzmlReadFile(input_imzml).copy_to(output_imzml)
     else:
-        config = PickPeaksConfig.model_validate(yaml.safe_load(config.read_text()))
+        config = PickPeaksConfig.model_validate(raw_config)
         pick_peaks(
             config=config,
             input_file=ImzmlReadFile(input_imzml),

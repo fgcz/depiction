@@ -40,11 +40,13 @@ class PipelineArtifact(str, Enum):
     DEBUG = "DEBUG"
 
 
+# TODO we have some redundancy in the peak picker allowing filtering... it should be removed there, since sometimes you
+#      might want peak filtering without peak picking -> TODO create task
 class PipelineParametersPreset(Model, use_enum_values=True, validate_default=True):
-    baseline_correction: BaselineCorrectionConfig
-    filter_peaks: FilterPeaksConfig
-    calibration: CalibrationConfig
-    pick_peaks: PickPeaksConfig
+    baseline_correction: BaselineCorrectionConfig | None
+    filter_peaks: FilterPeaksConfig | None
+    calibration: CalibrationConfig | None
+    pick_peaks: PickPeaksConfig | None
 
     @classmethod
     def get_preset_path(cls, name: str) -> Path:
@@ -65,4 +67,4 @@ class PipelineParameters(PipelineParametersPreset, use_enum_values=True, validat
     def from_preset_and_settings(
         cls, preset: PipelineParametersPreset, requested_artifacts: list[PipelineArtifact], n_jobs: int
     ) -> PipelineParameters:
-        return cls(**preset.dict(), requested_artifacts=requested_artifacts, n_jobs=n_jobs)
+        return cls(**preset.model_dump(), requested_artifacts=requested_artifacts, n_jobs=n_jobs)

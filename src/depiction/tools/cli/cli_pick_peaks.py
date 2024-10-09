@@ -4,6 +4,7 @@ from pathlib import Path
 
 import cyclopts
 import yaml
+from loguru import logger
 
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
 from depiction.tools.pick_peaks import (
@@ -23,12 +24,17 @@ def run_config(
     output_imzml: Path,
 ) -> None:
     """Runs the configured peak picker on input imzml file and writes the output to output imzml file."""
-    config = PickPeaksConfig.model_validate(yaml.safe_load(config.read_text()))
-    pick_peaks(
-        config=config,
-        input_file=ImzmlReadFile(input_imzml),
-        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
-    )
+    raw_data = yaml.safe_load(config.read_text())
+    if raw_data is None:
+        logger.info("Peak picking deactivated, copying input to output.")
+        ImzmlReadFile(input_imzml).copy_to(output_imzml)
+    else:
+        config = PickPeaksConfig.model_validate(yaml.safe_load(config.read_text()))
+        pick_peaks(
+            config=config,
+            input_file=ImzmlReadFile(input_imzml),
+            output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
+        )
 
 
 @app.command

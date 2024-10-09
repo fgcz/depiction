@@ -1,0 +1,7 @@
+baseline_correction: null
+pick_peaks: null
+filter_peaks: null
+calibration:
+  # TODO support setting calibration to null (this currently uses a dummy)
+  method: null
+  n_jobs: 10

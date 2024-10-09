@@ -5,7 +5,9 @@ from typing import Literal
 
 import cyclopts
 import yaml
+from loguru import logger
 
+from depiction.persistence import ImzmlReadFile
 from depiction.tools.correct_baseline import BaselineVariants, BaselineCorrectionConfig, correct_baseline
 
 app = cyclopts.App()
@@ -17,8 +19,13 @@ def run_config(
     input_imzml: Path,
     output_imzml: Path,
 ) -> None:
-    parsed = BaselineCorrectionConfig.validate(yaml.safe_load(config.read_text()))
-    correct_baseline(config=parsed, input_imzml=input_imzml, output_imzml=output_imzml)
+    raw_data = yaml.safe_load(config.read_text())
+    if raw_data is None:
+        logger.info("Baseline correction deactivated, copying input to output.")
+        ImzmlReadFile(input_imzml).copy_to(output_imzml)
+    else:
+        parsed = BaselineCorrectionConfig.model_validate(raw_data)
+        correct_baseline(config=parsed, input_imzml=input_imzml, output_imzml=output_imzml)
 
 
 @app.default

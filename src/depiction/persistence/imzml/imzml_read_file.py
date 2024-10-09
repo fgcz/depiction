@@ -180,6 +180,7 @@ class ImzmlReadFile(GenericReadFile):
 
     def copy_to(self, path: Path) -> None:
         """Copies the file of this instance to the given path. Needs to end with .imzML."""
+        path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(self.imzml_file, path)
         shutil.copy(self.ibd_file, path.with_suffix(".ibd"))
 

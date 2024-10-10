@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
-from loguru import logger
 from pydantic import BaseModel, PositiveInt, PositiveFloat
 
 from depiction.parallel_ops.parallel_config import ParallelConfig
@@ -22,7 +21,6 @@ if TYPE_CHECKING:
 class BaselineVariants(str, enum.Enum):
     TopHat = "TopHat"
     LocMedians = "LocMedians"
-    Zero = "Zero"
 
 
 class BaselineCorrectionConfig(BaseModel, use_enum_values=True, validate_default=True):
@@ -105,21 +103,17 @@ def correct_baseline(config: BaselineCorrectionConfig, input_imzml: Path, output
     """Removes the baseline from the input imzML file and writes the result to the output imzML file."""
     output_imzml.parent.mkdir(parents=True, exist_ok=True)
     input_file = ImzmlReadFile(input_imzml)
-    if config.baseline_variant == BaselineVariants.Zero:
-        logger.info("Baseline correction is deactivated, copying input to output")
-        input_file.copy_to(output_imzml)
+    if config.n_jobs is None:
+        # TODO define some sane default for None and -1 n_jobs e.g. use all available up to a limit (None) or use all (1-r)
+        n_jobs = 10
     else:
-        if config.n_jobs is None:
-            # TODO define some sane default for None and -1 n_jobs e.g. use all available up to a limit (None) or use all (1-r)
-            n_jobs = 10
-        else:
-            n_jobs = config.n_jobs
-        parallel_config = ParallelConfig(n_jobs=n_jobs)
-        output_file = ImzmlWriteFile(output_imzml, imzml_mode=input_file.imzml_mode)
-        correct_baseline = CorrectBaseline.from_variant(
-            parallel_config=parallel_config,
-            variant=config.baseline_variant,
-            window_size=config.window_size,
-            window_unit=config.window_unit,
-        )
-        correct_baseline.evaluate_file(input_file, output_file)
+        n_jobs = config.n_jobs
+    parallel_config = ParallelConfig(n_jobs=n_jobs)
+    output_file = ImzmlWriteFile(output_imzml, imzml_mode=input_file.imzml_mode)
+    correct_baseline = CorrectBaseline.from_variant(
+        parallel_config=parallel_config,
+        variant=config.baseline_variant,
+        window_size=config.window_size,
+        window_unit=config.window_unit,
+    )
+    correct_baseline.evaluate_file(input_file, output_file)

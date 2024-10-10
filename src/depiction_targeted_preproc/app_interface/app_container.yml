@@ -1,0 +1,11 @@
+commands:
+  dispatch: &dispatch
+    type: docker
+    image: service_msi_targeted_preproc:0.1.10
+    command: python -m depiction_targeted_preproc.app_interface.dispatch_app
+  process:
+    !!merge <<: *dispatch
+    command: python -m depiction_targeted_preproc.app_interface.process_chunk
+  collect:
+    !!merge <<: *dispatch
+    command: python -m depiction_targeted_preproc.app_interface.collect_chunk

@@ -17,6 +17,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
 
+# TODO would it be clever or stupid to call is_foreground "alpha" channel?
+
 
 class MultiChannelImage:
     """Represents a multi-channel 2D image, internally backed by a `xarray.DataArray`.
@@ -135,6 +137,10 @@ class MultiChannelImage:
             coords={"d": ["y", "x"], "i": orig_coords["i"]},
         )
 
+    def recompute_is_foreground(self) -> MultiChannelImage:
+        # TODO to be defined
+        raise NotImplementedError
+
     # TODO from_dense_array
 
     # TODO rename to sel_channels
@@ -164,13 +170,19 @@ class MultiChannelImage:
         self._data.to_netcdf(path, format="NETCDF4")
 
     @classmethod
-    def read_hdf5(cls, path: Path, group: str | None = None) -> MultiChannelImage:
+    def read_hdf5(
+        cls, path: Path, group: str | None = None, is_foreground_label: str = "is_foreground"
+    ) -> MultiChannelImage:
         """Reads a MultiChannelImage from a HDF5 file (assuming it contains NETCDF data).
 
         :param path: The path to the HDF5 file.
         :param group: The group within the HDF5 file, by default None.
+        :param is_foreground_label: The label for the is_foreground channel, by default "is_foreground".
         """
-        return cls(data=xarray.open_dataarray(path, group=group))
+        data_store = xarray.open_dataarray(path, group=group)
+        is_foreground = data_store.sel(c=is_foreground_label)
+        data = data_store.drop_sel(c=is_foreground_label)
+        return cls(data=data, is_foreground=is_foreground, is_foreground_label=is_foreground_label)
 
     # TODO is_valid_hdf5
     # TODO combine_in_parallel, combine_sequentially: consider moving this somewhere else

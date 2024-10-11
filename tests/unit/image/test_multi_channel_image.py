@@ -213,10 +213,13 @@ def test_write_hdf5(mocker: MockerFixture, mock_image: MultiChannelImage) -> Non
 
 
 def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
-    mocker.patch("xarray.open_dataarray").return_value = mock_data
+    mock_is_foreground = xarray.ones_like(mock_data.isel(c=[0])).assign_coords(c=["is_foreground"])
+    persisted_data = xarray.concat([mock_data, mock_is_foreground], dim="c")
+    mocker.patch("xarray.open_dataarray").return_value = persisted_data
     image = MultiChannelImage.read_hdf5(Path("test.h5"))
     xarray.open_dataarray.assert_called_once_with(Path("test.h5"), group=None)
     xarray.testing.assert_equal(image.data_spatial, mock_data)
+    xarray.testing.assert_equal(image.fg_mask, mock_is_foreground.isel(c=0))
 
 
 def test_read_ome_tiff(mocker: MockerFixture, mock_data: DataArray) -> None:

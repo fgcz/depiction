@@ -249,7 +249,7 @@ def test_append_channels(mock_image: MultiChannelImage) -> None:
         coords={"c": ["Channel X", "Channel Y"]},
         attrs={"bg_value": 0},
     )
-    extra_image = MultiChannelImage(data=extra_image_data)
+    extra_image = MultiChannelImage(data=extra_image_data, is_foreground=mock_image.fg_mask)
     result = mock_image.append_channels(extra_image)
     assert result.channel_names == ["Channel A", "Channel B", "Channel X", "Channel Y"]
     assert result.retain_channels(coords=["Channel A", "Channel B"]).data_spatial.identical(mock_image.data_spatial)

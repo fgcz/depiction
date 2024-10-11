@@ -6,12 +6,11 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import xarray
-
-from depiction.image.image_channel_stats import ImageChannelStats
-from depiction.image.sparse_representation import SparseRepresentation
 from numpy.typing import NDArray
 from xarray import DataArray
 
+from depiction.image.image_channel_stats import ImageChannelStats
+from depiction.image.sparse_representation import SparseRepresentation
 from depiction.persistence.format_ome_tiff import OmeTiff
 
 if TYPE_CHECKING:
@@ -146,13 +145,17 @@ class MultiChannelImage:
         if (indices is not None) == (coords is not None):
             raise ValueError("Exactly one of indices and coords must be specified.")
         data = self._data.isel(c=indices) if indices is not None else self._data.sel(c=coords)
-        return MultiChannelImage(data=data)
+        return MultiChannelImage(
+            data=data, is_foreground=self._is_foreground, is_foreground_label=self._is_foreground_label
+        )
 
     # TODO rename to dropsel_channels
     def drop_channels(self, *, coords: Sequence[Any], allow_missing: bool) -> MultiChannelImage:
         """Returns a copy with the specified channels dropped."""
         data = self._data.drop_sel(c=coords, errors="ignore" if allow_missing else "raise")
-        return MultiChannelImage(data=data)
+        return MultiChannelImage(
+            data=data, is_foreground=self._is_foreground, is_foreground_label=self._is_foreground_label
+        )
 
     # TODO save_single_channel_image... does it belong here or into plotter?
 
@@ -179,7 +182,11 @@ class MultiChannelImage:
 
     def with_channel_names(self, channel_names: Sequence[str]) -> MultiChannelImage:
         """Returns a copy with the specified channel names."""
-        return MultiChannelImage(data=self._data.assign_coords(c=channel_names))
+        return MultiChannelImage(
+            data=self._data.assign_coords(c=channel_names),
+            is_foreground=self._is_foreground,
+            is_foreground_label=self._is_foreground_label,
+        )
 
     @cached_property
     def channel_stats(self) -> ImageChannelStats:
@@ -193,7 +200,9 @@ class MultiChannelImage:
             msg = f"Channels {common_channels} are present in both images."
             raise ValueError(msg)
         data = xarray.concat([self._data, other._data], dim="c")
-        return MultiChannelImage(data=data)
+        return MultiChannelImage(
+            data=data, is_foreground=self._is_foreground, is_foreground_label=self._is_foreground_label
+        )
 
     def get_z_scaled(self) -> MultiChannelImage:
         """Returns a copy of self with each feature z-scaled."""

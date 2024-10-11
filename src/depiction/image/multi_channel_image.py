@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
@@ -19,12 +20,29 @@ if TYPE_CHECKING:
 
 
 class MultiChannelImage:
-    """Represents a multi-channel 2D image, internally backed by a `xarray.DataArray`."""
+    """Represents a multi-channel 2D image, internally backed by a `xarray.DataArray`.
 
-    def __init__(self, data: DataArray) -> None:
+    The API is generally designed to be immutable, i.e. methods modifying the image return a new instance.
+    The image is internally represented in a dense layout, with the background/foreground being explicitly stored in
+    a `is_foreground` channel that is not part of the `n_channels` count but will be exported.
+    This is to make the conversion to and from sparse representation sane.
+    """
+
+    def __init__(self, data: DataArray, is_foreground: DataArray, is_foreground_label: str = "is_foreground") -> None:
         self._data = data.transpose("y", "x", "c")
-        if "bg_value" not in self._data.attrs:
-            raise ValueError("The bg_value attribute must be set.")
+        self._is_foreground = is_foreground.transpose("y", "x")
+        self._is_foreground_label = is_foreground_label
+        if "bg_value" in self._data.attrs:
+            warnings.warn("bg_value is deprecated, use is_foreground instead", DeprecationWarning)
+        if (
+            self._data.sizes["x"] != self._is_foreground.sizes["x"]
+            or self._data.sizes["y"] != self._is_foreground.sizes["y"]
+        ):
+            raise ValueError("Data and is_foreground must have the same dimensions")
+        if np.not_equal(self._data.coords["y"], self._is_foreground.coords["y"]).any():
+            raise ValueError("Inconsistent y coordinates between data and is_foreground.")
+        if np.not_equal(self._data.coords["x"], self._is_foreground.coords["x"]).any():
+            raise ValueError("Inconsistent x coordinates between data and is_foreground.")
 
     @classmethod
     def from_sparse(
@@ -60,23 +78,28 @@ class MultiChannelImage:
     @property
     def n_nonzero(self) -> int:
         """Number of non-zero values."""
-        # TODO efficient impl
-        return (~self.bg_mask).sum().item()
+        return self._is_foreground.sum().item()
 
     @property
     def dtype(self) -> np.dtype:
         """The data type of the values."""
         return self._data.dtype
 
-    @property
-    def bg_value(self) -> int | float:
-        """The background value."""
-        return self._data.attrs["bg_value"]
+    # TODO deleted
+    #    @property
+    #    def bg_value(self) -> int | float:
+    #        """The background value."""
+    #        return self._data.attrs["bg_value"]
 
-    @cached_property
+    @property
+    def fg_mask(self) -> DataArray:
+        """A boolean mask indicating the foreground values as `True` and non-foreground values as `False`."""
+        return self._is_foreground
+
+    @property
     def bg_mask(self) -> DataArray:
         """A boolean mask indicating the background values as `True` and non-background values as `False`."""
-        return ((self._data == self.bg_value) | (self._data.isnull() & np.isnan(self.bg_value))).all(dim="c")
+        return ~self._is_foreground
 
     @property
     def dimensions(self) -> tuple[int, int]:

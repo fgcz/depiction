@@ -28,9 +28,29 @@ def mock_data(mock_coords) -> DataArray:
 
 
 @pytest.fixture
+def mock_data_sparse(mock_coords) -> DataArray:
+    return DataArray(
+        [[[0, 0], [0, 0]], [[6, 5], [8, 5]], [[0, 0], [0, 0]]],
+        dims=("y", "x", "c"),
+        coords=mock_coords,
+        attrs={"bg_value": 0},
+    )
+
+
+@pytest.fixture
 def mock_image(mock_data) -> MultiChannelImage:
     """Dense mock image without any missing values."""
-    return MultiChannelImage(data=mock_data)
+    return MultiChannelImage(
+        data=mock_data, is_foreground=DataArray([[True, True], [True, True], [True, True]], dims=("y", "x"))
+    )
+
+
+@pytest.fixture
+def mock_image_sparse(mock_data_sparse) -> MultiChannelImage:
+    """Sparse mock image."""
+    return MultiChannelImage(
+        data=mock_data_sparse, is_foreground=DataArray([[False, False], [True, True], [False, False]], dims=("y", "x"))
+    )
 
 
 def test_from_numpy_sparse() -> None:
@@ -51,7 +71,7 @@ def test_n_nonzero(mock_image: MultiChannelImage) -> None:
 
 
 def test_n_nonzero_when_sparse(mock_image: MultiChannelImage) -> None:
-    mock_image.data_spatial[1, 0, :] = 0
+    mock_image._is_foreground[1, 0] = False
     assert mock_image.n_nonzero == 5
 
 
@@ -59,23 +79,14 @@ def test_dtype(mock_image: MultiChannelImage) -> None:
     assert mock_image.dtype == float
 
 
-def test_bg_value(mock_image: MultiChannelImage) -> None:
-    assert mock_image.bg_value == 0.0
+def test_bg_mask(mock_image: MultiChannelImage) -> None:
+    expected_bg_mask = DataArray([[False, False], [False, False], [False, False]], dims=("y", "x"))
+    xarray.testing.assert_equal(expected_bg_mask, mock_image.bg_mask)
 
 
-def test_bg_mask_when_0(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
-    mock_data[1, :, :] = 0
-    bg_mask = mock_image.bg_mask
-    expected_bg_mask = DataArray([[False, False], [True, True], [False, False]], dims=("y", "x"))
-    xarray.testing.assert_equal(expected_bg_mask, bg_mask)
-
-
-def test_bg_mask_when_nan(mock_image: MultiChannelImage) -> None:
-    mock_image.data_spatial[1, :, :] = np.nan
-    mock_image.data_spatial.attrs["bg_value"] = np.nan
-    bg_mask = mock_image.bg_mask
-    expected_bg_mask = DataArray([[False, False], [True, True], [False, False]], dims=("y", "x"))
-    xarray.testing.assert_equal(expected_bg_mask, bg_mask)
+def test_fg_mask(mock_image_sparse) -> None:
+    expected_fg_mask = DataArray([[False, False], [True, True], [False, False]], dims=("y", "x"))
+    xarray.testing.assert_equal(expected_fg_mask, mock_image_sparse.fg_mask)
 
 
 def test_dimensions(mock_image: MultiChannelImage) -> None:
@@ -95,9 +106,9 @@ def test_data_spatial(mock_data: DataArray, mock_image: MultiChannelImage) -> No
     xarray.testing.assert_identical(mock_data, mock_image.data_spatial)
 
 
-def test_data_flat(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
-    mock_data[0, 0, :] = 0
-    mock_data[1, 0, 0] = np.nan
+def test_data_flat(mock_image: MultiChannelImage) -> None:
+    mock_image._is_foreground[0, 0] = False
+    mock_image._is_foreground[1, 0] = False
     expected = DataArray(
         [[4.0, 8, 10, 12], [5, 5, 5, 5]],
         dims=("c", "i"),
@@ -111,8 +122,8 @@ def test_data_flat(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
 
 
 def test_coordinates_flat(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
-    mock_data[0, 0, :] = 0
-    mock_data[1, 0, 0] = np.nan
+    mock_image._is_foreground[0, 0] = False
+    mock_image._is_foreground[1, 0] = False
     expected = DataArray(
         [[0, 1, 2, 2], [1, 1, 0, 1]],
         dims=("d", "i"),

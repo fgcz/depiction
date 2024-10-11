@@ -169,7 +169,7 @@ def test_write_hdf5(mocker: MockerFixture, mock_image: MultiChannelImage) -> Non
 def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
     mocker.patch("xarray.open_dataarray").return_value = mock_data
     image = MultiChannelImage.read_hdf5(Path("test.h5"))
-    xarray.open_dataarray.assert_called_once_with(Path("test.h5"))
+    xarray.open_dataarray.assert_called_once_with(Path("test.h5"), group=None)
     xarray.testing.assert_equal(image.data_spatial, mock_data)
 
 

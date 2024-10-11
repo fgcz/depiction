@@ -133,9 +133,13 @@ class MultiChannelImage:
         self._data.to_netcdf(path, format="NETCDF4")
 
     @classmethod
-    def read_hdf5(cls, path: Path) -> MultiChannelImage:
-        """Reads a MultiChannelImage from a HDF5 file (assuming it contains NETCDF data)."""
-        return cls(data=xarray.open_dataarray(path))
+    def read_hdf5(cls, path: Path, group: str | None = None) -> MultiChannelImage:
+        """Reads a MultiChannelImage from a HDF5 file (assuming it contains NETCDF data).
+
+        :param path: The path to the HDF5 file.
+        :param group: The group within the HDF5 file, by default None.
+        """
+        return cls(data=xarray.open_dataarray(path, group=group))
 
     # TODO is_valid_hdf5
     # TODO combine_in_parallel, combine_sequentially: consider moving this somewhere else

@@ -85,12 +85,6 @@ class MultiChannelImage:
         """The data type of the values."""
         return self._data.dtype
 
-    # TODO deleted
-    #    @property
-    #    def bg_value(self) -> int | float:
-    #        """The background value."""
-    #        return self._data.attrs["bg_value"]
-
     @property
     def fg_mask(self) -> DataArray:
         """A boolean mask indicating the foreground values as `True` and non-foreground values as `False`."""
@@ -102,6 +96,16 @@ class MultiChannelImage:
         return ~self._is_foreground
 
     @property
+    def fg_mask_flat(self) -> DataArray:
+        """A boolean mask indicating the foreground values as `True` and non-foreground values as `False`."""
+        return self._is_foreground.stack(i=("y", "x")).dropna(dim="i")
+
+    @property
+    def bg_mask_flat(self) -> DataArray:
+        """A boolean mask indicating the background values as `True` and non-background values as `False`."""
+        return ~self.fg_mask_flat
+
+    @property
     def dimensions(self) -> tuple[int, int]:
         """Returns width and height of the image."""
         # TODO reconsider this method (adding it now for compatibility)
@@ -110,7 +114,6 @@ class MultiChannelImage:
     @property
     def channel_names(self) -> list[str]:
         """Returns the names of the channels."""
-        # TODO consider renaming to `channels`
         return [str(c) for c in self._data.coords["c"].values.tolist()]
 
     @property
@@ -121,7 +124,7 @@ class MultiChannelImage:
     @property
     def data_flat(self) -> DataArray:
         """Returns the underlying data, in its flat form, i.e. dimensions (i, c), omitting any background values."""
-        return self._data.where(~self.bg_mask).stack(i=("y", "x")).dropna(dim="i")
+        return self._data.stack(i=("y", "x")).isel(i=self.fg_mask_flat)
 
     @property
     def coordinates_flat(self) -> DataArray:
@@ -135,6 +138,7 @@ class MultiChannelImage:
 
     # TODO from_dense_array
 
+    # TODO rename to sel_channels
     def retain_channels(
         self, indices: Sequence[int] | None = None, coords: Sequence[Any] | None = None
     ) -> MultiChannelImage:
@@ -144,6 +148,7 @@ class MultiChannelImage:
         data = self._data.isel(c=indices) if indices is not None else self._data.sel(c=coords)
         return MultiChannelImage(data=data)
 
+    # TODO rename to dropsel_channels
     def drop_channels(self, *, coords: Sequence[Any], allow_missing: bool) -> MultiChannelImage:
         """Returns a copy with the specified channels dropped."""
         data = self._data.drop_sel(c=coords, errors="ignore" if allow_missing else "raise")
@@ -194,7 +199,11 @@ class MultiChannelImage:
         """Returns a copy of self with each feature z-scaled."""
         eps = 1e-12
         with xarray.set_options(keep_attrs=True):
-            return MultiChannelImage(data=(self._data - self.channel_stats.mean + eps) / (self.channel_stats.std + eps))
+            return MultiChannelImage(
+                data=(self._data - self.channel_stats.mean + eps) / (self.channel_stats.std + eps),
+                is_foreground=self._is_foreground,
+                is_foreground_label=self._is_foreground_label,
+            )
 
     # TODO reconsider:there is actually a problem, whether it should use bg_mask only or also replace individual values
     #     since both could be necessary it should be implemented in a sane and maintainable manner

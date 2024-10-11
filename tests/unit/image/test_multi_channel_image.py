@@ -80,13 +80,33 @@ def test_dtype(mock_image: MultiChannelImage) -> None:
 
 
 def test_bg_mask(mock_image: MultiChannelImage) -> None:
+    # TODO more interesting example
     expected_bg_mask = DataArray([[False, False], [False, False], [False, False]], dims=("y", "x"))
     xarray.testing.assert_equal(expected_bg_mask, mock_image.bg_mask)
+
+
+def test_bg_mask_flat(mock_image: MultiChannelImage) -> None:
+    # TODO more interesting example
+    expected_bg_mask_flat = DataArray(
+        [False, False, False, False, False, False],
+        dims="i",
+        coords={"i": pd.MultiIndex.from_tuples([(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (2, 1)], names=("y", "x"))},
+    )
+    xarray.testing.assert_equal(expected_bg_mask_flat, mock_image.bg_mask_flat)
 
 
 def test_fg_mask(mock_image_sparse) -> None:
     expected_fg_mask = DataArray([[False, False], [True, True], [False, False]], dims=("y", "x"))
     xarray.testing.assert_equal(expected_fg_mask, mock_image_sparse.fg_mask)
+
+
+def test_fg_mask_flat(mock_image_sparse) -> None:
+    expected_fg_mask_flat = DataArray(
+        [False, False, True, True, False, False],
+        dims="i",
+        coords={"i": pd.MultiIndex.from_tuples([(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (2, 1)], names=("y", "x"))},
+    )
+    xarray.testing.assert_equal(expected_fg_mask_flat, mock_image_sparse.fg_mask_flat)
 
 
 def test_dimensions(mock_image: MultiChannelImage) -> None:
@@ -118,7 +138,22 @@ def test_data_flat(mock_image: MultiChannelImage) -> None:
         },
         attrs={"bg_value": 0},
     )
-    xarray.testing.assert_identical(expected, mock_image.data_flat)
+    xarray.testing.assert_identical(mock_image.data_flat, expected)
+
+
+def test_data_flat_preserves_fg_nan(mock_image: MultiChannelImage) -> None:
+    mock_image._is_foreground[0, 0] = False
+    mock_image.data_spatial[1, 0, 0] = np.nan
+    expected = DataArray(
+        [[4.0, np.nan, 8, 10, 12], [5, 5, 5, 5, 5]],
+        dims=("c", "i"),
+        coords={
+            "c": ["Channel A", "Channel B"],
+            "i": pd.MultiIndex.from_tuples([(0, 1), (1, 0), (1, 1), (2, 0), (2, 1)], names=("y", "x")),
+        },
+        attrs={"bg_value": 0},
+    )
+    xarray.testing.assert_identical(mock_image.data_flat, expected)
 
 
 def test_coordinates_flat(mock_data: DataArray, mock_image: MultiChannelImage) -> None:

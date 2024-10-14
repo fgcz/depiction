@@ -224,9 +224,12 @@ def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
 
 def test_read_ome_tiff(mocker: MockerFixture, mock_data: DataArray) -> None:
     mock_read = mocker.patch.object(OmeTiff, "read", return_value=mock_data)
+    mock_foreground = xarray.ones_like(mock_data.isel(c=0), dtype=bool)
+    mocker.patch.object(MultiChannelImage, "_compute_foreground_mask", return_value=mock_foreground)
     image = MultiChannelImage.read_ome_tiff(Path("test.ome.tiff"))
     xarray.testing.assert_equal(image.data_spatial, mock_data)
-    mock_read.assert_called_once_with(Path("test.ome.tiff"), is_foreground=...)
+    mock_read.assert_called_once_with(Path("test.ome.tiff"))
+    xarray.testing.assert_equal(image.fg_mask, mock_foreground)
 
 
 def test_with_channel_names(mock_image: MultiChannelImage) -> None:

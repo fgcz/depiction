@@ -189,9 +189,10 @@ class MultiChannelImage:
     # TODO combine_in_parallel, combine_sequentially: consider moving this somewhere else
 
     @classmethod
-    def read_ome_tiff(cls, path: Path) -> MultiChannelImage:
+    def read_ome_tiff(cls, path: Path, bg_value: float = 0.0) -> MultiChannelImage:
         """Reads a MultiChannelImage from a OME-TIFF file."""
-        return MultiChannelImage(data=OmeTiff.read(path))
+        data = OmeTiff.read(path)
+        return MultiChannelImage(data=data, is_foreground=cls._compute_foreground_mask(data=data, bg_value=bg_value))
 
     def with_channel_names(self, channel_names: Sequence[str]) -> MultiChannelImage:
         """Returns a copy with the specified channel names."""

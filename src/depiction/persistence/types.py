@@ -134,6 +134,8 @@ class GenericReadFile(Protocol):
         """Mode of the .imzML file (continuous or processed)."""
         raise NotImplementedError
 
+    # TODO: coordinates = DataArray(read_peaks.coordinates_2d, dims=["i", "d"], coords={"d": ["x", "y"]})
+
     @property
     def coordinates(self) -> NDArray[int]:
         """Spatial coordinates of the spectra in the .imzML file.

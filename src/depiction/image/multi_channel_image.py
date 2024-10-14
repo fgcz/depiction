@@ -56,8 +56,26 @@ class MultiChannelImage:
 
     @classmethod
     def from_flat(
-        cls, values: DataArray, coordinates: DataArray, channel_names: list[str] | None = None, bg_value: float = 0.0
+        cls,
+        values: DataArray,
+        coordinates: DataArray | None,
+        channel_names: list[str] | None = None,
+        bg_value: float = 0.0,
     ):
+        coordinates = cls._extract_flat_coordinates(values) if coordinates is None else coordinates
+        channel_names = list(channel_names) if channel_names is not None else None
+        data, is_foreground = SparseRepresentation.flat_to_spatial(
+            sparse_values=cls._validate_sparse_values(values),
+            coordinates=cls._validate_coordinates(coordinates),
+            bg_value=bg_value,
+        )
+        if channel_names:
+            data.coords["c"] = channel_names
+        return cls(data=data, is_foreground=is_foreground)
+
+    @classmethod
+    def _extract_flat_coordinates(cls, values: DataArray) -> DataArray:
+        # TODO
         raise NotImplementedError
 
     @classmethod
@@ -75,7 +93,8 @@ class MultiChannelImage:
         :param channel_names: The names of the channels.
         :param bg_value: The background value.
         """
-        data, is_foreground = SparseRepresentation.sparse_to_dense_v2(
+        # TODO deprecate in favor of from_flat
+        data, is_foreground = SparseRepresentation.flat_to_spatial(
             sparse_values=cls._validate_sparse_values(values),
             coordinates=cls._validate_coordinates(coordinates),
             bg_value=bg_value,

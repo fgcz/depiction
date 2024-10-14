@@ -38,13 +38,14 @@ class ImageNormalization:
         )
 
     def _normalize_single_xarray(self, image: xarray.DataArray, variant: ImageNormalizationVariant) -> xarray.DataArray:
+        bg_value = 0
         with xarray.set_options(keep_attrs=True):
             if variant == ImageNormalizationVariant.VEC_NORM:
                 norm = ((image**2).sum(["c"])) ** 0.5
-                return xarray.where(norm != 0, image / norm, image.attrs.get("bg_value", 0))
+                return xarray.where(norm != 0, image / norm, bg_value)
             elif variant == ImageNormalizationVariant.STD:
                 std = image.std("c")
-                return xarray.where(std != 0, (image - image.mean("c")) / std, image.attrs.get("bg_value", 0))
+                return xarray.where(std != 0, (image - image.mean("c")) / std, bg_value)
             else:
                 raise NotImplementedError(f"Unknown variant: {variant}")
 

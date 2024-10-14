@@ -16,14 +16,12 @@ def channel_names() -> list[str]:
 
 
 def _construct_single_image(data: np.ndarray, channel_names: list[str]) -> MultiChannelImage:
-    return MultiChannelImage(
-        data=DataArray(
-            data=data,
-            dims=("y", "x", "c"),
-            coords={"c": channel_names},
-            attrs={"bg_value": np.nan},
-        )
+    data = DataArray(
+        data=data,
+        dims=("y", "x", "c"),
+        coords={"c": channel_names},
     )
+    return MultiChannelImage(data=data, is_foreground=xarray.ones_like(data.isel(c=0), dtype=bool).drop_vars("c"))
 
 
 @pytest.fixture()
@@ -61,13 +59,12 @@ def test_get_combined_image(
     combined_image = concat_image.get_combined_image()
     assert combined_image.data_spatial.shape == (3, 7, 2)
     assert combined_image.channel_names == image_0.channel_names == image_1.channel_names
-    assert np.isnan(combined_image.bg_value)
     # image 0
     assert combined_image.data_spatial[0, 0, 1] == 1.0
     # image 1
     assert combined_image.data_spatial[0, 3, 1] == 3.0
-    # check nan (because of shape differences)
-    assert np.isnan(combined_image.data_spatial[2, 0, 0])
+    # check is background (because of shape differences)
+    assert combined_image.bg_mask[2, 0]
 
 
 def test_get_combined_image_index(concat_image: MultiChannelImageConcatenation) -> None:
@@ -101,13 +98,13 @@ def test_relabel_combined_image(
     concat_image: MultiChannelImageConcatenation,
 ) -> None:
     new_data = np.ones((3, 7, 4))
+    data = xarray.DataArray(
+        data=new_data,
+        dims=("y", "x", "c"),
+        coords={"c": ["A", "B", "C", "D"]},
+    )
     new_combined_image = MultiChannelImage(
-        data=xarray.DataArray(
-            data=new_data,
-            dims=("y", "x", "c"),
-            coords={"c": ["A", "B", "C", "D"]},
-            attrs={"bg_value": np.nan},
-        )
+        data=data, is_foreground=xarray.ones_like(data.isel(c=0), dtype=bool).drop_vars("c")
     )
     relabeled_image = concat_image.relabel_combined_image(new_combined_image)
     assert relabeled_image.get_combined_image().channel_names == ["A", "B", "C", "D"]
@@ -118,13 +115,13 @@ def test_relabel_combined_image_different_shape(
     concat_image: MultiChannelImageConcatenation, channel_names: list[str]
 ) -> None:
     new_data = np.ones((4, 8, len(channel_names))) * 5.0
+    data = xarray.DataArray(
+        data=new_data,
+        dims=("y", "x", "c"),
+        coords={"c": channel_names},
+    )
     new_combined_image = MultiChannelImage(
-        data=xarray.DataArray(
-            data=new_data,
-            dims=("y", "x", "c"),
-            coords={"c": channel_names},
-            attrs={"bg_value": np.nan},
-        )
+        data=data, is_foreground=xarray.ones_like(data.isel(c=0), dtype=bool).drop_vars("c")
     )
 
     with pytest.raises(ValueError, match="The new image must have the same shape as the original combined image"):

@@ -63,7 +63,14 @@ class SparseRepresentation:
             values_grid[tuple(coordinates_shifted.T) + (i_channel,)] = sparse_values[:, i_channel]
             is_foreground[tuple(coordinates_shifted.T)] = True
 
-        return DataArray(values_grid, dims=("y", "x", "c")), DataArray(is_foreground, dims=("y", "x"))
+        # TODO optimize, swapped?
+        coords = {
+            "x": np.arange(coordinates.min(axis=0)[1], coordinates.max(axis=0)[1] + 1),
+            "y": np.arange(coordinates.min(axis=0)[0], coordinates.max(axis=0)[0] + 1),
+        }
+        return DataArray(values_grid, dims=("y", "x", "c"), coords=coords), DataArray(
+            is_foreground, dims=("y", "x"), coords=coords
+        )
 
     @classmethod
     def dense_to_sparse(cls, grid_values: DataArray, bg_value: float | None) -> tuple[DataArray, DataArray]:

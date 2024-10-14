@@ -13,9 +13,8 @@ def sample_image():
         np.random.rand(2, 3, 4),
         dims=["c", "y", "x"],
         coords={"c": ["red", "green"], "y": [0, 1, 2], "x": [0, 1, 2, 3]},
-        attrs={"bg_value": 0.0},
     )
-    return MultiChannelImage(data)
+    return MultiChannelImage(data, is_foreground=xr.ones_like(data.isel(c=0)))
 
 
 def test_horizontal_concat_success(sample_image):

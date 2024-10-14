@@ -77,11 +77,3 @@ class SparseRepresentation:
         return DataArray(sparse_values, dims=("i", "c")), DataArray(
             coordinates, dims=("i", "d"), coords={"d": ["x", "y"]}
         )
-
-    @classmethod
-    def dense_to_sparse_coords(cls, grid_values: DataArray, coords: DataArray, is_shift_subtracted: bool) -> DataArray:
-        if not is_shift_subtracted:
-            coords = coords - coords.min(dim="i")
-        grid_values = grid_values.transpose("y", "x", "c").values
-        coords = coords.transpose("i", "d").values
-        return DataArray(grid_values[tuple(coords.T)], dims=["i", "c"])

@@ -19,6 +19,12 @@ class MultiChannelImagePersistence:
         data_array = self._image.data_spatial
         is_fg_array = self._image.fg_mask
         is_fg_label = self._image.is_foreground_label
+
+        if not isinstance(data_array.coords["c"][0].item(), str):
+            # TODO this really should be validated against in the constructor, and the static methods need to set it
+            #   TODO FIXME later
+            data_array = data_array.assign_coords(c=self._image.channel_names)
+
         combined_array = self._stack_for_persistence(
             data_array=data_array, is_fg_array=is_fg_array, is_fg_label=is_fg_label
         )

@@ -33,6 +33,9 @@ class MultiChannelImage:
 
     def __init__(self, data: DataArray, is_foreground: DataArray, is_foreground_label: str = "is_foreground") -> None:
         self._data = data.transpose("y", "x", "c")
+        # TODO add this later
+        # if not isinstance(self._data.coords["c"][0].item(), str):
+        #    raise ValueError("Channel coords/names must be strings.")
         self._is_foreground = is_foreground.transpose("y", "x")
         self._is_foreground_label = is_foreground_label
         if "bg_value" in self._data.attrs:
@@ -89,7 +92,8 @@ class MultiChannelImage:
         :param channel_names: The names of the channels.
         :param bg_value: The background value.
         """
-        # TODO deprecate in favor of from_flat
+        # TODO delete method
+        warnings.warn("from_sparse is deprecated, use from_flat instead", DeprecationWarning)
         data, is_foreground = SparseRepresentation.flat_to_spatial(
             sparse_values=cls._validate_sparse_values(values),
             coordinates=cls._validate_coordinates(coordinates),
@@ -183,8 +187,6 @@ class MultiChannelImage:
         return MultiChannelImage(
             data=self._data, is_foreground=is_foreground, is_foreground_label=self._is_foreground_label
         )
-
-    # TODO from_dense_array
 
     # TODO rename to sel_channels
     def retain_channels(

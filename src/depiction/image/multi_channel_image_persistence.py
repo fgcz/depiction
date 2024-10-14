@@ -54,7 +54,7 @@ class MultiChannelImagePersistence:
         cls, combined: xarray.DataArray, is_fg_label: str
     ) -> tuple[xarray.DataArray, xarray.DataArray]:
         data_array = combined.drop_sel(c=is_fg_label)
-        is_fg_array = combined.sel(c=is_fg_label).drop_vars("c")
+        is_fg_array = combined.sel(c=is_fg_label).drop_vars("c").astype(bool)
         return data_array, is_fg_array
 
     # TODO is_valid_hdf5

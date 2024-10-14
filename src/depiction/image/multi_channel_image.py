@@ -47,6 +47,20 @@ class MultiChannelImage:
             raise ValueError("Inconsistent x coordinates between data and is_foreground.")
 
     @classmethod
+    def from_spatial(
+        cls, data: DataArray, bg_value: float = 0, is_foreground_label: str = "is_foreground"
+    ) -> MultiChannelImage:
+        # TODO improve this method
+        is_fg = cls._compute_is_foreground(data=data, bg_value=bg_value)
+        return cls(data=data, is_foreground=is_fg, is_foreground_label=is_foreground_label)
+
+    @classmethod
+    def from_flat(
+        cls, values: DataArray, coordinates: DataArray, channel_names: list[str] | None = None, bg_value: float = 0.0
+    ):
+        raise NotImplementedError
+
+    @classmethod
     def from_sparse(
         cls,
         values: NDArray[float] | DataArray,
@@ -282,6 +296,7 @@ class MultiChannelImage:
     def _validate_coordinates(coordinates: NDArray[int] | DataArray) -> DataArray:
         """Converts the coordinates to a DataArray, if necessary."""
         if hasattr(coordinates, "coords"):
+            # TODO ensure x, y ordering!
             return coordinates.transpose("i", "d")
         else:
             if coordinates.ndim != 2:

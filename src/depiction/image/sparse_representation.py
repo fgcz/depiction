@@ -26,6 +26,8 @@ class SparseRepresentation:
         :param bg_value: the value to use for the background
         :return: DataArray with "y", "x", and "c" dimensions
         """
+        # TODO old method
+
         n_channels = sparse_values.sizes["c"]
         sparse_values = sparse_values.transpose("i", "c").values
         coordinates = coordinates.transpose("i", "d").values
@@ -44,12 +46,15 @@ class SparseRepresentation:
         return DataArray(values_grid, dims=("y", "x", "c"))
 
     @classmethod
-    def sparse_to_dense_v2(
+    def flat_to_spatial(
         cls, sparse_values: DataArray, coordinates: DataArray, bg_value: float
     ) -> tuple[DataArray, DataArray]:
         n_channels = sparse_values.sizes["c"]
         sparse_values = sparse_values.transpose("i", "c").values
-        coordinates = coordinates.transpose("i", "d").values.astype(int)
+        coordinates = coordinates.transpose("i", "d").astype(int)
+        if coordinates.coords["d"].values.tolist() != ["x", "y"]:
+            raise ValueError(f"Unexpected coordinates={coordinates.coords['d'].values}")
+        coordinates = coordinates.values
 
         coordinates_min = coordinates.min(axis=0)
         coordinates_extent = coordinates.max(axis=0) - coordinates_min + 1
@@ -65,11 +70,12 @@ class SparseRepresentation:
             is_foreground[tuple(coordinates_shifted.T)] = True
 
         coords = {
-            "x": np.arange(coordinates_min[1], coordinates_min[0] + coordinates_extent[1]),
-            "y": np.arange(coordinates_min[0], coordinates_min[1] + coordinates_extent[0]),
+            "x": np.arange(coordinates_min[0], coordinates_min[0] + coordinates_extent[0]),
+            "y": np.arange(coordinates_min[1], coordinates_min[1] + coordinates_extent[1]),
         }
-        return DataArray(values_grid, dims=("y", "x", "c"), coords=coords), DataArray(
-            is_foreground, dims=("y", "x"), coords=coords
+        return (
+            DataArray(values_grid, dims=("x", "y", "c"), coords=coords).transpose("y", "x", "c"),
+            DataArray(is_foreground, dims=("y", "x"), coords=coords),
         )
 
     @classmethod

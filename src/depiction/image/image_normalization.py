@@ -15,6 +15,7 @@ class ImageNormalizationVariant(enum.Enum):
 
 
 # TODO maybe rename to ImageFeatureNormalization
+# TODO implement in terms of MultiChannelImage as this will make handling the background easier (this might even be somewhat broken at the moment)
 class ImageNormalization:
     def normalize_xarray(self, image: xarray.DataArray, variant: ImageNormalizationVariant) -> xarray.DataArray:
         # First, understand the dimensions of the image.

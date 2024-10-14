@@ -74,11 +74,6 @@ class MultiChannelImage:
         return cls(data=data, is_foreground=is_foreground)
 
     @classmethod
-    def _extract_flat_coordinates(cls, values: DataArray) -> DataArray:
-        # TODO
-        raise NotImplementedError
-
-    @classmethod
     def from_sparse(
         cls,
         values: NDArray[float] | DataArray,
@@ -321,3 +316,11 @@ class MultiChannelImage:
             if coordinates.ndim != 2:
                 raise ValueError("Coordinates must be a 2D array.")
             return DataArray(coordinates, dims=("i", "d"))
+
+    @classmethod
+    def _extract_flat_coordinates(cls, values: DataArray) -> DataArray:
+        return DataArray(
+            np.stack([values.coords["x"].values, values.coords["y"].values], axis=1),
+            dims=("i", "d"),
+            coords={"d": ["x", "y"]},
+        )

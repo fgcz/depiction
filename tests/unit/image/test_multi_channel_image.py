@@ -320,5 +320,16 @@ def test_compute_is_foreground(bg_value: float):
     xarray.testing.assert_equal(DataArray([[False, True], [True, False], [False, False]], dims=("y", "x")), mask)
 
 
+def test_extract_flat_coordinates(mock_image_sparse):
+    data_flat = xarray.DataArray(
+        [[6.0, 8], [5, 5]], dims=("c", "i"), coords={"i": pd.MultiIndex.from_arrays(([0, 1], [1, 1]), names=("x", "y"))}
+    )
+    coords = MultiChannelImage._extract_flat_coordinates(data_flat)
+    xarray.testing.assert_equal(
+        coords,
+        xarray.DataArray([[0, 1], [1, 1]], dims=("i", "d"), coords={"d": ["x", "y"]}),
+    )
+
+
 if __name__ == "__main__":
     pytest.main()

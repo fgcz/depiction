@@ -1,4 +1,5 @@
 # TODO very experimental, it's not fully clear if it is the intended approach
+import warnings
 from dataclasses import dataclass
 from functools import cached_property
 
@@ -8,6 +9,7 @@ import xarray as xr
 from numpy.typing import NDArray
 from xarray import DataArray
 
+from depiction.image import MultiChannelImage
 from depiction.image.xarray_helper import XarrayHelper
 
 
@@ -27,6 +29,9 @@ class SpatialSmoothingSparseAware:
     use_interpolation: bool = False
 
     def smooth(self, image: DataArray, bg_value: float = 0.0) -> DataArray:
+        # TODO delete method later
+        warnings.warn("Use smooth_image instead", DeprecationWarning)
+
         image = image.transpose("y", "x", "c")
         image = image.astype(np.promote_types(image.dtype, np.dtype(type(bg_value)).type))
         image = XarrayHelper.ensure_dense(image)
@@ -40,8 +45,49 @@ class SpatialSmoothingSparseAware:
         )
         return image.transpose("y", "x", "c")
 
+    def smooth_image(self, image: MultiChannelImage) -> MultiChannelImage:
+        data = XarrayHelper.ensure_dense(image.data_spatial)
+        is_foreground = XarrayHelper.ensure_dense(image.fg_mask)
+        dat = xr.apply_ufunc(
+            self._smooth_dense_image,
+            data,
+            is_foreground,
+            input_core_dims=[["y", "x"], ["y", "x"]],
+            output_core_dims=[["y", "x"]],
+            vectorize=True,
+        )
+        return MultiChannelImage(dat, is_foreground=is_foreground, is_foreground_label=image.is_foreground_label)
+
+    def _smooth_dense_image(self, image_2d: NDArray[float], is_foreground: NDArray[float]) -> NDArray[float]:
+        if not np.issubdtype(image_2d.dtype, np.floating):
+            raise ValueError("The input image must be a floating point array.")
+
+        # Get an initial kernel
+        kernel = self.gaussian_kernel
+
+        # Apply the kernel to the image.
+        smoothed_image = scipy.signal.convolve(np.nan_to_num(image_2d), kernel, mode="same")
+
+        # Apply the kernel counting the sum of the weights, so we can normalize the data.
+        kernel_sum_image = scipy.signal.convolve(is_foreground.astype(float), kernel, mode="same")
+        # Values are zero, when a pixel and all its neighbors are missing.
+        kernel_sum_image[np.abs(kernel_sum_image) < 1e-10] = 1
+
+        # Normalize the image, and set the missing values to NaN.
+        result_image = smoothed_image / kernel_sum_image
+
+        if not self.use_interpolation:
+            # TODO should this become customizable again?
+            result_image[~is_foreground] = 0.0
+
+        # Return the result.
+        return result_image
+
     def _smooth_dense(self, image_2d: NDArray[float], bg_value: float) -> NDArray[float]:
         """Applies the spatial smoothing to the provided 2D image."""
+        # TODO delete method later
+        warnings.warn("Use smooth_image instead", DeprecationWarning)
+
         if not np.issubdtype(image_2d.dtype, np.floating):
             raise ValueError("The input image must be a floating point array.")
 

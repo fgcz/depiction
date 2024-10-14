@@ -49,11 +49,11 @@ class SparseRepresentation:
     ) -> tuple[DataArray, DataArray]:
         n_channels = sparse_values.sizes["c"]
         sparse_values = sparse_values.transpose("i", "c").values
-        coordinates = coordinates.transpose("i", "d").values
+        coordinates = coordinates.transpose("i", "d").values.astype(int)
 
         coordinates_min = coordinates.min(axis=0)
         coordinates_extent = coordinates.max(axis=0) - coordinates_min + 1
-        coordinates_shifted = coordinates - coordinates.min(axis=0)
+        coordinates_shifted = coordinates - coordinates_min
 
         dtype = np.promote_types(sparse_values.dtype, np.dtype(type(bg_value)).type)
         values_grid = np.full(

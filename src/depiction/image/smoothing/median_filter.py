@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class SmoothBilateralFilter:
-    diameter: int = 5
-    sigma_intensity: float = 5.0
-    sigma_spatial: float = 20.0
+    kernel_size: int = 9
 
     def smooth_image(self, image: MultiChannelImage) -> MultiChannelImage:
         data = XarrayHelper.ensure_dense(image.data_spatial)
@@ -39,12 +37,7 @@ class SmoothBilateralFilter:
             raise ValueError("The input image must be a floating point array.")
 
         # apply the bilateral filter
-        logger.info("Applying bilateral filter")
-        smoothed_image = cv2.bilateralFilter(
-            np.nan_to_num(image_2d.astype(np.float32)),
-            d=self.diameter,
-            sigmaColor=self.sigma_intensity,
-            sigmaSpace=self.sigma_spatial,
-        )
+        logger.info("Applying median filter")
+        smoothed_image = cv2.medianBlur(np.nan_to_num(image_2d.astype(np.float32)), ksize=self.kernel_size)
         smoothed_image[~is_foreground] = 0
         return smoothed_image

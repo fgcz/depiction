@@ -59,7 +59,7 @@ class PerformCalibration:
         )
         return MultiChannelImage.from_flat(
             values=all_features,
-            coordinates=DataArray(read_peaks.coordinates_2d, dims=["i", "d"], coords={"d": ["x", "y"]}),
+            coordinates=read_peaks.coordinates_array_2d,
             channel_names=None,
         )
 

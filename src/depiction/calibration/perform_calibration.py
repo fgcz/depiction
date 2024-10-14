@@ -100,11 +100,7 @@ class PerformCalibration:
     def _write_data_array(self, image: MultiChannelImage, group: str) -> None:
         if not self._coefficient_output_file:
             return
-
-        # TODO this uses deprecated functionality but needs to be handled somewhere more generally later
-        array = image.data_flat.assign_coords({"i": np.arange(len(image.data_flat.i))})
-        # TODO engine should not be necessary, but using it for debugging
-        array.to_netcdf(path=self._coefficient_output_file, group=group, format="NETCDF4", engine="netcdf4", mode="a")
+        image.write_hdf5(path=self._coefficient_output_file, mode="a", group=group)
 
     @staticmethod
     def _extract_chunk_features(

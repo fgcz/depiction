@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Literal
 
 import xarray
 
-from depiction.image.container.alpha_stack import AlphaStack
+from depiction.image.container.alpha_channel import AlphaChannel
 
 if TYPE_CHECKING:
     from depiction.image.multi_channel_image import MultiChannelImage
@@ -20,7 +20,7 @@ class MultiChannelImagePersistence:
 
     def __init__(self, image: MultiChannelImage) -> None:
         self._image = image
-        self._alpha_channel = AlphaStack(label=image.is_foreground_label)
+        self._alpha_channel = AlphaChannel(label=image.is_foreground_label)
 
     def write_hdf5(self, path: Path, mode: Literal["a", "w"] = "w", group: str | None = None) -> None:
         data_array = self._image.data_spatial
@@ -42,7 +42,7 @@ class MultiChannelImagePersistence:
         from depiction.image.multi_channel_image import MultiChannelImage
 
         combined_array = xarray.open_dataarray(path, group=group)
-        data_array, is_fg_array = AlphaStack(label=is_foreground_label).split(combined=combined_array)
+        data_array, is_fg_array = AlphaChannel(label=is_foreground_label).split(combined=combined_array)
         return MultiChannelImage(data=data_array, is_foreground=is_fg_array, is_foreground_label=is_foreground_label)
 
     # TODO is_valid_hdf5

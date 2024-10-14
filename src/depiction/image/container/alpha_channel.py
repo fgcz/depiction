@@ -3,7 +3,7 @@ from __future__ import annotations
 import xarray
 
 
-class AlphaStack:
+class AlphaChannel:
     """Implements logic to stack an alpha channel on top of an arbitrary channel image and split it off again.
 
     The alpha channel is expected to be a boolean mask, where True indicates foreground and False background.

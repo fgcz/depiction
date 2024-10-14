@@ -30,7 +30,7 @@ class SpatialSmoothingSparseAware:
         data_input = XarrayHelper.ensure_dense(image.data_spatial)
         is_foreground = XarrayHelper.ensure_dense(image.fg_mask)
         data_result = xr.apply_ufunc(
-            self._smooth_dense_image,
+            self._smooth_dense,
             data_input,
             is_foreground,
             input_core_dims=[["y", "x"], ["y", "x"]],
@@ -41,7 +41,7 @@ class SpatialSmoothingSparseAware:
             data_result, is_foreground=is_foreground, is_foreground_label=image.is_foreground_label
         )
 
-    def _smooth_dense_image(self, image_2d: NDArray[float], is_foreground: NDArray[float]) -> NDArray[float]:
+    def _smooth_dense(self, image_2d: NDArray[float], is_foreground: NDArray[float]) -> NDArray[float]:
         if not np.issubdtype(image_2d.dtype, np.floating):
             raise ValueError("The input image must be a floating point array.")
 

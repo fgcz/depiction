@@ -19,33 +19,6 @@ class SparseRepresentation:
     """
 
     @classmethod
-    def sparse_to_dense(cls, sparse_values: DataArray, coordinates: DataArray, bg_value: float) -> DataArray:
-        """Converts the sparse image representation into a dense image representation.
-        :param sparse_values: DataArray with "i" (index of value) and "c" (channel) dimensions
-        :param coordinates: DataArray with "i" (index of value) and "d" (dimension) dimensions
-        :param bg_value: the value to use for the background
-        :return: DataArray with "y", "x", and "c" dimensions
-        """
-        # TODO old method
-
-        n_channels = sparse_values.sizes["c"]
-        sparse_values = sparse_values.transpose("i", "c").values
-        coordinates = coordinates.transpose("i", "d").values
-
-        coordinates_extent = coordinates.max(axis=0) - coordinates.min(axis=0) + 1
-        coordinates_shifted = coordinates - coordinates.min(axis=0)
-
-        dtype = np.promote_types(sparse_values.dtype, np.dtype(type(bg_value)).type)
-        values_grid = np.full(
-            (coordinates_extent[0], coordinates_extent[1], n_channels), fill_value=bg_value, dtype=dtype
-        )
-        for i_channel in range(n_channels):
-            values_grid[tuple(coordinates_shifted.T) + (i_channel,)] = sparse_values[:, i_channel]
-
-        # TODO coordinates might come in the wrong order FIXME
-        return DataArray(values_grid, dims=("y", "x", "c"))
-
-    @classmethod
     def flat_to_spatial(
         cls, sparse_values: DataArray, coordinates: DataArray, bg_value: float
     ) -> tuple[DataArray, DataArray]:

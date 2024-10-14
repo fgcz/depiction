@@ -5,7 +5,7 @@ import xarray as xr
 from sparse import GCXS
 from xarray import DataArray
 
-from depiction.image.spatial_smoothing import SpatialSmoothing
+from depiction.image.smoothing.spatial_smoothing import SpatialSmoothing
 
 
 class TestSpatialSmoothing(unittest.TestCase):

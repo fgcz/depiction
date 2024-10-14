@@ -7,7 +7,7 @@ from hypothesis import given, strategies
 from sparse import GCXS
 from xarray import DataArray
 
-from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
+from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
 @pytest.fixture(autouse=True)

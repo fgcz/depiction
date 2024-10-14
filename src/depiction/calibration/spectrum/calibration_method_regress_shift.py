@@ -7,7 +7,7 @@ from depiction.calibration.models import LinearModel
 from depiction.calibration.models.fit_model import fit_model
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
 from depiction.image import MultiChannelImage
-from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
+from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
 class CalibrationMethodRegressShift(CalibrationMethod):

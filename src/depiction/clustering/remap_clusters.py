@@ -62,6 +62,6 @@ def remap_cluster_labels(
             lambda v: mapping.get(v, np.nan), image.data_spatial.sel(c=[cluster_channel]), vectorize=True
         )
     img_relabeled = image.drop_channels(coords=[cluster_channel], allow_missing=False).append_channels(
-        MultiChannelImage(relabeled)
+        MultiChannelImage(relabeled, is_foreground=image.fg_mask, is_foreground_label=image.is_foreground_label)
     )
     return img_relabeled

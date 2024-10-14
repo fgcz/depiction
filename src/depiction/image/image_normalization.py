@@ -31,7 +31,11 @@ class ImageNormalization:
             raise NotImplementedError("Multiple index columns are not supported yet.")
 
     def normalize_image(self, image: MultiChannelImage, variant: ImageNormalizationVariant) -> MultiChannelImage:
-        return MultiChannelImage(self.normalize_xarray(image.data_spatial, variant=variant))
+        return MultiChannelImage(
+            self.normalize_xarray(image.data_spatial, variant=variant),
+            is_foreground=image.fg_mask,
+            is_foreground_label=image.is_foreground_label,
+        )
 
     def _normalize_single_xarray(self, image: xarray.DataArray, variant: ImageNormalizationVariant) -> xarray.DataArray:
         with xarray.set_options(keep_attrs=True):

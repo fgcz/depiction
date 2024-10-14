@@ -86,7 +86,7 @@ def test_normalize_xarray_multiple_std(image_normalizer, multiple_images):
 
 
 def test_normalize_image(image_normalizer, single_image):
-    multi_channel_image = MultiChannelImage(single_image)
+    multi_channel_image = MultiChannelImage(single_image, is_foreground=xr.ones_like(single_image.isel(c=0)))
     normalized_image = image_normalizer.normalize_image(multi_channel_image, variant=ImageNormalizationVariant.VEC_NORM)
     assert isinstance(normalized_image, MultiChannelImage)
     xr.testing.assert_allclose(

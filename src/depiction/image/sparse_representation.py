@@ -22,6 +22,7 @@ class SparseRepresentation:
     def flat_to_spatial(
         cls, sparse_values: DataArray, coordinates: DataArray, bg_value: float
     ) -> tuple[DataArray, DataArray]:
+        # TODO fully test and simplify this method
         n_channels = sparse_values.sizes["c"]
         sparse_values = sparse_values.transpose("i", "c").values
         coordinates = coordinates.transpose("i", "d").astype(int)
@@ -48,7 +49,7 @@ class SparseRepresentation:
         }
         return (
             DataArray(values_grid, dims=("x", "y", "c"), coords=coords).transpose("y", "x", "c"),
-            DataArray(is_foreground, dims=("y", "x"), coords=coords),
+            DataArray(is_foreground, dims=("x", "y"), coords=coords).transpose("y", "x"),
         )
 
     @classmethod

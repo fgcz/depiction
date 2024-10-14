@@ -3,8 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-import cv2
 import numpy as np
+import scipy
+import scipy.ndimage
 import xarray as xr
 from loguru import logger
 
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class SmoothBilateralFilter:
+class SmoothMedianFilter:
     kernel_size: int = 9
 
     def smooth_image(self, image: MultiChannelImage) -> MultiChannelImage:
@@ -38,6 +39,7 @@ class SmoothBilateralFilter:
 
         # apply the bilateral filter
         logger.info("Applying median filter")
-        smoothed_image = cv2.medianBlur(np.nan_to_num(image_2d.astype(np.float32)), ksize=self.kernel_size)
+        # smoothed_image = cv2.medianBlur(np.nan_to_num(image_2d.astype(np.float32)), ksize=self.kernel_size)
+        smoothed_image = scipy.ndimage.median_filter(np.nan_to_num(image_2d.astype(np.float32)), size=self.kernel_size)
         smoothed_image[~is_foreground] = 0
         return smoothed_image

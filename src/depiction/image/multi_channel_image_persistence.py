@@ -8,6 +8,9 @@ import xarray
 if TYPE_CHECKING:
     from depiction.image.multi_channel_image import MultiChannelImage
 
+# TODO currently the files are not closed, which you can observe e.g. in a notebook when the original files has been
+#      replaced
+
 
 class MultiChannelImagePersistence:
     """Implements the persistence layer logic for MultiChannelImage."""

@@ -7,7 +7,6 @@ from statsmodels.robust.norms import HuberT
 from xarray import DataArray
 
 from depiction.calibration.calibration_method import CalibrationMethod
-from depiction.calibration.spectrum.calibration_smoothing import smooth_image_features
 
 
 class CalibrationMethodMassClusterCenterModel(CalibrationMethod):

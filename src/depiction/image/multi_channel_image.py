@@ -164,6 +164,12 @@ class MultiChannelImage:
     def coordinates_flat(self) -> DataArray:
         """Returns the coordinates of the non-background values."""
         orig_coords = self.data_flat.coords
+        # TODO make consistent
+        # return DataArray(
+        #    np.stack((orig_coords["x"].values, orig_coords["y"].values), axis=0),
+        #    dims=("d", "i"),
+        #    coords={"d": ["x", "y"], "i": orig_coords["i"]},
+        # )
         return DataArray(
             np.stack((orig_coords["y"].values, orig_coords["x"].values), axis=0),
             dims=("d", "i"),
@@ -309,13 +315,13 @@ class MultiChannelImage:
     @staticmethod
     def _validate_coordinates(coordinates: NDArray[int] | DataArray) -> DataArray:
         """Converts the coordinates to a DataArray, if necessary."""
-        if hasattr(coordinates, "coords"):
-            # TODO ensure x, y ordering!
-            return coordinates.transpose("i", "d")
+        if not hasattr(coordinates, "coords"):
+            return DataArray(coordinates, dims=("i", "d"), coords={"d": ["x", "y"]})
         else:
-            if coordinates.ndim != 2:
-                raise ValueError("Coordinates must be a 2D array.")
-            return DataArray(coordinates, dims=("i", "d"))
+            coordinates = coordinates.transpose("i", "d").sortby("d")
+            if not coordinates.coords["d"].values.tolist() == ["x", "y"]:
+                raise ValueError("Coordinates must have dimensions 'x' and 'y'.")
+            return coordinates
 
     @classmethod
     def _extract_flat_coordinates(cls, values: DataArray) -> DataArray:

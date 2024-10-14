@@ -320,6 +320,31 @@ def test_compute_is_foreground(bg_value: float):
     xarray.testing.assert_equal(DataArray([[False, True], [True, False], [False, False]], dims=("y", "x")), mask)
 
 
+@pytest.mark.parametrize(
+    "input_coordinates",
+    [
+        np.array([[1, 2], [3, 4]]),
+        xarray.DataArray([[1, 2], [3, 4]], dims=("i", "d"), coords={"d": ["x", "y"]}),
+        xarray.DataArray([[2, 1], [4, 3]], dims=("i", "d"), coords={"d": ["y", "x"]}),
+        xarray.DataArray([[1, 3], [2, 4]], dims=("d", "i"), coords={"d": ["x", "y"]}),
+    ],
+)
+def test_validate_coordinates(input_coordinates):
+    result = MultiChannelImage._validate_coordinates(input_coordinates)
+    xarray.testing.assert_equal(result, xarray.DataArray([[1, 2], [3, 4]], dims=("i", "d"), coords={"d": ["x", "y"]}))
+
+
+@pytest.mark.parametrize(
+    "input_coordinates",
+    [
+        xarray.DataArray([[1, 2], [3, 4]], dims=("i", "d"), coords={"d": ["x", "z"]}),
+    ],
+)
+def test_validate_coordinates_when_invalid(input_coordinates):
+    with pytest.raises(ValueError):
+        MultiChannelImage._validate_coordinates(input_coordinates)
+
+
 def test_extract_flat_coordinates(mock_image_sparse):
     data_flat = xarray.DataArray(
         [[6.0, 8], [5, 5]], dims=("c", "i"), coords={"i": pd.MultiIndex.from_arrays(([0, 1], [1, 1]), names=("x", "y"))}

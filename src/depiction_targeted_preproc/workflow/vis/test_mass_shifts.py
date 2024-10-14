@@ -6,8 +6,10 @@ import polars as pl
 import typer
 import xarray as xr
 import yaml
-from depiction.tools.calibrate import get_calibration_instance, CalibrationConfig
 from typer import Option
+
+from depiction.image import MultiChannelImage
+from depiction.tools.calibrate import get_calibration_instance, CalibrationConfig
 
 
 def vis_test_mass_shifts(
@@ -17,7 +19,7 @@ def vis_test_mass_shifts(
     output_hdf5_path: Annotated[Path, Option()],
 ) -> None:
     # load inputs
-    model_coefs = xr.open_dataarray(calib_hdf5_path, group="model_coefs")
+    model_coefs = MultiChannelImage.read_hdf5(calib_hdf5_path, group="model_coefs")
     config = CalibrationConfig.model_validate(yaml.safe_load(config_path.read_text()))
 
     mass_list = pl.read_csv(mass_list_path)
@@ -38,16 +40,12 @@ def vis_test_mass_shifts(
 
     shifts = xr.apply_ufunc(
         compute_shifts,
-        model_coefs,
+        model_coefs.data_spatial,
         input_core_dims=[["c"]],
         output_core_dims=[["m"]],
         vectorize=True,
     ).rename({"m": "c"})
-    shifts = shifts.assign_coords(c=test_masses)
-
-    shifts_2d = shifts.set_xindex(["x", "y"]).unstack("i")
-    shifts_2d.attrs["bg_value"] = np.nan
-
+    shifts_2d = shifts.assign_coords(c=test_masses)
     # save the result
     shifts_2d.to_netcdf(output_hdf5_path)
 

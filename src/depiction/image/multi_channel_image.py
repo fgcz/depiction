@@ -87,6 +87,11 @@ class MultiChannelImage:
         return self._data.dtype
 
     @property
+    def is_foreground_label(self) -> str:
+        """The label for the is_foreground channel when persisting."""
+        return self._is_foreground_label
+
+    @property
     def fg_mask(self) -> DataArray:
         """A boolean mask indicating the foreground values as `True` and non-foreground values as `False`."""
         return self._is_foreground

@@ -79,6 +79,10 @@ def test_dtype(mock_image: MultiChannelImage) -> None:
     assert mock_image.dtype == float
 
 
+def test_is_foreground_label(mock_image: MultiChannelImage) -> None:
+    assert mock_image.is_foreground_label == "is_foreground"
+
+
 def test_bg_mask(mock_image: MultiChannelImage) -> None:
     # TODO more interesting example
     expected_bg_mask = DataArray([[False, False], [False, False], [False, False]], dims=("y", "x"))

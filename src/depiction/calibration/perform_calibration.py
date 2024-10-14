@@ -27,36 +27,6 @@ class PerformCalibration:
         self._parallel_config = parallel_config
         self._coefficient_output_file = coefficient_output_file
 
-    def _validate_per_spectra_array(self, array: DataArray, coordinates_2d: NDArray[float]) -> None:
-        """Checks the DataArray has the correct shapes and dimensions. Used for debugging."""
-        # TODO make it configurable in the future, whether this check is executed, during development it definitely
-        #      should be here since it can safe a ton of time
-        expected_coords = {"i", "x", "y"}
-        if set(array.coords) != expected_coords:
-            raise ValueError(f"Expected coords={expected_coords}, got={set(array.coords)}")
-        expected_dims = {"i", "c"}
-
-        errors = []
-        if set(array.dims) != expected_dims:
-            logger.error(f"Expected dims={expected_dims}, got={set(array.dims)}")
-            errors.append("Mismatch in dimensions")
-        if not np.array_equal(array.x.values, coordinates_2d[:, 0]):
-            logger.error(f"Expected x: values={coordinates_2d[:, 0]} shape={coordinates_2d[:, 0].shape}")
-            logger.error(f"Actual   x: values={array.x.values} shape={array.x.values.shape}")
-            logger.info(f"(Expected x values without offset: {coordinates_2d[:, 0] - coordinates_2d[:, 0].min()})")
-            errors.append("Mismatch in x values")
-        if not np.array_equal(array.y.values, coordinates_2d[:, 1]):
-            logger.error(f"Expected y: values={coordinates_2d[:, 1]} shape={coordinates_2d[:, 1].shape}")
-            logger.error(f"Actual   y: values={array.y.values} shape={array.y.values.shape}")
-            logger.info(f"(Expected y values without offset: {coordinates_2d[:, 1] - coordinates_2d[:, 1].min()})")
-            errors.append("Mismatch in y values")
-        if not np.array_equal(array.i.values, np.arange(len(array.i))):
-            errors.append("Mismatch in i values")
-            logger.error(f"Expected i: values={np.arange(len(array.i))} shape={np.arange(len(array.i)).shape}")
-            logger.error(f"Actual   i: values={array.i.values} shape={array.i.values.shape}")
-        if errors:
-            raise ValueError(errors)
-
     def calibrate_image(
         self, read_peaks: GenericReadFile, write_file: GenericWriteFile, read_full: Optional[GenericReadFile] = None
     ) -> None:

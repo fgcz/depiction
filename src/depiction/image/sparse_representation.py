@@ -44,6 +44,28 @@ class SparseRepresentation:
         return DataArray(values_grid, dims=("y", "x", "c"))
 
     @classmethod
+    def sparse_to_dense_v2(
+        cls, sparse_values: DataArray, coordinates: DataArray, bg_value: float
+    ) -> tuple[DataArray, DataArray]:
+        n_channels = sparse_values.sizes["c"]
+        sparse_values = sparse_values.transpose("i", "c").values
+        coordinates = coordinates.transpose("i", "d").values
+
+        coordinates_extent = coordinates.max(axis=0) - coordinates.min(axis=0) + 1
+        coordinates_shifted = coordinates - coordinates.min(axis=0)
+
+        dtype = np.promote_types(sparse_values.dtype, np.dtype(type(bg_value)).type)
+        values_grid = np.full(
+            (coordinates_extent[0], coordinates_extent[1], n_channels), fill_value=bg_value, dtype=dtype
+        )
+        is_foreground = np.zeros((coordinates_extent[0], coordinates_extent[1]), dtype=bool)
+        for i_channel in range(n_channels):
+            values_grid[tuple(coordinates_shifted.T) + (i_channel,)] = sparse_values[:, i_channel]
+            is_foreground[tuple(coordinates_shifted.T)] = True
+
+        return DataArray(values_grid, dims=("y", "x", "c")), DataArray(is_foreground, dims=("y", "x"))
+
+    @classmethod
     def dense_to_sparse(cls, grid_values: DataArray, bg_value: float | None) -> tuple[DataArray, DataArray]:
         """Converts the dense image representation into a sparse image representation.
         :param grid_values: DataArray with "y", "x", and "c" dimensions

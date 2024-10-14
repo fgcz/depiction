@@ -61,16 +61,15 @@ class MultiChannelImage:
         :param channel_names: The names of the channels.
         :param bg_value: The background value.
         """
-        data = SparseRepresentation.sparse_to_dense(
+        data, is_foreground = SparseRepresentation.sparse_to_dense_v2(
             sparse_values=cls._validate_sparse_values(values),
             coordinates=cls._validate_coordinates(coordinates),
             bg_value=bg_value,
         )
-        data.attrs["bg_value"] = bg_value
         channel_names = list(channel_names) if channel_names is not None else None
         if channel_names:
             data.coords["c"] = channel_names
-        return cls(data=data)
+        return cls(data=data, is_foreground=is_foreground)
 
     @property
     def n_channels(self) -> int:

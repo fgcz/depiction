@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from functools import cached_property
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import xarray
@@ -10,6 +10,7 @@ from numpy.typing import NDArray
 from xarray import DataArray
 
 from depiction.image.image_channel_stats import ImageChannelStats
+from depiction.image.multi_channel_image_persistence import MultiChannelImagePersistence
 from depiction.image.sparse_representation import SparseRepresentation
 from depiction.persistence.format_ome_tiff import OmeTiff
 
@@ -207,9 +208,9 @@ class MultiChannelImage:
 
     # TODO save_single_channel_image... does it belong here or into plotter?
 
-    def write_hdf5(self, path: Path) -> None:
+    def write_hdf5(self, path: Path, mode: Literal["a", "w"] = "w", group: str | None = None) -> None:
         """Writes the image to a HDF5 file (actually NETCDF4)."""
-        self._data.to_netcdf(path, format="NETCDF4")
+        return MultiChannelImagePersistence(image=self).write_hdf5(path=path, mode=mode, group=group)
 
     @classmethod
     def read_hdf5(
@@ -221,12 +222,8 @@ class MultiChannelImage:
         :param group: The group within the HDF5 file, by default None.
         :param is_foreground_label: The label for the is_foreground channel, by default "is_foreground".
         """
-        data_store = xarray.open_dataarray(path, group=group)
-        is_foreground = data_store.sel(c=is_foreground_label)
-        data = data_store.drop_sel(c=is_foreground_label)
-        return cls(data=data, is_foreground=is_foreground, is_foreground_label=is_foreground_label)
+        return MultiChannelImagePersistence.read_hdf5(path=path, group=group, is_foreground_label=is_foreground_label)
 
-    # TODO is_valid_hdf5
     # TODO combine_in_parallel, combine_sequentially: consider moving this somewhere else
 
     @classmethod

@@ -53,7 +53,7 @@ def mock_image_sparse(mock_data_sparse) -> MultiChannelImage:
     )
 
 
-def test_from_numpy_sparse() -> None:
+def test_from_sparse() -> None:
     values = np.array([[1, 2, 3], [4, 5, 6]])
     coordinates = np.array([[0, 0], [1, 1]])
     image = MultiChannelImage.from_sparse(values=values, coordinates=coordinates, channel_names=["A", "B", "C"])
@@ -225,7 +225,7 @@ def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
 def test_read_ome_tiff(mocker: MockerFixture, mock_data: DataArray) -> None:
     mock_read = mocker.patch.object(OmeTiff, "read", return_value=mock_data)
     mock_foreground = xarray.ones_like(mock_data.isel(c=0), dtype=bool)
-    mocker.patch.object(MultiChannelImage, "_compute_foreground_mask", return_value=mock_foreground)
+    mocker.patch.object(MultiChannelImage, "_compute_is_foreground", return_value=mock_foreground)
     image = MultiChannelImage.read_ome_tiff(Path("test.ome.tiff"))
     xarray.testing.assert_equal(image.data_spatial, mock_data)
     mock_read.assert_called_once_with(Path("test.ome.tiff"))
@@ -293,10 +293,10 @@ def test_repr(mocker: MockerFixture, mock_image: MultiChannelImage) -> None:
 
 
 @pytest.mark.parametrize("bg_value", [0, 1, np.nan])
-def test_compute_foreground_mask(bg_value: float):
+def test_compute_is_foreground(bg_value: float):
     a = bg_value - 1 if np.isfinite(bg_value) else 1
     array = DataArray([[bg_value, a], [3, bg_value], [bg_value, bg_value]], dims=("y", "x"))
-    mask = MultiChannelImage._compute_foreground_mask(array, bg_value=bg_value)
+    mask = MultiChannelImage._compute_is_foreground(array, bg_value=bg_value)
     xarray.testing.assert_equal(DataArray([[False, True], [True, False], [False, False]], dims=("y", "x")), mask)
 
 

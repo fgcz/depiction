@@ -192,7 +192,7 @@ class MultiChannelImage:
     def read_ome_tiff(cls, path: Path, bg_value: float = 0.0) -> MultiChannelImage:
         """Reads a MultiChannelImage from a OME-TIFF file."""
         data = OmeTiff.read(path)
-        return MultiChannelImage(data=data, is_foreground=cls._compute_foreground_mask(data=data, bg_value=bg_value))
+        return MultiChannelImage(data=data, is_foreground=cls._compute_is_foreground(data=data, bg_value=bg_value))
 
     def with_channel_names(self, channel_names: Sequence[str]) -> MultiChannelImage:
         """Returns a copy with the specified channel names."""
@@ -255,7 +255,7 @@ class MultiChannelImage:
         return f"MultiChannelImage(data={self._data!r})"
 
     @classmethod
-    def _compute_foreground_mask(cls, data: DataArray, bg_value: float = np.nan) -> DataArray:
+    def _compute_is_foreground(cls, data: DataArray, bg_value: float = np.nan) -> DataArray:
         """Computes the foreground mask from the data."""
         if np.isnan(bg_value):
             return ~data.isnull()

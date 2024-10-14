@@ -51,7 +51,8 @@ class SparseRepresentation:
         sparse_values = sparse_values.transpose("i", "c").values
         coordinates = coordinates.transpose("i", "d").values
 
-        coordinates_extent = coordinates.max(axis=0) - coordinates.min(axis=0) + 1
+        coordinates_min = coordinates.min(axis=0)
+        coordinates_extent = coordinates.max(axis=0) - coordinates_min + 1
         coordinates_shifted = coordinates - coordinates.min(axis=0)
 
         dtype = np.promote_types(sparse_values.dtype, np.dtype(type(bg_value)).type)
@@ -63,10 +64,9 @@ class SparseRepresentation:
             values_grid[tuple(coordinates_shifted.T) + (i_channel,)] = sparse_values[:, i_channel]
             is_foreground[tuple(coordinates_shifted.T)] = True
 
-        # TODO optimize, swapped?
         coords = {
-            "x": np.arange(coordinates.min(axis=0)[1], coordinates.max(axis=0)[1] + 1),
-            "y": np.arange(coordinates.min(axis=0)[0], coordinates.max(axis=0)[0] + 1),
+            "x": np.arange(coordinates_min[1], coordinates_min[0] + coordinates_extent[1]),
+            "y": np.arange(coordinates_min[0], coordinates_min[1] + coordinates_extent[0]),
         }
         return DataArray(values_grid, dims=("y", "x", "c"), coords=coords), DataArray(
             is_foreground, dims=("y", "x"), coords=coords

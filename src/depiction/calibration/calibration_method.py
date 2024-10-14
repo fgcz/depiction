@@ -1,7 +1,11 @@
-from typing import Protocol
+from __future__ import annotations
+from typing import Protocol, TYPE_CHECKING
 
 from numpy.typing import NDArray
 from xarray import DataArray
+
+if TYPE_CHECKING:
+    from depiction.image.multi_channel_image import MultiChannelImage
 
 
 class CalibrationMethod(Protocol):
@@ -16,7 +20,10 @@ class CalibrationMethod(Protocol):
         """
         return DataArray([], dims=["c"])
 
-    def preprocess_image_features(self, all_features: DataArray) -> DataArray:
+    # TODO update doc
+    # TODO update other methods
+    # TODO check if it works
+    def preprocess_image_features(self, all_features: MultiChannelImage) -> MultiChannelImage:
         """Preprocesses the extracted features from all spectra in an image.
         For example, image-wide smoothing of the features could be applied here.
         If no preprocessing is necessary, the input DataArray should be returned.

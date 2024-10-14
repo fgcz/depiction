@@ -226,7 +226,7 @@ def test_read_ome_tiff(mocker: MockerFixture, mock_data: DataArray) -> None:
     mock_read = mocker.patch.object(OmeTiff, "read", return_value=mock_data)
     image = MultiChannelImage.read_ome_tiff(Path("test.ome.tiff"))
     xarray.testing.assert_equal(image.data_spatial, mock_data)
-    mock_read.assert_called_once_with(Path("test.ome.tiff"))
+    mock_read.assert_called_once_with(Path("test.ome.tiff"), is_foreground=...)
 
 
 def test_with_channel_names(mock_image: MultiChannelImage) -> None:
@@ -287,6 +287,14 @@ def test_str(mock_image: MultiChannelImage) -> None:
 def test_repr(mocker: MockerFixture, mock_image: MultiChannelImage) -> None:
     mocker.patch("xarray.DataArray.__repr__", return_value="DataArray")
     assert repr(mock_image) == "MultiChannelImage(data=DataArray)"
+
+
+@pytest.mark.parametrize("bg_value", [0, 1, np.nan])
+def test_compute_foreground_mask(bg_value: float):
+    a = bg_value - 1 if np.isfinite(bg_value) else 1
+    array = DataArray([[bg_value, a], [3, bg_value], [bg_value, bg_value]], dims=("y", "x"))
+    mask = MultiChannelImage._compute_foreground_mask(array, bg_value=bg_value)
+    xarray.testing.assert_equal(DataArray([[False, True], [True, False], [False, False]], dims=("y", "x")), mask)
 
 
 if __name__ == "__main__":

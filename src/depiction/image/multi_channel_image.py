@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
 
+
 # TODO would it be clever or stupid to call is_foreground "alpha" channel?
 
 
@@ -252,7 +253,14 @@ class MultiChannelImage:
     def __repr__(self) -> str:
         return f"MultiChannelImage(data={self._data!r})"
 
-    @staticmethod
+    @classmethod
+    def _compute_foreground_mask(cls, data: DataArray, bg_value: float = np.nan) -> DataArray:
+        """Computes the foreground mask from the data."""
+        if np.isnan(bg_value):
+            return ~data.isnull()
+        else:
+            return data != bg_value
+
     def _validate_sparse_values(values: NDArray[float] | DataArray) -> DataArray:
         """Converts the sparse values to a DataArray, if necessary."""
         if hasattr(values, "coords"):

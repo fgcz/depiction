@@ -137,9 +137,12 @@ class MultiChannelImage:
             coords={"d": ["y", "x"], "i": orig_coords["i"]},
         )
 
-    def recompute_is_foreground(self) -> MultiChannelImage:
-        # TODO to be defined
-        raise NotImplementedError
+    def recompute_is_foreground(self, bg_value: float = 0.0) -> MultiChannelImage:
+        """Returns a copy of self with a recomputed is_foreground mask, based on the provided bg value."""
+        is_foreground = self._compute_is_foreground(data=self._data, bg_value=bg_value)
+        return MultiChannelImage(
+            data=self._data, is_foreground=is_foreground, is_foreground_label=self._is_foreground_label
+        )
 
     # TODO from_dense_array
 
@@ -257,9 +260,9 @@ class MultiChannelImage:
     def _compute_is_foreground(cls, data: DataArray, bg_value: float = np.nan) -> DataArray:
         """Computes the foreground mask from the data."""
         if np.isnan(bg_value):
-            return ~data.isnull()
+            return ~data.isnull().all(dim="c")
         else:
-            return data != bg_value
+            return (data != bg_value).any(dim="c")
 
     def _validate_sparse_values(values: NDArray[float] | DataArray) -> DataArray:
         """Converts the sparse values to a DataArray, if necessary."""

@@ -170,6 +170,15 @@ def test_coordinates_flat(mock_data: DataArray, mock_image: MultiChannelImage) -
     xarray.testing.assert_identical(mock_image.coordinates_flat, expected)
 
 
+def test_recompute_is_foreground(mocker: MockerFixture, mock_image: MultiChannelImage) -> None:
+    mock_compute = mocker.patch.object(
+        MultiChannelImage, "_compute_is_foreground", return_value=xarray.ones_like(mock_image.fg_mask)
+    )
+    new_image = mock_image.recompute_is_foreground()
+    xarray.testing.assert_equal(new_image.fg_mask, mock_compute.return_value)
+    xarray.testing.assert_equal(new_image.data_spatial, mock_image.data_spatial)
+
+
 def test_retain_channels_when_both_none(mock_image: MultiChannelImage) -> None:
     with pytest.raises(ValueError):
         mock_image.retain_channels(None, None)
@@ -295,7 +304,14 @@ def test_repr(mocker: MockerFixture, mock_image: MultiChannelImage) -> None:
 @pytest.mark.parametrize("bg_value", [0, 1, np.nan])
 def test_compute_is_foreground(bg_value: float):
     a = bg_value - 1 if np.isfinite(bg_value) else 1
-    array = DataArray([[bg_value, a], [3, bg_value], [bg_value, bg_value]], dims=("y", "x"))
+    array = DataArray(
+        [
+            [[bg_value, bg_value], [a, a]],
+            [[3, bg_value], [bg_value, bg_value]],
+            [[bg_value, bg_value], [bg_value, bg_value]],
+        ],
+        dims=("y", "x", "c"),
+    )
     mask = MultiChannelImage._compute_is_foreground(array, bg_value=bg_value)
     xarray.testing.assert_equal(DataArray([[False, True], [True, False], [False, False]], dims=("y", "x")), mask)
 

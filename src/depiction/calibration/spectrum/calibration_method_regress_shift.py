@@ -7,7 +7,6 @@ from depiction.calibration.models import LinearModel
 from depiction.calibration.models.fit_model import fit_model
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
 from depiction.image import MultiChannelImage
-from depiction.image.smoothing.bilateral_filter import SmoothBilateralFilter
 from depiction.image.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
@@ -87,7 +86,6 @@ class CalibrationMethodRegressShift(CalibrationMethod):
             smoother = SpatialSmoothingSparseAware(
                 kernel_size=self._input_smoothing_kernel_size, kernel_std=self._input_smoothing_kernel_std
             )
-            # smoother = SmoothBilateralFilter()
             return smoother.smooth_image(all_features)
         else:
             return all_features

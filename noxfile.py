@@ -3,7 +3,6 @@ import nox
 nox.options.default_venv_backend = "uv"
 
 
-@nox.session(reuse_venv=True)
 def lint(session: nox.Session) -> None:
     """Runs the linter."""
     session.install("pre-commit")

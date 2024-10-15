@@ -6,6 +6,7 @@ from xarray import DataArray
 
 from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.chemical_noise_bg_2019_boskamp_v2 import ChemicalNoiseCalibration
+from depiction.image import MultiChannelImage
 
 
 class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):
@@ -30,7 +31,7 @@ class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):
         # return DataArray(shifts_arr, dims=["c"])
         return DataArray([], dims=["c"])
 
-    def preprocess_image_features(self, all_features: DataArray) -> DataArray:
+    def preprocess_image_features(self, all_features: MultiChannelImage) -> MultiChannelImage:
         # TODO no smoothing applied for now, but could be added (just, avoid duplication with the RegressShift)
         return all_features
 

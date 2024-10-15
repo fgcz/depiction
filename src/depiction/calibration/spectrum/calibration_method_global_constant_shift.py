@@ -4,6 +4,7 @@ from xarray import DataArray
 
 from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
+from depiction.image import MultiChannelImage
 
 
 class CalibrationMethodGlobalConstantShift(CalibrationMethod):
@@ -27,12 +28,17 @@ class CalibrationMethodGlobalConstantShift(CalibrationMethod):
         )
         return DataArray(distances_mz, dims=["c"])
 
-    def preprocess_image_features(self, all_features: DataArray) -> DataArray:
+    def preprocess_image_features(self, all_features: MultiChannelImage) -> MultiChannelImage:
         # we compute the actual global distance here
-        global_distance = np.nanmedian(all_features.values.ravel())
+        global_distance = np.nanmedian(all_features.data_flat.ravel())
         # create one copy per spectrum
-        n_spectra = all_features.sizes["i"]
-        return DataArray(np.full((n_spectra, 1), global_distance), dims=["i", "c"], coords=all_features.coords)
+        n_spectra = all_features.n_nonzero
+        return MultiChannelImage(
+            data=DataArray(
+                np.full((n_spectra, 1, 1), global_distance), dims=["y", "x", "c"], coords=all_features.coords
+            ),
+            is_foreground=DataArray(np.ones((n_spectra, 1), dtype=bool), dims=["y", "x"], coords=all_features.coords),
+        )
 
     def fit_spectrum_model(self, features: DataArray) -> DataArray:
         return features

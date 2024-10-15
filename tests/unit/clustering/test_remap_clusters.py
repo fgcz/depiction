@@ -10,7 +10,7 @@ from depiction.image.multi_channel_image import MultiChannelImage
 def label_image() -> MultiChannelImage:
     values = np.array([[0, 1, 0], [0, 0, 0], [0, 2, 2]]).reshape(3, 3, 1)
     data = xarray.DataArray(values, dims=("y", "x", "c"), coords={"c": ["cluster"]}, attrs={"bg_value": np.nan})
-    return MultiChannelImage(data, is_foreground=xarray.ones_like(data.isel(c=0)))
+    return MultiChannelImage(data, is_foreground=xarray.ones_like(data.isel(c=0), dtype=bool))
 
 
 def test_get_centroids():

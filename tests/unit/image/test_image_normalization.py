@@ -37,6 +37,19 @@ def test_normalize_image(image_normalizer, single_image):
     )
 
 
+def test_normalize_image_with_background(image_normalizer, single_image):
+    is_foreground = xr.ones_like(single_image.isel(c=0), dtype=bool).drop_vars("c")
+    is_foreground[0, 0] = False
+    is_foreground[1, 0] = False
+    multi_channel_image = MultiChannelImage(single_image, is_foreground=is_foreground)
+    normalized_image = image_normalizer.normalize_image(multi_channel_image, variant=ImageNormalizationVariant.VEC_NORM)
+    xr.testing.assert_equal(normalized_image.fg_mask, is_foreground)
+    xr.testing.assert_allclose(
+        normalized_image.data_spatial,
+        image_normalizer._normalize_xarray(single_image, variant=ImageNormalizationVariant.VEC_NORM),
+    )
+
+
 def test_normalize_xarray_single_vec_norm(image_normalizer, single_image):
     norm_vec = image_normalizer._normalize_xarray(single_image, variant=ImageNormalizationVariant.VEC_NORM)
     expected = xr.DataArray(

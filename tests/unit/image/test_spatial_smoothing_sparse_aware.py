@@ -55,12 +55,13 @@ def dense_data():
     return DataArray(
         np.concatenate([np.ones((5, 5, 1)), np.zeros((5, 5, 1))], axis=0),
         dims=("y", "x", "c"),
+        coords={"c": ["channel"]},
     )
 
 
 @pytest.fixture(params=["dense", "sparse"])
 def image(request, dense_data):
-    # TODO the whole idea of the old test of using nan and zero is not so relveant anymore, maybe it can be simplified
+    # TODO the whole idea of the old test of using nan and zero is not so relevant anymore, maybe it can be simplified
     data = _convert_array(dense_data, request.param)
     is_fg = data.isel(c=0) != 0
     return MultiChannelImage(data=data, is_foreground=is_fg)
@@ -79,7 +80,7 @@ def test_smooth_image_when_unchanged(mock_smooth, image):
     deadline=timedelta(seconds=1), suppress_health_check=[hypothesis.HealthCheck.function_scoped_fixture]
 )
 def test_smooth_preserves_values(mock_smooth, fill_value, variant):
-    dense_data = DataArray(np.full((2, 5, 1), fill_value=fill_value), dims=("y", "x", "c"))
+    dense_data = DataArray(np.full((2, 5, 1), fill_value=fill_value), dims=("y", "x", "c"), coords={"c": ["channel"]})
     is_foreground = DataArray(np.full((2, 5), fill_value=True), dims=("y", "x"))
     image = MultiChannelImage(data=_convert_array(dense_data, variant), is_foreground=is_foreground)
     smoothed = mock_smooth.smooth_image(image)
@@ -105,7 +106,7 @@ def test_smooth_preserves_values(mock_smooth, fill_value, variant):
 
 @pytest.mark.parametrize("variant", ["dense", "sparse"])
 def test_smooth_casts_when_integer(mock_smooth, variant):
-    data_full = DataArray(np.full((2, 5, 1), fill_value=10, dtype=int), dims=("y", "x", "c"))
+    data_full = DataArray(np.full((2, 5, 1), fill_value=10, dtype=int), dims=("y", "x", "c"), coords={"c": ["channel"]})
     is_foreground = DataArray(np.full((2, 5), fill_value=True), dims=("y", "x"))
     image = MultiChannelImage(data=_convert_array(data_full, variant), is_foreground=is_foreground)
     res_values = mock_smooth.smooth_image(image=image)
@@ -121,7 +122,7 @@ def test_smooth_casts_when_integer(mock_smooth, variant):
 
 @pytest.mark.parametrize("mock_use_interpolation", [True])
 def test_smooth_dense_when_use_interpolation(mock_smooth):
-    mock_data = DataArray(np.full((9, 5, 1), fill_value=3.0), dims=("y", "x", "c"))
+    mock_data = DataArray(np.full((9, 5, 1), fill_value=3.0), dims=("y", "x", "c"), coords={"c": ["channel"]})
     mock_data[4, 2, 0] = np.nan
     is_foreground = ~mock_data.isel(c=0).isnull()
     mock_image = MultiChannelImage(data=mock_data, is_foreground=is_foreground)

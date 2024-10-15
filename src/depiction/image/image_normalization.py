@@ -11,7 +11,7 @@ from depiction.image.multi_channel_image import MultiChannelImage
 
 class ImageNormalizationVariant(enum.Enum):
     VEC_NORM = "vec_norm"
-    STD = "std"
+    STD = "std"  #
 
 
 # TODO maybe rename to ImageFeatureNormalization

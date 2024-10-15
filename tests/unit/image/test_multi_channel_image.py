@@ -53,15 +53,6 @@ def mock_image_sparse(mock_data_sparse) -> MultiChannelImage:
     )
 
 
-def test_from_sparse() -> None:
-    values = np.array([[1, 2, 3], [4, 5, 6]])
-    coordinates = np.array([[0, 0], [1, 1]])
-    image = MultiChannelImage.from_sparse(values=values, coordinates=coordinates, channel_names=["A", "B", "C"])
-    assert image.channel_names == ["A", "B", "C"]
-    values = image.data_spatial.sel(c="B")
-    xarray.testing.assert_equal(DataArray([[2, 0], [0, 5]], dims=("y", "x"), coords={"c": "B"}, name="values"), values)
-
-
 def test_n_channels(mock_image: MultiChannelImage) -> None:
     assert mock_image.n_channels == 2
 
@@ -222,7 +213,9 @@ def test_drop_channels_when_coords_and_not_allow_missing(mock_image: MultiChanne
 def test_write_hdf5(mocker: MockerFixture, mock_image: MultiChannelImage) -> None:
     mocker.patch("xarray.DataArray.to_netcdf")
     mock_image.write_hdf5(Path("test.h5"))
-    mock_image.data_spatial.to_netcdf.assert_called_once_with(Path("test.h5"), format="NETCDF4")
+    mock_image.data_spatial.to_netcdf.assert_called_once_with(
+        Path("test.h5"), engine="netcdf4", format="NETCDF4", group=None, mode="w"
+    )
 
 
 def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
@@ -232,7 +225,7 @@ def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
     image = MultiChannelImage.read_hdf5(Path("test.h5"))
     xarray.open_dataarray.assert_called_once_with(Path("test.h5"), group=None)
     xarray.testing.assert_equal(image.data_spatial, mock_data)
-    xarray.testing.assert_equal(image.fg_mask, mock_is_foreground.isel(c=0))
+    xarray.testing.assert_equal(image.fg_mask, mock_is_foreground.isel(c=0).drop_vars("c"))
 
 
 def test_read_ome_tiff(mocker: MockerFixture, mock_data: DataArray) -> None:

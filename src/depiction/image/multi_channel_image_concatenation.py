@@ -51,11 +51,7 @@ class MultiChannelImageConcatenation:
         sel_coords = sel_coords - sel_coords.min(axis=1) + np.array(min_coords)[:, None]
 
         # create the individual image
-        return MultiChannelImage.from_flat(
-            values=sel_values,
-            coordinates=sel_coords,
-            channel_names=sel_values.coords["c"].values.tolist(),
-        )
+        return MultiChannelImage.from_flat(values=sel_values, coordinates=sel_coords)
 
     def get_single_images(self) -> list[MultiChannelImage]:
         return [self.get_single_image(index=index) for index in range(self.n_individual_images)]

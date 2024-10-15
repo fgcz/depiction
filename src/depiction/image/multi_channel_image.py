@@ -32,16 +32,35 @@ class MultiChannelImage:
     """
 
     def __init__(self, data: DataArray, is_foreground: DataArray, is_foreground_label: str = "is_foreground") -> None:
-        self._data = data.transpose("y", "x", "c")
-        # TODO add this later
-        # if not isinstance(self._data.coords["c"][0].item(), str):
-        #    raise ValueError("Channel coords/names must be strings.")
-        self._is_foreground = is_foreground.transpose("y", "x").drop_vars("c", errors="ignore")
-        self._is_foreground_label = is_foreground_label
-        if "bg_value" in self._data.attrs:
+        if "bg_value" in data.attrs:
+            # TODO remove this warning at a later time
             warnings.warn("bg_value is deprecated, use is_foreground instead", DeprecationWarning)
-        if self._is_foreground.dtype != np.bool_:
-            raise ValueError("is_foreground must be a boolean array.")
+
+        # Assign the data
+        self._data = data.transpose("y", "x", "c").drop_attrs()
+        self._is_foreground = is_foreground.transpose("y", "x").drop_vars("c", errors="ignore").drop_attrs()
+        self._is_foreground_label = is_foreground_label
+
+        # Validate the input
+        self._assert_foreground_is_boolean()
+        self._assert_data_and_foreground_dimensions()
+        self._assert_data_and_foreground_coords()
+        self._assert_channel_names_present()
+
+    def _assert_channel_names_present(self) -> None:
+        """Asserts that the data has channel names and that they are strings."""
+        if "c" not in self._data.coords:
+            raise ValueError("Data must have a 'c' coordinate for channel names.")
+        if not isinstance(self._data.c[0].item(), str):
+            raise ValueError(f"Channel names must be strings, but type is: {type(self._data.c[0].item())}.")
+
+    def _assert_data_and_foreground_coords(self) -> None:
+        if np.not_equal(self._data.coords["y"], self._is_foreground.coords["y"]).any():
+            raise ValueError("Inconsistent y coordinate values between data and is_foreground.")
+        if np.not_equal(self._data.coords["x"], self._is_foreground.coords["x"]).any():
+            raise ValueError("Inconsistent x coordinate values between data and is_foreground.")
+
+    def _assert_data_and_foreground_dimensions(self) -> None:
         if (
             self._data.sizes["x"] != self._is_foreground.sizes["x"]
             or self._data.sizes["y"] != self._is_foreground.sizes["y"]
@@ -52,10 +71,10 @@ class MultiChannelImage:
                 f"is_foreground[y,x] = {self._is_foreground.sizes['y'], self._is_foreground.sizes['x']}."
             )
             raise ValueError(msg)
-        if np.not_equal(self._data.coords["y"], self._is_foreground.coords["y"]).any():
-            raise ValueError("Inconsistent y coordinates between data and is_foreground.")
-        if np.not_equal(self._data.coords["x"], self._is_foreground.coords["x"]).any():
-            raise ValueError("Inconsistent x coordinates between data and is_foreground.")
+
+    def _assert_foreground_is_boolean(self) -> None:
+        if self._is_foreground.dtype != np.bool_:
+            raise ValueError(f"is_foreground must be a boolean array, but has dtype {self._is_foreground.dtype}.")
 
     @classmethod
     def from_spatial(

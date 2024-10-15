@@ -51,7 +51,9 @@ class GenerateIonImage:
             .unstack("i")
         )
         # TODO refactor this!
-        return MultiChannelImage(data, is_foreground=xarray.ones_like(data.isel(c=0))).recompute_is_foreground()
+        return MultiChannelImage(data, is_foreground=xarray.ones_like(data.isel(c=0))).recompute_is_foreground(
+            bg_value=np.nan
+        )
 
     def _generate_channel_values(
         self, input_file: ImzmlReadFile, mz_values: Sequence[float], tol: float | Sequence[float]
@@ -65,7 +67,7 @@ class GenerateIonImage:
             bind_args=dict(mz_values=mz_values, tol_values=tol),
             reduce_fn=lambda chunks: np.concatenate(chunks, axis=0),
         )
-        return DataArray(array, dims=("i", "c"), attrs={"bg_value": np.nan})
+        return DataArray(array, dims=("i", "c"))
 
     def generate_range_images_for_file(
         self,

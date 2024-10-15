@@ -60,7 +60,7 @@ class PerformCalibration:
         return MultiChannelImage.from_flat(
             values=all_features,
             coordinates=read_peaks.coordinates_array_2d,
-            channel_names=None,
+            channel_names="c" not in all_features.coords,
         )
 
     def _apply_all_models(
@@ -87,7 +87,9 @@ class PerformCalibration:
             reduce_fn=lambda chunks: xarray.concat(chunks, dim="i"),
             bind_kwargs={"all_features": all_features_flat},
         )
-        return MultiChannelImage.from_flat(result, coordinates=all_features.coordinates_flat, channel_names=None)
+        return MultiChannelImage.from_flat(
+            result, coordinates=all_features.coordinates_flat, channel_names="c" not in result.coords
+        )
 
     def _fit_chunk_models(self, spectra_indices: NDArray[int], all_features: DataArray) -> DataArray:
         collect = []

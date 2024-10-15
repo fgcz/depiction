@@ -3,6 +3,7 @@ import copy
 import numpy as np
 import pytest
 import xarray as xr
+
 from depiction.image.horizontal_concat import horizontal_concat
 from depiction.image.multi_channel_image import MultiChannelImage
 
@@ -14,7 +15,7 @@ def sample_image():
         dims=["c", "y", "x"],
         coords={"c": ["red", "green"], "y": [0, 1, 2], "x": [0, 1, 2, 3]},
     )
-    return MultiChannelImage(data, is_foreground=xr.ones_like(data.isel(c=0)))
+    return MultiChannelImage(data, is_foreground=xr.ones_like(data.isel(c=0), dtype=bool))
 
 
 def test_horizontal_concat_success(sample_image):

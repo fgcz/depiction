@@ -41,6 +41,8 @@ class MultiChannelImage:
         self._is_foreground_label = is_foreground_label
         if "bg_value" in self._data.attrs:
             warnings.warn("bg_value is deprecated, use is_foreground instead", DeprecationWarning)
+        if self._is_foreground.dtype != np.bool_:
+            raise ValueError("is_foreground must be a boolean array.")
         if (
             self._data.sizes["x"] != self._is_foreground.sizes["x"]
             or self._data.sizes["y"] != self._is_foreground.sizes["y"]

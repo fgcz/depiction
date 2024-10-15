@@ -42,16 +42,16 @@ class MultiChannelImage:
         self._is_foreground_label = is_foreground_label
 
         # Validate the input
-        self._assert_foreground_is_boolean()
         self._assert_data_and_foreground_dimensions()
         self._assert_data_and_foreground_coords()
-        self._assert_channel_names_present()
+        self._assert_foreground_is_boolean()
+        self._assert_data_channel_names_present()
 
-    def _assert_channel_names_present(self) -> None:
+    def _assert_data_channel_names_present(self) -> None:
         """Asserts that the data has channel names and that they are strings."""
         if "c" not in self._data.coords:
             raise ValueError("Data must have a 'c' coordinate for channel names.")
-        if not isinstance(self._data.c[0].item(), str):
+        if self._data.sizes["c"] > 0 and not isinstance(self._data.c[0].item(), str):
             raise ValueError(f"Channel names must be strings, but type is: {type(self._data.c[0].item())}.")
 
     def _assert_data_and_foreground_coords(self) -> None:
@@ -262,6 +262,8 @@ class MultiChannelImage:
 
     def with_channel_names(self, channel_names: Sequence[str]) -> MultiChannelImage:
         """Returns a copy with the specified channel names."""
+        # TODO too specific! it would be better to have a "rename_channels" method instead that allows specifying only some
+        #      or, do a "select" like in polars
         return MultiChannelImage(
             data=self._data.assign_coords(c=channel_names),
             is_foreground=self._is_foreground,

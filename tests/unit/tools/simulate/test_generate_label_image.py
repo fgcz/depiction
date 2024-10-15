@@ -57,6 +57,8 @@ def test_render(generate) -> None:
             ]
         )
     ]
+    generate._image_height = 2
+    generate._image_width = 2
     image = generate.render()
     assert image.n_channels == 3
     assert image.dimensions == (2, 2)

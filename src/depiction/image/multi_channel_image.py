@@ -36,8 +36,7 @@ class MultiChannelImage:
         # TODO add this later
         # if not isinstance(self._data.coords["c"][0].item(), str):
         #    raise ValueError("Channel coords/names must be strings.")
-        # TODO also check that "c" is not is_foreground and there is no coordinate for it either (i.e. drop_vars)
-        self._is_foreground = is_foreground.transpose("y", "x")
+        self._is_foreground = is_foreground.transpose("y", "x").drop_vars("c", errors="ignore")
         self._is_foreground_label = is_foreground_label
         if "bg_value" in self._data.attrs:
             warnings.warn("bg_value is deprecated, use is_foreground instead", DeprecationWarning)

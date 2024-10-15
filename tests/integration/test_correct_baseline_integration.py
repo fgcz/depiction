@@ -9,7 +9,7 @@ from depiction.misc.integration_test_utils import IntegrationTestUtils
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
 from depiction.spectrum.baseline import LocalMediansBaseline
-from depiction.tools.correct_baseline import CorrectBaseline
+from depiction.tools.correct_baseline.correct_baseline import CorrectBaseline
 
 
 # TODO: move to a common test utilities file (and use it also in the other integration tests)

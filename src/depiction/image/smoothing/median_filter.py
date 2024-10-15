@@ -40,6 +40,8 @@ class SmoothMedianFilter:
         # apply the bilateral filter
         logger.info("Applying median filter")
         # smoothed_image = cv2.medianBlur(np.nan_to_num(image_2d.astype(np.float32)), ksize=self.kernel_size)
-        smoothed_image = scipy.ndimage.median_filter(np.nan_to_num(image_2d.astype(np.float32)), size=self.kernel_size)
+        smoothed_image = scipy.ndimage.median_filter(
+            np.nan_to_num(image_2d.astype(np.float32)), size=self.kernel_size, axes=(0, 1)
+        )
         smoothed_image[~is_foreground] = 0
         return smoothed_image

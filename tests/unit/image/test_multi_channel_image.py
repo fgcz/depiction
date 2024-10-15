@@ -23,7 +23,6 @@ def mock_data(mock_coords) -> DataArray:
         [[[2.0, 5], [4, 5]], [[6, 5], [8, 5]], [[10, 5], [12, 5]]],
         dims=("y", "x", "c"),
         coords=mock_coords,
-        attrs={"bg_value": 0},
     )
 
 
@@ -33,7 +32,6 @@ def mock_data_sparse(mock_coords) -> DataArray:
         [[[0, 0], [0, 0]], [[6, 5], [8, 5]], [[0, 0], [0, 0]]],
         dims=("y", "x", "c"),
         coords=mock_coords,
-        attrs={"bg_value": 0},
     )
 
 
@@ -109,12 +107,8 @@ def test_dimensions(mock_image: MultiChannelImage) -> None:
 
 
 def test_channel_names_when_set(mock_image: MultiChannelImage) -> None:
+    # TODO there should be some functionality to make it work for on-the-fly generated channel names
     assert mock_image.channel_names == ["Channel A", "Channel B"]
-
-
-@pytest.mark.parametrize("mock_coords", [{}])
-def test_channel_names_when_not_set(mock_image: MultiChannelImage) -> None:
-    assert mock_image.channel_names == ["0", "1"]
 
 
 def test_data_spatial(mock_data: DataArray, mock_image: MultiChannelImage) -> None:
@@ -131,7 +125,6 @@ def test_data_flat(mock_image: MultiChannelImage) -> None:
             "c": ["Channel A", "Channel B"],
             "i": pd.MultiIndex.from_tuples([(0, 1), (1, 1), (2, 0), (2, 1)], names=("y", "x")),
         },
-        attrs={"bg_value": 0},
     )
     xarray.testing.assert_identical(mock_image.data_flat, expected)
 
@@ -146,7 +139,6 @@ def test_data_flat_preserves_fg_nan(mock_image: MultiChannelImage) -> None:
             "c": ["Channel A", "Channel B"],
             "i": pd.MultiIndex.from_tuples([(0, 1), (1, 0), (1, 1), (2, 0), (2, 1)], names=("y", "x")),
         },
-        attrs={"bg_value": 0},
     )
     xarray.testing.assert_identical(mock_image.data_flat, expected)
 
@@ -230,7 +222,7 @@ def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
 
 def test_read_ome_tiff(mocker: MockerFixture, mock_data: DataArray) -> None:
     mock_read = mocker.patch.object(OmeTiff, "read", return_value=mock_data)
-    mock_foreground = xarray.ones_like(mock_data.isel(c=0), dtype=bool)
+    mock_foreground = xarray.ones_like(mock_data.isel(c=0), dtype=bool).drop_vars("c")
     mocker.patch.object(MultiChannelImage, "_compute_is_foreground", return_value=mock_foreground)
     image = MultiChannelImage.read_ome_tiff(Path("test.ome.tiff"))
     xarray.testing.assert_equal(image.data_spatial, mock_data)
@@ -259,7 +251,6 @@ def test_append_channels(mock_image: MultiChannelImage) -> None:
         data=np.arange(12).reshape(3, 2, 2),
         dims=("y", "x", "c"),
         coords={"c": ["Channel X", "Channel Y"]},
-        attrs={"bg_value": 0},
     )
     extra_image = MultiChannelImage(data=extra_image_data, is_foreground=mock_image.fg_mask)
     result = mock_image.append_channels(extra_image)

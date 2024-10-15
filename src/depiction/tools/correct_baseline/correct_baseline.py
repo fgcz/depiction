@@ -1,33 +1,20 @@
 from __future__ import annotations
 
-import enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
-from pydantic import BaseModel, PositiveInt, PositiveFloat
 
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.write_spectra_parallel import WriteSpectraParallel
 from depiction.persistence import ImzmlWriteFile, ImzmlWriter, ImzmlReader, ImzmlReadFile
 from depiction.spectrum.baseline.local_medians_baseline import LocalMediansBaseline
 from depiction.spectrum.baseline.tophat_baseline import TophatBaseline
+from depiction.tools.correct_baseline.config import BaselineVariants, BaselineCorrectionConfig
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
     from depiction.spectrum.baseline.baseline import Baseline
-
-
-class BaselineVariants(str, enum.Enum):
-    TopHat = "TopHat"
-    LocMedians = "LocMedians"
-
-
-class BaselineCorrectionConfig(BaseModel, use_enum_values=True, validate_default=True):
-    n_jobs: PositiveInt | None = None
-    baseline_variant: BaselineVariants = BaselineVariants.TopHat
-    window_size: PositiveInt | PositiveFloat = 5000.0
-    window_unit: Literal["ppm", "index"] = "ppm"
 
 
 class CorrectBaseline:

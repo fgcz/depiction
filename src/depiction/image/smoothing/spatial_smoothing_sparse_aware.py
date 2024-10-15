@@ -37,13 +37,14 @@ class SpatialSmoothingSparseAware:
             output_core_dims=[["y", "x"]],
             vectorize=True,
         )
+        if self.use_interpolation:
+            is_foreground[:] = True
         return MultiChannelImage(
             data_result, is_foreground=is_foreground, is_foreground_label=image.is_foreground_label
         )
 
     def _smooth_dense(self, image_2d: NDArray[float], is_foreground: NDArray[float]) -> NDArray[float]:
-        if not np.issubdtype(image_2d.dtype, np.floating):
-            raise ValueError("The input image must be a floating point array.")
+        image_2d = image_2d.astype(float)
 
         # Get an initial kernel
         kernel = self.gaussian_kernel
@@ -53,14 +54,13 @@ class SpatialSmoothingSparseAware:
 
         # Apply the kernel counting the sum of the weights, so we can normalize the data.
         kernel_sum_image = scipy.signal.convolve(is_foreground.astype(float), kernel, mode="same")
-        # Values are zero, when a pixel and all its neighbors are missing.
+        # Values are zero, when a pixel and all its neighbors are missing (but they are masked anyways).
         kernel_sum_image[np.abs(kernel_sum_image) < 1e-10] = 1
 
         # Normalize the image, and set the missing values to NaN.
         result_image = smoothed_image / kernel_sum_image
 
         if not self.use_interpolation:
-            # TODO should this become customizable again?
             result_image[~is_foreground] = 0.0
 
         # Return the result.

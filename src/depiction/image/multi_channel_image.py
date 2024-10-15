@@ -45,7 +45,12 @@ class MultiChannelImage:
             self._data.sizes["x"] != self._is_foreground.sizes["x"]
             or self._data.sizes["y"] != self._is_foreground.sizes["y"]
         ):
-            raise ValueError("Data and is_foreground must have the same dimensions")
+            msg = (
+                "'data' and 'is_foreground' must have the same dimensions, but "
+                f"data[y,x] = {self._data.sizes['y'], self._data.sizes['x']}, "
+                f"is_foreground[y,x] = {self._is_foreground.sizes['y'], self._is_foreground.sizes['x']}."
+            )
+            raise ValueError(msg)
         if np.not_equal(self._data.coords["y"], self._is_foreground.coords["y"]).any():
             raise ValueError("Inconsistent y coordinates between data and is_foreground.")
         if np.not_equal(self._data.coords["x"], self._is_foreground.coords["x"]).any():

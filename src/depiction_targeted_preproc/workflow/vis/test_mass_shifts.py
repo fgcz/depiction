@@ -9,7 +9,8 @@ import yaml
 from typer import Option
 
 from depiction.image import MultiChannelImage
-from depiction.tools.calibrate import get_calibration_instance, CalibrationConfig
+from depiction.tools.calibrate.calibrate import get_calibration_instance
+from depiction.tools.calibrate.config import CalibrationConfig
 
 
 def vis_test_mass_shifts(

@@ -7,7 +7,7 @@ from typing import Self
 import yaml
 from pydantic import BaseModel, ConfigDict
 
-from depiction.tools.calibrate import CalibrationConfig
+from depiction.tools.calibrate.config import CalibrationConfig
 from depiction.tools.correct_baseline import BaselineCorrectionConfig
 from depiction.tools.filter_peaks import FilterPeaksConfig
 from depiction.tools.pick_peaks import PickPeaksConfig

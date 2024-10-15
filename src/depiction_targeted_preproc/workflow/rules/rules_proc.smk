@@ -106,7 +106,7 @@ rule proc_calibrate:
         imzml=multiext("{sample}/calibrated", ".imzML", ".ibd"),
         calib_data="{sample}/calib_data.hdf5",
     shell:
-        "python -m depiction.tools.cli.cli_calibrate "
+        "python -m depiction.tools.calibrate "
         " run-config --config {input.config} "
         " --input-imzml {input.imzml[0]} --input-mass-list {input.mass_list}"
         " --output-imzml {output.imzml[0]} --output-calib-data {output.calib_data}"

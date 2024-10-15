@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal, Annotated
 
 import numpy as np
 import polars as pl
+from loguru import logger
+from numpy.typing import NDArray
+
 from depiction.calibration.perform_calibration import PerformCalibration
 from depiction.calibration.spectrum.calibration_method_chemical_peptide_noise import (
     CalibrationMethodChemicalPeptideNoise,
@@ -15,60 +17,13 @@ from depiction.calibration.spectrum.calibration_method_mcc import CalibrationMet
 from depiction.calibration.spectrum.calibration_method_regress_shift import CalibrationMethodRegressShift
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
-from loguru import logger
-from numpy.typing import NDArray
-from pydantic import BaseModel, Field
-
-
-class CalibrationRegressShiftConfig(BaseModel):
-    calibration_method: Literal["RegressShift"] = "RegressShift"
-
-    max_distance: float
-    # TODO make explicit
-    max_distance_unit: str
-    # TODO make explicit
-    reg_model_type: str
-    # TODO make explicit
-    reg_model_unit: str
-    input_smoothing_activated: bool
-    input_smoothing_kernel_size: int = 27
-    input_smoothing_kernel_std: float = 10.0
-    min_points: int = 3
-
-
-class CalibrationChemicalPeptideNoiseConfig(BaseModel):
-    calibration_method: Literal["ChemicalPeptideNoise"] = "ChemicalPeptideNoise"
-
-    n_mass_intervals: int
-    interpolation_mode: Literal["linear", "cubic_spline", "refit_linear"] = "linear"
-    use_ppm_space: bool = False
-
-
-class CalibrationMCCConfig(BaseModel):
-    calibration_method: Literal["MCC"] = "MCC"
-
-    coef_smoothing_activated: bool
-    coef_smoothing_kernel_size: int = 27
-    coef_smoothing_kernel_std: float = 10.0
-
-
-class CalibrationConstantGlobalShiftConfig(BaseModel):
-    calibration_method: Literal["ConstantGlobalShift"] = "ConstantGlobalShift"
-
-
-class CalibrationConfig(BaseModel, use_enum_values=True, validate_default=True):
-    method: (
-        Annotated[
-            CalibrationRegressShiftConfig
-            | CalibrationChemicalPeptideNoiseConfig
-            | CalibrationMCCConfig
-            | CalibrationConstantGlobalShiftConfig,
-            Field(discriminator="calibration_method"),
-        ]
-        | None
-    )
-
-    n_jobs: int = 1
+from depiction.tools.calibrate.config import (
+    CalibrationRegressShiftConfig,
+    CalibrationChemicalPeptideNoiseConfig,
+    CalibrationMCCConfig,
+    CalibrationConstantGlobalShiftConfig,
+    CalibrationConfig,
+)
 
 
 def extract_reference_masses(mass_list: Path) -> NDArray[float]:

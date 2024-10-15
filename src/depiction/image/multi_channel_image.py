@@ -89,18 +89,29 @@ class MultiChannelImage:
         cls,
         values: DataArray,
         coordinates: DataArray | None,
-        channel_names: list[str] | None = None,
+        channel_names: list[str] | bool = False,
         bg_value: float = 0.0,
     ):
         coordinates = cls._extract_flat_coordinates(values) if coordinates is None else coordinates
-        channel_names = list(channel_names) if channel_names is not None else None
+        if channel_names:
+            if "c" in values.coords:
+                msg = (
+                    "Either provide channel names as coordinate in values or as argument, but not both. "
+                    "Use .drop_vars('c') to remove the `c` coordinate, "
+                    "or use `.assign_coords(c=channel_names)` to add channel names directly."
+                )
+                raise ValueError(msg)
+            elif isinstance(channel_names, bool):
+                channel_names = [str(i) for i in range(values.sizes["c"])]
+            else:
+                channel_names = [str(name) for name in channel_names]
+            values = values.assign_coords(c=channel_names)
+
         data, is_foreground = SparseRepresentation.flat_to_spatial(
-            sparse_values=cls._validate_sparse_values(values),
+            sparse_values=values.transpose("i", "c"),
             coordinates=cls._validate_coordinates(coordinates),
             bg_value=bg_value,
         )
-        if channel_names:
-            data.coords["c"] = channel_names
         return cls(data=data, is_foreground=is_foreground)
 
     @classmethod

@@ -23,6 +23,7 @@ class SparseRepresentation:
         cls, sparse_values: DataArray, coordinates: DataArray, bg_value: float
     ) -> tuple[DataArray, DataArray]:
         # TODO fully test and simplify this method
+        original_coords = sparse_values.coords
         n_channels = sparse_values.sizes["c"]
         sparse_values = sparse_values.transpose("i", "c").values
         coordinates = coordinates.transpose("i", "d").astype(int)
@@ -47,8 +48,9 @@ class SparseRepresentation:
             "x": np.arange(coordinates_min[0], coordinates_min[0] + coordinates_extent[0]),
             "y": np.arange(coordinates_min[1], coordinates_min[1] + coordinates_extent[1]),
         }
+        coords_c = {"c": original_coords["c"]} if "c" in original_coords else {}
         return (
-            DataArray(values_grid, dims=("x", "y", "c"), coords=coords).transpose("y", "x", "c"),
+            DataArray(values_grid, dims=("x", "y", "c"), coords=coords | coords_c).transpose("y", "x", "c"),
             DataArray(is_foreground, dims=("x", "y"), coords=coords).transpose("y", "x"),
         )
 

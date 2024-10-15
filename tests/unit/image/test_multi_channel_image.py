@@ -51,6 +51,26 @@ def mock_image_sparse(mock_data_sparse) -> MultiChannelImage:
     )
 
 
+@pytest.mark.parametrize(
+    ["values", "channel_names", "expected_channel_names"],
+    [
+        (DataArray([[1, 2, 3], [4, 5, 6]], dims=("i", "c"), coords={"c": ["A", "B", "C"]}), False, ["A", "B", "C"]),
+        (DataArray([[1, 2, 3], [4, 5, 6]], dims=("i", "c")), ["A", "B", "C"], ["A", "B", "C"]),
+        (DataArray([[1, 2, 3], [4, 5, 6]], dims=("i", "c")), True, ["0", "1", "2"]),
+    ],
+)
+def test_from_flat(values, channel_names, expected_channel_names) -> None:
+    coords = DataArray([[0, 0], [1, 2]], dims=("i", "d"), coords={"d": ["x", "y"]})
+    image = MultiChannelImage.from_flat(values, coords, channel_names)
+    assert image.channel_names == expected_channel_names
+    np.testing.assert_array_equal(image.data_spatial[0, 0, :], [1, 2, 3])
+    np.testing.assert_array_equal(image.data_spatial[2, 1, :], [4, 5, 6])
+    expected_fg_mask = DataArray(
+        [[True, False], [False, False], [False, True]], dims=("y", "x"), coords={"y": [0, 1, 2], "x": [0, 1]}
+    )
+    xarray.testing.assert_equal(image.fg_mask, expected_fg_mask)
+
+
 def test_n_channels(mock_image: MultiChannelImage) -> None:
     assert mock_image.n_channels == 2
 

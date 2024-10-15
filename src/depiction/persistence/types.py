@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Self, Protocol
 
 import numpy as np
+from xarray import DataArray
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -134,6 +135,8 @@ class GenericReadFile(Protocol):
         """Mode of the .imzML file (continuous or processed)."""
         raise NotImplementedError
 
+    # TODO: coordinates = DataArray(read_peaks.coordinates_2d, dims=["i", "d"], coords={"d": ["x", "y"]})
+
     @property
     def coordinates(self) -> NDArray[int]:
         """Spatial coordinates of the spectra in the .imzML file.
@@ -146,6 +149,11 @@ class GenericReadFile(Protocol):
         Shape: (n_spectra, 2) where the first two columns are the x and y coordinates."""
         # TODO double check convention and update docstring accordingly
         return self.coordinates[:, :2]
+
+    @property
+    def coordinates_array_2d(self) -> DataArray:
+        # TODO this should replace the old coordinates_2d later
+        return DataArray(self.coordinates_2d.astype(int), dims=("i", "d"), coords={"d": ["x", "y"]})
 
     @property
     def compact_metadata(self) -> dict[str, int | str | list[float]]:

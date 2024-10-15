@@ -1,6 +1,8 @@
-from depiction.calibration.calibration_method import CalibrationMethod
 from numpy.typing import NDArray
 from xarray import DataArray
+
+from depiction.calibration.calibration_method import CalibrationMethod
+from depiction.image import MultiChannelImage
 
 
 class CalibrationMethodDummy(CalibrationMethod):
@@ -9,7 +11,7 @@ class CalibrationMethodDummy(CalibrationMethod):
     def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
         return DataArray([0], dims=["c"])
 
-    def preprocess_image_features(self, all_features: DataArray) -> DataArray:
+    def preprocess_image_features(self, all_features: MultiChannelImage) -> MultiChannelImage:
         return all_features
 
     def fit_spectrum_model(self, features: DataArray) -> DataArray:

@@ -19,29 +19,40 @@ class SparseRepresentation:
     """
 
     @classmethod
-    def sparse_to_dense(cls, sparse_values: DataArray, coordinates: DataArray, bg_value: float) -> DataArray:
-        """Converts the sparse image representation into a dense image representation.
-        :param sparse_values: DataArray with "i" (index of value) and "c" (channel) dimensions
-        :param coordinates: DataArray with "i" (index of value) and "d" (dimension) dimensions
-        :param bg_value: the value to use for the background
-        :return: DataArray with "y", "x", and "c" dimensions
-        """
+    def flat_to_spatial(
+        cls, sparse_values: DataArray, coordinates: DataArray, bg_value: float
+    ) -> tuple[DataArray, DataArray]:
+        # TODO fully test and simplify this method
+        original_coords = sparse_values.coords
         n_channels = sparse_values.sizes["c"]
         sparse_values = sparse_values.transpose("i", "c").values
-        coordinates = coordinates.transpose("i", "d").values
+        coordinates = coordinates.transpose("i", "d").astype(int)
+        if coordinates.coords["d"].values.tolist() != ["x", "y"]:
+            raise ValueError(f"Unexpected coordinates={coordinates.coords['d'].values}")
+        coordinates = coordinates.values
 
-        coordinates_extent = coordinates.max(axis=0) - coordinates.min(axis=0) + 1
-        coordinates_shifted = coordinates - coordinates.min(axis=0)
+        coordinates_min = coordinates.min(axis=0)
+        coordinates_extent = coordinates.max(axis=0) - coordinates_min + 1
+        coordinates_shifted = coordinates - coordinates_min
 
         dtype = np.promote_types(sparse_values.dtype, np.dtype(type(bg_value)).type)
         values_grid = np.full(
             (coordinates_extent[0], coordinates_extent[1], n_channels), fill_value=bg_value, dtype=dtype
         )
+        is_foreground = np.zeros((coordinates_extent[0], coordinates_extent[1]), dtype=bool)
         for i_channel in range(n_channels):
             values_grid[tuple(coordinates_shifted.T) + (i_channel,)] = sparse_values[:, i_channel]
+            is_foreground[tuple(coordinates_shifted.T)] = True
 
-        # TODO coordinates might come in the wrong order FIXME
-        return DataArray(values_grid, dims=("y", "x", "c"))
+        coords = {
+            "x": np.arange(coordinates_min[0], coordinates_min[0] + coordinates_extent[0]),
+            "y": np.arange(coordinates_min[1], coordinates_min[1] + coordinates_extent[1]),
+        }
+        coords_c = {"c": original_coords["c"]} if "c" in original_coords else {}
+        return (
+            DataArray(values_grid, dims=("x", "y", "c"), coords=coords | coords_c).transpose("y", "x", "c"),
+            DataArray(is_foreground, dims=("x", "y"), coords=coords).transpose("y", "x"),
+        )
 
     @classmethod
     def dense_to_sparse(cls, grid_values: DataArray, bg_value: float | None) -> tuple[DataArray, DataArray]:
@@ -69,11 +80,3 @@ class SparseRepresentation:
         return DataArray(sparse_values, dims=("i", "c")), DataArray(
             coordinates, dims=("i", "d"), coords={"d": ["x", "y"]}
         )
-
-    @classmethod
-    def dense_to_sparse_coords(cls, grid_values: DataArray, coords: DataArray, is_shift_subtracted: bool) -> DataArray:
-        if not is_shift_subtracted:
-            coords = coords - coords.min(dim="i")
-        grid_values = grid_values.transpose("y", "x", "c").values
-        coords = coords.transpose("i", "d").values
-        return DataArray(grid_values[tuple(coords.T)], dims=["i", "c"])

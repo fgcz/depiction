@@ -1,8 +1,10 @@
 from collections.abc import Sequence
 from pathlib import Path
-import polars as pl
+
 import cyclopts
 import numpy as np
+import polars as pl
+import xarray
 from xarray import DataArray
 
 from depiction.image.multi_channel_image import MultiChannelImage
@@ -73,8 +75,8 @@ class GenerateLabelImage:
     def render(self) -> MultiChannelImage:
         blended = np.sum(self._layers, axis=0)
         data = DataArray(blended, dims=("y", "x", "c"), coords={"c": [f"synthetic_{i}" for i in range(self._n_labels)]})
-        data.attrs["bg_value"] = 0.0
-        return MultiChannelImage(data)
+        is_foreground = xarray.DataArray(np.ones((self._image_height, self._image_width), dtype=bool), dims=("y", "x"))
+        return MultiChannelImage(data, is_foreground=is_foreground)
 
 
 app = cyclopts.App()

@@ -49,7 +49,7 @@ class GenerateIonImage:
             .set_xindex(["y", "x"])
             .unstack("i")
         )
-        return MultiChannelImage(data)
+        return MultiChannelImage.from_spatial(data, bg_value=np.nan)
 
     def _generate_channel_values(
         self, input_file: ImzmlReadFile, mz_values: Sequence[float], tol: float | Sequence[float]
@@ -63,7 +63,7 @@ class GenerateIonImage:
             bind_args=dict(mz_values=mz_values, tol_values=tol),
             reduce_fn=lambda chunks: np.concatenate(chunks, axis=0),
         )
-        return DataArray(array, dims=("i", "c"), attrs={"bg_value": np.nan})
+        return DataArray(array, dims=("i", "c"))
 
     def generate_range_images_for_file(
         self,
@@ -84,12 +84,10 @@ class GenerateIonImage:
             bind_args=dict(mz_ranges=mz_ranges),
             reduce_fn=lambda chunks: np.concatenate(chunks, axis=0),
         )
-        return MultiChannelImage.from_sparse(
+        return MultiChannelImage.from_flat(
             values=channel_values,
-            coordinates=input_file.coordinates_2d,
+            coordinates=input_file.coordinates_array_2d,
             channel_names=channel_names,
-            # TODO clarfiy (see above)
-            bg_value=np.nan,
         )
 
     @classmethod

@@ -1,23 +1,19 @@
-from typing import Annotated
+from pathlib import Path
 
-import typer
-import xarray
+import cyclopts
 
+from depiction.image import MultiChannelImage
 from depiction.image.image_normalization import ImageNormalization, ImageNormalizationVariant
 
-
-def vis_images_norm(
-    input_hdf5_path: Annotated[str, typer.Option()],
-    output_hdf5_path: Annotated[str, typer.Option()],
-) -> None:
-    image_orig = xarray.open_dataset(input_hdf5_path).to_array("var").squeeze("var")
-    image_norm = ImageNormalization().normalize_xarray(image_orig, variant=ImageNormalizationVariant.VEC_NORM)
-    image_norm.to_netcdf(output_hdf5_path)
+app = cyclopts.App()
 
 
-def main():
-    typer.run(vis_images_norm)
+@app.default
+def vis_images_norm(input_hdf5_path: Path, output_hdf5_path: Path) -> None:
+    image_orig = MultiChannelImage.read_hdf5(input_hdf5_path)
+    image_norm = ImageNormalization().normalize_image(image_orig, variant=ImageNormalizationVariant.VEC_NORM)
+    image_norm.write_hdf5(output_hdf5_path)
 
 
 if __name__ == "__main__":
-    main()
+    app()

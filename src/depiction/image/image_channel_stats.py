@@ -69,7 +69,5 @@ class ImageChannelStats:
         # TODO maybe caching data_flat would already make this faster, could be tested easily by temporarily adding the cache in the MultiChannelImage class
         data_channel = self._image.data_flat.isel(c=i_channel).values
         if drop_missing:
-            bg = self._image.bg_value
-            bg_mask = np.isnan(data_channel) if np.isnan(bg) else data_channel == bg
-            data_channel = data_channel[~bg_mask]
+            data_channel = data_channel[self._image.fg_mask_flat]
         return data_channel

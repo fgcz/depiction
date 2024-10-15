@@ -7,7 +7,8 @@ from statsmodels.robust.norms import HuberT
 from xarray import DataArray
 
 from depiction.calibration.calibration_method import CalibrationMethod
-from depiction.calibration.spectrum.calibration_smoothing import smooth_image_features
+from depiction.image import MultiChannelImage
+from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
 class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
@@ -62,13 +63,12 @@ class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
                 delta_lambda[i] = -1 + term1
         return delta_lambda
 
-    def preprocess_image_features(self, all_features: DataArray) -> DataArray:
+    def preprocess_image_features(self, all_features: MultiChannelImage) -> MultiChannelImage:
         if self._model_smoothing_activated:
-            return smooth_image_features(
-                all_features=all_features,
-                kernel_size=self._model_smoothing_kernel_size,
-                kernel_std=self._model_smoothing_kernel_std,
+            smoother = SpatialSmoothingSparseAware(
+                kernel_size=self._model_smoothing_kernel_size, kernel_std=self._model_smoothing_kernel_std
             )
+            return smoother.smooth_image(all_features)
         else:
             return all_features
 

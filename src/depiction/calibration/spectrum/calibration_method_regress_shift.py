@@ -5,8 +5,9 @@ from xarray import DataArray
 from depiction.calibration.calibration_method import CalibrationMethod
 from depiction.calibration.models import LinearModel
 from depiction.calibration.models.fit_model import fit_model
-from depiction.calibration.spectrum.calibration_smoothing import smooth_image_features
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
+from depiction.image import MultiChannelImage
+from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
 class CalibrationMethodRegressShift(CalibrationMethod):
@@ -80,13 +81,12 @@ class CalibrationMethodRegressShift(CalibrationMethod):
         else:
             raise ValueError(f"Unknown unit={self._model_unit}")
 
-    def preprocess_image_features(self, all_features: DataArray) -> DataArray:
+    def preprocess_image_features(self, all_features: MultiChannelImage) -> MultiChannelImage:
         if self._input_smoothing_activated:
-            return smooth_image_features(
-                all_features=all_features,
-                kernel_size=self._input_smoothing_kernel_size,
-                kernel_std=self._input_smoothing_kernel_std,
+            smoother = SpatialSmoothingSparseAware(
+                kernel_size=self._input_smoothing_kernel_size, kernel_std=self._input_smoothing_kernel_std
             )
+            return smoother.smooth_image(all_features)
         else:
             return all_features
 

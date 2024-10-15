@@ -1,4 +1,6 @@
 import xarray
+
+from depiction.image.container.alpha_channel import AlphaChannel
 from depiction.image.multi_channel_image import MultiChannelImage
 
 
@@ -19,10 +21,10 @@ def horizontal_concat(
     # shift x coordinates iteratively
     xoffset = 0
     concat = []
-    bg_value = images[0].bg_value
+    alpha_channel = AlphaChannel(label=images[0].is_foreground_label)
     for i_image, image in enumerate(images):
-        data = image.data_spatial
-        data = data.pad(y=(0, ymax - data.y.values.max()), constant_values=bg_value)
+        data = alpha_channel.stack(image.data_spatial, image.fg_mask)
+        data = data.pad(y=(0, ymax - data.y.values.max()), constant_values=0)
         x_extent = data.x.values.max() - data.x.values.min() + 1
         data_shifted = data.assign_coords(x=data.x - data.x.values.min() + xoffset)
         if add_index:
@@ -31,4 +33,5 @@ def horizontal_concat(
         concat.append(data_shifted)
         xoffset += x_extent
     data = xarray.concat(concat, dim="x")
-    return MultiChannelImage(data)
+    array, is_foreground = alpha_channel.split(data)
+    return MultiChannelImage(array, is_foreground)

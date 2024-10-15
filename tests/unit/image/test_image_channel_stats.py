@@ -7,7 +7,7 @@ from depiction.image.image_channel_stats import ImageChannelStats
 
 @pytest.fixture
 def mock_multi_channel_image(mocker):
-    return mocker.Mock(name="mock_image", n_channels=3, channel_names=["channel1", "channel2", "channel3"], bg_value=0)
+    return mocker.Mock(name="mock_image", n_channels=3, channel_names=["channel1", "channel2", "channel3"])
 
 
 @pytest.fixture
@@ -80,29 +80,17 @@ def test_std(mocker, image_channel_stats, mock_multi_channel_image):
     )
 
 
-def test_get_channel_values(image_channel_stats, mock_multi_channel_image):
-    mock_data = np.array([1, 2, 3, 0, 5])
+@pytest.mark.parametrize("bg_value", [0, np.nan])
+def test_get_channel_values(image_channel_stats, mock_multi_channel_image, bg_value: float):
+    mock_data = np.array([1, 2, 3, bg_value, 5])
     mock_multi_channel_image.data_flat.isel.return_value.values = mock_data
+    mock_multi_channel_image.fg_mask_flat = np.array([True, True, True, False, True])
 
     # Test without dropping missing values
     result = image_channel_stats._get_channel_values(0, drop_missing=False)
     np.testing.assert_array_equal(result, mock_data)
 
     # Test with dropping missing values (bg_value = 0)
-    result = image_channel_stats._get_channel_values(0, drop_missing=True)
-    np.testing.assert_array_equal(result, np.array([1, 2, 3, 5]))
-
-
-def test_get_channel_values_with_nan(image_channel_stats, mock_multi_channel_image):
-    mock_data = np.array([1, 2, 3, np.nan, 5])
-    mock_multi_channel_image.data_flat.isel.return_value.values = mock_data
-    mock_multi_channel_image.bg_value = np.nan
-
-    # Test without dropping missing values
-    result = image_channel_stats._get_channel_values(0, drop_missing=False)
-    np.testing.assert_array_equal(result, mock_data)
-
-    # Test with dropping missing values (bg_value = nan)
     result = image_channel_stats._get_channel_values(0, drop_missing=True)
     np.testing.assert_array_equal(result, np.array([1, 2, 3, 5]))
 

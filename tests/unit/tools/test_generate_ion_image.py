@@ -21,9 +21,7 @@ def mock_generate(mock_parallel_config: MagicMock) -> GenerateIonImage:
 
 def test_generate_ion_images_for_file(mocker, mock_generate: GenerateIonImage) -> None:
     mock_generate_channel_values = mocker.patch.object(GenerateIonImage, "_generate_channel_values")
-    mock_generate_channel_values.return_value = DataArray(
-        [[1, 2], [3, 4], [5, 6]], dims=("i", "c"), attrs={"bg_value": np.nan}
-    )
+    mock_generate_channel_values.return_value = DataArray([[1, 2], [3, 4], [5, 6]], dims=("i", "c"))
 
     mock_input_file = MagicMock(name="mock_input_file", coordinates_2d=np.array([[0, 0], [0, 1], [1, 0]]))
     mock_mz_values = MagicMock(name="mock_mz_values", spec=[])
@@ -56,9 +54,7 @@ def test_generate_channel_values(mocker, mock_generate: GenerateIonImage, mock_p
     tol = [0.25, 0.5, 0.25]
 
     values = mock_generate._generate_channel_values(input_file=mock_input_file, mz_values=mock_mz_values, tol=tol)
-    xarray.testing.assert_identical(
-        values, DataArray(np.array([[1.0, 2], [3, 4]]), dims=("i", "c"), attrs={"bg_value": np.nan})
-    )
+    xarray.testing.assert_identical(values, DataArray(np.array([[1.0, 2], [3, 4]]), dims=("i", "c")))
     mock_read_parallel_from.assert_called_once_with(mock_parallel_config)
     mock_read_parallel_from.return_value.map_chunked.assert_called_once_with(
         read_file=mock_input_file,
@@ -107,7 +103,7 @@ def test_generate_range_images_for_file(mocker, mock_generate: GenerateIonImage,
     method_compute_for_mz_ranges = mocker.patch.object(GenerateIonImage, "_compute_for_mz_ranges")
     mock_multi_channel_image = mocker.patch("depiction.tools.generate_ion_image.MultiChannelImage")
 
-    mock_input_file = MagicMock(name="input_file", spec=["coordinates_2d"])
+    mock_input_file = MagicMock(name="input_file", spec=["coordinates_array_2d"])
     mock_mz_ranges = MagicMock(name="mz_ranges", spec=[])
 
     result = mock_generate.generate_range_images_for_file(
@@ -128,13 +124,12 @@ def test_generate_range_images_for_file(mocker, mock_generate: GenerateIonImage,
     reduced = reduce_fn([np.array([[1], [2]]), np.array([[3], [4]])])
     np.testing.assert_array_equal(np.array([[1], [2], [3], [4]]), reduced)
 
-    mock_multi_channel_image.from_sparse.assert_called_once_with(
+    mock_multi_channel_image.from_flat.assert_called_once_with(
         values=mock_parallelize.map_chunked.return_value,
-        coordinates=mock_input_file.coordinates_2d,
+        coordinates=mock_input_file.coordinates_array_2d,
         channel_names=None,
-        bg_value=np.nan,
     )
-    assert result == mock_multi_channel_image.from_sparse.return_value
+    assert result == mock_multi_channel_image.from_flat.return_value
 
 
 if __name__ == "__main__":

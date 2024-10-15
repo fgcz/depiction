@@ -57,11 +57,10 @@ def remap_cluster_labels(
     :param mapping: a dictionary mapping the old cluster labels to the new ones
     :param cluster_channel: the name of the channel with the cluster labels
     """
-    with xarray.set_options(keep_attrs=True):
-        relabeled = xarray.apply_ufunc(
-            lambda v: mapping.get(v, np.nan), image.data_spatial.sel(c=[cluster_channel]), vectorize=True
-        )
+    relabeled = xarray.apply_ufunc(
+        lambda v: mapping.get(v, np.nan), image.data_spatial.sel(c=[cluster_channel]), vectorize=True
+    )
     img_relabeled = image.drop_channels(coords=[cluster_channel], allow_missing=False).append_channels(
-        MultiChannelImage(relabeled)
+        MultiChannelImage(relabeled, is_foreground=image.fg_mask, is_foreground_label=image.is_foreground_label)
     )
     return img_relabeled

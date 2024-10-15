@@ -11,13 +11,22 @@ from depiction.image.multi_channel_image import MultiChannelImage
 
 class ImageNormalizationVariant(enum.Enum):
     VEC_NORM = "vec_norm"
-    STD = "std"  #
+    STD = "std"
 
 
 # TODO maybe rename to ImageFeatureNormalization
-# TODO implement in terms of MultiChannelImage as this will make handling the background easier (this might even be somewhat broken at the moment)
+
+
 class ImageNormalization:
-    def normalize_xarray(self, image: xarray.DataArray, variant: ImageNormalizationVariant) -> xarray.DataArray:
+    def normalize_image(
+        self, image: MultiChannelImage, variant: ImageNormalizationVariant, dim: str = "c"
+    ) -> MultiChannelImage:
+        normalized = self._normalize_single_xarray(image.data_spatial, variant=variant)
+        return MultiChannelImage(
+            data=normalized, is_foreground=image.fg_mask, is_foreground_label=image.is_foreground_label
+        )
+
+    def _normalize_xarray(self, image: xarray.DataArray, variant: ImageNormalizationVariant) -> xarray.DataArray:
         # First, understand the dimensions of the image.
         known_dims = ["y", "x", "c"]
         missing_dims = set(known_dims) - set(image.dims)
@@ -30,13 +39,6 @@ class ImageNormalization:
             return self._normalize_multiple_xarray(image, index_dim=index_dims.pop(), variant=variant)
         else:
             raise NotImplementedError("Multiple index columns are not supported yet.")
-
-    def normalize_image(self, image: MultiChannelImage, variant: ImageNormalizationVariant) -> MultiChannelImage:
-        return MultiChannelImage(
-            self.normalize_xarray(image.data_spatial, variant=variant),
-            is_foreground=image.fg_mask,
-            is_foreground_label=image.is_foreground_label,
-        )
 
     def _normalize_single_xarray(self, image: xarray.DataArray, variant: ImageNormalizationVariant) -> xarray.DataArray:
         bg_value = 0

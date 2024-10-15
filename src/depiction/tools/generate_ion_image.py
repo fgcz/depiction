@@ -2,7 +2,6 @@ from collections.abc import Sequence
 from typing import Optional
 
 import numpy as np
-import xarray
 from numpy.typing import NDArray
 from xarray import DataArray
 
@@ -50,10 +49,7 @@ class GenerateIonImage:
             .set_xindex(["y", "x"])
             .unstack("i")
         )
-        # TODO refactor this!
-        return MultiChannelImage(
-            data, is_foreground=xarray.ones_like(data.isel(c=0), dtype=bool)
-        ).recompute_is_foreground(bg_value=np.nan)
+        return MultiChannelImage.from_spatial(data, bg_value=np.nan)
 
     def _generate_channel_values(
         self, input_file: ImzmlReadFile, mz_values: Sequence[float], tol: float | Sequence[float]

@@ -19,6 +19,12 @@ def etree_spectra_static():
     return ElementTree.parse(path)
 
 
+@pytest.fixture
+def etree_spectra_resolve():
+    path = Path(__file__).parent / "chunks" / "spectra_resolve.xml"
+    return ElementTree.parse(path)
+
+
 def test_referenceable_param_groups(etree_referenceable_param_groups):
     parser = ParseSpectra(etree_referenceable_param_groups)
     referenceable_param_groups = parser._referenceable_param_groups
@@ -66,3 +72,32 @@ def test_spectra_static(etree_spectra_static):
     assert spectra_static[0].binary_arrays[0].param_groups == ["mzArray"]
 
     assert spectra_static[0].binary_arrays[1].param_groups == ["intensityArray"]
+
+
+def test_spectra_resolve(etree_spectra_resolve):
+    parser = ParseSpectra(etree_spectra_resolve)
+    resolved = parser._spectra_resolved
+    assert len(resolved) == 3
+
+    assert resolved[0].id == "spectrum=1"
+    assert resolved[0].index == 1
+    assert set(resolved[0].params.keys()) == {
+        "MS:1000127",
+        "MS:1000130",
+        "MS:1000285",
+        "MS:1000504",
+        "MS:1000505",
+        "MS:1000511",
+        "MS:1000527",
+        "MS:1000528",
+        "MS:1000579",
+    }
+    # TODO check the list is actually what we want
+    # TODO params_scan
+    assert resolved[0].position == (2445, 822)
+    assert resolved[0].mz_arr.array_length == 82
+    assert resolved[0].mz_arr.encoded_length == 667
+    assert resolved[0].mz_arr.offset == 16
+    assert resolved[0].int_arr.array_length == 82
+    assert resolved[0].int_arr.encoded_length == 215
+    assert resolved[0].int_arr.offset == 683

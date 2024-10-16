@@ -11,18 +11,12 @@ import cyclopts
 from loguru import logger
 
 from depiction.persistence.imzml.compression import Compression
+from depiction.persistence.imzml.parser.cv_params import CvParam, extract_cv_param_list
 
 
 class DataType(str, Enum):
     Float64 = "float64"
     Float32 = "float32"
-
-
-@dataclass
-class _CvParam:
-    accession: str
-    name: str
-    value: str
 
 
 @dataclass
@@ -38,7 +32,7 @@ class _ResolvedBinaryArray:
     array_length: int
     encoded_length: int
     offset: int
-    params: dict[str, _CvParam]
+    params: dict[str, CvParam]
     compression: Compression
     data_type: DataType
 
@@ -66,8 +60,8 @@ class _ParsedBinaryArrayMinimal:
 class _ResolvedSpectrum:
     id: str
     index: int
-    params: dict[str, _CvParam]
-    params_scan: dict[str, _CvParam]
+    params: dict[str, CvParam]
+    params_scan: dict[str, CvParam]
     position: tuple[int, int] | tuple[int, int, int]
     mz_arr: _ResolvedBinaryArray
     int_arr: _ResolvedBinaryArray
@@ -94,13 +88,13 @@ class _SpectrumStatic:
     index: int
     param_groups: list[str]
     param_groups_scan: list[str]
-    params: list[_CvParam]
-    params_scan: list[_CvParam]
+    params: list[CvParam]
+    params_scan: list[CvParam]
     position: tuple[int, int] | tuple[int, int, int]
     binary_arrays: list[_BinaryArray]
 
     def resolve_mz_int_array(
-        self, groups: dict[str, list[_CvParam]]
+        self, groups: dict[str, list[CvParam]]
     ) -> tuple[_ResolvedBinaryArray, _ResolvedBinaryArray]:
         mz_array = None
         int_array = None
@@ -140,7 +134,7 @@ class _SpectrumStatic:
             raise ValueError()
         return mz_array, int_array
 
-    def resolve(self, groups: dict[str, list[_CvParam]]) -> _ResolvedSpectrum:
+    def resolve(self, groups: dict[str, list[CvParam]]) -> _ResolvedSpectrum:
         mz_array, int_array = self.resolve_mz_int_array(groups)
         return _ResolvedSpectrum(
             id=self.id,
@@ -156,8 +150,8 @@ class _SpectrumStatic:
 
 
 def _resolve_params(
-    groups: dict[str, list[_CvParam]], referenced_groups: list[str], params: list[_CvParam]
-) -> dict[str, _CvParam]:
+    groups: dict[str, list[CvParam]], referenced_groups: list[str], params: list[CvParam]
+) -> dict[str, CvParam]:
     resolved = {param.accession: param for param in params}
     for group in referenced_groups:
         for param in groups[group]:
@@ -174,11 +168,11 @@ class ParseSpectra:
         return [_ParsedSpectrumMinimal.from_resolved(spectrum) for spectrum in self._spectra_resolved]
 
     @property
-    def _referenceable_param_groups(self) -> dict[str, list[_CvParam]]:
+    def _referenceable_param_groups(self) -> dict[str, list[CvParam]]:
         elements = self._etree.findall(f"./{self._ns}referenceableParamGroupList/{self._ns}referenceableParamGroup")
         result = {}
         for element in elements:
-            result[element.attrib["id"]] = self._extract_cv_param_element_list(element.findall(f"{self._ns}cvParam"))
+            result[element.attrib["id"]] = extract_cv_param_list(element.findall(f"{self._ns}cvParam"))
         return result
 
     @property
@@ -229,8 +223,8 @@ class ParseSpectra:
                     index=int(element.attrib["index"]),
                     param_groups=param_groups,
                     param_groups_scan=param_groups_scan,
-                    params=self._extract_cv_param_element_list(element.findall(f"{self._ns}cvParam")),
-                    params_scan=self._extract_cv_param_element_list(
+                    params=extract_cv_param_list(element.findall(f"{self._ns}cvParam")),
+                    params_scan=extract_cv_param_list(
                         element.findall(f"{self._ns}scanList/{self._ns}scan/{self._ns}cvParam")
                     ),
                     position=position,
@@ -244,17 +238,6 @@ class ParseSpectra:
     def _spectra_resolved(self) -> list[_ResolvedSpectrum]:
         groups = self._referenceable_param_groups
         return [spectrum.resolve(groups) for spectrum in self._spectra_static]
-
-    @staticmethod
-    def _extract_cv_param_element_list(els):
-        return [
-            _CvParam(
-                accession=el.attrib["accession"],
-                name=el.attrib["name"],
-                value=el.attrib.get("value", ""),
-            )
-            for el in els
-        ]
 
 
 # TODO maybe remove after testing?

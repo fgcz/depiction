@@ -5,7 +5,7 @@ import pytest
 
 from depiction.persistence.imzml.compression import Compression
 from depiction.persistence.imzml.parser.parse_spectra import ParseSpectra
-from depiction.persistence.imzml.parser.parse_spectra import _CvParam
+from depiction.persistence.imzml.parser.cv_params import CvParam
 
 
 @pytest.fixture
@@ -32,16 +32,16 @@ def test_referenceable_param_groups(etree_referenceable_param_groups):
 
     assert set(referenceable_param_groups.keys()) == {"mzArray", "intensityArray", "scan1", "spectrum1"}
     assert referenceable_param_groups["mzArray"] == [
-        _CvParam(accession="MS:1000574", name="zlib compression", value=""),
-        _CvParam(accession="MS:1000514", name="m/z array", value=""),
-        _CvParam(accession="MS:1000523", name="64-bit float", value=""),
-        _CvParam(accession="IMS:1000101", name="external data", value="true"),
+        CvParam(accession="MS:1000574", name="zlib compression", value=""),
+        CvParam(accession="MS:1000514", name="m/z array", value=""),
+        CvParam(accession="MS:1000523", name="64-bit float", value=""),
+        CvParam(accession="IMS:1000101", name="external data", value="true"),
     ]
     assert referenceable_param_groups["intensityArray"] == [
-        _CvParam(accession="MS:1000523", name="64-bit float", value=""),
-        _CvParam(accession="MS:1000515", name="intensity array", value=""),
-        _CvParam(accession="MS:1000574", name="zlib compression", value=""),
-        _CvParam(accession="IMS:1000101", name="external data", value="true"),
+        CvParam(accession="MS:1000523", name="64-bit float", value=""),
+        CvParam(accession="MS:1000515", name="intensity array", value=""),
+        CvParam(accession="MS:1000574", name="zlib compression", value=""),
+        CvParam(accession="IMS:1000101", name="external data", value="true"),
     ]
 
 
@@ -54,15 +54,15 @@ def test_spectra_static(etree_spectra_static):
     assert spectra_static[0].param_groups == ["spectrum1"]
     assert spectra_static[0].param_groups_scan == ["scan1"]
     assert spectra_static[0].params == [
-        _CvParam(accession="MS:1000528", name="lowest observed m/z", value="803.150729499946"),
-        _CvParam(accession="MS:1000527", name="highest observed m/z", value="1721.4524145370692"),
-        _CvParam(accession="MS:1000504", name="base peak m/z", value="1482.7548111416522"),
-        _CvParam(accession="MS:1000505", name="base peak intensity", value="3667.0"),
-        _CvParam(accession="MS:1000285", name="total ion current", value="23902.0"),
+        CvParam(accession="MS:1000528", name="lowest observed m/z", value="803.150729499946"),
+        CvParam(accession="MS:1000527", name="highest observed m/z", value="1721.4524145370692"),
+        CvParam(accession="MS:1000504", name="base peak m/z", value="1482.7548111416522"),
+        CvParam(accession="MS:1000505", name="base peak intensity", value="3667.0"),
+        CvParam(accession="MS:1000285", name="total ion current", value="23902.0"),
     ]
     assert spectra_static[0].params_scan == [
-        _CvParam(accession="IMS:1000050", name="position x", value="2445"),
-        _CvParam(accession="IMS:1000051", name="position y", value="822"),
+        CvParam(accession="IMS:1000050", name="position x", value="2445"),
+        CvParam(accession="IMS:1000051", name="position y", value="822"),
     ]
     assert spectra_static[0].position == (2445, 822)
     assert len(spectra_static[0].binary_arrays) == 2

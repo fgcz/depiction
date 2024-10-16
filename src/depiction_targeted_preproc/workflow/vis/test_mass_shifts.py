@@ -1,23 +1,21 @@
 from pathlib import Path
-from typing import Annotated
 
+import cyclopts
 import numpy as np
 import polars as pl
-import typer
 import xarray as xr
 import yaml
-from typer import Option
 
 from depiction.image import MultiChannelImage
 from depiction.tools.calibrate.calibrate import get_calibration_instance
 from depiction.tools.calibrate.config import CalibrationConfig
 
+app = cyclopts.App()
 
+
+@app.default
 def vis_test_mass_shifts(
-    calib_hdf5_path: Annotated[Path, Option()],
-    mass_list_path: Annotated[Path, Option()],
-    config_path: Annotated[Path, Option()],
-    output_hdf5_path: Annotated[Path, Option()],
+    calib_hdf5_path: Path, mass_list_path: Path, config_path: Path, output_hdf5_path: Path
 ) -> None:
     # load inputs
     model_coefs = MultiChannelImage.read_hdf5(calib_hdf5_path, group="model_coefs")
@@ -46,10 +44,13 @@ def vis_test_mass_shifts(
         output_core_dims=[["m"]],
         vectorize=True,
     ).rename({"m": "c"})
-    shifts_2d = shifts.assign_coords(c=test_masses)
+    test_mass_labels = [f"{mass:.2f}" for mass in test_masses]
+    shifts_2d = shifts.assign_coords(c=test_mass_labels)
+
     # save the result
-    shifts_2d.to_netcdf(output_hdf5_path)
+    shifts_img = MultiChannelImage(shifts_2d, is_foreground=model_coefs.fg_mask)
+    shifts_img.write_hdf5(output_hdf5_path)
 
 
 if __name__ == "__main__":
-    typer.run(vis_test_mass_shifts)
+    app()

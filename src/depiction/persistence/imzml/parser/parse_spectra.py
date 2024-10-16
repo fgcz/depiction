@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import dataclasses
+import json
 from dataclasses import dataclass
+from pathlib import Path
 from xml.etree.ElementTree import ElementTree
 
+import cyclopts
 from loguru import logger
 
 from depiction.persistence.imzml.compression import Compression
@@ -33,6 +37,20 @@ class _ResolvedBinaryArray:
 
 
 @dataclass
+class _ParsedBinaryArrayMinimal:
+    array_length: int
+    encoded_length: int
+    offset: int
+    compression: Compression
+
+    @classmethod
+    def from_resolved(cls, b: _ResolvedBinaryArray) -> _ParsedBinaryArrayMinimal:
+        return cls(
+            array_length=b.array_length, encoded_length=b.encoded_length, offset=b.offset, compression=b.compression
+        )
+
+
+@dataclass
 class _ResolvedSpectrum:
     id: str
     index: int
@@ -45,13 +63,17 @@ class _ResolvedSpectrum:
 
 @dataclass
 class _ParsedSpectrumMinimal:
-    mz_arr: _ResolvedBinaryArray
-    int_arr: _ResolvedBinaryArray
+    mz_arr: _ParsedBinaryArrayMinimal
+    int_arr: _ParsedBinaryArrayMinimal
     position: tuple[int, int] | tuple[int, int, int]
 
     @classmethod
     def from_resolved(cls, s: _ResolvedSpectrum) -> _ParsedSpectrumMinimal:
-        return cls(mz_arr=s.mz_arr, int_arr=s.int_arr, position=s.position)
+        return cls(
+            mz_arr=_ParsedBinaryArrayMinimal.from_resolved(s.mz_arr),
+            int_arr=_ParsedBinaryArrayMinimal.from_resolved(s.int_arr),
+            position=s.position,
+        )
 
 
 @dataclass
@@ -133,7 +155,7 @@ class ParseSpectra:
 
     @property
     def _referenceable_param_groups(self) -> dict[str, list[_CvParam]]:
-        elements = self._etree.findall(f"/{self._ns}referenceableParamGroupList/{self._ns}referenceableParamGroup")
+        elements = self._etree.findall(f"./{self._ns}referenceableParamGroupList/{self._ns}referenceableParamGroup")
         result = {}
         for element in elements:
             result[element.attrib["id"]] = self._extract_cv_param_element_list(element.findall(f"{self._ns}cvParam"))
@@ -142,7 +164,7 @@ class ParseSpectra:
     @property
     def _spectra_static(self) -> list[_SpectrumStatic]:
         # TODO multi run support...
-        elements = self._etree.findall(f"/{self._ns}run/{self._ns}spectrumList/{self._ns}spectrum")
+        elements = self._etree.findall(f"./{self._ns}run/{self._ns}spectrumList/{self._ns}spectrum")
         results = []
         for element in elements:
             param_groups = [ref.attrib["ref"] for ref in element.findall(f"{self._ns}referenceableParamGroupRef")]
@@ -213,3 +235,27 @@ class ParseSpectra:
             )
             for el in els
         ]
+
+
+# TODO maybe remove after testing?
+
+app = cyclopts.App()
+
+
+@app.command(name="print")
+def print_(imzml_path: Path, pretty: bool = False):
+    etree = ElementTree(file=imzml_path)
+    parser = ParseSpectra(etree)
+    print("parsing...")
+    parsed = parser.parse()
+    print("formatting...")
+    if pretty:
+        from rich.pretty import pprint
+
+        pprint(parsed)
+    else:
+        print(json.dumps([dataclasses.asdict(d) for d in parsed], indent=2))
+
+
+if __name__ == "__main__":
+    app()

@@ -1,9 +1,12 @@
+import warnings
 from functools import cached_property
 from pathlib import Path
-from pydantic import BaseModel
-import lxml.etree
+from xml.etree.ElementTree import ElementTree
 
-from depiction.persistence.imzml.compression import Compression
+import lxml.etree
+from pydantic import BaseModel
+
+from depiction.persistence.imzml.parser.parse_metadata import ParseMetadata
 from depiction.persistence.pixel_size import PixelSize
 
 
@@ -33,54 +36,11 @@ class ExtractMetadata:
     def _etree(self) -> lxml.etree.ElementTree:
         return lxml.etree.parse(str(self._imzml_path))
 
-    @cached_property
-    def mz_array_compression(self) -> Compression:
-        return self._get_compression_mode(id="mzArray")
-
-    @cached_property
-    def int_array_compression(self) -> Compression:
-        return self._get_compression_mode(id="intensityArray")
-
-    def _get_compression_mode(self, id: str) -> Compression:
-        elements = self._etree.findall(
-            f".//{self._ns}referenceableParamGroupList"
-            f"/{self._ns}referenceableParamGroup[@id='{id}']/{self._ns}cvParam"
-        )
-        accessions = [el.attrib["accession"] for el in elements]
-        if "MS:1000576" in accessions:
-            return Compression.Uncompressed
-        elif "MS:1000574" in accessions:
-            return Compression.Zlib
-        else:
-            # TODO there are several supported compressions in the standard, e.g. xz, but i don't think we should really
-            #      support all of it. it would be even better to only define a minimal subset that the pipeline does
-            #      handle so it can be used in the future
-            raise NotImplementedError(f"Unknown compression method for m/z array: {accessions}")
-
     def pixel_size(self) -> PixelSize | None:
-        collect = {
-            "pixel_size_x": [
-                float(el.attrib["value"])
-                for el in self._etree.findall(f".//{self._ns}cvParam[@accession='IMS:1000046']")
-            ],
-            "pixel_size_y": [
-                float(el.attrib["value"])
-                for el in self._etree.findall(f".//{self._ns}cvParam[@accession='IMS:1000047']")
-            ],
-        }
-        if len(collect["pixel_size_x"]) == 0:
-            return None
-        if len(collect["pixel_size_x"]) > 1 or len(collect["pixel_size_y"]) > 1:
-            raise NotImplementedError("Multiple pixel sizes found: {collect}")
-
-        # TODO actually check the units (they are missing in the files i have seen so far)
-        unit = "micrometer"
-
-        [pixel_size_x] = collect["pixel_size_x"]
-        if len(collect["pixel_size_y"]) == 0:
-            return PixelSize(size_x=pixel_size_x, size_y=pixel_size_x, unit=unit)
-        [pixel_size_y] = collect["pixel_size_y"]
-        return PixelSize(size_x=pixel_size_x, size_y=pixel_size_y, unit=unit)
+        # TODO delete
+        warnings.warn("This method is deprecated, use `ParseMetadata.pixel_size` instead", DeprecationWarning)
+        etree = ElementTree(file=self._imzml_path)
+        return ParseMetadata(etree).pixel_size
 
     def data_processing(self) -> list[str]:
         # each method will have some child accessions, for now we just parse it all into a flat string

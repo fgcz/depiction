@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 import shutil
-from collections import defaultdict
 from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from pathlib import Path
 from typing import Any, Optional
+from xml.etree.ElementTree import ElementTree
 
 import pyimzml.ImzMLParser
 from numpy.typing import NDArray
@@ -13,6 +14,7 @@ from numpy.typing import NDArray
 from depiction.persistence.file_checksums import FileChecksums
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 from depiction.persistence.imzml.imzml_reader import ImzmlReader
+from depiction.persistence.imzml.parser.parse_metadata import ParseMetadata
 from depiction.persistence.pixel_size import PixelSize
 from depiction.persistence.types import GenericReadFile
 
@@ -162,21 +164,10 @@ class ImzmlReadFile(GenericReadFile):
 
     @cached_property
     def pixel_size(self) -> PixelSize | None:
-        # TODO optimize and improve, error handling when missing
-        # TODO also make available in the parser class
-        with pyimzml.ImzMLParser.ImzMLParser(self._path) as parser:
-            collect = defaultdict(set)
-            for scan_settings in parser.metadata.pretty()["scan_settings"].values():
-                if "pixel size (x)" not in scan_settings:
-                    continue
-                collect["pixel_size_x"].add(scan_settings["pixel size (x)"])
-                collect["pixel_size_y"].add(scan_settings.get("pixel size y", scan_settings["pixel size (x)"]))
-            if len(collect["pixel_size_x"]) == 0:
-                return None
-            [pixel_size_x] = collect["pixel_size_x"]
-            [pixel_size_y] = collect["pixel_size_y"]
-        # TODO actual check of the unit
-        return PixelSize(size_x=pixel_size_x, size_y=pixel_size_y, unit="micrometer")
+        """Returns the pixel size of the spectra in the .imzML file."""
+        # TODO parse directly when parsing the rest?
+        etree = ElementTree(file=self._path)
+        return ParseMetadata(etree).pixel_size
 
     def copy_to(self, path: Path) -> None:
         """Copies the file of this instance to the given path. Needs to end with .imzML."""

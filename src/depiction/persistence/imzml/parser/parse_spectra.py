@@ -3,6 +3,7 @@ from __future__ import annotations
 import dataclasses
 import json
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from xml.etree.ElementTree import ElementTree
 
@@ -10,6 +11,11 @@ import cyclopts
 from loguru import logger
 
 from depiction.persistence.imzml.compression import Compression
+
+
+class DataType(str, Enum):
+    Float64 = "float64"
+    Float32 = "float32"
 
 
 @dataclass
@@ -34,6 +40,7 @@ class _ResolvedBinaryArray:
     offset: int
     params: dict[str, _CvParam]
     compression: Compression
+    data_type: DataType
 
 
 @dataclass
@@ -42,11 +49,16 @@ class _ParsedBinaryArrayMinimal:
     encoded_length: int
     offset: int
     compression: Compression
+    data_type: DataType
 
     @classmethod
     def from_resolved(cls, b: _ResolvedBinaryArray) -> _ParsedBinaryArrayMinimal:
         return cls(
-            array_length=b.array_length, encoded_length=b.encoded_length, offset=b.offset, compression=b.compression
+            array_length=b.array_length,
+            encoded_length=b.encoded_length,
+            offset=b.offset,
+            compression=b.compression,
+            data_type=b.data_type,
         )
 
 
@@ -104,12 +116,20 @@ class _SpectrumStatic:
                         logger.error(f"Unknown compression for {self.id}, setting to uncompressed")
                     compression = Compression.Uncompressed
 
+                if "MS:1000523" in params:
+                    data_type = DataType.Float64
+                else:
+                    if "MS:1000521" not in params:
+                        logger.error(f"Unknown data type for {self.id}, setting to float32")
+                    data_type = DataType.Float32
+
                 resolved = _ResolvedBinaryArray(
                     array_length=binary_array.array_length,
                     encoded_length=binary_array.encoded_length,
                     offset=binary_array.offset,
                     params=params,
                     compression=compression,
+                    data_type=data_type,
                 )
                 if "MS:1000514" in params:
                     mz_array = resolved

@@ -77,3 +77,21 @@ def _eval_abs_percentile(array, ws: int, percentile: float):
             window = array[max(i - ws, 0) : i + ws + 1, max(j - ws, 0) : j + ws + 1].ravel()
             result[i, j] = window[np.argsort(np.abs(window))[int(percentile * len(window))]]
     return result
+
+
+def _eval_abs_percentile_circle(array, ws: int, percentile: float):
+    result = np.zeros_like(array)
+    radius = ws // 2
+    height, width = array.shape[:2]
+    for i in range(array.shape[0]):
+        for j in range(array.shape[1]):
+            window = []
+            for di in range(-radius, radius + 1):
+                for dj in range(-radius, radius + 1):
+                    if di * di + dj * dj <= radius * radius:
+                        ni, nj = (i + di) % height, (j + dj) % width
+                        window.append(np.abs(array[ni, nj]))
+
+            result[i, j] = np.percentile(window, percentile)
+
+    return result

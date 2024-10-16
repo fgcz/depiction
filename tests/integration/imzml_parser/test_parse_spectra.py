@@ -3,6 +3,7 @@ from xml.etree import ElementTree
 
 import pytest
 
+from depiction.persistence.imzml.compression import Compression
 from depiction.persistence.imzml.parser.parse_spectra import ParseSpectra
 from depiction.persistence.imzml.parser.parse_spectra import _CvParam
 
@@ -98,6 +99,17 @@ def test_spectra_resolve(etree_spectra_resolve):
     assert resolved[0].mz_arr.array_length == 82
     assert resolved[0].mz_arr.encoded_length == 667
     assert resolved[0].mz_arr.offset == 16
+    assert resolved[0].mz_arr.compression == Compression.Zlib
     assert resolved[0].int_arr.array_length == 82
     assert resolved[0].int_arr.encoded_length == 215
     assert resolved[0].int_arr.offset == 683
+    assert resolved[0].int_arr.compression == Compression.Zlib
+
+
+def test_parse(etree_spectra_resolve):
+    parser = ParseSpectra(etree_spectra_resolve)
+    spectra = parser.parse()
+    assert len(spectra) == 3
+    assert spectra[0].position == (2445, 822)
+    assert spectra[0].mz_arr.encoded_length == 667
+    assert spectra[0].int_arr.encoded_length == 215

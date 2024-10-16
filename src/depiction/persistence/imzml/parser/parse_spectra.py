@@ -1,5 +1,11 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from xml.etree.ElementTree import ElementTree
+
+from loguru import logger
+
+from depiction.persistence.imzml.compression import Compression
 
 
 @dataclass
@@ -23,6 +29,7 @@ class _ResolvedBinaryArray:
     encoded_length: int
     offset: int
     params: dict[str, _CvParam]
+    compression: Compression
 
 
 @dataclass
@@ -34,6 +41,17 @@ class _ResolvedSpectrum:
     position: tuple[int, int] | tuple[int, int, int]
     mz_arr: _ResolvedBinaryArray
     int_arr: _ResolvedBinaryArray
+
+
+@dataclass
+class _ParsedSpectrumMinimal:
+    mz_arr: _ResolvedBinaryArray
+    int_arr: _ResolvedBinaryArray
+    position: tuple[int, int] | tuple[int, int, int]
+
+    @classmethod
+    def from_resolved(cls, s: _ResolvedSpectrum) -> _ParsedSpectrumMinimal:
+        return cls(mz_arr=s.mz_arr, int_arr=s.int_arr, position=s.position)
 
 
 @dataclass
@@ -57,11 +75,19 @@ class _SpectrumStatic:
                 groups=groups, referenced_groups=self.param_groups + binary_array.param_groups, params=self.params
             )
             if "MS:1000514" in params or "MS:1000515" in params:
+                if "MS:1000574" in params:
+                    compression = Compression.Zlib
+                else:
+                    if "MS:1000576" not in params:
+                        logger.error(f"Unknown compression for {self.id}, setting to uncompressed")
+                    compression = Compression.Uncompressed
+
                 resolved = _ResolvedBinaryArray(
                     array_length=binary_array.array_length,
                     encoded_length=binary_array.encoded_length,
                     offset=binary_array.offset,
                     params=params,
+                    compression=compression,
                 )
                 if "MS:1000514" in params:
                     mz_array = resolved
@@ -101,6 +127,9 @@ class ParseSpectra:
     def __init__(self, etree: ElementTree):
         self._etree = etree
         self._ns = "{http://psi.hupo.org/ms/mzml}"
+
+    def parse(self) -> list[_ParsedSpectrumMinimal]:
+        return [_ParsedSpectrumMinimal.from_resolved(spectrum) for spectrum in self._spectra_resolved]
 
     @property
     def _referenceable_param_groups(self) -> dict[str, list[_CvParam]]:

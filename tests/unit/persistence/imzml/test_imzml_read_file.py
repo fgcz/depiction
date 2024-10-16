@@ -8,6 +8,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from depiction.persistence import ImzmlReadFile, ImzmlModeEnum
+from depiction.persistence.imzml.parser.parse_spectra import ParseSpectra
 from depiction.persistence.pixel_size import PixelSize
 
 
@@ -77,14 +78,38 @@ def test_reader_when_exception(mocker: MockerFixture, mock_read_file: ImzmlReadF
 
 
 def test_get_reader(mocker: MockerFixture, mock_path: Path, mock_read_file: ImzmlReadFile) -> None:
-    mock_reader = mocker.MagicMock(name="mock_reader", mzPrecision="d", intensityPrecision="i")
-    mock_imzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
-    mock_imzml_parser.return_value.__enter__.return_value.portable_spectrum_reader.return_value = mock_reader
+    mock_etree = mocker.patch("depiction.persistence.imzml.imzml_reader.ElementTree").return_value
+    mock_parse_spectra = mocker.MagicMock(name="mock_parse_spectra", spec=ParseSpectra)
+    construct_parse_spectra = mocker.patch(
+        "depiction.persistence.imzml.imzml_reader.ParseSpectra", return_value=mock_parse_spectra
+    )
+    c1 = mocker.MagicMock(name="c1", value="c1")
+    c2 = mocker.MagicMock(name="c2", value="c2")
+    f32 = mocker.MagicMock(name="f32", value="float32")
+    f64 = mocker.MagicMock(name="f64", value="float64")
+    mock_parse_spectra.parse.return_value = [
+        mocker.MagicMock(
+            mz_arr=mocker.MagicMock(offset=1, encoded_length=2, data_type=f32, mz_compression=c1),
+            int_arr=mocker.MagicMock(offset=3, encoded_length=4, data_type=f64, int_compression=c2),
+            position=(5, 6),
+        ),
+        mocker.MagicMock(
+            mz_arr=mocker.MagicMock(offset=6, encoded_length=7, data_type=f32, mz_compression=c1),
+            int_arr=mocker.MagicMock(offset=8, encoded_length=9, data_type=f64, int_compression=c2),
+            position=(10, 11),
+        ),
+    ]
+
     reader = mock_read_file.get_reader()
-    mock_imzml_parser.assert_called_once_with(mock_path)
     assert reader.imzml_path == Path(mock_read_file._path)
-    assert reader._mz_bytes == 8
-    assert reader._int_bytes == 4
+    assert reader._mz_arr_offsets == [1, 6]
+    assert reader._mz_bytes == 4
+    assert reader._mz_arr_dtype == "float32"
+    assert reader._int_bytes == 8
+    assert reader._int_arr_dtype == "float64"
+    np.testing.assert_array_equal(reader._coordinates, np.array([[5, 6], [10, 11]]))
+
+    construct_parse_spectra.assert_called_once_with(etree=mock_etree)
 
 
 def test_n_spectra(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:

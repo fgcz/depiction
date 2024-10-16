@@ -1,9 +1,10 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
-from numba import njit, types
+from numba import njit
 from numpy.typing import NDArray
 
 from depiction.persistence.types import GenericReadFile
@@ -64,12 +65,13 @@ class TophatBaseline(Baseline):
         return max(window_sizes)
 
 
-@njit(
-    [
-        "float64[:](float64[:], int64)",
-        (types.Array(types.float64, 1, "C", readonly=True), types.int64),
-    ]
-)
+# @njit(
+#    [
+#        (types.Array(types.float64, 1, "C", readonly=False), types.int64),
+#        (types.Array(types.float64, 1, "C", readonly=True), types.int64),
+#    ]
+# )
+@njit
 def _compute_erosion(x: NDArray[float], element_size: int) -> NDArray[float]:
     eroded = np.zeros_like(x)
     n = len(x)
@@ -81,12 +83,13 @@ def _compute_erosion(x: NDArray[float], element_size: int) -> NDArray[float]:
     return eroded
 
 
-@njit(
-    [
-        "float64[:](float64[:], int64)",
-        (types.Array(types.float64, 1, "C", readonly=True), types.int64),
-    ]
-)
+# @njit(
+#    [
+#        (types.Array(types.float64, 1, "C", readonly=False), types.int64),
+#        (types.Array(types.float64, 1, "C", readonly=True), types.int64),
+#    ]
+# )
+@njit
 def _compute_dilation(x: NDArray[float], element_size: int) -> NDArray[float]:
     dilation = np.zeros_like(x)
     n = len(x)
@@ -98,12 +101,13 @@ def _compute_dilation(x: NDArray[float], element_size: int) -> NDArray[float]:
     return dilation
 
 
-@njit(
-    [
-        "float64[:](float64[:], int64)",
-        (types.Array(types.float64, 1, "C", readonly=True), types.int64),
-    ]
-)
+# @njit(
+#    [
+#        (types.Array(types.float64, 1, "C", readonly=False), types.int64),
+#        (types.Array(types.float64, 1, "C", readonly=True), types.int64),
+#    ]
+# )
+@njit
 def _compute_opening(int_arr: NDArray[float], element_size: int) -> NDArray[float]:
     eroded = _compute_erosion(int_arr, element_size)
     return _compute_dilation(eroded, element_size)

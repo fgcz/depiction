@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from functools import cached_property
 from typing import Any, TYPE_CHECKING
+from xml.etree.ElementTree import ElementTree
 
 import mmap
 import numpy as np
-import pyimzml.ImzMLParser
 import zlib
 
 from depiction.persistence.imzml.compression import Compression
-from depiction.persistence.imzml.extract_metadata import ExtractMetadata
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
+from depiction.persistence.imzml.parser.parse_spectra import ParseSpectra
 from depiction.persistence.types import GenericReader
 
 if TYPE_CHECKING:
@@ -138,7 +138,7 @@ class ImzmlReader(GenericReader):
         """Returns the m/z values of the i-th spectrum."""
         file = self.ibd_mmap
         file.seek(self._mz_arr_offsets[i_spectrum])
-        mz_bytes = file.read(self._mz_arr_lengths[i_spectrum] * self._mz_bytes)
+        mz_bytes = file.read(self._mz_arr_lengths[i_spectrum])
         if self._mz_compression == Compression.Zlib:
             mz_bytes = zlib.decompress(mz_bytes)
         return np.frombuffer(mz_bytes, dtype=self._mz_arr_dtype)
@@ -147,7 +147,7 @@ class ImzmlReader(GenericReader):
         """Returns the intensity values of the i-th spectrum."""
         file = self.ibd_mmap
         file.seek(self._int_arr_offsets[i_spectrum])
-        int_bytes = file.read(self._int_arr_lengths[i_spectrum] * self._int_bytes)
+        int_bytes = file.read(self._int_arr_lengths[i_spectrum])
         if self._int_compression == Compression.Zlib:
             int_bytes = zlib.decompress(int_bytes)
         return np.frombuffer(int_bytes, dtype=self._int_arr_dtype)
@@ -159,19 +159,24 @@ class ImzmlReader(GenericReader):
     @classmethod
     def parse_imzml(cls, path: Path) -> ImzmlReader:
         """Parses an imzML file and returns an ImzmlReader."""
-        with pyimzml.ImzMLParser.ImzMLParser(path) as parser:
-            portable_reader = parser.portable_spectrum_reader()
-        metadata_parser = ExtractMetadata(path)
+        parser = ParseSpectra(etree=ElementTree(file=path))
+        spectra = parser.parse()
+
+        # TODO refactor this later
         return ImzmlReader(
-            mz_arr_offsets=portable_reader.mzOffsets,
-            mz_arr_lengths=portable_reader.mzLengths,
-            mz_arr_dtype=portable_reader.mzPrecision,
-            mz_compression=metadata_parser.mz_array_compression,
-            int_arr_offsets=portable_reader.intensityOffsets,
-            int_arr_lengths=portable_reader.intensityLengths,
-            int_arr_dtype=portable_reader.intensityPrecision,
-            int_compression=metadata_parser.int_array_compression,
-            coordinates=np.asarray(portable_reader.coordinates),
+            mz_arr_offsets=[s.mz_arr.offset for s in spectra],
+            mz_arr_lengths=[s.mz_arr.encoded_length for s in spectra],
+            # TODO
+            mz_arr_dtype=spectra[0].mz_arr.data_type.value,
+            # TODO
+            mz_compression=spectra[0].mz_arr.compression,
+            int_arr_offsets=[s.int_arr.offset for s in spectra],
+            int_arr_lengths=[s.int_arr.encoded_length for s in spectra],
+            # TODO
+            int_arr_dtype=spectra[0].int_arr.data_type.value,
+            # TODO
+            int_compression=spectra[0].int_arr.compression,
+            coordinates=np.asarray([s.position for s in spectra]),
             imzml_path=path,
         )
 

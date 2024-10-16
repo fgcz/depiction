@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-import mmap
 from functools import cached_property
 from typing import Any, TYPE_CHECKING
 
+import mmap
 import numpy as np
 import pyimzml.ImzMLParser
+import zlib
 
+from depiction.persistence.imzml.compression import Compression
+from depiction.persistence.imzml.extract_metadata import ExtractMetadata
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 from depiction.persistence.types import GenericReader
 
@@ -25,9 +28,11 @@ class ImzmlReader(GenericReader):
         mz_arr_offsets: list[int],
         mz_arr_lengths: list[int],
         mz_arr_dtype: str,
+        mz_compression: Compression,
         int_arr_offsets: list[int],
         int_arr_lengths: list[int],
         int_arr_dtype: str,
+        int_compression: Compression,
         coordinates: NDArray[int],
         imzml_path: Path,
     ) -> None:
@@ -38,9 +43,11 @@ class ImzmlReader(GenericReader):
         self._mz_arr_offsets = mz_arr_offsets
         self._mz_arr_lengths = mz_arr_lengths
         self._mz_arr_dtype = mz_arr_dtype
+        self._mz_compression = mz_compression
         self._int_arr_offsets = int_arr_offsets
         self._int_arr_lengths = int_arr_lengths
         self._int_arr_dtype = int_arr_dtype
+        self._int_compression = int_compression
         self._coordinates = coordinates
 
         self._mz_bytes = np.dtype(mz_arr_dtype).itemsize
@@ -132,6 +139,8 @@ class ImzmlReader(GenericReader):
         file = self.ibd_mmap
         file.seek(self._mz_arr_offsets[i_spectrum])
         mz_bytes = file.read(self._mz_arr_lengths[i_spectrum] * self._mz_bytes)
+        if self._mz_compression == Compression.Zlib:
+            mz_bytes = zlib.decompress(mz_bytes)
         return np.frombuffer(mz_bytes, dtype=self._mz_arr_dtype)
 
     def get_spectrum_int(self, i_spectrum: int) -> NDArray[float]:
@@ -139,6 +148,8 @@ class ImzmlReader(GenericReader):
         file = self.ibd_mmap
         file.seek(self._int_arr_offsets[i_spectrum])
         int_bytes = file.read(self._int_arr_lengths[i_spectrum] * self._int_bytes)
+        if self._int_compression == Compression.Zlib:
+            int_bytes = zlib.decompress(int_bytes)
         return np.frombuffer(int_bytes, dtype=self._int_arr_dtype)
 
     def get_spectrum_n_points(self, i_spectrum: int) -> int:
@@ -150,13 +161,16 @@ class ImzmlReader(GenericReader):
         """Parses an imzML file and returns an ImzmlReader."""
         with pyimzml.ImzMLParser.ImzMLParser(path) as parser:
             portable_reader = parser.portable_spectrum_reader()
+        metadata_parser = ExtractMetadata(path)
         return ImzmlReader(
             mz_arr_offsets=portable_reader.mzOffsets,
             mz_arr_lengths=portable_reader.mzLengths,
             mz_arr_dtype=portable_reader.mzPrecision,
+            mz_compression=metadata_parser.mz_array_compression,
             int_arr_offsets=portable_reader.intensityOffsets,
             int_arr_lengths=portable_reader.intensityLengths,
             int_arr_dtype=portable_reader.intensityPrecision,
+            int_compression=metadata_parser.int_array_compression,
             coordinates=np.asarray(portable_reader.coordinates),
             imzml_path=path,
         )

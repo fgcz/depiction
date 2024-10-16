@@ -3,6 +3,7 @@ from pathlib import Path
 from pydantic import BaseModel
 import lxml.etree
 
+from depiction.persistence.imzml.compression import Compression
 from depiction.persistence.pixel_size import PixelSize
 
 
@@ -31,6 +32,30 @@ class ExtractMetadata:
     @cached_property
     def _etree(self) -> lxml.etree.ElementTree:
         return lxml.etree.parse(str(self._imzml_path))
+
+    @cached_property
+    def mz_array_compression(self) -> Compression:
+        return self._get_compression_mode(id="mzArray")
+
+    @cached_property
+    def int_array_compression(self) -> Compression:
+        return self._get_compression_mode(id="intensityArray")
+
+    def _get_compression_mode(self, id: str) -> Compression:
+        elements = self._etree.findall(
+            f".//{self._ns}referenceableParamGroupList"
+            f"/{self._ns}referenceableParamGroup[@id='{id}']/{self._ns}cvParam"
+        )
+        accessions = [el.attrib["accession"] for el in elements]
+        if "MS:1000576" in accessions:
+            return Compression.Uncompressed
+        elif "MS:1000574" in accessions:
+            return Compression.Zlib
+        else:
+            # TODO there are several supported compressions in the standard, e.g. xz, but i don't think we should really
+            #      support all of it. it would be even better to only define a minimal subset that the pipeline does
+            #      handle so it can be used in the future
+            raise NotImplementedError(f"Unknown compression method for m/z array: {accessions}")
 
     def pixel_size(self) -> PixelSize | None:
         collect = {

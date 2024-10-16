@@ -3,6 +3,7 @@ import unittest
 from tempfile import TemporaryDirectory
 
 import numpy as np
+import xarray
 
 from depiction.misc.integration_test_utils import IntegrationTestUtils
 from depiction.persistence import ImzmlReadFile, ImzmlModeEnum, ImzmlWriteFile
@@ -39,12 +40,14 @@ class TestMergeImzmlIntegration(unittest.TestCase):
 
         with ImzmlReadFile(self.mock_output_file_path).reader() as reader:
             spectra = reader.get_spectra([0, 1, 2])
-            coordinates = reader.coordinates
+            coordinates = reader.coordinates_array_2d
             self.assertEqual(ImzmlModeEnum.CONTINUOUS, reader.imzml_mode)
 
         np.testing.assert_array_equal(np.array([[100, 200, 300], [100, 200, 300], [100, 200, 300]]), spectra[0])
         np.testing.assert_array_equal(np.array([[1, 2, 3], [2, 2, 2], [4, 5, 6]]), spectra[1])
-        np.testing.assert_array_equal(np.array([[0, 0, 1], [0, 1, 1], [5, 1, 1]]), coordinates)
+        xarray.testing.assert_equal(
+            xarray.DataArray([[0, 0], [0, 1], [5, 1]], dims=("i", "d"), coords={"d": ["x", "y"]}), coordinates
+        )
 
     def test_merge_processed(self) -> None:
         IntegrationTestUtils.populate_test_file(
@@ -69,7 +72,7 @@ class TestMergeImzmlIntegration(unittest.TestCase):
 
         with ImzmlReadFile(self.mock_output_file_path).reader() as reader:
             spectra = reader.get_spectra([0, 1, 2])
-            coordinates = reader.coordinates
+            coordinates = reader.coordinates_array_2d
             self.assertEqual(ImzmlModeEnum.PROCESSED, reader.imzml_mode)
 
         self.assertEqual(3, len(spectra[0]))
@@ -80,8 +83,9 @@ class TestMergeImzmlIntegration(unittest.TestCase):
         np.testing.assert_array_equal(np.array([1, 2, 3]), spectra[1][0])
         np.testing.assert_array_equal(np.array([2, 2]), spectra[1][1])
         np.testing.assert_array_equal(np.array([3, 3, 3, 3]), spectra[1][2])
-
-        np.testing.assert_array_equal(np.array([[0, 0, 1], [0, 1, 1], [5, 1, 1]]), coordinates)
+        xarray.testing.assert_equal(
+            xarray.DataArray([[0, 0], [0, 1], [5, 1]], dims=("i", "d"), coords={"d": ["x", "y"]}), coordinates
+        )
 
 
 if __name__ == "__main__":

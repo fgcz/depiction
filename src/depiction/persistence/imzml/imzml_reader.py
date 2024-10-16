@@ -119,6 +119,7 @@ class ImzmlReader(GenericReader):
         """Returns the mode of the imzML file."""
         # maybe this can be solved more elegantly in the future, but right now this works (if all offsets are identical,
         # then we know it's CONTINUOUS)
+        # TODO check if this is faster with a generator (benchmark needed)
         if len({*self._mz_arr_offsets}) == 1:
             return ImzmlModeEnum.CONTINUOUS
         else:

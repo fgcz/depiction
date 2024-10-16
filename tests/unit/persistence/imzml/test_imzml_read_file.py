@@ -9,7 +9,6 @@ from pytest_mock import MockerFixture
 
 from depiction.persistence import ImzmlReadFile, ImzmlModeEnum
 from depiction.persistence.imzml.parser.parse_spectra import ParseSpectra
-from depiction.persistence.pixel_size import PixelSize
 
 
 @pytest.fixture()
@@ -150,37 +149,11 @@ def test_compact_metadata(mock_read_file: ImzmlReadFile) -> None:
         }
 
 
-def test_metadata_checksums_when_none(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
-    mock_pyimzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
-    mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {}
-    assert mock_read_file.metadata_checksums == {}
-
-
-def test_metadata_checksums_when_md5_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
-    mock_pyimzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
-    mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {"ibd MD5": "ABCD"}
-    assert mock_read_file.metadata_checksums == {"md5": "abcd"}
-
-
-def test_metadata_checksums_when_sha1_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
-    mock_pyimzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
-    mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {"ibd SHA-1": "ABCD"}
-    assert mock_read_file.metadata_checksums == {"sha1": "abcd"}
-
-
-def test_metadata_checksums_when_sha256_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
-    mock_pyimzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
-    mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {"ibd SHA-256": "ABCD"}
-    assert mock_read_file.metadata_checksums == {"sha256": "abcd"}
-
-
-def test_metadata_checksums_when_both_checksums_available(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
-    mock_pyimzml_parser = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
-    mock_pyimzml_parser.return_value.__enter__.return_value.metadata.file_description = {
-        "ibd MD5": "ABCD",
-        "ibd SHA-1": "EF00",
-    }
-    assert mock_read_file.metadata_checksums == {"md5": "abcd", "sha1": "ef00"}
+def test_metadata_checksums(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_etree = mocker.patch("depiction.persistence.imzml.imzml_read_file.ElementTree").return_value
+    mock_parse_metadata = mocker.patch("depiction.persistence.imzml.imzml_read_file.ParseMetadata")
+    assert mock_read_file.metadata_checksums == mock_parse_metadata.return_value.ibd_checksums
+    mock_parse_metadata.assert_called_once_with(etree=mock_etree)
 
 
 def test_ibd_checksums(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
@@ -291,24 +264,11 @@ def test_print_summary(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> 
     mock_print.assert_called_once_with(mock_summary.return_value, file=None)
 
 
-def test_pixel_size_when_present(mocker: MockerFixture, mock_read_file) -> None:
-    mock_parser_constructor = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
-    mock_parser = mocker.MagicMock(name="mock_parser")
-    mock_parser_constructor.return_value.__enter__.return_value = mock_parser
-    mock_parser.metadata.pretty.return_value = {"scan_settings": {1: {"pixel size (x)": 10, "pixel size y": 20}}}
-    assert mock_read_file.pixel_size == PixelSize(10, 20, "micrometer")
-    mock_parser.metadata.pretty.assert_called_once_with()
-    mock_parser_constructor.assert_called_once_with(mock_read_file._path)
-
-
-def test_pixel_size_when_none(mocker: MockerFixture, mock_read_file) -> None:
-    mock_parser_constructor = mocker.patch("pyimzml.ImzMLParser.ImzMLParser")
-    mock_parser = mocker.MagicMock(name="mock_parser")
-    mock_parser_constructor.return_value.__enter__.return_value = mock_parser
-    mock_parser.metadata.pretty.return_value = {"scan_settings": {1: {}}}
-    assert mock_read_file.pixel_size is None
-    mock_parser.metadata.pretty.assert_called_once_with()
-    mock_parser_constructor.assert_called_once_with(mock_read_file._path)
+def test_pixel_size(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
+    mock_etree = mocker.patch("depiction.persistence.imzml.imzml_read_file.ElementTree").return_value
+    mock_parse_metadata = mocker.patch("depiction.persistence.imzml.imzml_read_file.ParseMetadata")
+    assert mock_read_file.pixel_size == mock_parse_metadata.return_value.pixel_size
+    mock_parse_metadata.assert_called_once_with(etree=mock_etree)
 
 
 def test_copy_to(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:

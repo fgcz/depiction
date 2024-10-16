@@ -87,7 +87,7 @@ class ImzmlReadFile(GenericReadFile):
     def metadata_checksums(self) -> dict[str, str]:
         # TODO parse once
         etree = ElementTree(file=self._path)
-        return ParseMetadata(etree).ibd_checksums
+        return ParseMetadata(etree=etree).ibd_checksums
 
     @cached_property
     def ibd_checksums(self) -> FileChecksums:
@@ -157,7 +157,7 @@ class ImzmlReadFile(GenericReadFile):
         """Returns the pixel size of the spectra in the .imzML file."""
         # TODO parse directly when parsing the rest?
         etree = ElementTree(file=self._path)
-        return ParseMetadata(etree).pixel_size
+        return ParseMetadata(etree=etree).pixel_size
 
     def copy_to(self, path: Path) -> None:
         """Copies the file of this instance to the given path. Needs to end with .imzML."""

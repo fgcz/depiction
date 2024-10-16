@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Any, Optional
 from xml.etree.ElementTree import ElementTree
 
-import pyimzml.ImzMLParser
 from numpy.typing import NDArray
 
 from depiction.persistence.file_checksums import FileChecksums
@@ -86,18 +85,9 @@ class ImzmlReadFile(GenericReadFile):
 
     @cached_property
     def metadata_checksums(self) -> dict[str, str]:
-        # from the mzML standard:
-        #   e.g.: MS:1000568 (MD5)
-        #   e.g.: MS:1000569 (SHA-1)
-        checksums = {}
-        with pyimzml.ImzMLParser.ImzMLParser(self._path) as parser:
-            if "ibd MD5" in parser.metadata.file_description:
-                checksums["md5"] = parser.metadata.file_description["ibd MD5"].lower()
-            if "ibd SHA-1" in parser.metadata.file_description:
-                checksums["sha1"] = parser.metadata.file_description["ibd SHA-1"].lower()
-            if "ibd SHA-256" in parser.metadata.file_description:
-                checksums["sha256"] = parser.metadata.file_description["ibd SHA-256"].lower()
-        return checksums
+        # TODO parse once
+        etree = ElementTree(file=self._path)
+        return ParseMetadata(etree).ibd_checksums
 
     @cached_property
     def ibd_checksums(self) -> FileChecksums:

@@ -9,6 +9,19 @@ class ParseMetadata:
         self._ns = "{http://psi.hupo.org/ms/mzml}"
 
     @property
+    def ibd_checksums(self) -> dict[str, str]:
+        elements = self._etree.findall(f".//{self._ns}fileDescription/{self._ns}fileContent/{self._ns}cvParam")
+        checksums = {}
+        for element in elements:
+            if element.attrib["accession"] == "MS:1000568":
+                checksums["md5"] = element.attrib["value"].lower()
+            elif element.attrib["accession"] == "MS:1000569":
+                checksums["sha1"] = element.attrib["value"].lower()
+            elif element.attrib["accession"] == "MS:1003151":
+                checksums["sha256"] = element.attrib["value"].lower()
+        return checksums
+
+    @property
     def pixel_size(self) -> PixelSize | None:
         collect = {
             "pixel_size_x": [

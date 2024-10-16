@@ -58,6 +58,11 @@ class GenericReader(Protocol):
         """Returns the coordinates of the spectra in the imzML file, shape (n_spectra, 2)."""
         return self.coordinates[:, :2]
 
+    @property
+    def coordinates_array_2d(self) -> DataArray:
+        # TODO this should replace the old coordinates_2d later
+        return DataArray(self.coordinates_2d.astype(int), dims=("i", "d"), coords={"d": ["x", "y"]})
+
     def get_spectrum(self, i_spectrum: int) -> tuple[NDArray[float], NDArray[float]]:
         """Returns the m/z and intensity arrays of the i-th spectrum."""
         return self.get_spectrum_mz(i_spectrum=i_spectrum), self.get_spectrum_int(i_spectrum=i_spectrum)

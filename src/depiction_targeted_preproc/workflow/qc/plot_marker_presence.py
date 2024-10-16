@@ -11,7 +11,7 @@ from typer import Option
 def plot_marker_presence(df_peak_dist: pl.DataFrame, n_spectra: int, out_path: Path, layout_vertical: bool) -> None:
     # Add a `max_dist` column to the dataframe, that indicates the first bin a particular item falls into
     df = df_peak_dist.with_columns(abs_dist=pl.col("dist").abs()).sort("abs_dist")
-    df_cutoffs = pl.DataFrame({"max_dist": [0.05, 0.1, 0.2, 0.3, 0.4, np.inf]}).sort("max_dist")
+    df_cutoffs = pl.DataFrame({"max_dist": [0.005, 0.05, 0.1, 0.2, 0.3, 0.4, np.inf]}).sort("max_dist")
     df = df.join_asof(df_cutoffs, left_on="abs_dist", right_on="max_dist", strategy="forward").filter(
         pl.col("max_dist").is_finite()
     )

@@ -5,7 +5,8 @@ import typer
 from loguru import logger
 from pydantic import ValidationError
 
-from depiction.persistence.imzml.extract_metadata import ExtractMetadata, Metadata
+from depiction.persistence.imzml.metadata import Metadata
+from depiction.persistence.imzml.parser.parse_metadata import ParseMetadata
 from depiction.persistence.pixel_size import PixelSize
 
 
@@ -14,7 +15,7 @@ def proc_export_raw_metadata(
     output_json_path: Annotated[Path, typer.Option()],
 ) -> None:
     try:
-        metadata = ExtractMetadata.extract_file(input_imzml_path)
+        metadata = ParseMetadata.from_file(input_imzml_path).parse()
     except ValidationError:
         logger.error("Failed to extract metadata from {input_imzml_path}", input_imzml_path=input_imzml_path)
         logger.info("Using dummy metadata instead!")

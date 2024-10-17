@@ -2,8 +2,8 @@ from pathlib import Path
 from typing import Annotated
 
 import numpy as np
+import seaborn as sns
 import typer
-import xarray
 from matplotlib import pyplot as plt, colors
 from typer import Option
 
@@ -46,7 +46,11 @@ def qc_plot_calibration_map_v2(
     num_nans = np.sum(np.isnan(mass_shifts.isel(c=0)).values)
     if num_nans:
         raise ValueError("nans detected")
-    mass_shifts_img.data_flat.isel(c=0).clip(-0.5, 0.5).plot.hist(ax=axs[2], bins=100, color="gray")
+    mz_min, mz_max = -0.5, 0.5
+    sns.histplot(
+        mass_shifts_img.data_flat.isel(c=0).clip(mz_min, mz_max).values, bins=100, color="gray", ax=axs[2], kde=True
+    )
+    axs[2].set_xlabel(r"$\Delta \frac{m}{z}$")
     axs[2].set_title("Histogram of computed shifts")
 
     plt.savefig(output_pdf, bbox_inches="tight")

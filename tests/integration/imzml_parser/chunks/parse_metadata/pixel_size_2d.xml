@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mzML version="1.1.0" xmlns="http://psi.hupo.org/ms/mzml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://psi.hupo.org/ms/mzml http://psidev.info/files/ms/mzML/xsd/mzML1.1.0.xsd">
+  <cvList count="3">
+    <cv URI="http://purl.obolibrary.org/obo/ms.obo" fullName="Proteomics Standards Initiative Mass Spectrometry Ontology" id="MS" version="4.1.35"/>
+    <cv URI="http://purl.obolibrary.org/obo/uo.obo" fullName="Unit Ontology" id="UO" version="2019-03-29"/>
+    <cv URI="http://www.maldi-msi.org/download/imzml/imagingMS.obo" fullName="Imaging MS Ontology" id="IMS" version="0.9.1"/>
+  </cvList>
+  <scanSettingsList count="1">
+    <scanSettings id="scanSettings0">
+      <cvParam accession="IMS:1000401" cvRef="IMS" name="top down"/>
+      <cvParam accession="IMS:1000410" cvRef="IMS" name="meandering"/>
+      <cvParam accession="IMS:1000490" cvRef="IMS" name="linescan right left"/>
+      <cvParam accession="IMS:1000480" cvRef="IMS" name="horizontal line scan"/>
+      <cvParam accession="IMS:1000042" cvRef="IMS" name="max count of pixels x" value="212"/>
+      <cvParam accession="IMS:1000043" cvRef="IMS" name="max count of pixels y" value="270"/>
+      <cvParam accession="IMS:1000044" cvRef="IMS" name="max dimension x" unitAccession="UO:0000017" unitCvRef="UO" unitName="micrometer" value="10600"/>
+      <cvParam accession="IMS:1000045" cvRef="IMS" name="max dimension y" unitAccession="UO:0000017" unitCvRef="UO" unitName="micrometer" value="13500"/>
+      <cvParam accession="IMS:1000053" cvRef="IMS" name="absolute position offset x" unitAccession="UO:0000017" unitCvRef="UO" unitName="micrometer" value="0"/>
+      <cvParam accession="IMS:1000054" cvRef="IMS" name="absolute position offset y" unitAccession="UO:0000017" unitCvRef="UO" unitName="micrometer" value="0"/>
+      <cvParam accession="IMS:1000046" cvRef="IMS" name="pixel size x" value="50"/>
+      <cvParam accession="IMS:1000047" cvRef="IMS" name="pixel size y" value="20"/>
+    </scanSettings>
+  </scanSettingsList>
+</mzML>

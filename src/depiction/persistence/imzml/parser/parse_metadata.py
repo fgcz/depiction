@@ -13,11 +13,11 @@ class ParseMetadata:
         elements = self._etree.findall(f".//{self._ns}fileDescription/{self._ns}fileContent/{self._ns}cvParam")
         checksums = {}
         for element in elements:
-            if element.attrib["accession"] == "MS:1000568":
+            if element.attrib["accession"] in ("MS:1000568", "IMS:1000090"):
                 checksums["md5"] = element.attrib["value"].lower()
-            elif element.attrib["accession"] == "MS:1000569":
+            elif element.attrib["accession"] in ("MS:1000569", "IMS:1000091"):
                 checksums["sha1"] = element.attrib["value"].lower()
-            elif element.attrib["accession"] == "MS:1003151":
+            elif element.attrib["accession"] in ("MS:1003151", "IMS:1000092"):
                 checksums["sha256"] = element.attrib["value"].lower()
         return checksums
 

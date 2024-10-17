@@ -7,9 +7,8 @@ from depiction.calibration.models import LinearModel
 from depiction.calibration.models.fit_model import fit_model
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
 from depiction.image import MultiChannelImage
-from depiction.image.smoothing.min_filter import MinFilter
-from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
-from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned, PeakFilteringType
+from depiction.spectrum.peak_filtering import PeakFilteringType
+from depiction.tools.calibrate.spatial_smoothing_config import SpatialSmoothingType
 
 
 class CalibrationMethodRegressShift(CalibrationMethod):
@@ -22,10 +21,9 @@ class CalibrationMethodRegressShift(CalibrationMethod):
     :param max_distance_unit: Unit of the maximum distance. (mz or ppm)
     :param model_type: Type of the model to fit. (e.g. see fit_model)
     :param model_unit: Unit of the model. (mz or ppm)
-    :param input_smoothing_activated: Whether to apply spatial smoothing to the input data.
-    :param input_smoothing_kernel_size: Size of the kernel for spatial smoothing.
-    :param input_smoothing_kernel_std: Standard deviation of the kernel for spatial smoothing.
+    :param input_smoothing: Smoothing to apply to the input features (distance vectors).
     :param min_points: Minimum number of points required to fit a model.
+    :param peak_filtering: Peak filtering to apply to the input peaks before extracting features at all.
     """
 
     def __init__(
@@ -35,9 +33,7 @@ class CalibrationMethodRegressShift(CalibrationMethod):
         max_distance_unit: str,
         model_type: str,
         model_unit: str,
-        input_smoothing_activated: bool = True,
-        input_smoothing_kernel_size: int = 27,
-        input_smoothing_kernel_std: float = 10.0,
+        input_smoothing: SpatialSmoothingType | None,
         min_points: int = 3,
         peak_filtering: PeakFilteringType | None = None,
     ) -> None:
@@ -47,9 +43,7 @@ class CalibrationMethodRegressShift(CalibrationMethod):
         self._min_points = min_points
         self._model_type = model_type
         self._model_unit = model_unit
-        self._input_smoothing_activated = input_smoothing_activated
-        self._input_smoothing_kernel_size = input_smoothing_kernel_size
-        self._input_smoothing_kernel_std = input_smoothing_kernel_std
+        self._input_smoothing = input_smoothing
         self._peak_filtering = peak_filtering
 
     def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
@@ -92,13 +86,7 @@ class CalibrationMethodRegressShift(CalibrationMethod):
             raise ValueError(f"Unknown unit={self._model_unit}")
 
     def preprocess_image_features(self, all_features: MultiChannelImage) -> MultiChannelImage:
-        if self._input_smoothing_activated:
-            smoother = SpatialSmoothingSparseAware(
-                kernel_size=self._input_smoothing_kernel_size, kernel_std=self._input_smoothing_kernel_std
-            )
-            return smoother.smooth_image(all_features)
-        else:
-            return all_features
+        return self._input_smoothing.smooth_image(all_features) if self._input_smoothing else all_features
 
     def fit_spectrum_model(self, features: DataArray) -> DataArray:
         coefficients = features.values  # TODO make use of xarray
@@ -132,8 +120,7 @@ class CalibrationMethodRegressShift(CalibrationMethod):
             f"max_distance_unit={self._max_distance_unit}, "
             f"model_type={self._model_type}, "
             f"model_unit={self._model_unit}, "
-            f"input_smoothing_activated={self._input_smoothing_activated}, "
-            f"input_smoothing_kernel_size={self._input_smoothing_kernel_size}, "
-            f"input_smoothing_kernel_std={self._input_smoothing_kernel_std}, "
+            f"input_smoothing={self._input_smoothing!r}, "
+            f"peak_filtering={self._peak_filtering!r}, "
             f"min_points={self._min_points})"
         )

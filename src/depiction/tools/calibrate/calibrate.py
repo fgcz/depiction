@@ -24,6 +24,7 @@ from depiction.tools.calibrate.config import (
     CalibrationConstantGlobalShiftConfig,
     CalibrationConfig,
 )
+from depiction.tools.calibrate.spatial_smoothing_config import get_spatial_smoothing
 from depiction.tools.filter_peaks.filter_peaks import get_peak_filter
 
 
@@ -43,15 +44,14 @@ def get_calibration_instance(config: CalibrationConfig, mass_list: Path | None):
     match config.method:
         case CalibrationRegressShiftConfig():
             peak_filtering = get_peak_filter(config.method.peak_filtering) if config.method.peak_filtering else None
+            input_smoothing = get_spatial_smoothing(config.method.spatial_smoothing)
             return CalibrationMethodRegressShift(
                 ref_mz_arr=extract_reference_masses(mass_list),
                 max_distance=config.method.max_distance,
                 max_distance_unit=config.method.max_distance_unit,
                 model_type=config.method.reg_model_type,
                 model_unit=config.method.reg_model_unit,
-                input_smoothing_activated=config.method.input_smoothing_activated,
-                input_smoothing_kernel_size=config.method.input_smoothing_kernel_size,
-                input_smoothing_kernel_std=config.method.input_smoothing_kernel_std,
+                input_smoothing=input_smoothing,
                 min_points=config.method.min_points,
                 peak_filtering=peak_filtering,
             )

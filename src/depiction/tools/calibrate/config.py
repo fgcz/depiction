@@ -4,6 +4,7 @@ from typing import Literal, Annotated
 
 from pydantic import BaseModel, Field
 
+from depiction.tools.calibrate.spatial_smoothing_config import GaussianSpatialSmoothingConfig, SpatialSmoothingConfig
 from depiction.tools.filter_peaks.config import FilterPeaksConfig
 
 
@@ -17,11 +18,9 @@ class CalibrationRegressShiftConfig(BaseModel):
     reg_model_type: str
     # TODO make explicit
     reg_model_unit: str
-    input_smoothing_activated: bool
-    input_smoothing_kernel_size: int = 27
-    input_smoothing_kernel_std: float = 10.0
     min_points: int = 3
 
+    spatial_smoothing: SpatialSmoothingConfig | None = GaussianSpatialSmoothingConfig()
     peak_filtering: FilterPeaksConfig | None = None
 
 

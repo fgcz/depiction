@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 from depiction.tools.calibrate.config import CalibrationConfig
 from depiction.tools.correct_baseline.config import BaselineCorrectionConfig
-from depiction.tools.filter_peaks import FilterPeaksConfig
+from depiction.tools.filter_peaks.config import FilterPeaksConfig
 from depiction.tools.pick_peaks import PickPeaksConfig
 
 

@@ -93,6 +93,7 @@ class MultiChannelImage:
         bg_value: float = 0.0,
     ):
         coordinates = cls._extract_flat_coordinates(values) if coordinates is None else coordinates
+        channel_names = list(channel_names) if not np.isscalar(channel_names) else channel_names
         if channel_names:
             if "c" in values.coords:
                 msg = (

@@ -4,15 +4,15 @@ from functools import cached_property
 
 import numpy as np
 import scipy
+import xarray
 import xarray as xr
 from numpy.typing import NDArray
 
-from depiction.image import MultiChannelImage
-from depiction.image.xarray_helper import XarrayHelper
+from depiction.image.smoothing.base import ChannelWiseSmoothing
 
 
 @dataclass(frozen=True)
-class SpatialSmoothingSparseAware:
+class SpatialSmoothingSparseAware(ChannelWiseSmoothing):
     """An experimental variant of 2D spatial smoothing that can handle nan values/boundaries.
     :param kernel_size: The size of the Gaussian kernel to use for smoothing.
     :param kernel_std: The standard deviation of the Gaussian kernel to use for smoothing.
@@ -26,24 +26,7 @@ class SpatialSmoothingSparseAware:
     kernel_std: float
     use_interpolation: bool = False
 
-    def smooth_image(self, image: MultiChannelImage) -> MultiChannelImage:
-        data_input = XarrayHelper.ensure_dense(image.data_spatial)
-        is_foreground = XarrayHelper.ensure_dense(image.fg_mask)
-        data_result = xr.apply_ufunc(
-            self._smooth_dense,
-            data_input,
-            is_foreground,
-            input_core_dims=[["y", "x"], ["y", "x"]],
-            output_core_dims=[["y", "x"]],
-            vectorize=True,
-        )
-        if self.use_interpolation:
-            is_foreground[:] = True
-        return MultiChannelImage(
-            data_result, is_foreground=is_foreground, is_foreground_label=image.is_foreground_label
-        )
-
-    def _smooth_dense(self, image_2d: NDArray[float], is_foreground: NDArray[float]) -> NDArray[float]:
+    def smooth_channel(self, image_2d: NDArray[float], is_foreground: NDArray[float]) -> NDArray[float]:
         image_2d = image_2d.astype(float)
 
         # Get an initial kernel
@@ -65,6 +48,9 @@ class SpatialSmoothingSparseAware:
 
         # Return the result.
         return result_image
+
+    def update_is_foreground(self, data_result: xr.DataArray, is_foreground: xr.DataArray) -> xr.DataArray:
+        return xarray.ones_like(is_foreground, dtype=bool) if self.use_interpolation else is_foreground
 
     @cached_property
     def gaussian_kernel(self) -> NDArray[float]:

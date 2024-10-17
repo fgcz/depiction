@@ -1,11 +1,11 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
 import numpy as np
-from xarray import DataArray
+from numpy.typing import NDArray
 
-from depiction.image import MultiChannelImage
-from depiction.image.xarray_helper import XarrayHelper
+from depiction.image.smoothing.base import ChannelWiseSmoothing
 
 
 # TODO this is a prototype, not optimized and not tested!
@@ -32,28 +32,34 @@ class KernelFunction(Enum):
 
 
 @dataclass(frozen=True)
-class MinFilter:
+class MinFilter(ChannelWiseSmoothing):
     kernel_size: int = 5
     kernel_shape: KernelShape = KernelShape.Square
     percentile: float = 0
 
-    def smooth_image(self, image: MultiChannelImage) -> MultiChannelImage:
-        data = XarrayHelper.ensure_dense(image.data_spatial)
+    # def smooth_image(self, image: MultiChannelImage) -> MultiChannelImage:
+    #    data = XarrayHelper.ensure_dense(image.data_spatial)
+    #    if self.kernel_shape != KernelShape.Square:
+    #        raise ValueError("Only square kernel is supported for now")
+    #    smoothed_data = np.zeros_like(data.values)
+    #    for c in range(smoothed_data.shape[2]):
+    #        if self.percentile == 0:
+    #            smoothed_data[:, :, c] = _eval_abs_min(data.values[:, :, c], self.kernel_size)
+    #        else:
+    #            smoothed_data[:, :, c] = _eval_abs_percentile(data.values[:, :, c], self.kernel_size, self.percentile)
+    #    return MultiChannelImage(
+    #        DataArray(smoothed_data, dims=data.dims, coords=data.coords),
+    #        is_foreground=image.fg_mask,
+    #        is_foreground_label=image.is_foreground_label,
+    #    )
+
+    def smooth_channel(self, image_2d: NDArray[float], is_foreground: NDArray[bool]) -> tuple[NDArray[float]]:
         if self.kernel_shape != KernelShape.Square:
             raise ValueError("Only square kernel is supported for now")
-
-        smoothed_data = np.zeros_like(data.values)
-        for c in range(smoothed_data.shape[2]):
-            if self.percentile == 0:
-                smoothed_data[:, :, c] = _eval_abs_min(data.values[:, :, c], self.kernel_size)
-            else:
-                smoothed_data[:, :, c] = _eval_abs_percentile(data.values[:, :, c], self.kernel_size, self.percentile)
-
-        return MultiChannelImage(
-            DataArray(smoothed_data, dims=data.dims, coords=data.coords),
-            is_foreground=image.fg_mask,
-            is_foreground_label=image.is_foreground_label,
-        )
+        if self.percentile == 0:
+            return _eval_abs_min(image_2d, self.kernel_size)
+        else:
+            return _eval_abs_percentile(image_2d, self.kernel_size, self.percentile)
 
 
 def _min_by_abs(arr):

@@ -7,7 +7,9 @@ from depiction.calibration.models import LinearModel
 from depiction.calibration.models.fit_model import fit_model
 from depiction.calibration.spectrum.reference_peak_distances import ReferencePeakDistances
 from depiction.image import MultiChannelImage
+from depiction.image.smoothing.min_filter import MinFilter
 from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
+from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned, PeakFilteringType
 
 
 class CalibrationMethodRegressShift(CalibrationMethod):
@@ -37,6 +39,7 @@ class CalibrationMethodRegressShift(CalibrationMethod):
         input_smoothing_kernel_size: int = 27,
         input_smoothing_kernel_std: float = 10.0,
         min_points: int = 3,
+        peak_filtering: PeakFilteringType | None = None,
     ) -> None:
         self._ref_mz_arr = ref_mz_arr
         self._max_distance = max_distance
@@ -47,8 +50,15 @@ class CalibrationMethodRegressShift(CalibrationMethod):
         self._input_smoothing_activated = input_smoothing_activated
         self._input_smoothing_kernel_size = input_smoothing_kernel_size
         self._input_smoothing_kernel_std = input_smoothing_kernel_std
+        self._peak_filtering = peak_filtering
 
     def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
+        if self._peak_filtering:
+            # TODO this is sort of problematic, to be reconsidered how we can avoid passing peak arrays as spectrum
+            #      arrays (it should be part of the API and implemented consistently)
+            peak_mz_arr, peak_int_arr = self._peak_filtering.filter_peaks(
+                peak_mz_arr, peak_int_arr, peak_mz_arr, peak_int_arr
+            )
         distances_mz = ReferencePeakDistances.get_distances_max_peak_in_window(
             peak_mz_arr=peak_mz_arr,
             peak_int_arr=peak_int_arr,

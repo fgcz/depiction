@@ -24,6 +24,7 @@ from depiction.tools.calibrate.config import (
     CalibrationConstantGlobalShiftConfig,
     CalibrationConfig,
 )
+from depiction.tools.filter_peaks.filter_peaks import get_peak_filter
 
 
 def extract_reference_masses(mass_list: Path) -> NDArray[float]:
@@ -41,6 +42,7 @@ def extract_reference_masses(mass_list: Path) -> NDArray[float]:
 def get_calibration_instance(config: CalibrationConfig, mass_list: Path | None):
     match config.method:
         case CalibrationRegressShiftConfig():
+            peak_filtering = get_peak_filter(config.method.peak_filtering) if config.method.peak_filtering else None
             return CalibrationMethodRegressShift(
                 ref_mz_arr=extract_reference_masses(mass_list),
                 max_distance=config.method.max_distance,
@@ -51,6 +53,7 @@ def get_calibration_instance(config: CalibrationConfig, mass_list: Path | None):
                 input_smoothing_kernel_size=config.method.input_smoothing_kernel_size,
                 input_smoothing_kernel_std=config.method.input_smoothing_kernel_std,
                 min_points=config.method.min_points,
+                peak_filtering=peak_filtering,
             )
         case CalibrationConstantGlobalShiftConfig():
             return CalibrationMethodGlobalConstantShift(

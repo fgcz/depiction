@@ -4,6 +4,8 @@ from typing import Literal, Annotated
 
 from pydantic import BaseModel, Field
 
+from depiction.tools.filter_peaks.config import FilterPeaksConfig
+
 
 class CalibrationRegressShiftConfig(BaseModel):
     calibration_method: Literal["RegressShift"] = "RegressShift"
@@ -19,6 +21,8 @@ class CalibrationRegressShiftConfig(BaseModel):
     input_smoothing_kernel_size: int = 27
     input_smoothing_kernel_std: float = 10.0
     min_points: int = 3
+
+    peak_filtering: FilterPeaksConfig | None = None
 
 
 class CalibrationChemicalPeptideNoiseConfig(BaseModel):

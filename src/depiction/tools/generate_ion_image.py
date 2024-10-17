@@ -29,7 +29,7 @@ class GenerateIonImage:
         input_file: ImzmlReadFile,
         mz_values: Sequence[float],
         tol: float | Sequence[float],
-        channel_names: Optional[list[str]] = None,
+        channel_names: list[str] | bool = False,
     ) -> MultiChannelImage:
         """
         Generates an ion image for each of the provided mz values, and returns a multi-channel `SparseImage2d`.
@@ -39,23 +39,7 @@ class GenerateIonImage:
         :param tol: the tolerance, for the m/z readout
         :param channel_names: the names of the channels, if None, the channels will be numbered
         """
-        channel_values = self._generate_channel_values(input_file=input_file, mz_values=mz_values, tol=tol)
-        data = (
-            channel_values.assign_coords(
-                c=channel_names,
-                x=("i", input_file.coordinates_2d[:, 0]),
-                y=("i", input_file.coordinates_2d[:, 1]),
-            )
-            .set_xindex(["y", "x"])
-            .unstack("i")
-        )
-        return MultiChannelImage.from_spatial(data, bg_value=np.nan)
-
-    def _generate_channel_values(
-        self, input_file: ImzmlReadFile, mz_values: Sequence[float], tol: float | Sequence[float]
-    ) -> DataArray:
-        if np.isscalar(tol):
-            tol = [tol] * len(mz_values)
+        tol = [tol] * len(mz_values) if np.isscalar(tol) else tol
         parallelize = ReadSpectraParallel.from_config(self._parallel_config)
         array = parallelize.map_chunked(
             read_file=input_file,
@@ -63,7 +47,11 @@ class GenerateIonImage:
             bind_args=dict(mz_values=mz_values, tol_values=tol),
             reduce_fn=lambda chunks: np.concatenate(chunks, axis=0),
         )
-        return DataArray(array, dims=("i", "c"))
+        return MultiChannelImage.from_flat(
+            values=DataArray(array, dims=("i", "c")),
+            coordinates=input_file.coordinates_array_2d,
+            channel_names=channel_names,
+        )
 
     def generate_range_images_for_file(
         self,

@@ -1,0 +1,30 @@
+# No baseline correction
+baseline_correction: null
+# No peak picking
+pick_peaks: null
+# No peak filtering (we only filter for calibration below)
+filter_peaks: null
+# The calibration settings:
+# - less max distance (6x less)
+# - percentile based filtering for distance smoothing
+# - filter a low number of peaks for each filtering
+calibration:
+  method:
+    calibration_method: RegressShift
+    max_distance: 500
+    max_distance_unit: ppm
+    reg_model_type: linear_siegelslopes
+    reg_model_unit: mz
+    spatial_smoothing:
+      type: PercentileFilter
+      kernel_size: 5
+      percentile: 0.25
+      kernel_shape: square
+    min_points: 3
+    peak_filtering:
+      filters:
+        # TODO try something snr based next as this would be easier to interpretate
+        - method: FilterNHighestIntensityPartitioned
+          max_count: 300
+          n_partitions: 10
+  n_jobs: 10

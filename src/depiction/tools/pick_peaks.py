@@ -8,7 +8,8 @@ from depiction.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, Im
 from depiction.spectrum.peak_filtering import PeakFilteringType
 from depiction.spectrum.peak_picking import BasicInterpolatedPeakPicker, BasicPeakPicker
 from depiction.spectrum.peak_picking.ms_peak_picker_wrapper import MSPeakPicker
-from depiction.tools.filter_peaks import FilterPeaksConfig, get_peak_filter
+from depiction.tools.filter_peaks.config import FilterPeaksConfig
+from depiction.tools.filter_peaks.filter_peaks import get_peak_filter
 from loguru import logger
 from pydantic import BaseModel, Field, model_validator
 

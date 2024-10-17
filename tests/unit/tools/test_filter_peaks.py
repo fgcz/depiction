@@ -4,21 +4,18 @@ from pytest_mock import MockerFixture
 from depiction.parallel_ops import WriteSpectraParallel, ParallelConfig
 from depiction.persistence import ImzmlReader, ImzmlWriter
 from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned
-from depiction.tools.filter_peaks import (
+from depiction.tools.filter_peaks.config import (
     FilterPeaksConfig,
     FilterNHighestIntensityPartitionedConfig,
-    filter_peaks,
-    _filter_chunk,
 )
+from depiction.tools.filter_peaks.filter_peaks import filter_peaks, _filter_chunk
 
 
 def test_filter_peaks_when_n_highest_intensity_partitioned(mocker: MockerFixture) -> None:
     mock_write_parallel = mocker.MagicMock(name="mock_write_parallel", spec=WriteSpectraParallel)
     mock_input_file = mocker.MagicMock(name="mock_input_file", spec=[])
     mock_output_file = mocker.MagicMock(name="mock_output_file", spec=[])
-    mock_from_config = mocker.patch(
-        "depiction.tools.filter_peaks.WriteSpectraParallel.from_config", return_value=mock_write_parallel
-    )
+    mock_from_config = mocker.patch.object(WriteSpectraParallel, "from_config", return_value=mock_write_parallel)
     config = FilterPeaksConfig(
         filters=[FilterNHighestIntensityPartitionedConfig(max_count=10, n_partitions=20)], n_jobs=30
     )

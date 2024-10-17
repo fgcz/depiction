@@ -1,24 +1,11 @@
 from __future__ import annotations
 
-from typing import Literal
-
 from depiction.spectrum.peak_filtering.filter_by_snr_threshold import FilterBySnrThresholdConfig, FilterBySnrThreshold
-from pydantic import BaseModel, PositiveInt
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
 from depiction.spectrum.peak_filtering import ChainFilters, FilterNHighestIntensityPartitioned, PeakFilteringType
-
-
-class FilterNHighestIntensityPartitionedConfig(BaseModel):
-    method: Literal["FilterNHighestIntensityPartitioned"] = "FilterNHighestIntensityPartitioned"
-    max_count: int
-    n_partitions: int
-
-
-class FilterPeaksConfig(BaseModel, use_enum_values=True, validate_default=True):
-    filters: list[FilterNHighestIntensityPartitionedConfig | FilterBySnrThresholdConfig]
-    n_jobs: PositiveInt | None = None
+from depiction.tools.filter_peaks.config import FilterNHighestIntensityPartitionedConfig, FilterPeaksConfig
 
 
 def get_peak_filter(config: FilterPeaksConfig) -> PeakFilteringType:

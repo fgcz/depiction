@@ -6,7 +6,8 @@ import cyclopts
 import yaml
 
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
-from depiction.tools.filter_peaks import FilterPeaksConfig, filter_peaks, FilterNHighestIntensityPartitionedConfig
+from depiction.tools.filter_peaks.config import FilterPeaksConfig, FilterNHighestIntensityPartitionedConfig
+from depiction.tools.filter_peaks.filter_peaks import filter_peaks
 
 app = cyclopts.App()
 
@@ -17,7 +18,7 @@ def run_config(
     input_imzml: Path,
     output_imzml: Path,
 ) -> None:
-    parsed = FilterPeaksConfig.validate(yaml.safe_load(config.read_text()))
+    parsed = FilterPeaksConfig.model_validate(yaml.safe_load(config.read_text()))
     filter_peaks(
         config=parsed,
         input_file=ImzmlReadFile(input_imzml),

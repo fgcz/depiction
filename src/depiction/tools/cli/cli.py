@@ -1,7 +1,7 @@
 from cyclopts import App
 
 from depiction.tools.calibrate.__main__ import app as calibrate
-from depiction.tools.cli.cli_filter_peaks import app as filter_peaks
+from depiction.tools.filter_peaks.__main__ import app as filter_peaks
 from depiction.tools.cli.cli_generate_ion_images import app as generate_ion_images
 from depiction.tools.cli.cli_pick_peaks import app as pick_peaks
 from depiction.tools.correct_baseline.__main__ import app as correct_baseline

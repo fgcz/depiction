@@ -20,8 +20,7 @@ class ChannelWiseSmoothing:
             output_core_dims=[["y", "x"]],
             vectorize=True,
         )
-        if self.use_interpolation:
-            is_foreground[:] = True
+        is_foreground = self.update_is_foreground(data_result=data_result, is_foreground=is_foreground)
         return MultiChannelImage(
             data_result, is_foreground=is_foreground, is_foreground_label=image.is_foreground_label
         )

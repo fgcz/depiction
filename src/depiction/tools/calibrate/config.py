@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from typing import Literal, Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from depiction.tools.calibrate.spatial_smoothing_config import GaussianSpatialSmoothingConfig, SpatialSmoothingConfig
 from depiction.tools.filter_peaks.config import FilterPeaksConfig
 
 
 class CalibrationRegressShiftConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     calibration_method: Literal["RegressShift"] = "RegressShift"
 
     max_distance: float
@@ -44,7 +45,8 @@ class CalibrationConstantGlobalShiftConfig(BaseModel):
     calibration_method: Literal["ConstantGlobalShift"] = "ConstantGlobalShift"
 
 
-class CalibrationConfig(BaseModel, use_enum_values=True, validate_default=True):
+class CalibrationConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", use_enum_values=True, validate_default=True)
     method: (
         Annotated[
             CalibrationRegressShiftConfig

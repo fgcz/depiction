@@ -43,6 +43,8 @@ class PipelineArtifact(str, Enum):
 # TODO we have some redundancy in the peak picker allowing filtering... it should be removed there, since sometimes you
 #      might want peak filtering without peak picking -> TODO create task
 class PipelineParametersPreset(Model, use_enum_values=True, validate_default=True):
+    model_config = ConfigDict(extra="forbid")
+
     baseline_correction: BaselineCorrectionConfig | None
     filter_peaks: FilterPeaksConfig | None
     calibration: CalibrationConfig | None

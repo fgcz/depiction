@@ -25,7 +25,11 @@ def test_filter_peaks_when_n_highest_intensity_partitioned(mocker: MockerFixture
         read_file=mock_input_file,
         write_file=mock_output_file,
         operation=_filter_chunk,
-        bind_args={"peaks_filter": FilterNHighestIntensityPartitioned(max_count=10, n_partitions=20)},
+        bind_args={
+            "peaks_filter": FilterNHighestIntensityPartitioned(
+                FilterNHighestIntensityPartitionedConfig(max_count=10, n_partitions=20)
+            )
+        },
     )
 
 

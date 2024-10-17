@@ -1,23 +1,34 @@
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 from numpy.typing import NDArray
+from pydantic import BaseModel
 
+from depiction.spectrum.peak_filtering.peak_filtering_type import PeakFilteringType
 from depiction.spectrum.peak_filtering.filter_n_highest_intensity import (
     FilterNHighestIntensity,
 )
 
 
-@dataclass
-class FilterNHighestIntensityPartitioned:
-    """Returns up to `max_count` many peaks, by picking up to `max_count // n_partitions` many peaks from each
-    equal-length segment of the spectrum (in terms of mz values).
+class FilterNHighestIntensityPartitionedConfig(BaseModel):
+    """
     :param max_count: The maximum number of peaks to return.
     :param n_partitions: The number of partitions to divide the spectrum into.
     """
 
+    method: Literal["FilterNHighestIntensityPartitioned"] = "FilterNHighestIntensityPartitioned"
     max_count: int
     n_partitions: int
+
+
+@dataclass
+class FilterNHighestIntensityPartitioned(PeakFilteringType):
+    """Returns up to `max_count` many peaks, by picking up to `max_count // n_partitions` many peaks from each
+    equal-length segment of the spectrum (in terms of mz values).
+    """
+
+    config: FilterNHighestIntensityPartitionedConfig
 
     def filter_index_peaks(
         self,
@@ -38,11 +49,11 @@ class FilterNHighestIntensityPartitioned:
         mz_partitions = self._get_mz_partitions(spectrum_mz_arr)
 
         # Setup filter function for each partition.
-        filter_fn = FilterNHighestIntensity(max_count=self.max_count // self.n_partitions)
+        filter_fn = FilterNHighestIntensity(max_count=self.config.max_count // self.config.n_partitions)
 
         # Determine the indices of the peaks in each partition.
         peak_idx_result = []
-        for i_partition in range(self.n_partitions):
+        for i_partition in range(self.config.n_partitions):
             idx_partition_left = np.searchsorted(spectrum_mz_arr[peak_idx_arr], mz_partitions[i_partition], side="left")
             idx_partition_right = np.searchsorted(
                 spectrum_mz_arr[peak_idx_arr],
@@ -77,12 +88,12 @@ class FilterNHighestIntensityPartitioned:
             return peak_mz_arr, peak_int_arr
 
         mz_partitions = self._get_mz_partitions(spectrum_mz_arr)
-        filter_fn = FilterNHighestIntensity(max_count=self.max_count // self.n_partitions)
+        filter_fn = FilterNHighestIntensity(max_count=self.config.max_count // self.config.n_partitions)
 
         # apply filtering to each partition
         result_mz = []
         result_int = []
-        for i_partition in range(self.n_partitions):
+        for i_partition in range(self.config.n_partitions):
             idx_partition_left = np.searchsorted(peak_mz_arr, mz_partitions[i_partition], side="left")
             idx_partition_right = np.searchsorted(peak_mz_arr, mz_partitions[i_partition + 1], side="right")
             peak_mz_partition = peak_mz_arr[idx_partition_left:idx_partition_right]
@@ -102,4 +113,4 @@ class FilterNHighestIntensityPartitioned:
         """Returns the mz limits of the partitions."""
         mz_min = np.min(spectrum_mz_arr)
         mz_max = np.max(spectrum_mz_arr)
-        return np.linspace(mz_min, mz_max, self.n_partitions + 1)
+        return np.linspace(mz_min, mz_max, self.config.n_partitions + 1)

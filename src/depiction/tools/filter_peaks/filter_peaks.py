@@ -5,7 +5,10 @@ from depiction.spectrum.peak_filtering.filter_by_snr_threshold import FilterBySn
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
 from depiction.spectrum.peak_filtering import ChainFilters, FilterNHighestIntensityPartitioned, PeakFilteringType
-from depiction.tools.filter_peaks.config import FilterNHighestIntensityPartitionedConfig, FilterPeaksConfig
+from depiction.spectrum.peak_filtering.filter_n_highest_intensity_partitioned import (
+    FilterNHighestIntensityPartitionedConfig,
+)
+from depiction.tools.filter_peaks.config import FilterPeaksConfig
 
 
 def get_peak_filter(config: FilterPeaksConfig) -> PeakFilteringType:
@@ -13,8 +16,8 @@ def get_peak_filter(config: FilterPeaksConfig) -> PeakFilteringType:
     filters = []
     for filter in config.filters:
         match filter:
-            case FilterNHighestIntensityPartitionedConfig(max_count=max_count, n_partitions=n_partitions):
-                filters.append(FilterNHighestIntensityPartitioned(max_count=max_count, n_partitions=n_partitions))
+            case FilterNHighestIntensityPartitionedConfig():
+                filters.append(FilterNHighestIntensityPartitioned(config=filter))
             case FilterBySnrThresholdConfig():
                 filters.append(FilterBySnrThreshold(config=filter))
             case _:

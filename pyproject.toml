@@ -79,6 +79,7 @@ dev = [
     "types-tqdm",
     "rpy2",
     "pytype",
+    "streamlit"
 ]
 doc = [
     "mkdocs",

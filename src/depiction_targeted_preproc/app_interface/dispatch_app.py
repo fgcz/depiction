@@ -6,13 +6,10 @@ from typing import Any
 import cyclopts
 import yaml
 
+from app_runner.dispatch.dispatch_individual_resources import DispatchIndividualResources, config_msi_imzml
 from bfabric import Bfabric
 from bfabric.entities import Resource
-from bfabric.experimental.app_interface.dispatch.dispatch_individual_resources import (
-    DispatchIndividualResources,
-    config_msi_imzml,
-)
-from bfabric.experimental.app_interface.workunit.definition import WorkunitDefinition
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 from depiction_targeted_preproc.pipeline.prepare_inputs import write_inputs_spec
 from depiction_targeted_preproc.pipeline.prepare_params import parse_params
 

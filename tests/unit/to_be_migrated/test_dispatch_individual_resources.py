@@ -2,11 +2,8 @@ from pathlib import Path
 
 import polars as pl
 import pytest
-from bfabric.experimental.app_interface.dispatch.dispatch_individual_resources import (
-    DispatchIndividualResources,
-    config_msi_imzml,
-)
 
+from app_runner.dispatch.dispatch_individual_resources import DispatchIndividualResources, config_msi_imzml
 from bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
 

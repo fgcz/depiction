@@ -4,7 +4,7 @@ import cyclopts
 import yaml
 
 from bfabric import Bfabric
-from bfabric.experimental.app_interface.workunit.definition import WorkunitDefinition
+from bfabric.experimental.workunit_definition import WorkunitDefinition
 
 app = cyclopts.App()
 

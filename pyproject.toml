@@ -47,6 +47,7 @@ dependencies = [
     "perlin-noise==1.13",
     # TODO demote to optional again later, but necessary for pycharm right now
     "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main",
+    "app_runner @ git+https://github.com/fgcz/bfabricPy.git@main#egg=app_runner&subdirectory=app_runner",
 ]
 
 [project.scripts]

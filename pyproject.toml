@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = [{name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"}]
 readme = "README.md"
+license = { text = "Apache-2.0" }
 
 dependencies = [
     "setuptools",

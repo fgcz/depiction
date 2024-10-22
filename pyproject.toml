@@ -39,13 +39,12 @@ dependencies = [
     "xarray",
     # TODO unpin when https://github.com/Unidata/netcdf4-python/issues/1343 is resolved
     "netCDF4<=1.7.1",
-    # TODO actually figure out which is the most useful, there is also tifffile and ome-types
-    "pyometiff>=1.0.0",
     "ome-types>=0.5.1",
     "loguru",
     "ms-peak-picker",
     "kdepy>=1.1.8",
     "perlin-noise==1.13",
+    "tifffile>=2024.2.12",
     # TODO demote to optional again later, but necessary for pycharm right now
     "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main",
     "app_runner @ git+https://github.com/fgcz/bfabricPy.git@main#egg=app_runner&subdirectory=app_runner",
@@ -71,7 +70,6 @@ dev = [
     "pyarrow>=14.0.1",
     "rich>=13.7.0",
     "ruff>=0.3.5",
-    "tifffile>=2024.2.12",
     "xmltodict",
     "licensecheck",
     "hdbscan",

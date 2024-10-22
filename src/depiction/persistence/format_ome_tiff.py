@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import pyometiff
+import tifffile
 import xarray
+import ome_types
 
 from depiction.persistence.pixel_size import PixelSize
 
@@ -45,26 +46,30 @@ class OmeTiff:
 
     @classmethod
     def read(cls, path: Path) -> xarray.DataArray:
-        reader = pyometiff.OMETIFFReader(path)
-        with contextlib.redirect_stdout(None):
-            # pyometiff prints some messages I silence, be aware when debugging!
-            data, metadata, _ = reader.read()
+        file = tifffile.TiffFile(path)
+        if not file.is_ome:
+            raise ValueError("File is not an OME-TIFF file")
 
-        # TODO pyometiff will squeeze the data when it uses the functionality from tifffile
-        # this makes it tricky to implement support for arbitrary shapes, but for now we simply support the ones we
-        # create
-        if metadata["DimOrder"] != "ZTCYX":
-            raise ValueError(f"Unsupported dimension order: {metadata['DimOrder']}")
+        metadata_xml = file.ome_metadata
+        ome_data = ome_types.from_xml(metadata_xml)
 
-        channel_names = [channel["Name"] for channel in metadata["Channels"].values()]
-        # TODO ?
-        bg_value = np.nan
+        if len(ome_data.images) != 1:
+            raise ValueError("Only single image OME-TIFF files are supported")
 
-        array = xarray.DataArray(data, dims=["c", "y", "x"], coords={"c": channel_names}, attrs={"bg_value": bg_value})
+        image_data = ome_data.images[0]
+        array = (
+            xarray.DataArray(
+                file.asarray(squeeze=False).T[0],
+                dims=[char.lower() for char in image_data.pixels.dimension_order.value],
+                coords={"c": [channel.name for channel in image_data.pixels.channels]},
+            )
+            .squeeze(["z", "t"])
+            .transpose("c", "y", "x")
+        )
 
         array.attrs["pixel_size"] = PixelSize(
-            size_x=metadata["PhysicalSizeX"],
-            size_y=metadata["PhysicalSizeY"],
+            size_x=image_data.pixels.physical_size_x,
+            size_y=image_data.pixels.physical_size_y,
             unit="micrometer",
         )
         return array

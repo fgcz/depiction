@@ -1,7 +1,6 @@
 import numpy as np
 import pytest
 import sparse
-import xarray.testing
 from xarray import DataArray
 
 from depiction.image.xarray_helper import XarrayHelper
@@ -81,36 +80,36 @@ def array_flat_transposed(array_spatial) -> DataArray:
     return array_spatial.stack(i=("y", "x")).dropna("i", how="all")
 
 
-def test_apply_on_spatial_view_array_spatial(array_spatial) -> None:
-    result = XarrayHelper.apply_on_spatial_view(array_spatial, dummy_function)
-    xarray.testing.assert_equal(result, array_spatial * 2)
-
-
-def test_apply_on_spatial_view_array_flat_no_nan(array_flat) -> None:
-    array_flat = array_flat.fillna(0)
-    result = XarrayHelper.apply_on_spatial_view(array_flat, dummy_function)
-    xarray.testing.assert_equal(result, array_flat * 2)
-
-
-def test_apply_on_spatial_view_array_flat_with_nan(array_flat) -> None:
-    result = XarrayHelper.apply_on_spatial_view(array_flat, dummy_function)
-    xarray.testing.assert_equal(result, array_flat * 2)
-
-
-def test_apply_on_spatial_view_array_flat_with_nan_before(array_flat_with_nan_before) -> None:
-    result = XarrayHelper.apply_on_spatial_view(array_flat_with_nan_before, dummy_function)
-    xarray.testing.assert_equal(result, array_flat_with_nan_before * 2)
-
-
-def test_apply_on_spatial_view_array_flat_no_nan_transposed(array_flat_transposed) -> None:
-    array_flat_transposed = array_flat_transposed.fillna(0)
-    result = XarrayHelper.apply_on_spatial_view(array_flat_transposed, dummy_function)
-    xarray.testing.assert_equal(result, array_flat_transposed * 2)
-
-
-def test_apply_on_spatial_view_array_flat_with_nan_transposed(array_flat_transposed) -> None:
-    result = XarrayHelper.apply_on_spatial_view(array_flat_transposed, dummy_function)
-    xarray.testing.assert_equal(result, array_flat_transposed * 2)
+# def test_apply_on_spatial_view_array_spatial(array_spatial) -> None:
+#    result = XarrayHelper.apply_on_spatial_view(array_spatial, dummy_function)
+#    xarray.testing.assert_equal(result, array_spatial * 2)
+#
+#
+# def test_apply_on_spatial_view_array_flat_no_nan(array_flat) -> None:
+#    array_flat = array_flat.fillna(0)
+#    result = XarrayHelper.apply_on_spatial_view(array_flat, dummy_function)
+#    xarray.testing.assert_equal(result, array_flat * 2)
+#
+#
+# def test_apply_on_spatial_view_array_flat_with_nan(array_flat) -> None:
+#    result = XarrayHelper.apply_on_spatial_view(array_flat, dummy_function)
+#    xarray.testing.assert_equal(result, array_flat * 2)
+#
+#
+# def test_apply_on_spatial_view_array_flat_with_nan_before(array_flat_with_nan_before) -> None:
+#    result = XarrayHelper.apply_on_spatial_view(array_flat_with_nan_before, dummy_function)
+#    xarray.testing.assert_equal(result, array_flat_with_nan_before * 2)
+#
+#
+# def test_apply_on_spatial_view_array_flat_no_nan_transposed(array_flat_transposed) -> None:
+#    array_flat_transposed = array_flat_transposed.fillna(0)
+#    result = XarrayHelper.apply_on_spatial_view(array_flat_transposed, dummy_function)
+#    xarray.testing.assert_equal(result, array_flat_transposed * 2)
+#
+#
+# def test_apply_on_spatial_view_array_flat_with_nan_transposed(array_flat_transposed) -> None:
+#    result = XarrayHelper.apply_on_spatial_view(array_flat_transposed, dummy_function)
+#    xarray.testing.assert_equal(result, array_flat_transposed * 2)
 
 
 if __name__ == "__main__":

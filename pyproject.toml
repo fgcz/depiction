@@ -41,8 +41,6 @@ dependencies = [
     "netCDF4<=1.7.1",
     "bioio @ git+https://github.com//bioio-devs/bioio.git",
     "bioio-ome-tiff",
-    "ome-types>=0.5.1",
-    "tifffile>=2024.2.12",
     "loguru",
     "ms-peak-picker",
     "kdepy>=1.1.8",

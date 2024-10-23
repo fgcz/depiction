@@ -7,7 +7,7 @@ The full pipeline is also in the process of being developed.
 The project is structured in two general parts:
 
 - `depiction`: implements the whole functionality to process the data
-- `depiction-targeted-preproc`: implements a pipeline that based on some configuration file creates outputs like qc report and .ome.tiff files
+- `depiction_targeted_preproc`: implements a pipeline that based on some configuration file creates outputs like qc report and .ome.tiff files
 
 This project is in an early state of development. If you are interested, it's best to reach out to us.
 

@@ -1,26 +1,19 @@
-## Status
+# depiction
 
-A lot of the files and folders are in a early development state or may require
-some serious refactoring. For now, I give a summary of the modules which are
-somewhat stable already:
+This package provides functionality to process and visualize mass-spectrometry imaging data.
+Currently, it requires your data to be available in the `imzML` format.
+The full pipeline is also in the process of being developed.
 
-| Module                              | Description                                                                 |
-| ----------------------------------- | --------------------------------------------------------------------------- |
-| `depiction.spectrum`                | Collection of spectra processing functionality.                             |
-| `depiction.spectrum.baseline`       | Estimate spectrum baseline curve.                                           |
-| `depiction.spectrum.peak_picking`   |                                                                             |
-| `depiction.spectrum.peak_filtering` |                                                                             |
-| `depiction.calibration`             | Calibration specific functionality.                                         |
-| `depiction.image`                   | Image specific functionality.                                               |
-| `depiction.parallel_ops`            | Basic building blocks for parallelization of operations across \*ReadFiles. |
-| `depiction.persistence`             | Persistence specific code, including reader and writer for Imzml files.     |
-| `depiction.peak_filtering`          | Peak filtering specific code.                                               |
-| `depiction.peak_picking`            | Peak picking specific code.                                                 |
-| `depiction.visualize`               | Visualization specific code.                                                |
+The project is structured in two general parts:
+
+- `depiction`: implements the whole functionality to process the data
+- `depiction-targeted-preproc`: implements a pipeline that based on some configuration file creates outputs like qc report and .ome.tiff files
+
+This project is in an early state of development. If you are interested, it's best to reach out to us.
 
 ## Setup dev environment
 
-### Using `uv`
+### Using `uv` (recommended)
 
 Install the `pyproject.toml` in editable mode, tested with
 [uv](https://github.com/astral-sh/uv):

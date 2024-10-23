@@ -1,6 +1,7 @@
 import cyclopts
 import h5py
 import numpy as np
+import xarray
 from pathlib import Path
 
 from depiction.image.multi_channel_image import MultiChannelImage
@@ -19,7 +20,9 @@ def vis_calib_heatmap(
 
     # compute the mean across channels
     shifts_mean = np.nanmean(coef_processed, axis=1, keepdims=True)
-    shifts_map = MultiChannelImage.from_sparse(values=shifts_mean, coordinates=coordinates_2d, channel_names=["mean"])
+    shifts_map = MultiChannelImage.from_flat(
+        values=xarray.DataArray(shifts_mean, dims=("i", "c")), coordinates=coordinates_2d, channel_names=["mean"]
+    )
 
     # save the data
     shifts_map.write_hdf5(output_hdf5_path)

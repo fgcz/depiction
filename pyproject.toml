@@ -13,7 +13,6 @@ dependencies = [
     "altair<5.4.0",
     "h5py>=3.10.0",
     "matplotlib>=3.8.2",
-    "multiprocess",
     "numba>=0.59.0",
     # TODO unpin when https://github.com/Unidata/netcdf4-python/issues/1343 is resolved
     "numpy>=1.26.2,<2.0.0",
@@ -90,9 +89,6 @@ doc = [
 apps = [
     "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main"
 ]
-
-# potentially relevant in the future again:
-# - pybaselines
 
 [build-system]
 requires = ["setuptools >= 61.0"]

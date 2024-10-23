@@ -1,13 +1,14 @@
+import altair as alt
+import cyclopts
+import polars as pl
 from pathlib import Path
 
-import altair as alt
-import polars as pl
-import typer
-
-from depiction.spectrum.evaluate_bins import EvaluateBins
-from depiction.spectrum.evaluate_mean_spectrum import EvaluateMeanSpectrum
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile
+from depiction.spectrum.evaluate_bins import EvaluateBins
+from depiction.spectrum.evaluate_mean_spectrum import EvaluateMeanSpectrum
+
+app = cyclopts.App()
 
 
 def get_mean_spectrum(read_file: ImzmlReadFile, parallel_config: ParallelConfig) -> pl.DataFrame:
@@ -33,7 +34,8 @@ def get_sample_spec_data(read_file: ImzmlReadFile, n_specs: int):
     return pl.DataFrame(collect).explode(["mz", "intensity"])
 
 
-def main(input_imzml: Path, output_pdf: str, n_jobs: int = 20) -> None:
+@app.default
+def cli(input_imzml: Path, output_pdf: str, n_jobs: int = 20) -> None:
     read_file = ImzmlReadFile(input_imzml)
     parallel_config = ParallelConfig(n_jobs=n_jobs)
     mean_data = get_mean_spectrum(read_file, parallel_config=parallel_config)
@@ -54,4 +56,4 @@ def main(input_imzml: Path, output_pdf: str, n_jobs: int = 20) -> None:
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()

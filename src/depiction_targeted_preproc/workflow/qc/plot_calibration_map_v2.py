@@ -1,18 +1,18 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import numpy as np
 import seaborn as sns
-import typer
 from matplotlib import pyplot as plt, colors
-from typer import Option
+from pathlib import Path
 
 from depiction.image import MultiChannelImage
 
+app = cyclopts.App()
 
+
+@app.default
 def qc_plot_calibration_map_v2(
-    input_mass_shifts: Annotated[Path, Option()],
-    output_pdf: Annotated[Path, Option()],
+    input_mass_shifts: Path,
+    output_pdf: Path,
 ) -> None:
     mass_shifts_img = MultiChannelImage.read_hdf5(input_mass_shifts)
     mass_shifts = mass_shifts_img.data_spatial
@@ -57,4 +57,4 @@ def qc_plot_calibration_map_v2(
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_calibration_map_v2)
+    app()

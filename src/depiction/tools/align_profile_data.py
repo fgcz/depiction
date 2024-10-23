@@ -1,12 +1,14 @@
+import cyclopts
 import shutil
-import typer
+from pathlib import Path
 
-from depiction.spectrum.estimate_ppm_error import EstimatePPMError
-from depiction.spectrum.evaluate_bins import EvaluateBins
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile, ImzmlReadFile
+from depiction.spectrum.estimate_ppm_error import EstimatePPMError
+from depiction.spectrum.evaluate_bins import EvaluateBins
 from depiction.tools.align_imzml import main_align_imzml
-from pathlib import Path
+
+app = cyclopts.App()
 
 
 def align_profile_data(input_imzml_path: str, output_imzml_path: str) -> None:
@@ -18,7 +20,8 @@ def align_profile_data(input_imzml_path: str, output_imzml_path: str) -> None:
         shutil.copy(Path(input_imzml_path).with_suffix(".ibd"), Path(output_imzml_path).with_suffix(".ibd"))
 
 
-def main(input_imzml_path: Path, output_imzml_path: Path, ppm_res: int = 100, n_jobs: int = 20) -> None:
+@app.default
+def cli(input_imzml_path: Path, output_imzml_path: Path, ppm_res: int = 100, n_jobs: int = 20) -> None:
     input_imzml = ImzmlReadFile(input_imzml_path)
     output_imzml = ImzmlWriteFile(output_imzml_path, imzml_mode=ImzmlModeEnum.CONTINUOUS)
     parallel_config = ParallelConfig(n_jobs=n_jobs)
@@ -33,4 +36,4 @@ def main(input_imzml_path: Path, output_imzml_path: Path, ppm_res: int = 100, n_
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()

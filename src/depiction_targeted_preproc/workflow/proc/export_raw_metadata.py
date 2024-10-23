@@ -1,18 +1,19 @@
-from pathlib import Path
-from typing import Annotated
-
-import typer
+import cyclopts
 from loguru import logger
+from pathlib import Path
 from pydantic import ValidationError
 
 from depiction.persistence.imzml.metadata import Metadata
 from depiction.persistence.imzml.parser.parse_metadata import ParseMetadata
 from depiction.persistence.pixel_size import PixelSize
 
+app = cyclopts.App()
 
+
+@app.default
 def proc_export_raw_metadata(
-    input_imzml_path: Annotated[Path, typer.Option()],
-    output_json_path: Annotated[Path, typer.Option()],
+    input_imzml_path: Path,
+    output_json_path: Path,
 ) -> None:
     try:
         metadata = ParseMetadata.from_file(input_imzml_path).parse()
@@ -30,9 +31,5 @@ def proc_export_raw_metadata(
         file.write(metadata.model_dump_json())
 
 
-def main() -> None:
-    typer.run(proc_export_raw_metadata)
-
-
 if __name__ == "__main__":
-    main()
+    app()

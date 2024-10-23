@@ -1,16 +1,17 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import h5py
 import numpy as np
-import typer
+from pathlib import Path
 
 from depiction.image.multi_channel_image import MultiChannelImage
 
+app = cyclopts.App()
 
+
+@app.default
 def vis_calib_heatmap(
-    input_calib_data_path: Annotated[Path, typer.Option()],
-    output_hdf5_path: Annotated[Path, typer.Option()],
+    input_calib_data_path: Path,
+    output_hdf5_path: Path,
 ) -> None:
     with h5py.File(input_calib_data_path, "r") as file:
         coef_processed = file["coef_processed"][:]
@@ -24,9 +25,5 @@ def vis_calib_heatmap(
     shifts_map.write_hdf5(output_hdf5_path)
 
 
-def main() -> None:
-    typer.run(vis_calib_heatmap)
-
-
 if __name__ == "__main__":
-    main()
+    app()

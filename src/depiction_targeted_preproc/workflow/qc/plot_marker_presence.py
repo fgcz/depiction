@@ -1,11 +1,8 @@
-from pathlib import Path
-from typing import Annotated
-
 import altair as alt
+import cyclopts
 import numpy as np
 import polars as pl
-import typer
-from typer import Option
+from pathlib import Path
 
 
 def plot_marker_presence(df_peak_dist: pl.DataFrame, n_spectra: int, out_path: Path, layout_vertical: bool) -> None:
@@ -52,11 +49,15 @@ def plot_marker_presence(df_peak_dist: pl.DataFrame, n_spectra: int, out_path: P
     c.save(out_path)
 
 
+app = cyclopts.App()
+
+
+@app.default
 def qc_plot_marker_presence(
-    table_marker_distances_baseline: Annotated[Path, Option()],
-    table_marker_distances_calib: Annotated[Path, Option()],
-    output_pdf: Annotated[Path, Option()],
-    layout_vertical: Annotated[bool, Option(is_flag=True)] = False,
+    table_marker_distances_baseline: Path,
+    table_marker_distances_calib: Path,
+    output_pdf: Path,
+    layout_vertical: bool = False,
 ) -> None:
     table_calib = pl.read_parquet(table_marker_distances_calib)
     table_baseline = pl.read_parquet(table_marker_distances_baseline)
@@ -75,4 +76,4 @@ def qc_plot_marker_presence(
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_marker_presence)
+    app()

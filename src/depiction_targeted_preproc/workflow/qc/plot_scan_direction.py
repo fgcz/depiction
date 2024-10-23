@@ -1,19 +1,20 @@
 # TODO has been migrated/refactored in the new workflow folder
-from pathlib import Path
-from typing import Optional, Annotated
-
+import cyclopts
 import matplotlib.pyplot as plt
 import numpy as np
-import typer
+from pathlib import Path
 from skimage.transform import resize_local_mean
-from typer import Option
+from typing import Optional
 
 from depiction.persistence import ImzmlReadFile
 
+app = cyclopts.App()
 
+
+@app.default
 def qc_plot_scan_direction(
-    input_imzml_path: Annotated[Path, Option()],
-    output_pdf: Annotated[Path, Option()],
+    input_imzml_path: Path,
+    output_pdf: Path,
 ) -> None:
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
@@ -79,4 +80,4 @@ def visualize_coordinates_direction(
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_scan_direction)
+    app()

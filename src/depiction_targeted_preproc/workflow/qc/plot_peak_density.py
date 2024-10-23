@@ -1,12 +1,9 @@
-from pathlib import Path
-from typing import Annotated
-
 import altair as alt
+import cyclopts
 import polars as pl
-import typer
 import vegafusion
 from KDEpy import FFTKDE
-from typer import Option
+from pathlib import Path
 
 from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
 
@@ -84,11 +81,15 @@ def plot_density_groups(df_peak_dist: pl.DataFrame, mass_groups: pl.DataFrame, o
     chart.save(out_peak_density_ranges)
 
 
+app = cyclopts.App()
+
+
+@app.default
 def qc_plot_peak_density(
-    table_marker_distances_baseline: Annotated[Path, Option()],
-    table_marker_distances_calib: Annotated[Path, Option()],
-    output_pdf: Annotated[Path, Option()],
-    grouped: Annotated[bool, Option(is_flag=True)],
+    table_marker_distances_baseline: Path,
+    table_marker_distances_calib: Path,
+    output_pdf: Path,
+    grouped: bool = False,
 ) -> None:
     vegafusion.enable()
 
@@ -111,4 +112,4 @@ def qc_plot_peak_density(
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_peak_density)
+    app()

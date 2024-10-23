@@ -4,9 +4,8 @@
 from pathlib import Path
 from typing import Any
 
-import ome_types
-import tifffile
 import xarray
+from bioio import BioImage
 from bioio.writers import OmeTiffWriter
 from bioio_base.types import PhysicalPixelSizes
 
@@ -34,34 +33,17 @@ class OmeTiff:
 
     @classmethod
     def read(cls, path: Path) -> xarray.DataArray:
-        file = tifffile.TiffFile(path)
-        if not file.is_ome:
-            raise ValueError("File is not an OME-TIFF file")
-
-        metadata_xml = file.ome_metadata
-        ome_data = ome_types.from_xml(metadata_xml)
-
-        if len(ome_data.images) != 1:
-            raise ValueError("Only single image OME-TIFF files are supported")
-
-        image_data = ome_data.images[0]
-        np_array = file.asarray(squeeze=False).T[0]
-        array = (
-            xarray.DataArray(
-                np_array,
-                dims=[char.lower() for char in image_data.pixels.dimension_order.value],
-                coords={"c": [channel.name for channel in image_data.pixels.channels]},
-            )
-            .squeeze(["z", "t"])
-            .transpose("c", "y", "x")
+        image = BioImage(path)
+        data = xarray.DataArray(
+            image.data,
+            dims=[d.lower() for d in image.dims.order],
+            coords={"c": image.channel_names},
         )
-
-        array.attrs["pixel_size"] = PixelSize(
-            size_x=image_data.pixels.physical_size_x,
-            size_y=image_data.pixels.physical_size_y,
-            unit="micrometer",
+        data = data.squeeze(["t", "z"])
+        data.attrs["pixel_size"] = PixelSize(
+            size_x=image.physical_pixel_sizes.X, size_y=image.physical_pixel_sizes.Y, unit="micrometer"
         )
-        return array
+        return data
 
     @staticmethod
     def _get_image_resolution_metadata(pixel_size: PixelSize) -> dict[str, Any]:

@@ -1,19 +1,19 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import numpy as np
-import typer
 import xarray
 from hdbscan.flat import HDBSCAN_flat
 from loguru import logger
+from pathlib import Path
 from sklearn.preprocessing import StandardScaler
-from typer import Option
 
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction_targeted_preproc.workflow.proc.cluster_kmeans import retain_strongest_signals
 
+app = cyclopts.App()
 
-def cluster_dbscan(input_netcdf_path: Annotated[Path, Option()], output_netcdf_path: Annotated[Path, Option()]) -> None:
+
+@app.default
+def cluster_dbscan(input_netcdf_path: Path, output_netcdf_path: Path) -> None:
     image = MultiChannelImage.read_hdf5(input_netcdf_path)
     # TODO make configurable
     n_clusters = 10
@@ -44,4 +44,4 @@ def cluster_dbscan(input_netcdf_path: Annotated[Path, Option()], output_netcdf_p
 
 
 if __name__ == "__main__":
-    typer.run(cluster_dbscan)
+    app()

@@ -1,10 +1,9 @@
-from pathlib import Path
-from typing import Annotated
-
 import altair as alt
 import polars as pl
 import typer
+from pathlib import Path
 from typer import Option
+from typing import Annotated
 
 
 def load_data(csv_paths: list[Path]) -> pl.DataFrame:

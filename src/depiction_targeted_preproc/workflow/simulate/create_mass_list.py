@@ -1,17 +1,17 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import numpy as np
 import polars as pl
-import typer
-from typer import Option
+from pathlib import Path
 
 from depiction_targeted_preproc.pipeline_config.model import SimulateParameters
 
+app = cyclopts.App()
 
+
+@app.default
 def simulate_create_mass_list(
-    config_path: Annotated[Path, Option()],
-    output_mass_list_path: Annotated[Path, Option()],
+    config_path: Path,
+    output_mass_list_path: Path,
 ) -> None:
     # parse the config
     config = SimulateParameters.parse_yaml(config_path)
@@ -30,4 +30,4 @@ def simulate_create_mass_list(
 
 
 if __name__ == "__main__":
-    typer.run(simulate_create_mass_list)
+    app()

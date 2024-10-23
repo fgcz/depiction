@@ -1,14 +1,14 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import numpy as np
-import typer
 import xarray
 from matplotlib import pyplot as plt
-from typer import Option
+from pathlib import Path
+
+app = cyclopts.App()
 
 
-def vis_clustering(input_netcdf_path: Annotated[Path, Option()], output_png_path: Annotated[Path, Option()]) -> None:
+@app.default
+def vis_clustering(input_netcdf_path: Path, output_png_path: Path) -> None:
     source_image = xarray.open_dataarray(input_netcdf_path)
     fig = plt.figure(figsize=(10, 10))
     ax = fig.gca()
@@ -23,4 +23,4 @@ def vis_clustering(input_netcdf_path: Annotated[Path, Option()], output_png_path
 
 
 if __name__ == "__main__":
-    typer.run(vis_clustering)
+    app()

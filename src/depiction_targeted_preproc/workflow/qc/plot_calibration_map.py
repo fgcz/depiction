@@ -1,11 +1,8 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import numpy as np
 import polars as pl
-import typer
 import xarray
-from typer import Option
+from pathlib import Path
 
 from depiction.calibration.models import LinearModel
 from depiction.visualize.visualize_mass_shift_map import VisualizeMassShiftMap
@@ -31,9 +28,11 @@ def get_mass_groups(mass_min: float, mass_max: float, n_bins: int = 3, add_group
     return mass_groups.sort("mz_min")
 
 
-def qc_plot_calibration_map(
-    calib_data: Annotated[Path, Option()], mass_list: Annotated[Path, Option()], output_pdf: Annotated[Path, Option()]
-) -> None:
+app = cyclopts.App()
+
+
+@app.default
+def qc_plot_calibration_map(calib_data: Path, mass_list: Path, output_pdf: Path) -> None:
     model_coefs = xarray.open_dataarray(calib_data, group="model_coefs")
     coords_2d = np.stack([model_coefs.y, model_coefs.x], axis=-1)
     models = xarray.apply_ufunc(
@@ -55,4 +54,4 @@ def qc_plot_calibration_map(
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_calibration_map)
+    app()

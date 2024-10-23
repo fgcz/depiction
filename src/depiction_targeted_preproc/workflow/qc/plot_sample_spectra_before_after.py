@@ -1,19 +1,21 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import polars as pl
-import typer
+from pathlib import Path
 from typer import Option
+from typing import Annotated
 
 from depiction.persistence import ImzmlReadFile
 from depiction.visualize.plot_mass_spectrum import PlotMassSpectrum
 
+app = cyclopts.App()
 
+
+@app.default
 def qc_plot_sample_spectra_before_after(
-    imzml_baseline: Annotated[Path, Option()],
-    imzml_calib: Annotated[Path, Option()],
-    mass_list: Annotated[Path, Option()],
-    output_pdf: Annotated[Path, Option()],
+    imzml_baseline: Path,
+    imzml_calib: Path,
+    mass_list: Path,
+    output_pdf: Path,
 ) -> None:
     import holoviews as hv
 
@@ -58,4 +60,4 @@ def qc_plot_sample_spectra_before_after(
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_sample_spectra_before_after)
+    app()

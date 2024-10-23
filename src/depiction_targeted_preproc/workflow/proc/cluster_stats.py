@@ -1,13 +1,10 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import numpy as np
 import polars as pl
-import typer
 from loguru import logger
+from pathlib import Path
 from sklearn.metrics import calinski_harabasz_score
 from sklearn.metrics import silhouette_score, davies_bouldin_score
-from typer import Option
 
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction_targeted_preproc.workflow.proc.__cluster_stats import compute_CHAOS, compute_PAS
@@ -58,7 +55,11 @@ def compute_metrics(cluster_data: np.ndarray, cluster_coords: np.ndarray) -> dic
     }
 
 
-def cluster_stats(input_netcdf_path: Annotated[Path, Option()], output_csv_path: Annotated[Path, Option()]) -> None:
+app = cyclopts.App()
+
+
+@app.default
+def cluster_stats(input_netcdf_path: Path, output_csv_path: Path) -> None:
     cluster_image = MultiChannelImage.read_hdf5(input_netcdf_path)
 
     cluster_data = cluster_image.data_flat.values.ravel()
@@ -76,4 +77,4 @@ def cluster_stats(input_netcdf_path: Annotated[Path, Option()], output_csv_path:
 
 
 if __name__ == "__main__":
-    typer.run(cluster_stats)
+    app()

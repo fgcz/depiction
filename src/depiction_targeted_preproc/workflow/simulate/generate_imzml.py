@@ -1,22 +1,22 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import numpy as np
 import polars as pl
-import typer
-from typer import Option
+from pathlib import Path
 
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.persistence import ImzmlWriteFile, ImzmlModeEnum
 from depiction.tools.simulate import SyntheticMSIDataGenerator
 from depiction_targeted_preproc.pipeline_config.model import SimulateParameters
 
+app = cyclopts.App()
 
+
+@app.default
 def simulate_generate_imzml(
-    input_image_path: Annotated[Path, Option()],
-    input_mass_list_path: Annotated[Path, Option()],
-    config_path: Annotated[Path, Option()],
-    output_imzml_path: Annotated[Path, Option()],
+    input_image_path: Path,
+    input_mass_list_path: Path,
+    config_path: Path,
+    output_imzml_path: Path,
 ) -> None:
     write_file = ImzmlWriteFile(output_imzml_path, imzml_mode=ImzmlModeEnum.CONTINUOUS)
     label_image = MultiChannelImage.read_hdf5(input_image_path)
@@ -39,4 +39,4 @@ def simulate_generate_imzml(
 
 
 if __name__ == "__main__":
-    typer.run(simulate_generate_imzml)
+    app()

@@ -1,14 +1,11 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import numpy as np
-import typer
 import xarray
 from loguru import logger
+from pathlib import Path
 from sklearn.cluster import BisectingKMeans, KMeans
 from sklearn.decomposition import NMF
 from sklearn.metrics import silhouette_score
-from typer import Option
 from xarray import DataArray
 
 from depiction.image.multi_channel_image import MultiChannelImage
@@ -58,7 +55,11 @@ def find_num_clusters(data):
     return best_n_clusters
 
 
-def cluster_kmeans(input_netcdf_path: Annotated[Path, Option()], output_netcdf_path: Annotated[Path, Option()]) -> None:
+app = cyclopts.App()
+
+
+@app.default
+def cluster_kmeans(input_netcdf_path: Path, output_netcdf_path: Path) -> None:
     image = MultiChannelImage.read_hdf5(input_netcdf_path)
     # TODO make configurable
     # n_clusters = 5
@@ -85,4 +86,4 @@ def cluster_kmeans(input_netcdf_path: Annotated[Path, Option()], output_netcdf_p
 
 
 if __name__ == "__main__":
-    typer.run(cluster_kmeans)
+    app()

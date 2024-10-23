@@ -1,23 +1,23 @@
-from pathlib import Path
-from typing import Annotated
-
 import altair as alt
-import typer
+import cyclopts
 import polars as pl
 from loguru import logger
-from typer import Option
+from pathlib import Path
 
 from depiction.persistence import ImzmlReadFile
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
 from depiction_targeted_preproc.workflow.qc.plot_peak_counts_per_spectrum import get_peak_counts
 
+app = cyclopts.App()
 
+
+@app.default
 def qc_plot_peak_counts_per_mass_range(
-    imzml_peaks: Annotated[Path, Option()],
-    output_pdf: Annotated[Path, Option()],
-    config_path: Annotated[Path, Option()],
-    n_groups: Annotated[int, Option()] = 10,
+    imzml_peaks: Path,
+    output_pdf: Path,
+    config_path: Path,
+    n_groups: int = 10,
 ) -> None:
     config = PipelineParameters.parse_yaml(config_path)
     read_peaks = ImzmlReadFile(imzml_peaks)
@@ -48,4 +48,4 @@ def qc_plot_peak_counts_per_mass_range(
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_peak_counts_per_mass_range)
+    app()

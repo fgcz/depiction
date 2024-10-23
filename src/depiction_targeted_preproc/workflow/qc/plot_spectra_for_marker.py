@@ -1,16 +1,16 @@
-from pathlib import Path
-from typing import Annotated
-
 import altair as alt
+import cyclopts
 import polars as pl
-import typer
-from typer import Option
+from pathlib import Path
+
+app = cyclopts.App()
 
 
+@app.default
 def qc_plot_spectra_for_marker(
-    marker_surrounding_baseline: Annotated[Path, Option()],
-    marker_surrounding_calib: Annotated[Path, Option()],
-    output_pdf: Annotated[Path, Option()],
+    marker_surrounding_baseline: Path,
+    marker_surrounding_calib: Path,
+    output_pdf: Path,
 ) -> None:
     marker_name = "FN1"
     # marker_name = "CHCA peak-2"
@@ -82,4 +82,4 @@ def qc_plot_spectra_for_marker(
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_spectra_for_marker)
+    app()

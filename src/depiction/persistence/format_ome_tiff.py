@@ -2,7 +2,6 @@
 
 # TODO figure out the ideal extension i.e. tif vs tiff!
 from pathlib import Path
-from typing import Any
 
 import xarray
 from bioio import BioImage
@@ -44,24 +43,3 @@ class OmeTiff:
             size_x=image.physical_pixel_sizes.X, size_y=image.physical_pixel_sizes.Y, unit="micrometer"
         )
         return data
-
-    @staticmethod
-    def _get_image_resolution_metadata(pixel_size: PixelSize) -> dict[str, Any]:
-        assert pixel_size.unit == "micrometer"
-        return {
-            "PhysicalSizeX": int(pixel_size.size_x),
-            "PhysicalSizeY": int(pixel_size.size_y),
-        }
-
-    @staticmethod
-    def _get_channel_metadata(channel_names: list[str]) -> dict[str, Any]:
-        return {
-            "Channels": {
-                f"{index}": {
-                    "Name": str(name),
-                    # TODO additional metadata e.g.
-                    # "SamplesPerPixel": 1,
-                }
-                for index, name in enumerate(channel_names)
-            },
-        }

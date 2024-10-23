@@ -7,7 +7,7 @@ import scipy
 import xarray
 from numpy.typing import NDArray
 
-from depiction.estimate_ppm_error import EstimatePPMError
+from depiction.spectrum.estimate_ppm_error import EstimatePPMError
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.persistence import ImzmlWriteFile, ImzmlWriter
 

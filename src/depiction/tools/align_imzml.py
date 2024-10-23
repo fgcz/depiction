@@ -7,7 +7,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from depiction.estimate_ppm_error import EstimatePPMError
+from depiction.spectrum.estimate_ppm_error import EstimatePPMError
 from depiction.spectrum.evaluate_bins import EvaluateBins
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.write_spectra_parallel import WriteSpectraParallel

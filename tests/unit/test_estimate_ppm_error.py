@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from depiction.estimate_ppm_error import EstimatePPMError
+from depiction.spectrum.estimate_ppm_error import EstimatePPMError
 from depiction.parallel_ops import ReadSpectraParallel, ParallelConfig
 
 

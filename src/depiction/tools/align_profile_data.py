@@ -1,7 +1,7 @@
 import shutil
 import typer
 
-from depiction.estimate_ppm_error import EstimatePPMError
+from depiction.spectrum.estimate_ppm_error import EstimatePPMError
 from depiction.spectrum.evaluate_bins import EvaluateBins
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile, ImzmlReadFile

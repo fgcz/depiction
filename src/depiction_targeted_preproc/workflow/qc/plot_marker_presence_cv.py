@@ -1,10 +1,7 @@
-from pathlib import Path
-from typing import Annotated
-
 import altair as alt
+import cyclopts
 import polars as pl
-import typer
-from typer import Option
+from pathlib import Path
 
 from depiction.image.multi_channel_image import MultiChannelImage
 
@@ -48,13 +45,14 @@ def plot_marker_presence_cv(image: MultiChannelImage, out_path: Path) -> None:
     chart.save(out_path)
 
 
-def qc_plot_marker_presence_cv(
-    image_hdf5: Annotated[Path, Option()],
-    output_pdf: Annotated[Path, Option()],
-) -> None:
+app = cyclopts.App()
+
+
+@app.default
+def qc_plot_marker_presence_cv(image_hdf5: Path, output_pdf: Path) -> None:
     image = MultiChannelImage.read_hdf5(image_hdf5)
     plot_marker_presence_cv(image=image, out_path=output_pdf)
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_marker_presence_cv)
+    app()

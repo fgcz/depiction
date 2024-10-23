@@ -1,10 +1,7 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import numpy as np
-import typer
 from matplotlib import pyplot as plt
-from typer import Option
+from pathlib import Path
 
 from depiction.tools.simulate import GenerateLabelImage
 from depiction_targeted_preproc.pipeline_config.model import SimulateParameters
@@ -21,10 +18,14 @@ def generate_circles(generator: GenerateLabelImage, params: SimulateParameters) 
     ]
 
 
+app = cyclopts.App()
+
+
+@app.default
 def simulate_create_labels(
-    config_path: Annotated[Path, Option()],
-    output_image_path: Annotated[Path, Option()],
-    output_overview_image_path: Annotated[Path, Option()],
+    config_path: Path,
+    output_image_path: Path,
+    output_overview_image_path: Path,
 ) -> None:
     config = SimulateParameters.parse_yaml(config_path)
     generator = GenerateLabelImage(
@@ -45,4 +46,4 @@ def simulate_create_labels(
 
 
 if __name__ == "__main__":
-    typer.run(simulate_create_labels)
+    app()

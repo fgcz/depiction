@@ -9,6 +9,7 @@
 .task
 .venv
 .vscode
+.python-version
 dist
 __pycache__
 

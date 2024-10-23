@@ -13,6 +13,8 @@ This project is in an early state of development. If you are interested, it's be
 
 ## Setup dev environment
 
+Currently, Python 3.12 is required, 3.13 is not compatible yet (missing wheels and e.g. llvmlite).
+
 ### Using `uv` (recommended)
 
 Install the `pyproject.toml` in editable mode, tested with
@@ -20,7 +22,7 @@ Install the `pyproject.toml` in editable mode, tested with
 
 ```bash
 uv venv
-uv pip install -e ".[dev,testing]"
+uv pip install -e ".[dev]"
 ```
 
 ### Using `conda`
@@ -28,7 +30,7 @@ uv pip install -e ".[dev,testing]"
 ```bash
 conda create -n exp-2024-05-depiction python=3.11
 conda activate exp-2024-05-depiction
-pip install -e ".[dev,testing]"
+pip install -e ".[dev]"
 ```
 
 ## Geometry Conventions

@@ -1,10 +1,8 @@
-from collections.abc import Sequence
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import numpy as np
 import polars as pl
-import typer
+from collections.abc import Sequence
+from pathlib import Path
 
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
 from depiction.persistence import ImzmlReadFile, ImzmlReader
@@ -51,12 +49,16 @@ def get_marker_surroundings(
     )
 
 
+app = cyclopts.App()
+
+
+@app.default
 def qc_table_marker_surroundings(
-    imzml_peaks: Annotated[Path, typer.Option()],
-    mass_list: Annotated[Path, typer.Option()],
-    config_path: Annotated[Path, typer.Option()],
-    output_table: Annotated[Path, typer.Option()],
-    mz_max_dist: Annotated[float, typer.Option()] = 3.0,
+    imzml_peaks: Path,
+    mass_list: Path,
+    config_path: Path,
+    output_table: Path,
+    mz_max_dist: float = 3.0,
 ) -> None:
     config = PipelineParameters.parse_yaml(config_path)
     n_jobs = config.n_jobs
@@ -73,10 +75,5 @@ def qc_table_marker_surroundings(
     dist_df.write_parquet(output_table)
 
 
-def main() -> None:
-    """Parses CLI args and calls `qc_table_marker_distances`."""
-    typer.run(qc_table_marker_surroundings)
-
-
 if __name__ == "__main__":
-    main()
+    app()

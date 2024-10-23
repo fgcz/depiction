@@ -1,8 +1,6 @@
 import cyclopts
 import polars as pl
 from pathlib import Path
-from typer import Option
-from typing import Annotated
 
 from depiction.persistence import ImzmlReadFile
 from depiction.visualize.plot_mass_spectrum import PlotMassSpectrum

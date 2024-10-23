@@ -1,14 +1,17 @@
-from pathlib import Path
-from typing import Annotated
-
-import typer
+import cyclopts
 import xarray
 from matplotlib import pyplot as plt
+from pathlib import Path
+
+# TODO delete?
+
+app = cyclopts.App()
 
 
+@app.default
 def exp_plot_map_single_for_poster(
-    input_mass_shift_path: Annotated[Path, typer.Option()],
-    output_pdf_path: Annotated[Path, typer.Option()],
+    input_mass_shift_path: Path,
+    output_pdf_path: Path,
 ) -> None:
     # load all the inputs
     shift_map = xarray.open_dataarray(input_mass_shift_path)
@@ -24,4 +27,4 @@ def exp_plot_map_single_for_poster(
 
 
 if __name__ == "__main__":
-    typer.run(exp_plot_map_single_for_poster)
+    app()

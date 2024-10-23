@@ -1,10 +1,11 @@
+import typer
+import xarray
+from matplotlib import pyplot as plt
 from pathlib import Path
 from typing import Annotated
-import xarray
-import typer
-from matplotlib import pyplot as plt
 
 
+@app.default
 def exp_plot_map_comparison(
     input_mass_shift_paths: Annotated[list[Path], typer.Argument()],
     output_pdf_path: Annotated[Path, typer.Option()],

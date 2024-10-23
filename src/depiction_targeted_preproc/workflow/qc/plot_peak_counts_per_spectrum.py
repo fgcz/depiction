@@ -1,11 +1,8 @@
-from pathlib import Path
-from typing import Annotated
-
 import altair as alt
+import cyclopts
 import polars as pl
-import typer
 from loguru import logger
-from typer import Option
+from pathlib import Path
 
 from depiction.parallel_ops import ReadSpectraParallel, ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlReader
@@ -35,10 +32,14 @@ def get_peak_counts(read_peaks: ImzmlReadFile, mass_groups: pl.DataFrame, n_jobs
     )
 
 
+app = cyclopts.App()
+
+
+@app.default
 def qc_plot_peak_counts_per_spectrum(
-    imzml_peaks: Annotated[Path, Option()],
-    output_pdf: Annotated[Path, Option()],
-    config_path: Annotated[Path, Option()],
+    imzml_peaks: Path,
+    output_pdf: Path,
+    config_path: Path,
 ) -> None:
     config = PipelineParameters.parse_yaml(config_path)
     read_peaks = ImzmlReadFile(imzml_peaks)
@@ -63,4 +64,4 @@ def qc_plot_peak_counts_per_spectrum(
 
 
 if __name__ == "__main__":
-    typer.run(qc_plot_peak_counts_per_spectrum)
+    app()

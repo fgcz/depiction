@@ -70,7 +70,6 @@ dev = [
     "rich>=13.7.0",
     "ruff>=0.3.5",
     "xmltodict",
-    "licensecheck",
     "hdbscan",
     "nox[uv]",
     "spatialdata>=0.2.3",

@@ -14,3 +14,10 @@ def tests(session) -> None:
     """Runs the test suite."""
     session.install(".[testing]")
     session.run("pytest")
+
+
+@nox.session
+def licensecheck(session) -> None:
+    """Runs the license check."""
+    session.install("licensecheck")
+    session.run("licensecheck")

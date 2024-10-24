@@ -1,0 +1,10 @@
+inputs:
+  - type: bfabric_resource
+    id: 2445579
+    filename: tonsil.imzML
+  - type: bfabric_resource
+    id: 2445566
+    filename: tonsil.ibd
+  - type: bfabric_dataset
+    id: 53798
+    filename: panel.csv

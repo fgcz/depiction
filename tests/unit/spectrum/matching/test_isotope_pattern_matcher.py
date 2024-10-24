@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from depiction.calibration.methods.isotope_pattern_matcher import IsotopePatternMatcher
+from depiction.spectrum.matching.isotope_pattern_matcher import IsotopePatternMatcher
 
 
 @pytest.fixture()

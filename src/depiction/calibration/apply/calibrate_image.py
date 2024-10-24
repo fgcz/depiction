@@ -15,7 +15,7 @@ from depiction.parallel_ops.parallel_map import ParallelMap
 from depiction.persistence.types import GenericReadFile, GenericWriteFile, GenericReader, GenericWriter
 
 
-class PerformCalibration:
+class CalibrateImage:
     def __init__(
         self,
         calibration: CalibrationMethod,

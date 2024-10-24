@@ -1,6 +1,6 @@
 import pytest
 
-from depiction.calibration.perform_calibration import PerformCalibration
+from depiction.calibration.apply.calibrate_image import CalibrateImage
 from depiction.parallel_ops import ParallelConfig
 
 
@@ -21,7 +21,7 @@ def coefficient_output_file(mocker):
 
 @pytest.fixture()
 def perform_calibration(calibration_method, parallel_config, coefficient_output_file):
-    return PerformCalibration(
+    return CalibrateImage(
         calibration=calibration_method, parallel_config=parallel_config, coefficient_output_file=coefficient_output_file
     )
 

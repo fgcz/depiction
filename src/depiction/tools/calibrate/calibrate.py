@@ -7,7 +7,7 @@ import polars as pl
 from loguru import logger
 from numpy.typing import NDArray
 
-from depiction.calibration.perform_calibration import PerformCalibration
+from depiction.calibration.apply.calibrate_image import CalibrateImage
 from depiction.calibration.spectrum.calibration_method_chemical_peptide_noise import (
     CalibrationMethodChemicalPeptideNoise,
 )
@@ -88,7 +88,7 @@ def calibrate(
     parallel_config = ParallelConfig(n_jobs=config.n_jobs)
     logger.info("Using calibration method: {calibration}", calibration=calibration)
 
-    perform_calibration = PerformCalibration(
+    perform_calibration = CalibrateImage(
         calibration=calibration,
         parallel_config=parallel_config,
         coefficient_output_file=coefficient_output_path,

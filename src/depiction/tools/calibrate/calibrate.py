@@ -12,7 +12,7 @@ from depiction.calibration.methods.calibration_method_chemical_peptide_noise imp
     CalibrationMethodChemicalPeptideNoise,
 )
 from depiction.calibration.methods.calibration_method_dummy import CalibrationMethodDummy
-from depiction.calibration.methods.calibration_method_global_constant_shift import CalibrationMethodGlobalConstantShift
+from depiction.calibration.methods.calibration_method_constant_global_shift import CalibrationMethodConstantGlobalShift
 from depiction.calibration.methods.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
 from depiction.calibration.methods.calibration_method_regress_shift import CalibrationMethodRegressShift
 from depiction.parallel_ops import ParallelConfig
@@ -56,7 +56,7 @@ def get_calibration_instance(config: CalibrationConfig, mass_list: Path | None):
                 peak_filtering=peak_filtering,
             )
         case CalibrationConstantGlobalShiftConfig():
-            return CalibrationMethodGlobalConstantShift(
+            return CalibrationMethodConstantGlobalShift(
                 ref_mz_arr=extract_reference_masses(mass_list),
             )
         case CalibrationChemicalPeptideNoiseConfig():

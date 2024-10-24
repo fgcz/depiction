@@ -7,8 +7,8 @@ from depiction.calibration.spectrum.reference_peak_distances import ReferencePea
 from depiction.image import MultiChannelImage
 
 
-class CalibrationMethodGlobalConstantShift(CalibrationMethod):
-    """Computes a global constant shift across all spectra and applies it.
+class CalibrationMethodConstantGlobalShift(CalibrationMethod):
+    """Computes a constant global shift across all spectra and applies it.
 
     This is a very naive method that is mainly used for a fair comparison of non-targeted calibration methods.
     """

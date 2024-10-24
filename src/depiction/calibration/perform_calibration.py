@@ -40,7 +40,7 @@ class PerformCalibration:
         self._write_data_array(all_features, group="features_processed")
 
         logger.info("Fitting models...")
-        model_coefs = self._fit_all_models(all_features=all_features)
+        model_coefs = FitModels(self._calibration, self._parallel_config).get_image(all_features)
         self._write_data_array(model_coefs, group="model_coefs")
 
         logger.info("Applying models...")
@@ -59,28 +59,6 @@ class PerformCalibration:
                 all_model_coefs=all_model_coefs,
             ),
         )
-
-    def _fit_all_models(self, all_features: MultiChannelImage) -> MultiChannelImage:
-        parallel_map = ParallelMap.from_config(self._parallel_config)
-        # TODO to be refactored
-        all_features_flat = all_features.data_flat
-        result = parallel_map(
-            operation=self._fit_chunk_models,
-            tasks=np.array_split(all_features_flat.coords["i"], self._parallel_config.n_jobs),
-            reduce_fn=lambda chunks: xarray.concat(chunks, dim="i"),
-            bind_kwargs={"all_features": all_features_flat},
-        )
-        return MultiChannelImage.from_flat(
-            result, coordinates=all_features.coordinates_flat, channel_names="c" not in result.coords
-        )
-
-    def _fit_chunk_models(self, spectra_indices: NDArray[int], all_features: DataArray) -> DataArray:
-        collect = []
-        for spectrum_id in spectra_indices:
-            features = all_features.sel(i=spectrum_id)
-            model_coef = self._calibration.fit_spectrum_model(features=features)
-            collect.append(model_coef)
-        return xarray.concat(collect, dim="i")
 
     def _write_data_array(self, image: MultiChannelImage, group: str) -> None:
         """Exports the given image into a HDF5 group of the coefficient output file (if specified)."""
@@ -140,3 +118,35 @@ class ExtractFeatures:
         combined = xarray.concat(collect, dim="i")
         combined.coords["i"] = spectra_indices
         return combined
+
+
+class FitModels:
+    def __init__(self, calibration: CalibrationMethod, parallel_config: ParallelConfig) -> None:
+        self._calibration = calibration
+        self._parallel_config = parallel_config
+
+    def get_image(self, all_features: MultiChannelImage) -> MultiChannelImage:
+        result = self.get_all_features(all_features)
+        return MultiChannelImage.from_flat(
+            result, coordinates=all_features.coordinates_flat, channel_names="c" not in result.coords
+        )
+
+    def get_all_features(self, all_features):
+        parallel_map = ParallelMap.from_config(self._parallel_config)
+        # TODO to be refactored
+        all_features_flat = all_features.data_flat
+        result = parallel_map(
+            operation=self.get_chunk_features,
+            tasks=np.array_split(all_features_flat.coords["i"], self._parallel_config.n_jobs),
+            reduce_fn=lambda chunks: xarray.concat(chunks, dim="i"),
+            bind_kwargs={"all_features": all_features_flat},
+        )
+        return result
+
+    def get_chunk_features(self, spectra_indices: NDArray[int], all_features: DataArray) -> DataArray:
+        collect = []
+        for spectrum_id in spectra_indices:
+            features = all_features.sel(i=spectrum_id)
+            model_coef = self._calibration.fit_spectrum_model(features=features)
+            collect.append(model_coef)
+        return xarray.concat(collect, dim="i")

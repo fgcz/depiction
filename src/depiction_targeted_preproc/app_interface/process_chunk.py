@@ -11,7 +11,7 @@ app = cyclopts.App()
 
 
 @app.default()
-def run_workflow(chunk_dir: Path) -> Path:
+def process_chunk(chunk_dir: Path) -> Path:
     chunk_dir = chunk_dir.absolute()
 
     # TODO to be refactored

@@ -1,7 +1,7 @@
 import unittest
 
 
-from depiction.calibration.spectrum.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
+from depiction.calibration.methods.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
 
 
 class TestCalibrationMethodMCC(unittest.TestCase):

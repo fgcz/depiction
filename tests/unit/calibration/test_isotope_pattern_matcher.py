@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import numpy as np
 
-from depiction.calibration.isotope_pattern_matcher import IsotopePatternMatcher
+from depiction.calibration.methods.isotope_pattern_matcher import IsotopePatternMatcher
 from typing import NoReturn
 
 

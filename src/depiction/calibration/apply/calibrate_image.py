@@ -5,7 +5,7 @@ from typing import Optional
 from depiction.calibration.apply.apply_models import ApplyModels
 from depiction.calibration.apply.extract_features import ExtractFeatures
 from depiction.calibration.apply.fit_models import FitModels
-from depiction.calibration.calibration_method import CalibrationMethod
+from depiction.calibration.methods.calibration_method import CalibrationMethod
 from depiction.image import MultiChannelImage
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence.types import GenericReadFile, GenericWriteFile

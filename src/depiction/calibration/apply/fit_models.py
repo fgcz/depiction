@@ -3,7 +3,7 @@ import xarray
 from numpy._typing import NDArray
 from xarray import DataArray
 
-from depiction.calibration.calibration_method import CalibrationMethod
+from depiction.calibration.methods.calibration_method import CalibrationMethod
 from depiction.image import MultiChannelImage
 from depiction.parallel_ops import ParallelConfig
 from depiction.parallel_ops.parallel_map import ParallelMap

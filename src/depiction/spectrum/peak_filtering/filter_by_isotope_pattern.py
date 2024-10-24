@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import NDArray
 
-from depiction.calibration.isotope_pattern_matcher import IsotopePatternMatcher
+from depiction.calibration.methods.isotope_pattern_matcher import IsotopePatternMatcher
 
 
 @dataclass

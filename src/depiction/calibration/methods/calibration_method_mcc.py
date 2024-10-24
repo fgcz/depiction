@@ -6,7 +6,7 @@ from numpy.typing import NDArray
 from statsmodels.robust.norms import HuberT
 from xarray import DataArray
 
-from depiction.calibration.calibration_method import CalibrationMethod
+from depiction.calibration.methods.calibration_method import CalibrationMethod
 from depiction.image import MultiChannelImage
 from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 

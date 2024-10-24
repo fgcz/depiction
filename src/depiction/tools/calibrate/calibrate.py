@@ -8,13 +8,13 @@ from loguru import logger
 from numpy.typing import NDArray
 
 from depiction.calibration.apply.calibrate_image import CalibrateImage
-from depiction.calibration.spectrum.calibration_method_chemical_peptide_noise import (
+from depiction.calibration.methods.calibration_method_chemical_peptide_noise import (
     CalibrationMethodChemicalPeptideNoise,
 )
-from depiction.calibration.spectrum.calibration_method_dummy import CalibrationMethodDummy
-from depiction.calibration.spectrum.calibration_method_global_constant_shift import CalibrationMethodGlobalConstantShift
-from depiction.calibration.spectrum.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
-from depiction.calibration.spectrum.calibration_method_regress_shift import CalibrationMethodRegressShift
+from depiction.calibration.methods.calibration_method_dummy import CalibrationMethodDummy
+from depiction.calibration.methods.calibration_method_global_constant_shift import CalibrationMethodGlobalConstantShift
+from depiction.calibration.methods.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
+from depiction.calibration.methods.calibration_method_regress_shift import CalibrationMethodRegressShift
 from depiction.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
 from depiction.tools.calibrate.config import (

@@ -4,8 +4,8 @@ from loguru import logger
 from numpy.typing import NDArray
 from xarray import DataArray
 
-from depiction.calibration.calibration_method import CalibrationMethod
-from depiction.calibration.chemical_noise_bg_2019_boskamp_v2 import ChemicalNoiseCalibration
+from depiction.calibration.methods.calibration_method import CalibrationMethod
+from depiction.calibration.methods.chemical_noise_bg_2019_boskamp_v2 import ChemicalNoiseCalibration
 from depiction.image import MultiChannelImage
 
 

@@ -1,4 +1,4 @@
-from depiction.calibration.calibration_method import CalibrationMethod
+from depiction.calibration.methods.calibration_method import CalibrationMethod
 from depiction.image import MultiChannelImage
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction.persistence.types import GenericReadFile, GenericWriteFile, GenericReader, GenericWriter

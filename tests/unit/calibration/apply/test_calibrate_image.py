@@ -27,9 +27,9 @@ def perform_calibration(calibration_method, parallel_config, coefficient_output_
 
 
 def test_calibrate_image(mocker, perform_calibration, calibration_method):
-    mock_extract_features = mocker.patch("depiction.calibration.perform_calibration.ExtractFeatures")
-    mock_fit_models = mocker.patch("depiction.calibration.perform_calibration.FitModels")
-    mock_apply_models = mocker.patch("depiction.calibration.perform_calibration.ApplyModels")
+    mock_extract_features = mocker.patch("depiction.calibration.apply.calibrate_image.ExtractFeatures")
+    mock_fit_models = mocker.patch("depiction.calibration.apply.calibrate_image.FitModels")
+    mock_apply_models = mocker.patch("depiction.calibration.apply.calibrate_image.ApplyModels")
     mock_write_data_array = mocker.patch.object(perform_calibration, "_write_data_array")
 
     mock_read_peaks = mocker.MagicMock(name="mock_read_peaks")

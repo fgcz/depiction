@@ -1,0 +1,33 @@
+import pytest
+import shutil
+from pathlib import Path
+from typing import Generator
+
+from depiction_targeted_preproc.app_interface.process_chunk import process_chunk
+
+
+@pytest.fixture()
+def config_yaml_path() -> Path:
+    return Path(__file__).parent / "configs" / "global_constant_shift.yml"
+
+
+def copy_input_files(target_dir: Path):
+    # TODO make this more generic and runnable by non fgcz
+    source_dir = Path(__file__).parents[1] / "inputs"
+    shutil.copy(source_dir / "tonsil.imzML", target_dir / "raw.imzML")
+    shutil.copy(source_dir / "tonsil.ibd", target_dir / "raw.ibd")
+    shutil.copy(source_dir / "panel.csv", target_dir / "mass_list.unstandardized.raw.csv")
+
+
+@pytest.fixture()
+def work_dir(config_yaml_path: Path, tmp_path: Path) -> Generator[Path, None, None]:
+    dir = tmp_path / "work"
+    dir.mkdir()
+    shutil.copy(Path(__file__).parent / "configs" / "params.yml", dir / "params.yml")
+    shutil.copy(config_yaml_path, dir / "pipeline_params.yml")
+    copy_input_files(target_dir=dir)
+    yield dir
+
+
+def test_run_pipeline(work_dir: Path):
+    process_chunk(chunk_dir=work_dir)

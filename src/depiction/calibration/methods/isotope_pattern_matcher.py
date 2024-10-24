@@ -1,17 +1,14 @@
 from collections import OrderedDict
+
+import numpy as np
 from dataclasses import dataclass
+from numpy.typing import NDArray
 from typing import Optional
 
-import alphapept
-import alphapept.chem
-import alphapept.constants
-import numpy as np
-from numpy.typing import NDArray
-
-from depiction.persistence.types import GenericReader, GenericReadFile
-from depiction.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 from depiction.misc.numpy_util import NumpyUtil
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
+from depiction.persistence.types import GenericReader, GenericReadFile
+from depiction.spectrum.peak_picking.basic_peak_picker import BasicPeakPicker
 
 
 @dataclass
@@ -204,4 +201,7 @@ class IsotopePatternMatcher:
         """Computes the averagine isotope pattern for the specified mass value and returns the mz and intensity arrays.
         If possible, use get_averagine_pattern method which will invoke a cached version of this function.
         """
+        import alphapept.chem
+        import alphapept.constants
+
         return alphapept.chem.mass_to_dist(mass, alphapept.constants.averagine_aa, alphapept.constants.isotopes)

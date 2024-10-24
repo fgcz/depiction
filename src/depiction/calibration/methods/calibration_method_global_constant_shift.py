@@ -35,9 +35,11 @@ class CalibrationMethodGlobalConstantShift(CalibrationMethod):
         n_spectra = all_features.n_nonzero
         return MultiChannelImage(
             data=DataArray(
-                np.full((n_spectra, 1, 1), global_distance), dims=["y", "x", "c"], coords=all_features.coords
+                np.full((n_spectra, 1, 1), global_distance), dims=["y", "x", "c"], coords=all_features.coordinates_flat
             ),
-            is_foreground=DataArray(np.ones((n_spectra, 1), dtype=bool), dims=["y", "x"], coords=all_features.coords),
+            is_foreground=DataArray(
+                np.ones((n_spectra, 1), dtype=bool), dims=["y", "x"], coords=all_features.coordinates_flat
+            ),
         )
 
     def fit_spectrum_model(self, features: DataArray) -> DataArray:

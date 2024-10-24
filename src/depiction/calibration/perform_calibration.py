@@ -1,12 +1,11 @@
 # TODO very experimental first version
 # TODO needs better name (but like this for easier distinguishing)
-from pathlib import Path
-from typing import Optional
-
 import numpy as np
 import xarray
 from loguru import logger
 from numpy.typing import NDArray
+from pathlib import Path
+from typing import Optional
 from xarray import DataArray
 
 from depiction.calibration.calibration_method import CalibrationMethod
@@ -33,7 +32,7 @@ class PerformCalibration:
         read_full = read_full or read_peaks
 
         logger.info("Extracting all features...")
-        all_features = self._extract_all_features(read_peaks)
+        all_features = ExtractFeatures(self._calibration, self._parallel_config).get_image(read_peaks)
         self._write_data_array(all_features, group="features_raw")
 
         logger.info("Preprocessing features...")
@@ -46,22 +45,6 @@ class PerformCalibration:
 
         logger.info("Applying models...")
         self._apply_all_models(read_file=read_full, write_file=write_file, all_model_coefs=model_coefs)
-
-    def _extract_all_features(self, read_peaks: GenericReadFile) -> MultiChannelImage:
-        read_parallel = ReadSpectraParallel.from_config(self._parallel_config)
-        all_features = read_parallel.map_chunked(
-            read_file=read_peaks,
-            operation=self._extract_chunk_features,
-            bind_args=dict(
-                calibration=self._calibration,
-            ),
-            reduce_fn=lambda chunks: xarray.concat(chunks, dim="i"),
-        )
-        return MultiChannelImage.from_flat(
-            values=all_features,
-            coordinates=read_peaks.coordinates_array_2d,
-            channel_names="c" not in all_features.coords,
-        )
 
     def _apply_all_models(
         self, read_file: GenericReadFile, write_file: GenericWriteFile, all_model_coefs: MultiChannelImage
@@ -100,24 +83,10 @@ class PerformCalibration:
         return xarray.concat(collect, dim="i")
 
     def _write_data_array(self, image: MultiChannelImage, group: str) -> None:
+        """Exports the given image into a HDF5 group of the coefficient output file (if specified)."""
         if not self._coefficient_output_file:
             return
         image.write_hdf5(path=self._coefficient_output_file, mode="a", group=group)
-
-    @staticmethod
-    def _extract_chunk_features(
-        reader: GenericReader,
-        spectra_indices: list[int],
-        calibration: CalibrationMethod,
-    ) -> DataArray:
-        collect = []
-        for spectrum_id in spectra_indices:
-            mz_arr, int_arr = reader.get_spectrum(spectrum_id)
-            features = calibration.extract_spectrum_features(peak_mz_arr=mz_arr, peak_int_arr=int_arr)
-            collect.append(features)
-        combined = xarray.concat(collect, dim="i")
-        combined.coords["i"] = spectra_indices
-        return combined
 
     @staticmethod
     def _calibrate_spectra(
@@ -135,3 +104,39 @@ class PerformCalibration:
                 spectrum_mz_arr=mz_arr, spectrum_int_arr=int_arr, model_coef=features
             )
             writer.add_spectrum(calib_mz_arr, calib_int_arr, coords)
+
+
+class ExtractFeatures:
+    def __init__(self, calibration: CalibrationMethod, parallel_config: ParallelConfig) -> None:
+        self._calibration = calibration
+        self._parallel_config = parallel_config
+
+    def get_image(self, read_peaks: GenericReadFile) -> MultiChannelImage:
+        all_features = self.get_all_features(read_peaks=read_peaks)
+        return MultiChannelImage.from_flat(
+            values=all_features,
+            coordinates=read_peaks.coordinates_array_2d,
+            channel_names="c" not in all_features.coords,
+        )
+
+    def get_all_features(self, read_peaks: GenericReadFile) -> DataArray:
+        read_parallel = ReadSpectraParallel.from_config(self._parallel_config)
+        return read_parallel.map_chunked(
+            read_file=read_peaks,
+            operation=self.get_chunk_features,
+            bind_args=dict(calibration=self._calibration),
+            reduce_fn=lambda chunks: xarray.concat(chunks, dim="i"),
+        )
+
+    @staticmethod
+    def get_chunk_features(
+        reader: GenericReader, spectra_indices: list[int], calibration: CalibrationMethod
+    ) -> DataArray:
+        collect = []
+        for spectrum_id in spectra_indices:
+            mz_arr, int_arr = reader.get_spectrum(spectrum_id)
+            features = calibration.extract_spectrum_features(peak_mz_arr=mz_arr, peak_int_arr=int_arr)
+            collect.append(features)
+        combined = xarray.concat(collect, dim="i")
+        combined.coords["i"] = spectra_indices
+        return combined

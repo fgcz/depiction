@@ -14,7 +14,8 @@ def lint(session: nox.Session) -> None:
 def tests(session) -> None:
     """Runs the test suite."""
     session.install(".[testing]")
-    session.run("pytest")
+    session.install("pytest-xdist")
+    session.run("pytest", "-n", "auto", "--durations=10", "--durations-min=1.0", "tests")
 
 
 @nox.session

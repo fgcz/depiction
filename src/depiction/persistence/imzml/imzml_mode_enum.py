@@ -3,14 +3,16 @@ import enum
 
 
 class ImzmlModeEnum(enum.Enum):
-    """Enum for the different modes of imzml files."""
+    """Represents the different modes of imzml files."""
 
     CONTINUOUS = enum.auto()
+    """Continuous mode imzML files, they share the same m/z values for all spectra."""
+
     PROCESSED = enum.auto()
+    """Processed mode imzML files, they can have different m/z values for each spectrum."""
 
     @classmethod
     def as_pyimzml_str(cls, instance: ImzmlModeEnum) -> str:
-        """Returns the string representation of the enum value as used by pyimzml."""
         return instance.name.lower()
 
     @classmethod

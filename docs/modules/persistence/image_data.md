@@ -1,6 +1,6 @@
-# Image data
+## Image data
 
-## Format: OME-TIFF
+### Format: OME-TIFF
 
 Currently, we provide a small helper to create these files, wrapping existing libraries:
 
@@ -12,8 +12,8 @@ Currently, we provide a small helper to create these files, wrapping existing li
 ```
 
 
-## Format: OME-NGFF
+### Format: OME-NGFF
 
 To be implemented.
 
-## Format: NetCDF4
+### Format: NetCDF4

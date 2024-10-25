@@ -1,5 +1,3 @@
-# MSI Data
-
 ## Mass spectrometry imaging data
 
 ### Reading data
@@ -12,8 +10,10 @@ In general the idea is that creating the file should be quick, whereas additiona
 ```{eval-rst}
 .. autoclass:: depiction.persistence.types.GenericReadFile
     :members:
+    :show-inheritance:
 .. autoclass:: depiction.persistence.types.GenericReader
     :members:
+    :show-inheritance:
 ```
 
 ### Writing data
@@ -21,12 +21,20 @@ In general the idea is that creating the file should be quick, whereas additiona
 ```{eval-rst}
 .. autoclass:: depiction.persistence.types.GenericWriteFile
     :members:
+    :show-inheritance:
 .. autoclass:: depiction.persistence.types.GenericWriter
     :members:
+    :show-inheritance:
 ```
 
 ### Format: ImzML
 
-Our ImzML functionality, essentially wraps pyImzML.
+Currently, we parse imzML ourselves with a simple etree-based parser, whereas writing is performed by pyImzML.
+This might be changed under the hood in the future.
+
+```{eval-rst}
+.. autoclass:: depiction.persistence.ImzmlModeEnum
+    :members:
+```
 
 ### Format: RAM

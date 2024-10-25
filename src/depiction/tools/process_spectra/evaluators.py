@@ -14,6 +14,7 @@ from depiction.tools.process_spectra.config import (
     ProcessSpectraStepPickPeaks,
     ProcessSpectraStepRemoveBaseline,
     ProcessSpectraStepFilterPeaks,
+    ProcessSpectraConfig,
 )
 
 
@@ -32,6 +33,21 @@ def get_evaluator(step_config) -> Evaluator:
             return EvaluateFilterPeaks(config=filter_peaks_config)
         case _:
             raise ValueError(f"Unsupported step config: {step_config}")
+
+
+def get_combined_evaluator(config: ProcessSpectraConfig) -> Evaluator:
+    evaluators = [get_evaluator(step_config) for step_config in config.steps]
+    return CombinedEvaluator(evaluators)
+
+
+class CombinedEvaluator(Evaluator):
+    def __init__(self, evaluators) -> None:
+        self._evaluators = evaluators
+
+    def evaluate(self, mz_arr, int_arr):
+        for evaluator in self._evaluators:
+            mz_arr, int_arr = evaluator.evaluate(mz_arr, int_arr)
+        return mz_arr, int_arr
 
 
 class EvaluatePickPeaks(Evaluator):

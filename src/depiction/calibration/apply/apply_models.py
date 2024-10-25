@@ -5,6 +5,15 @@ from depiction.persistence.types import GenericReadFile, GenericWriteFile, Gener
 
 
 class ApplyModels:
+    """Apply calibration models to mass spectra in parallel.
+
+    This class provides functionality to apply calibration models to a set of mass spectra,
+    handling the parallel processing and file I/O operations.
+
+    :param calibration: The calibration method to apply to the spectra
+    :param parallel_config: Configuration for parallel processing operations
+    """
+
     def __init__(self, calibration: CalibrationMethod, parallel_config: ParallelConfig) -> None:
         self._calibration = calibration
         self._parallel_config = parallel_config
@@ -12,6 +21,15 @@ class ApplyModels:
     def write_to_file(
         self, read_file: GenericReadFile, write_file: GenericWriteFile, all_model_coefs: MultiChannelImage
     ) -> None:
+        """Writes calibrated spectra to an output file.
+
+        Reads spectra from the input file, applies calibration models, and writes the
+        calibrated results to the output file in parallel.
+
+        :param read_file: Input file containing uncalibrated spectra
+        :param write_file: Output file to write calibrated spectra
+        :param all_model_coefs: Model coefficients for all spectra
+        """
         write_parallel = WriteSpectraParallel.from_config(self._parallel_config)
         write_parallel.map_chunked_to_file(
             read_file=read_file,
@@ -31,6 +49,14 @@ class ApplyModels:
         calibration: CalibrationMethod,
         all_model_coefs: MultiChannelImage,
     ) -> None:
+        """Calibrates a batch of spectra and writes to output writer.
+
+        :param reader: Reader for accessing uncalibrated spectra
+        :param spectra_indices: List of spectrum indices to process
+        :param writer: Writer for saving calibrated spectra
+        :param calibration: Calibration method to apply
+        :param all_model_coefs: Model coefficients for all spectra
+        """
         for spectrum_id in spectra_indices:
             # TODO sanity check the usage of i as spectrum_id (i.e. check the coords!)
             mz_arr, int_arr, coords = reader.get_spectrum_with_coords(spectrum_id)

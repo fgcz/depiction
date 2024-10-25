@@ -1,8 +1,8 @@
-from pathlib import Path
-
 import cyclopts
 from loguru import logger
+from pathlib import Path
 from umap import UMAP
+from xarray import DataArray
 
 from depiction.image.feature_selection import FeatureSelectionIQR, retain_features
 from depiction.image.multi_channel_image import MultiChannelImage
@@ -39,11 +39,10 @@ def compute_image_umap_coefs(
     values = umap.fit_transform(input_image.data_flat.values.T)
 
     # create a multi-channel image with these values (n_nonzero, 2)
-    umap_image = MultiChannelImage.from_sparse(
-        values=values,
+    umap_image = MultiChannelImage.from_flat(
+        values=DataArray(values, dims=("i", "c")),
         coordinates=input_image.coordinates_flat,
         channel_names=["umap_x", "umap_y"],
-        bg_value=0.0,
     )
 
     # write it to the output path

@@ -1,10 +1,13 @@
-import json
-from enum import Enum
-from pathlib import Path
-
 import cyclopts
+import json
 import numpy as np
 import xarray
+from enum import Enum
+from numpy.typing import NDArray
+from pathlib import Path
+from sklearn.cluster import KMeans, BisectingKMeans, Birch
+from xarray import DataArray
+
 from depiction.clustering.experimental.amap_clustering import AmapClustering
 from depiction.clustering.extrapolate import extrapolate_labels
 from depiction.clustering.maxmin_sampling import maxmin_sampling
@@ -13,8 +16,6 @@ from depiction.clustering.stratified_grid import StratifiedGrid
 from depiction.image.feature_selection import FeatureSelectionIQR, retain_features
 from depiction.image.image_normalization import ImageNormalization, ImageNormalizationVariant
 from depiction.image.multi_channel_image import MultiChannelImage
-from numpy.typing import NDArray
-from sklearn.cluster import KMeans, BisectingKMeans, Birch
 
 
 class MethodEnum(Enum):
@@ -88,10 +89,11 @@ def compute_clustering_new_1(
         )
     else:
         full_labels = sampled_labels
-    label_image = MultiChannelImage.from_sparse(
-        values=full_labels[:, np.newaxis],
+    label_image = MultiChannelImage.from_flat(
+        values=DataArray(full_labels[:, np.newaxis], dims=("i", "c")),
         coordinates=image_full_features.coordinates_flat,
         channel_names=["cluster"],
+        # TODO still nan?
         bg_value=np.nan,
     )
 
@@ -143,10 +145,11 @@ def compute_clustering(
         sampled_labels=sampled_labels,
         full_features=image_features.data_flat.values.T,
     )
-    label_image = MultiChannelImage.from_sparse(
-        values=full_labels[:, np.newaxis],
+    label_image = MultiChannelImage.from_flat(
+        values=DataArray(full_labels[:, np.newaxis], dims=("i", "c")),
         coordinates=image_full_features.coordinates_flat,
         channel_names=["cluster"],
+        # TODO still nan?
         bg_value=np.nan,
     )
 

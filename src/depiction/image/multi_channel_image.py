@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import warnings
-from functools import cached_property
-from typing import TYPE_CHECKING, Any, Literal
-
 import numpy as np
+import warnings
 import xarray
+from functools import cached_property
 from numpy.typing import NDArray
+from typing import TYPE_CHECKING, Any, Literal
 from xarray import DataArray
 
 from depiction.image.image_channel_stats import ImageChannelStats
@@ -112,33 +111,6 @@ class MultiChannelImage:
             coordinates=cls._validate_coordinates(coordinates),
             bg_value=bg_value,
         )
-        return cls(data=data, is_foreground=is_foreground)
-
-    @classmethod
-    def from_sparse(
-        cls,
-        values: NDArray[float] | DataArray,
-        coordinates: NDArray[int] | DataArray,
-        channel_names: list[str] | None,
-        bg_value: float = 0.0,
-    ) -> MultiChannelImage:
-        """Creates a MultiChannelImage instance from sparse arrays providing values and coordinates.
-        :param values: The sparse values (n_nonzero, n_channels) (or a DataArray with dims (i, c)).
-        :param coordinates: The coordinates of the non-background values (n_nonzero, 2)
-            (or a DataArray with dims (i, d)).
-        :param channel_names: The names of the channels.
-        :param bg_value: The background value.
-        """
-        # TODO delete method
-        warnings.warn("from_sparse is deprecated, use from_flat instead", DeprecationWarning)
-        data, is_foreground = SparseRepresentation.flat_to_spatial(
-            sparse_values=cls._validate_sparse_values(values),
-            coordinates=cls._validate_coordinates(coordinates),
-            bg_value=bg_value,
-        )
-        channel_names = list(channel_names) if channel_names is not None else None
-        if channel_names:
-            data.coords["c"] = channel_names
         return cls(data=data, is_foreground=is_foreground)
 
     @property

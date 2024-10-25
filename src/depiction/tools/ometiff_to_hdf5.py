@@ -2,7 +2,7 @@ from pathlib import Path
 
 import cyclopts
 from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.persistence.image.ome_tiff import OmeTiff
+from depiction.persistence.image import OmeTiff
 
 app = cyclopts.App()
 

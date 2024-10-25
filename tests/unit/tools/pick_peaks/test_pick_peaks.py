@@ -5,13 +5,13 @@ import pytest
 from pytest_mock import MockerFixture
 
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
-from depiction.tools.pick_peaks import (
+from depiction.tools.pick_peaks.config import (
     PickPeaksConfig,
     PeakPickerBasicInterpolatedConfig,
-    get_peak_picker,
     PeakPickerMSPeakPickerConfig,
     PeakPickerFindMFPyConfig,
 )
+from depiction.tools.pick_peaks.pick_peaks import get_peak_picker
 
 
 @pytest.fixture()

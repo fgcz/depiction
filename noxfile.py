@@ -23,3 +23,17 @@ def licensecheck(session) -> None:
     """Runs the license check."""
     session.install("licensecheck")
     session.run("licensecheck")
+
+
+@nox.session(default=False)
+def system_test(session) -> None:
+    """Runs the system test - slow"""
+    session.install(".[testing]")
+    session.run("pytest", "--durations=10", "system_tests")
+
+
+@nox.session(default=False)
+def tests_structure(session) -> None:
+    """Performs a check on the test structure."""
+    session.install("check-tests-structure")
+    session.run("check-tests-structure", "hook")

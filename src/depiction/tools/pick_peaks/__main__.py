@@ -1,18 +1,13 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import cyclopts
 import yaml
 from loguru import logger
+from pathlib import Path
 
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
-from depiction.tools.pick_peaks import (
-    PickPeaksConfig,
-    pick_peaks,
-    PeakPickerFindMFPyConfig,
-    PeakPickerMSPeakPickerConfig,
-)
+from depiction.tools.pick_peaks.config import PickPeaksConfig, PeakPickerFindMFPyConfig, PeakPickerMSPeakPickerConfig
+from depiction.tools.pick_peaks.pick_peaks import pick_peaks
 
 app = cyclopts.App()
 

@@ -39,7 +39,7 @@ rule proc_pick_peaks:
     output:
         imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
     shell:
-        "python -m depiction.tools.cli.cli_pick_peaks "
+        "python -m depiction.tools.pick_peaks "
         " run-config --config {input.config} --input-imzml {input.imzml[0]} --output-imzml {output.imzml[0]}"
 
 

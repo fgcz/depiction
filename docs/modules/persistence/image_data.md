@@ -10,7 +10,7 @@ The following methods are available to read and write `MultiChannelImage` object
 
 ```{eval-rst}
 .. automethod:: depiction.persistence.format_ome_tiff.OmeTiff.read_image
-.. automethod:: depiction.persistence.format_ome_tiff.OmeTiff.write
+.. automethod:: depiction.persistence.format_ome_tiff.OmeTiff.write_image
 ```
 
 ### Format: OME-NGFF

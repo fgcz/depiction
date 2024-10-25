@@ -32,6 +32,14 @@ class OmeTiff:
         )
 
     @classmethod
+    def write_image(cls, image: MultiChannelImage, path: Path, pixel_size: PixelSize) -> None:
+        """Writes the image to an OME-TIFF file at the specified path."""
+        # TODO make possible to attach metadata to MultiChannelImage
+        data = image.data_spatial.copy()
+        data.attrs["pixel_size"] = pixel_size
+        cls.write(image=data, path=path)
+
+    @classmethod
     def read(cls, path: Path) -> xarray.DataArray:
         """Reads an OME-TIFF file from the specified path and returns the image as a xarray.DataArray."""
         image = BioImage(path)

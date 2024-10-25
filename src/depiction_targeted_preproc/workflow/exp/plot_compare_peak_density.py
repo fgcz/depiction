@@ -1,18 +1,18 @@
-from pathlib import Path
-from typing import Annotated
-
+import cyclopts
 import polars as pl
-import typer
 import vegafusion
-from typer import Option, Argument
+from pathlib import Path
 
 from depiction_targeted_preproc.workflow.qc.plot_peak_density import plot_density_combined_full
 
+app = cyclopts.App()
 
+
+@app.default
 def exp_plot_compare_peak_density(
-    tables_marker_distances_calib: Annotated[list[Path], Argument()],
-    table_marker_distance_uncalib: Annotated[Path, Option()],
-    output_pdf: Annotated[Path, Option()],
+    tables_marker_distances_calib: list[Path],
+    table_marker_distance_uncalib: Path,
+    output_pdf: Path,
 ) -> None:
     vegafusion.enable()
 
@@ -28,4 +28,4 @@ def exp_plot_compare_peak_density(
 
 
 if __name__ == "__main__":
-    typer.run(exp_plot_compare_peak_density)
+    app()

@@ -1,9 +1,7 @@
 import altair as alt
+import cyclopts
 import polars as pl
-import typer
 from pathlib import Path
-from typer import Option
-from typing import Annotated
 
 
 def load_data(csv_paths: list[Path]) -> pl.DataFrame:
@@ -14,13 +12,15 @@ def load_data(csv_paths: list[Path]) -> pl.DataFrame:
     return pl.concat(collect)
 
 
-def compare_cluster_stats(input_csv_path: list[Path], output_pdf: Annotated[Path, Option()]) -> None:
+app = cyclopts.App()
+
+
+@app.default
+def compare_cluster_stats(input_csv_path: list[Path], output_pdf: Path) -> None:
     data = load_data(input_csv_path)
     chart = alt.Chart(data).mark_bar().encode(x="label", y="value", column="metric").resolve_scale(y="independent")
     chart.save(output_pdf)
 
 
 if __name__ == "__main__":
-    typer.run(compare_cluster_stats)
-
-# print(sys.argv)
+    app()

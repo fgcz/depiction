@@ -1,14 +1,15 @@
-import typer
+import cyclopts
 import xarray
 from matplotlib import pyplot as plt
 from pathlib import Path
-from typing import Annotated
+
+app = cyclopts.App()
 
 
 @app.default
 def exp_plot_map_comparison(
-    input_mass_shift_paths: Annotated[list[Path], typer.Argument()],
-    output_pdf_path: Annotated[Path, typer.Option()],
+    input_mass_shift_paths: list[Path],
+    output_pdf_path: Path,
 ) -> None:
     # load all the inputs
     mass_shifts = [xarray.open_dataarray(path) for path in input_mass_shift_paths]
@@ -25,4 +26,4 @@ def exp_plot_map_comparison(
 
 
 if __name__ == "__main__":
-    typer.run(exp_plot_map_comparison)
+    app()

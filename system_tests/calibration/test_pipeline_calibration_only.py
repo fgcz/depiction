@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 from typing import Generator
 
+from depiction.image import MultiChannelImage
 from depiction_targeted_preproc.app_interface.process_chunk import process_chunk
 
 
@@ -31,3 +32,8 @@ def work_dir(config_yaml_path: Path, tmp_path: Path) -> Generator[Path, None, No
 
 def test_run_pipeline(work_dir: Path):
     process_chunk(chunk_dir=work_dir)
+    # basic checks of the .ome.tiff image
+    image = MultiChannelImage.read_ome_tiff(work_dir / "images_default.ome.tiff")
+    assert image.n_channels == 118
+    assert image.n_nonzero == 10131
+    assert image.dimensions == (128, 137)

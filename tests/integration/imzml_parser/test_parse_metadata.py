@@ -4,7 +4,7 @@ from xml.etree import ElementTree
 import pytest
 
 from depiction.persistence.imzml.parser.parse_metadata import ParseMetadata
-from depiction.persistence.pixel_size import PixelSize
+from depiction.persistence.image.pixel_size import PixelSize
 
 
 @pytest.fixture()

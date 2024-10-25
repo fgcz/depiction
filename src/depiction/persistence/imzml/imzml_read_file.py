@@ -14,7 +14,7 @@ from depiction.persistence.file_checksums import FileChecksums
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 from depiction.persistence.imzml.imzml_reader import ImzmlReader
 from depiction.persistence.imzml.parser.parse_metadata import ParseMetadata
-from depiction.persistence.pixel_size import PixelSize
+from depiction.persistence.image.pixel_size import PixelSize
 from depiction.persistence.types import GenericReadFile
 
 

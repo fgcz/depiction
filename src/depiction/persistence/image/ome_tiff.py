@@ -9,7 +9,7 @@ from bioio_base.types import PhysicalPixelSizes
 from pathlib import Path
 
 from depiction.image import MultiChannelImage
-from depiction.persistence.pixel_size import PixelSize
+from depiction.persistence.image.pixel_size import PixelSize
 
 
 class OmeTiff:

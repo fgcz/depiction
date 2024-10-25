@@ -4,7 +4,7 @@ from pathlib import Path
 from xml.etree.ElementTree import ElementTree
 
 from depiction.persistence.imzml.metadata import Metadata
-from depiction.persistence.pixel_size import PixelSize
+from depiction.persistence.image.pixel_size import PixelSize
 
 
 class ParseMetadata:

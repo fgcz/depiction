@@ -8,7 +8,7 @@ from xarray import DataArray
 if TYPE_CHECKING:
     from pathlib import Path
     from numpy.typing import NDArray
-    from depiction.persistence.pixel_size import PixelSize
+    from depiction.persistence.image.pixel_size import PixelSize
     from collections.abc import Generator
     from types import TracebackType
     from collections.abc import Sequence

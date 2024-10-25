@@ -80,10 +80,10 @@ dev = [
     "streamlit"
 ]
 doc = [
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
-    "mkdocs-awesome-pages-plugin",
+    "sphinx",
+    "myst-parser",
+    "autodoc_pydantic",
+    "sphinx-book-theme",
 ]
 apps = [
     "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main"

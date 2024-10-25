@@ -256,11 +256,11 @@ class MultiChannelImage:
     def read_hdf5(
         cls, path: Path, group: str | None = None, is_foreground_label: str = "is_foreground"
     ) -> MultiChannelImage:
-        """Reads a MultiChannelImage from a HDF5 file (assuming it contains NETCDF data).
+        """Reads a ``MultiChannelImage`` from a HDF5 file (assuming it contains NETCDF data).
 
         :param path: The path to the HDF5 file.
         :param group: The group within the HDF5 file, by default None.
-        :param is_foreground_label: The label for the is_foreground channel, by default "is_foreground".
+        :param is_foreground_label: The label for the is_foreground channel, by default ``"is_foreground"``.
         """
         return MultiChannelImagePersistence.read_hdf5(path=path, group=group, is_foreground_label=is_foreground_label)
 

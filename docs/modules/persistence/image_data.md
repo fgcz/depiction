@@ -4,7 +4,13 @@
 
 Currently, we provide a small helper to create these files, wrapping existing libraries:
 
-::: depiction.persistence.format_ome_tiff.OmeTiff
+```{eval-rst}
+.. autoclass:: depiction.persistence.format_ome_tiff.OmeTiff
+    :members:
+    :undoc-members:
+    :show-inheritance:
+```
+
 
 ## Format: OME-NGFF
 

@@ -63,7 +63,7 @@ class MultiChannelImageConcatenation:
         """
         # Ensure the new image has the same shape as the original combined image
         original_combined = self.get_combined_image()
-        if image.dimensions != original_combined.dimensions:
+        if (image.sizes["y"], image.sizes["x"]) != (original_combined.sizes["y"], original_combined.sizes["x"]):
             raise ValueError("The new image must have the same shape as the original combined image")
         labeled = image.append_channels(self._data.sel_channels(coords=["image_index"]))
         return MultiChannelImageConcatenation(data=labeled)

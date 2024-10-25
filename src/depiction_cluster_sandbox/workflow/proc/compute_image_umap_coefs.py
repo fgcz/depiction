@@ -34,7 +34,7 @@ def compute_image_umap_coefs(
         input_image = retain_features(feature_selection=feature_selection, image=input_image)
 
     # compute the umap transformation into 2D
-    logger.info(f"Computing UMAP for input image with shape {input_image.dimensions}")
+    logger.info(f"Computing UMAP for input image {input_image}")
     umap = UMAP(n_components=2, n_jobs=n_jobs, random_state=random_state)
     values = umap.fit_transform(input_image.data_flat.values.T)
 

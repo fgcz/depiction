@@ -84,7 +84,7 @@ class PlotImage:
         n_cols = min(n_channels, n_per_row)
 
         # determine the figure size
-        im_width, im_height = self._image.dimensions
+        im_width, im_height = self._image.sizes["x"], self._image.sizes["y"]
         aspect_ratio = im_width / im_height
 
         # set up the grid

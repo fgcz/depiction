@@ -49,7 +49,4 @@ class OmeTiff:
     @classmethod
     def read_image(cls, path: Path, bg_value: float = 0.0) -> MultiChannelImage:
         """Reads an OME-TIFF file from the specified path and returns the image as a MultiChannelImage."""
-        data = OmeTiff.read(path)
-        return MultiChannelImage(
-            data=data, is_foreground=MultiChannelImage._compute_is_foreground(data=data, bg_value=bg_value)
-        )
+        return MultiChannelImage.from_spatial(data=OmeTiff.read(path), bg_value=bg_value)

@@ -80,7 +80,7 @@ def test_get_combined_image_index(concat_image: MultiChannelImageConcatenation) 
 def test_get_single_image(request, concat_image: MultiChannelImageConcatenation, image_index: int, image_fixture: str):
     expected_image = request.getfixturevalue(image_fixture)
     result_image = concat_image.get_single_image(index=image_index)
-    assert result_image.dimensions == expected_image.dimensions
+    assert result_image.sizes == expected_image.sizes
     xarray.testing.assert_equal(result_image.coordinates_flat, expected_image.coordinates_flat)
     xarray.testing.assert_equal(result_image.data_flat, expected_image.data_flat)
 

@@ -154,13 +154,6 @@ class MultiChannelImage:
         return ~self.fg_mask_flat
 
     @property
-    def dimensions(self) -> tuple[int, int]:
-        """Returns width and height of the image."""
-        # TODO reconsider this method (adding it now for compatibility)
-        warnings.warn("dimensions is deprecated, use sizes instead", DeprecationWarning)
-        return self._data.sizes["x"], self._data.sizes["y"]
-
-    @property
     def sizes(self) -> dict[Literal["y", "x", "c"], int]:
         """Size of the image along each dimension"""
         return {k: self._data.sizes[k] for k in ["y", "x", "c"]}

@@ -120,10 +120,6 @@ def test_fg_mask_flat(mock_image_sparse) -> None:
     xarray.testing.assert_equal(expected_fg_mask_flat, mock_image_sparse.fg_mask_flat)
 
 
-def test_dimensions(mock_image: MultiChannelImage) -> None:
-    assert mock_image.dimensions == (2, 3)
-
-
 def test_sizes(mock_image: MultiChannelImage) -> None:
     assert mock_image.sizes == {"y": 3, "x": 2, "c": 2}
 
@@ -245,7 +241,7 @@ def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
 def test_with_channel_names(mock_image: MultiChannelImage) -> None:
     image = mock_image.with_channel_names(channel_names=["New Channel Name", "B"])
     assert image.channel_names == ["New Channel Name", "B"]
-    assert image.dimensions == mock_image.dimensions
+    assert image.sizes == mock_image.sizes
     assert image.n_channels == mock_image.n_channels == 2
     np.testing.assert_array_equal(image.data_spatial.values, mock_image.data_spatial.values)
 

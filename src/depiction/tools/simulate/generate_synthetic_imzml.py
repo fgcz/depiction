@@ -1,9 +1,8 @@
-from pathlib import Path
-
 import cyclopts
 import numpy as np
 import polars as pl
 from numpy.typing import NDArray
+from pathlib import Path
 from perlin_noise import PerlinNoise
 
 from depiction.image.multi_channel_image import MultiChannelImage
@@ -63,11 +62,12 @@ class GenerateSyntheticImzml:
 
     def write_file(self, labels: MultiChannelImage, target_masses: NDArray[float], output: GenericWriteFile):
         # input validation
-        if labels.n_channels != len(target_masses):
-            msg = f"Number of channels in labels ({labels.n_channels}) does not match the number of target masses ({len(target_masses)})"
-            raise ValueError(msg)
-        if labels.dimensions != (self._width, self._height):
-            msg = f"Dimensions of labels ({labels.dimensions}) do not match the dimensions of the synthetic image ({self._width}, {self._height})"
+        target_sizes = {"x": self._width, "y": self._height, "c": len(target_masses)}
+        if labels.sizes != target_sizes:
+            msg = (
+                f"Dimensions of labels {labels.sizes} do not match the dimensions of the synthetic image "
+                f"{target_sizes}."
+            )
             raise ValueError(msg)
 
         # collect the relevant input information
@@ -127,8 +127,8 @@ def generate_imzml(
     panel_df = pl.read_csv(mass_list_file)
 
     gen = GenerateSyntheticImzml(
-        height=label_img.dimensions[1],
-        width=label_img.dimensions[0],
+        height=label_img.sizes["y"],
+        width=label_img.sizes["x"],
         rng=np.random.default_rng(),
         mz_min=panel_df["mass"].min(),
         mz_max=panel_df["mass"].max(),

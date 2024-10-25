@@ -34,6 +34,5 @@ def test_run_pipeline(work_dir: Path):
     process_chunk(chunk_dir=work_dir)
     # basic checks of the .ome.tiff image
     image = OmeTiff.read_image(work_dir / "images_default.ome.tiff", bg_value=0.0)
-    assert image.n_channels == 118
+    assert image.sizes == {"x": 128, "y": 137, "c": 118}
     assert image.n_nonzero == 10131
-    assert image.dimensions == (128, 137)

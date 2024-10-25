@@ -60,8 +60,7 @@ def test_render(generate) -> None:
     generate._image_height = 2
     generate._image_width = 2
     image = generate.render()
-    assert image.n_channels == 3
-    assert image.dimensions == (2, 2)
+    assert image.sizes == {"x": 2, "y": 2, "c": 3}
     assert image.channel_names == ["synthetic_0", "synthetic_1", "synthetic_2"]
 
 

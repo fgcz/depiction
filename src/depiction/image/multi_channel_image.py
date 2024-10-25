@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from xarray import DataArray
 
 from depiction.image.image_channel_stats import ImageChannelStats
-from depiction.image.multi_channel_image_persistence import MultiChannelImagePersistence
+from depiction.persistence.image.hdf5_image_format import Hdf5ImageFormat
 from depiction.image.sparse_representation import SparseRepresentation
 
 if TYPE_CHECKING:
@@ -221,7 +221,7 @@ class MultiChannelImage:
 
     def write_hdf5(self, path: Path, mode: Literal["a", "w"] = "w", group: str | None = None) -> None:
         """Writes the image to a HDF5 file (actually NETCDF4)."""
-        return MultiChannelImagePersistence(image=self).write_hdf5(path=path, mode=mode, group=group)
+        return Hdf5ImageFormat(image=self).write_hdf5(path=path, mode=mode, group=group)
 
     @classmethod
     def read_hdf5(
@@ -233,7 +233,7 @@ class MultiChannelImage:
         :param group: The group within the HDF5 file, by default None.
         :param is_foreground_label: The label for the is_foreground channel, by default ``"is_foreground"``.
         """
-        return MultiChannelImagePersistence.read_hdf5(path=path, group=group, is_foreground_label=is_foreground_label)
+        return Hdf5ImageFormat.read_hdf5(path=path, group=group, is_foreground_label=is_foreground_label)
 
     # TODO combine_in_parallel, combine_sequentially: consider moving this somewhere else
 

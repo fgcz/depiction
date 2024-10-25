@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 #      replaced
 
 
-class MultiChannelImagePersistence:
-    """Implements the persistence layer logic for MultiChannelImage."""
+class Hdf5ImageFormat:
+    """Implements a HDF5 based persistence format for `MultiChannelImage`."""
 
     def __init__(self, image: MultiChannelImage) -> None:
         self._image = image

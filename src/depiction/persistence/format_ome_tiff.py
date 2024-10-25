@@ -1,13 +1,14 @@
 # TODO figure out if format specific exporters should actually be moved to a different path
 
-# TODO figure out the ideal extension i.e. tif vs tiff!
-from pathlib import Path
-
 import xarray
 from bioio import BioImage
 from bioio.writers import OmeTiffWriter
 from bioio_base.types import PhysicalPixelSizes
 
+# TODO figure out the ideal extension i.e. tif vs tiff!
+from pathlib import Path
+
+from depiction.image import MultiChannelImage
 from depiction.persistence.pixel_size import PixelSize
 
 
@@ -32,6 +33,7 @@ class OmeTiff:
 
     @classmethod
     def read(cls, path: Path) -> xarray.DataArray:
+        """Reads an OME-TIFF file from the specified path and returns the image as a xarray.DataArray."""
         image = BioImage(path)
         data = xarray.DataArray(
             image.data,
@@ -43,3 +45,11 @@ class OmeTiff:
             size_x=image.physical_pixel_sizes.X, size_y=image.physical_pixel_sizes.Y, unit="micrometer"
         )
         return data
+
+    @classmethod
+    def read_image(cls, path: Path, bg_value: float = 0.0) -> MultiChannelImage:
+        """Reads an OME-TIFF file from the specified path and returns the image as a MultiChannelImage."""
+        data = OmeTiff.read(path)
+        return MultiChannelImage(
+            data=data, is_foreground=MultiChannelImage._compute_is_foreground(data=data, bg_value=bg_value)
+        )

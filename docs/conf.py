@@ -22,6 +22,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "xarray": ("https://xarray.pydata.org/en/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "bioio": ("https://bioio-devs.github.io/bioio/", None),
 }
 
 # -- Options for HTML output -------------------------------------------------

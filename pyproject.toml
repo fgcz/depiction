@@ -84,6 +84,7 @@ doc = [
     "myst-parser",
     "autodoc_pydantic",
     "sphinx-book-theme",
+    "sphinx-autobuild",
 ]
 apps = [
     "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main"

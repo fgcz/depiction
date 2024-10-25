@@ -12,7 +12,6 @@ from xarray import DataArray
 from depiction.image.image_channel_stats import ImageChannelStats
 from depiction.image.multi_channel_image_persistence import MultiChannelImagePersistence
 from depiction.image.sparse_representation import SparseRepresentation
-from depiction.persistence.format_ome_tiff import OmeTiff
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -269,8 +268,10 @@ class MultiChannelImage:
     @classmethod
     def read_ome_tiff(cls, path: Path, bg_value: float = 0.0) -> MultiChannelImage:
         """Reads a MultiChannelImage from a OME-TIFF file."""
-        data = OmeTiff.read(path)
-        return MultiChannelImage(data=data, is_foreground=cls._compute_is_foreground(data=data, bg_value=bg_value))
+        # TODO remove this "alias" method
+        from depiction.persistence.format_ome_tiff import OmeTiff
+
+        return OmeTiff.read_image(path=path, bg_value=bg_value)
 
     def with_channel_names(self, channel_names: Sequence[str]) -> MultiChannelImage:
         """Returns a copy with the specified channel names."""

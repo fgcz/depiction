@@ -1,9 +1,8 @@
 from __future__ import annotations
 
+import xarray
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
-
-import xarray
 
 from depiction.image.container.alpha_channel import AlphaChannel
 
@@ -23,6 +22,14 @@ class Hdf5ImageFormat:
         self._alpha_channel = AlphaChannel(label=image.is_foreground_label)
 
     def write_hdf5(self, path: Path, mode: Literal["a", "w"] = "w", group: str | None = None) -> None:
+        """Writes the image to a HDF5 file (actually NETCDF4).
+
+        :param path: The path to the file to write to.
+        :param mode: The mode to open the file in. Either 'a' for append, in which case a group should be specified
+            so multiple images can be stored in the same file, or 'w' for write, in which case the file will be created
+            or overwritten if it already exists.
+        :param group: The group to write the image to. If `None`, the image will be written to the root group.
+        """
         data_array = self._image.data_spatial
         is_fg_array = self._image.fg_mask
 
@@ -39,7 +46,15 @@ class Hdf5ImageFormat:
     def read_hdf5(
         cls, path: Path, group: str | None = None, is_foreground_label: str = "is_foreground"
     ) -> MultiChannelImage:
+        """Reads a `MultiChannelImage` from a HDF5 file (actually NETCDF4).
+
+        :param path: The path to the file to read from.
+        :param group: The group to read the image from. If `None`, the image will be read from the root group.
+        :param is_foreground_label: The label to use for the foreground mask, if a unusual label was used when writing.
+        """
         from depiction.image.multi_channel_image import MultiChannelImage
+
+        # TODO instead of forcing to specify the label it would be better to persist it as well.
 
         combined_array = xarray.open_dataarray(path, group=group)
         data_array, is_fg_array = AlphaChannel(label=is_foreground_label).split(combined=combined_array)

@@ -220,7 +220,10 @@ class MultiChannelImage:
     # TODO save_single_channel_image... does it belong here or into plotter?
 
     def write_hdf5(self, path: Path, mode: Literal["a", "w"] = "w", group: str | None = None) -> None:
-        """Writes the image to a HDF5 file (actually NETCDF4)."""
+        """Writes the image to a HDF5 file (actually NETCDF4).
+
+        See `Hdf5ImageFormat.write_hdf5` for more details.
+        """
         return Hdf5ImageFormat(image=self).write_hdf5(path=path, mode=mode, group=group)
 
     @classmethod
@@ -229,9 +232,7 @@ class MultiChannelImage:
     ) -> MultiChannelImage:
         """Reads a ``MultiChannelImage`` from a HDF5 file (assuming it contains NETCDF data).
 
-        :param path: The path to the HDF5 file.
-        :param group: The group within the HDF5 file, by default None.
-        :param is_foreground_label: The label for the is_foreground channel, by default ``"is_foreground"``.
+        See `Hdf5ImageFormat.read_hdf5` for more details.
         """
         return Hdf5ImageFormat.read_hdf5(path=path, group=group, is_foreground_label=is_foreground_label)
 

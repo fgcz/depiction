@@ -3,7 +3,6 @@ import shutil
 from pathlib import Path
 from typing import Generator
 
-from depiction.image import MultiChannelImage
 from depiction.persistence.format_ome_tiff import OmeTiff
 from depiction_targeted_preproc.app_interface.process_chunk import process_chunk
 

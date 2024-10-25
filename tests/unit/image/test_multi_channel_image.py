@@ -1,14 +1,12 @@
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import pytest
 import xarray
+from pathlib import Path
 from pytest_mock import MockerFixture
 from xarray import DataArray
 
 from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.persistence.format_ome_tiff import OmeTiff
 
 
 @pytest.fixture
@@ -238,16 +236,6 @@ def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:
     xarray.open_dataarray.assert_called_once_with(Path("test.h5"), group=None)
     xarray.testing.assert_equal(image.data_spatial, mock_data)
     xarray.testing.assert_equal(image.fg_mask, mock_is_foreground.isel(c=0).drop_vars("c"))
-
-
-def test_read_ome_tiff(mocker: MockerFixture, mock_data: DataArray) -> None:
-    mock_read = mocker.patch.object(OmeTiff, "read", return_value=mock_data)
-    mock_foreground = xarray.ones_like(mock_data.isel(c=0), dtype=bool).drop_vars("c")
-    mocker.patch.object(MultiChannelImage, "_compute_is_foreground", return_value=mock_foreground)
-    image = MultiChannelImage.read_ome_tiff(Path("test.ome.tiff"))
-    xarray.testing.assert_equal(image.data_spatial, mock_data)
-    mock_read.assert_called_once_with(Path("test.ome.tiff"))
-    xarray.testing.assert_equal(image.fg_mask, mock_foreground)
 
 
 def test_with_channel_names(mock_image: MultiChannelImage) -> None:

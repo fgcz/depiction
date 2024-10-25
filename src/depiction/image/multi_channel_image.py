@@ -265,14 +265,6 @@ class MultiChannelImage:
 
     # TODO combine_in_parallel, combine_sequentially: consider moving this somewhere else
 
-    @classmethod
-    def read_ome_tiff(cls, path: Path, bg_value: float = 0.0) -> MultiChannelImage:
-        """Reads a MultiChannelImage from a OME-TIFF file."""
-        # TODO remove this "alias" method
-        from depiction.persistence.format_ome_tiff import OmeTiff
-
-        return OmeTiff.read_image(path=path, bg_value=bg_value)
-
     def with_channel_names(self, channel_names: Sequence[str]) -> MultiChannelImage:
         """Returns a copy with the specified channel names."""
         # TODO too specific! it would be better to have a "rename_channels" method instead that allows specifying only some

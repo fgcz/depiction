@@ -124,6 +124,10 @@ def test_dimensions(mock_image: MultiChannelImage) -> None:
     assert mock_image.dimensions == (2, 3)
 
 
+def test_sizes(mock_image: MultiChannelImage) -> None:
+    assert mock_image.sizes == {"y": 3, "x": 2, "c": 2}
+
+
 def test_channel_names_when_set(mock_image: MultiChannelImage) -> None:
     # TODO there should be some functionality to make it work for on-the-fly generated channel names
     assert mock_image.channel_names == ["Channel A", "Channel B"]

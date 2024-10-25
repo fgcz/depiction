@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Any, Literal
 from xarray import DataArray
 
 from depiction.image.image_channel_stats import ImageChannelStats
-from depiction.persistence.image.hdf5_image_format import Hdf5ImageFormat
 from depiction.image.sparse_representation import SparseRepresentation
+from depiction.persistence.image.hdf5_image_format import Hdf5ImageFormat
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -157,7 +157,13 @@ class MultiChannelImage:
     def dimensions(self) -> tuple[int, int]:
         """Returns width and height of the image."""
         # TODO reconsider this method (adding it now for compatibility)
+        warnings.warn("dimensions is deprecated, use sizes instead", DeprecationWarning)
         return self._data.sizes["x"], self._data.sizes["y"]
+
+    @property
+    def sizes(self) -> dict[Literal["y", "x", "c"], int]:
+        """Size of the image along each dimension"""
+        return {k: self._data.sizes[k] for k in ["y", "x", "c"]}
 
     @property
     def channel_names(self) -> list[str]:

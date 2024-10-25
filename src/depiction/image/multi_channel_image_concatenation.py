@@ -26,13 +26,13 @@ class MultiChannelImageConcatenation:
     @cached_property
     def n_individual_images(self) -> int:
         """Number of individual images."""
-        return int(self._data.retain_channels(coords=["image_index"]).data_flat.max().values + 1)
+        return int(self._data.sel_channels(coords=["image_index"]).data_flat.max().values + 1)
 
     def get_combined_image(self) -> MultiChannelImage:
         return self._data.drop_channels(coords=["image_index"], allow_missing=False)
 
     def get_combined_image_index(self) -> MultiChannelImage:
-        return self._data.retain_channels(coords=["image_index"])
+        return self._data.sel_channels(coords=["image_index"])
 
     def get_single_image(self, index: int, min_coords: tuple[int, int] = (0, 0)) -> MultiChannelImage:
         # perform the selection in flat representation for sanity
@@ -65,7 +65,7 @@ class MultiChannelImageConcatenation:
         original_combined = self.get_combined_image()
         if image.dimensions != original_combined.dimensions:
             raise ValueError("The new image must have the same shape as the original combined image")
-        labeled = image.append_channels(self._data.retain_channels(coords=["image_index"]))
+        labeled = image.append_channels(self._data.sel_channels(coords=["image_index"]))
         return MultiChannelImageConcatenation(data=labeled)
 
     @classmethod

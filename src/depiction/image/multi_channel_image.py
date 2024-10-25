@@ -197,8 +197,7 @@ class MultiChannelImage:
             data=self._data, is_foreground=is_foreground, is_foreground_label=self._is_foreground_label
         )
 
-    # TODO rename to sel_channels
-    def retain_channels(
+    def sel_channels(
         self, indices: Sequence[int] | None = None, coords: Sequence[Any] | None = None
     ) -> MultiChannelImage:
         """Returns a copy with only the specified channels retained."""

@@ -13,7 +13,7 @@ def render_single_channel_png(
     channel_index: int = 0,
 ) -> None:
     image = MultiChannelImage.read_hdf5(input_hdf5)
-    image = image.retain_channels(indices=[channel_index])
+    image = image.sel_channels(indices=[channel_index])
 
     plt.figure()
     image.data_spatial.squeeze().plot.imshow(yincrease=False, ax=plt.gca(), x="x", y="y", cmap="tab10")

@@ -15,7 +15,7 @@ def visualize_cluster_umap_coefs(
     channel: str = "cluster",
 ) -> None:
     # load the input data
-    umap_image = MultiChannelImage.read_hdf5(path=input_umap_hdf5_path).retain_channels(coords=["umap_x", "umap_y"])
+    umap_image = MultiChannelImage.read_hdf5(path=input_umap_hdf5_path).sel_channels(coords=["umap_x", "umap_y"])
     cluster_image = MultiChannelImage.read_hdf5(path=input_cluster_hdf5_path)
     combined_image = umap_image.append_channels(cluster_image)
 

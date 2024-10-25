@@ -184,28 +184,28 @@ def test_recompute_is_foreground(mocker: MockerFixture, mock_image: MultiChannel
     xarray.testing.assert_equal(new_image.data_spatial, mock_image.data_spatial)
 
 
-def test_retain_channels_when_both_none(mock_image: MultiChannelImage) -> None:
+def test_sel_channels_when_both_none(mock_image: MultiChannelImage) -> None:
     with pytest.raises(ValueError):
-        mock_image.retain_channels(None, None)
+        mock_image.sel_channels(None, None)
 
 
-def test_retain_channels_by_indices(mock_image: MultiChannelImage) -> None:
+def test_sel_channels_by_indices(mock_image: MultiChannelImage) -> None:
     indices = [1]
-    result = mock_image.retain_channels(indices=indices)
+    result = mock_image.sel_channels(indices=indices)
     assert result.channel_names == ["Channel B"]
     np.testing.assert_array_equal(result.data_spatial.values, mock_image.data_spatial.values[:, :, [1]])
 
 
-def test_retain_channels_by_coords(mock_image: MultiChannelImage) -> None:
+def test_sel_channels_by_coords(mock_image: MultiChannelImage) -> None:
     coords = ["Channel B"]
-    result = mock_image.retain_channels(coords=coords)
+    result = mock_image.sel_channels(coords=coords)
     assert result.channel_names == coords
     np.testing.assert_array_equal(result.data_spatial.values, mock_image.data_spatial.values[:, :, [1]])
 
 
-def test_retain_channels_when_both_provided(mock_image: MultiChannelImage) -> None:
+def test_sel_channels_when_both_provided(mock_image: MultiChannelImage) -> None:
     with pytest.raises(ValueError):
-        mock_image.retain_channels(indices=[0, 1], coords=["red", "blue"])
+        mock_image.sel_channels(indices=[0, 1], coords=["red", "blue"])
 
 
 def test_drop_channels_when_coords_and_allow_missing(mock_image: MultiChannelImage) -> None:
@@ -263,8 +263,8 @@ def test_append_channels(mock_image: MultiChannelImage) -> None:
     extra_image = MultiChannelImage(data=extra_image_data, is_foreground=mock_image.fg_mask)
     result = mock_image.append_channels(extra_image)
     assert result.channel_names == ["Channel A", "Channel B", "Channel X", "Channel Y"]
-    assert result.retain_channels(coords=["Channel A", "Channel B"]).data_spatial.identical(mock_image.data_spatial)
-    assert result.retain_channels(coords=["Channel X", "Channel Y"]).data_spatial.identical(extra_image.data_spatial)
+    assert result.sel_channels(coords=["Channel A", "Channel B"]).data_spatial.identical(mock_image.data_spatial)
+    assert result.sel_channels(coords=["Channel X", "Channel Y"]).data_spatial.identical(extra_image.data_spatial)
 
 
 def test_get_z_scaled(mock_image: MultiChannelImage) -> None:

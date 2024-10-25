@@ -165,7 +165,7 @@ def _preprocess(input_image, n_best_features):
         image=image_full_features, variant=ImageNormalizationVariant.STD
     )
     if "image_index" in input_image.channel_names:
-        image_full_image_index = input_image.retain_channels(coords=["image_index"])
+        image_full_image_index = input_image.sel_channels(coords=["image_index"])
     else:
         with xarray.set_options(keep_attrs=True):
             image_full_image_index = MultiChannelImage(

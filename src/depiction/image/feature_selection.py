@@ -31,7 +31,7 @@ def select_features(feature_selection: FeatureSelection, image: MultiChannelImag
 def retain_features(feature_selection: FeatureSelection, image: MultiChannelImage) -> MultiChannelImage:
     """Returns a new ``MultiChannelImage`` that is a copy of ``image`` with only the selected features remaining."""
     selected_features = select_features(feature_selection=feature_selection, image=image)
-    return image.retain_channels(coords=selected_features)
+    return image.sel_channels(coords=selected_features)
 
 
 def _select_features_cv(image: MultiChannelImage, n_features: int) -> list[str]:

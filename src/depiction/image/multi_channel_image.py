@@ -227,14 +227,12 @@ class MultiChannelImage:
         return Hdf5ImageFormat(image=self).write_hdf5(path=path, mode=mode, group=group)
 
     @classmethod
-    def read_hdf5(
-        cls, path: Path, group: str | None = None, is_foreground_label: str = "is_foreground"
-    ) -> MultiChannelImage:
+    def read_hdf5(cls, path: Path, group: str | None = None) -> MultiChannelImage:
         """Reads a ``MultiChannelImage`` from a HDF5 file (assuming it contains NETCDF data).
 
         See `Hdf5ImageFormat.read_hdf5` for more details.
         """
-        return Hdf5ImageFormat.read_hdf5(path=path, group=group, is_foreground_label=is_foreground_label)
+        return Hdf5ImageFormat.read_hdf5(path=path, group=group)
 
     # TODO combine_in_parallel, combine_sequentially: consider moving this somewhere else
 

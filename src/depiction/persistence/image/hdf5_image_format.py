@@ -39,24 +39,21 @@ class Hdf5ImageFormat:
             data_array = data_array.assign_coords(c=self._image.channel_names)
 
         combined_array = self._alpha_channel.stack(data_array=data_array, is_fg_array=is_fg_array)
+        combined_array.attrs["is_foreground_label"] = self._image.is_foreground_label
         # TODO engine should not be necessary, but using it for debugging
         combined_array.to_netcdf(path, mode=mode, group=group, format="NETCDF4", engine="netcdf4")
 
     @classmethod
-    def read_hdf5(
-        cls, path: Path, group: str | None = None, is_foreground_label: str = "is_foreground"
-    ) -> MultiChannelImage:
+    def read_hdf5(cls, path: Path, group: str | None = None) -> MultiChannelImage:
         """Reads a `MultiChannelImage` from a HDF5 file (actually NETCDF4).
 
         :param path: The path to the file to read from.
         :param group: The group to read the image from. If `None`, the image will be read from the root group.
-        :param is_foreground_label: The label to use for the foreground mask, if a unusual label was used when writing.
         """
         from depiction.image.multi_channel_image import MultiChannelImage
 
-        # TODO instead of forcing to specify the label it would be better to persist it as well.
-
         combined_array = xarray.open_dataarray(path, group=group)
+        is_foreground_label = combined_array.attrs.get("is_foreground_label", "is_foreground")
         data_array, is_fg_array = AlphaChannel(label=is_foreground_label).split(combined=combined_array)
         return MultiChannelImage(data=data_array, is_foreground=is_fg_array, is_foreground_label=is_foreground_label)
 

@@ -40,6 +40,7 @@ dependencies = [
     "bioio-ome-tiff",
     "loguru",
     "ms-peak-picker",
+    "findmfpy",
     "kdepy>=1.1.8",
     "perlin-noise==1.13",
     # TODO demote to optional again later, but necessary for pycharm right now

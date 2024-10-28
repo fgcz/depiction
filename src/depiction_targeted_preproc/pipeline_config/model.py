@@ -48,7 +48,7 @@ class PipelineParametersPreset(Model, use_enum_values=True, validate_default=Tru
     @classmethod
     def get_preset_path(cls, name: str) -> Path:
         """Returns the path to the preset file with the specified name."""
-        return Path(__file__).parents[1] / "app" / "config_presets" / f"{name}.yml"
+        return Path(__file__).parent / "config_presets" / f"{name}.yml"
 
     @classmethod
     def load_named_preset(cls, name: str) -> PipelineParametersPreset:

@@ -226,7 +226,8 @@ class GenericWriter(Protocol):
     ) -> None:
         """Copies spectra from an existing reader. Not optimized yet.
         :param reader: The reader to copy from.
-        :param spectra_indices: The indices of the spectra to copyl.
+        :param spectra_indices: The indices of the spectra to copy.
+        :param tqdm_position: The position of the tqdm bar, if relevant.
         """
         if tqdm_position is not None:
 

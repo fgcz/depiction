@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import TYPE_CHECKING
-
 import pyimzml
 import pyimzml.ImzMLWriter
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from depiction.persistence.imzml.imzml_alignment_tracker import ImzmlAlignmentTracker
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 from depiction.persistence.types import GenericWriter
 
 if TYPE_CHECKING:
-    import numpy as np
+    from numpy.typing import NDArray
 
 
 class ImzmlWriter(GenericWriter):
@@ -65,9 +64,9 @@ class ImzmlWriter(GenericWriter):
 
     def add_spectrum(
         self,
-        mz_arr: np.ndarray,
-        int_arr: np.ndarray,
-        coordinates: tuple[int, int] | tuple[int, int, int],
+        mz_arr: NDArray[float],
+        int_arr: NDArray[float],
+        coordinates: tuple[int, int] | tuple[int, int, int] | NDArray[int],
     ) -> None:
         if len(mz_arr) != len(int_arr):
             raise ValueError(f"{len(mz_arr)=} and {len(int_arr)=} must be equal.")

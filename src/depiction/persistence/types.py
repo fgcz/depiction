@@ -67,7 +67,7 @@ class GenericReader(Protocol):
         """Returns the m/z and intensity arrays of the i-th spectrum."""
         return self.get_spectrum_mz(i_spectrum=i_spectrum), self.get_spectrum_int(i_spectrum=i_spectrum)
 
-    def get_spectrum_with_coords(self, i_spectrum: int) -> tuple[NDArray[float], NDArray[float], NDArray[float]]:
+    def get_spectrum_with_coords(self, i_spectrum: int) -> tuple[NDArray[float], NDArray[float], NDArray[int]]:
         """Returns the m/z, intensity and v arrays of the i-th spectrum."""
         mz_arr = self.get_spectrum_mz(i_spectrum=i_spectrum)
         int_arr = self.get_spectrum_int(i_spectrum=i_spectrum)
@@ -215,7 +215,7 @@ class GenericWriter(Protocol):
         self,
         mz_arr: np.ndarray,
         int_arr: np.ndarray,
-        coordinates: tuple[int, int] | tuple[int, int, int],
+        coordinates: tuple[int, int] | tuple[int, int, int] | NDArray[int],
     ) -> None: ...
 
     def copy_spectra(

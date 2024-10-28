@@ -17,7 +17,7 @@ class ProcessSpectraStepFilterPeaks(BaseModel):
     filter: FilterPeaksConfig
 
 
-ProcessSpectraStep = ProcessSpectraStepFilterPeaks
+ProcessSpectraStep = ProcessSpectraStepFilterPeaks | ProcessSpectraStepPickPeaks | ProcessSpectraStepRemoveBaseline
 
 
 class ProcessSpectraConfig(BaseModel):

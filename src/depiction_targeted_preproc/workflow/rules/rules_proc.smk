@@ -1,90 +1,24 @@
 
 
-rule proc_correct_baseline_config:
+rule process_spectra_config:
     input:
         config="{sample}/pipeline_params.yml",
     output:
-        config="{sample}/config/proc_correct_baseline.yml",
+        config="{sample}/config/process_spectra.yml",
     shell:
-        "python -m depiction_targeted_preproc.workflow.proc.correct_baseline_config"
+        "python -m depiction_targeted_preproc.workflow.proc.process_spectra_config"
         " --input-config {input.config} --output-config {output.config}"
 
 
-rule proc_correct_baseline_run:
+rule process_spectra_run:
     input:
         imzml=multiext("{sample}/raw", ".imzML", ".ibd"),
-        config="{sample}/config/proc_correct_baseline.yml",
+        config="{sample}/config/process_spectra.yml",
     output:
-        imzml=temp(multiext("{sample}/corrected.original", ".imzML", ".ibd")),
+        imzml=multiext("{sample}/processed", ".imzML", ".ibd"),
     shell:
-        "python -m depiction.tools.correct_baseline run-config"
-        " --config {input.config}"
-        " --input-imzml {input.imzml[0]} --output-imzml {output.imzml[0]}"
-
-
-rule proc_pick_peaks_config:
-    input:
-        config="{sample}/pipeline_params.yml",
-    output:
-        config="{sample}/config/proc_pick_peaks.yml",
-    shell:
-        "python -m depiction_targeted_preproc.workflow.proc.pick_peaks_config"
-        " --input-config {input.config} --output-config {output.config}"
-
-
-rule proc_pick_peaks:
-    input:
-        imzml=multiext("{sample}/corrected.original", ".imzML", ".ibd"),
-        config="{sample}/config/proc_pick_peaks.yml",
-    output:
-        imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
-    shell:
-        "python -m depiction.tools.pick_peaks "
-        " run-config --config {input.config} --input-imzml {input.imzml[0]} --output-imzml {output.imzml[0]}"
-
-
-# TODO currently needed for peak picked data, e.g. from timsTOF
-# rule proc_pick_peaks:
-#    input:
-#        imzml=multiext("{sample}/corrected.original",".imzML",".ibd"),
-#        config="{sample}/pipeline_params.yml",
-#    output:
-#        imzml=multiext("{sample}/corrected.peaks_all",".imzML",".ibd"),
-#    shell:
-#        "python -m depiction_targeted_preproc.workflow.proc.pick_peaks "
-#        " --input-imzml-path {input.imzml[0]} --config-path {input.config} "
-#        " --output-imzml-path {output.imzml[0]}"
-#
-
-
-## TODO this should be solved more efficiently in the future, but for now it is solved by calling the script twice
-# rule proc_calibrate_remove_global_shift:
-#    input:
-#        imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
-#        config="{sample}/pipeline_params.yml",
-#        #mass_list="{sample}/mass_list.standards.csv",
-#        mass_list="{sample}/mass_list.calibration.csv",
-#    output:
-#        imzml=temp(multiext("{sample}/calibrated.tmp", ".imzML", ".ibd")),
-#    shell:
-#        "python -m depiction_targeted_preproc.workflow.proc.calibrate "
-#        " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
-#        " --use-global-constant-shift"
-#        " --output-imzml-path {output.imzml[0]}"
-#
-#
-# rule proc_calibrate_actual:
-#    input:
-#        imzml=multiext("{sample}/calibrated.tmp", ".imzML", ".ibd"),
-#        config="{sample}/pipeline_params.yml",
-#        mass_list="{sample}/mass_list.calibration.csv",
-#    output:
-#        imzml=multiext("{sample}/calibrated", ".imzML", ".ibd"),
-#        calib_data="{sample}/calib_data.hdf5",
-#    shell:
-#        "python -m depiction_targeted_preproc.workflow.proc.calibrate "
-#        " --input-imzml-path {input.imzml[0]} --config-path {input.config} --mass-list-path {input.mass_list} "
-#        " --output-imzml-path {output.imzml[0]} --output-calib-data-path {output.calib_data}"
+        "python -m depiction.tools.process_spectra"
+        " --config-file {input.config} --input-imzml-file {input.imzml[0]} --output-imzml-file {output.imzml[0]}"
 
 
 rule proc_calibrate_config:
@@ -99,7 +33,7 @@ rule proc_calibrate_config:
 
 rule proc_calibrate:
     input:
-        imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
+        imzml=multiext("{sample}/processed", ".imzML", ".ibd"),
         config="{sample}/config/proc_calibrate.yml",
         mass_list="{sample}/mass_list.calibration.csv",
     output:

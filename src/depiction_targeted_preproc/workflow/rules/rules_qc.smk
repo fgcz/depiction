@@ -1,6 +1,6 @@
 rule qc_table_marker_surroundings_baseline:
     input:
-        imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
+        imzml=multiext("{sample}/processed", ".imzML", ".ibd"),
         mass_list="{sample}/mass_list.visualization.csv",
         config="{sample}/pipeline_params.yml",
     output:
@@ -141,7 +141,7 @@ rule qc_plot_spectra_for_marker:
 
 rule qc_plot_peak_counts_per_spectrum:
     input:
-        imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
+        imzml=multiext("{sample}/processed", ".imzML", ".ibd"),
         config="{sample}/pipeline_params.yml",
     output:
         pdf="{sample}/qc/plot_peak_counts_per_spectrum.pdf",
@@ -153,7 +153,7 @@ rule qc_plot_peak_counts_per_spectrum:
 
 rule qc_plot_peak_counts_per_mass_range:
     input:
-        imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
+        imzml=multiext("{sample}/processed", ".imzML", ".ibd"),
         config="{sample}/pipeline_params.yml",
     output:
         pdf="{sample}/qc/plot_peak_counts_per_mass_range.pdf",
@@ -165,7 +165,7 @@ rule qc_plot_peak_counts_per_mass_range:
 
 rule qc_plot_scan_direction:
     input:
-        imzml=multiext("{sample}/corrected.peaks", ".imzML", ".ibd"),
+        imzml=multiext("{sample}/processed", ".imzML", ".ibd"),
     output:
         pdf="{sample}/qc/plot_scan_direction.pdf",
     shell:

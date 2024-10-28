@@ -1,16 +1,13 @@
 from __future__ import annotations
 
+import yaml
 from enum import Enum
 from pathlib import Path
+from pydantic import BaseModel, ConfigDict
 from typing import Self
 
-import yaml
-from pydantic import BaseModel, ConfigDict
-
 from depiction.tools.calibrate.config import CalibrationConfig
-from depiction.tools.correct_baseline.config import BaselineCorrectionConfig
-from depiction.tools.filter_peaks.config import FilterPeaksConfig
-from depiction.tools.pick_peaks import PickPeaksConfig
+from depiction.tools.process_spectra.config import ProcessSpectraConfig
 
 
 class Model(BaseModel):
@@ -45,10 +42,8 @@ class PipelineArtifact(str, Enum):
 class PipelineParametersPreset(Model, use_enum_values=True, validate_default=True):
     model_config = ConfigDict(extra="forbid")
 
-    baseline_correction: BaselineCorrectionConfig | None
-    filter_peaks: FilterPeaksConfig | None
+    process_spectra: ProcessSpectraConfig
     calibration: CalibrationConfig | None
-    pick_peaks: PickPeaksConfig | None
 
     @classmethod
     def get_preset_path(cls, name: str) -> Path:

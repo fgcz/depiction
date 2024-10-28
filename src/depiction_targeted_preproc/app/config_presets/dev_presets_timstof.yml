@@ -1,9 +1,6 @@
-# No baseline correction
-baseline_correction: null
-# No peak picking
-pick_peaks: null
-# No peak filtering (we only filter for calibration below)
-filter_peaks: null
+# No spectra preprocessing
+process_spectra:
+  steps: []
 # The calibration settings:
 # - less max distance (6x less)
 # - percentile based filtering for distance smoothing

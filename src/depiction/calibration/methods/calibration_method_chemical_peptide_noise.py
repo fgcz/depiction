@@ -32,7 +32,9 @@ class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):
             use_ppm_space=use_ppm_space,
         )
 
-    def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
+    def extract_spectrum_features(
+        self, peak_mz_arr: NDArray[np.float64], peak_int_arr: NDArray[np.float64]
+    ) -> DataArray:
         # shifts_arr, disp_arr, moments_arr = self._calibration.get_moments_approximation(mz_arr=peak_mz_arr,
         #                                                                                int_arr=peak_int_arr)
         ## TODO the only feature we actually need is shifts_arr, so for simplicity i'm just returning that
@@ -49,8 +51,8 @@ class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):
         return features
 
     def apply_spectrum_model(
-        self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        self, spectrum_mz_arr: NDArray[np.float64], spectrum_int_arr: NDArray[np.float64], model_coef: DataArray
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         if len(spectrum_mz_arr) < self._calibration.n_mass_intervals:
             logger.warning(f"Spectrum too small to calculate moments approximation. (n={len(spectrum_mz_arr)})")
             return spectrum_mz_arr, spectrum_int_arr
@@ -97,7 +99,7 @@ class ChemicalNoiseCalibration:
 
     def plot_kendrick_shift(
         self,
-        peak_mz_arr: NDArray[float],
+        peak_mz_arr: NDArray[np.float64],
         unit: Literal["m/z", "ppm"] = "m/z",
         ax: Optional[matplotlib.axes.Axes] = None,
         scatter_kwargs: Optional[dict[str, Any]] = None,
@@ -119,7 +121,7 @@ class ChemicalNoiseCalibration:
             robust=robust_regression,
         )
 
-    def _get_mz_partitions(self, mz_arr: NDArray[float]) -> tuple[list[NDArray[int]], NDArray[float]]:
+    def _get_mz_partitions(self, mz_arr: NDArray[np.float64]) -> tuple[list[NDArray[np.int64]], NDArray[np.float64]]:
         """Returns the indices of the partitions and the center of the partitions."""
         # TODO if this class gets used in production, this method should be refactored in a way that it doesn't have to
         #      be called so often - for testing this is now fine
@@ -128,8 +130,8 @@ class ChemicalNoiseCalibration:
         return indices_list, mz_center
 
     def get_moments_approximation(
-        self, mz_arr: NDArray[float], int_arr: NDArray[float]
-    ) -> tuple[NDArray[float], NDArray[float], NDArray[complex]]:
+        self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[complex]]:
         """Returns the shifts, dispersion and moments approximation for the given spectrum.
         The moments are a complex quantity from which the former two are calculated for convenience.
         """
@@ -148,7 +150,7 @@ class ChemicalNoiseCalibration:
         dispersion_arr = np.abs(moments_arr)
         return shifts_arr, dispersion_arr, moments_arr
 
-    def interpolate_shifts(self, mz_arr: NDArray[float], shifts_arr: NDArray[float]) -> NDArray[float]:
+    def interpolate_shifts(self, mz_arr: NDArray[np.float64], shifts_arr: NDArray[np.float64]) -> NDArray[np.float64]:
         _, partition_center_mz = self._get_mz_partitions(mz_arr=mz_arr)
         if self._interpolation_mode == "linear":
             interpolate_shift = np.interp(mz_arr, partition_center_mz, shifts_arr)
@@ -165,9 +167,9 @@ class ChemicalNoiseCalibration:
 
     def align_masses(
         self,
-        mz_arr: NDArray[float],
-        int_arr: NDArray[float],
-    ) -> NDArray[float]:
+        mz_arr: NDArray[np.float64],
+        int_arr: NDArray[np.float64],
+    ) -> NDArray[np.float64]:
         """Aligns the masses of the given spectrum, by using interpolated shift estimates as in the paper.
         :param mz_arr: m/z values of the spectrum
         :param int_arr: intensity values of the spectrum

@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Protocol, TYPE_CHECKING
 
+import numpy as np
 from numpy.typing import NDArray
 from xarray import DataArray
 
@@ -11,7 +12,9 @@ if TYPE_CHECKING:
 class CalibrationMethod(Protocol):
     """Defines the interface for a spectrum calibration method."""
 
-    def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
+    def extract_spectrum_features(
+        self, peak_mz_arr: NDArray[np.float64], peak_int_arr: NDArray[np.float64]
+    ) -> DataArray:
         """Extracts a vector of features (dimension ["c"]) from a given, peak picked spectrum.
         For calibration methods which do not involve a feature extraction, an empty DataArray should be returned.
         :param peak_mz_arr: m/z values of the peaks in the spectrum
@@ -42,8 +45,8 @@ class CalibrationMethod(Protocol):
         ...
 
     def apply_spectrum_model(
-        self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        self, spectrum_mz_arr: NDArray[np.float64], spectrum_int_arr: NDArray[np.float64], model_coef: DataArray
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Applies the fitted model to the spectrum and returns the calibrated spectrum.
         :param spectrum_mz_arr: m/z values of the spectrum
         :param spectrum_int_arr: intensity values of the spectrum

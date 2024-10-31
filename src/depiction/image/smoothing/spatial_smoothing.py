@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 import scipy.ndimage
+import numpy as np
 import xarray as xr
 from numpy.typing import NDArray
 from xarray import DataArray
@@ -30,11 +31,11 @@ class SpatialSmoothing:
         )
         return image.transpose("y", "x", "c")
 
-    def _smooth_single_channel(self, values: NDArray[float]) -> NDArray[float]:
+    def _smooth_single_channel(self, values: NDArray[np.float64]) -> NDArray[np.float64]:
         print(type(values))
         return scipy.ndimage.gaussian_filter(values, sigma=self.sigma)
 
-    def _fill_background(self, values: NDArray[float]) -> NDArray[float]:
+    def _fill_background(self, values: NDArray[np.float64]) -> NDArray[np.float64]:
         return xr.apply_ufunc(
             self._fill_background_single_channel,
             values,
@@ -43,7 +44,7 @@ class SpatialSmoothing:
             vectorize=True,
         )
 
-    def _fill_background_single_channel(self, values: NDArray[float]) -> NDArray[float]:
+    def _fill_background_single_channel(self, values: NDArray[np.float64]) -> NDArray[np.float64]:
         if self.background_fill_mode == "nearest":
             bg_mask = values == 0
             indices = scipy.ndimage.distance_transform_edt(

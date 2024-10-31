@@ -85,7 +85,7 @@ class GenerateIonImage:
         spectra_ids: list[int],
         mz_values: Sequence[float],
         tol_values: Sequence[float],
-    ) -> NDArray[float]:
+    ) -> NDArray[np.float64]:
         return cls._compute_for_mz_ranges(
             reader=reader,
             spectra_ids=spectra_ids,
@@ -97,7 +97,7 @@ class GenerateIonImage:
         reader: ImzmlReader,
         spectra_ids: list[int],
         mz_ranges: list[tuple[float, float]],
-    ) -> NDArray[float]:
+    ) -> NDArray[np.float64]:
         """Generates summed intensities for the provided mz ranges.
         :param reader: the reader
         :param spectra_ids: the spectra ids to process, i.e. for parallelization

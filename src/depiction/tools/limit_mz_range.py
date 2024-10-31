@@ -17,8 +17,8 @@ class LimitMzRange:
         self._mz_range = mz_range
 
     def evaluate_spectrum(
-        self, mz_arr: NDArray[float], int_arr: NDArray[float]
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         return self._evaluate_spectrum(mz_arr, int_arr, self._mz_range)
 
     def evaluate_file(
@@ -43,8 +43,8 @@ class LimitMzRange:
 
     @staticmethod
     def _evaluate_spectrum(
-        mz_arr: NDArray[float], int_arr: NDArray[float], mz_range: tuple[float, float]
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64], mz_range: tuple[float, float]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         left_index = np.searchsorted(mz_arr, mz_range[0], side="left")
         right_index = np.searchsorted(mz_arr, mz_range[1], side="right")
         return mz_arr[left_index:right_index], int_arr[left_index:right_index]

@@ -49,12 +49,12 @@ class GenericReader(Protocol):
         ...
 
     @cached_property
-    def coordinates(self) -> NDArray[int]:
+    def coordinates(self) -> NDArray[np.int64]:
         """Returns the coordinates of the spectra in the imzML file, shape (n_spectra, n_dim)."""
         ...
 
     @cached_property
-    def coordinates_2d(self) -> NDArray[int]:
+    def coordinates_2d(self) -> NDArray[np.int64]:
         """Returns the coordinates of the spectra in the imzML file, shape (n_spectra, 2)."""
         return self.coordinates[:, :2]
 
@@ -63,11 +63,13 @@ class GenericReader(Protocol):
         # TODO this should replace the old coordinates_2d later
         return DataArray(self.coordinates_2d.astype(int), dims=("i", "d"), coords={"d": ["x", "y"]})
 
-    def get_spectrum(self, i_spectrum: int) -> tuple[NDArray[float], NDArray[float]]:
+    def get_spectrum(self, i_spectrum: int) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Returns the m/z and intensity arrays of the i-th spectrum."""
         return self.get_spectrum_mz(i_spectrum=i_spectrum), self.get_spectrum_int(i_spectrum=i_spectrum)
 
-    def get_spectrum_with_coords(self, i_spectrum: int) -> tuple[NDArray[float], NDArray[float], NDArray[int]]:
+    def get_spectrum_with_coords(
+        self, i_spectrum: int
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.int64]]:
         """Returns the m/z, intensity and v arrays of the i-th spectrum."""
         mz_arr = self.get_spectrum_mz(i_spectrum=i_spectrum)
         int_arr = self.get_spectrum_int(i_spectrum=i_spectrum)
@@ -76,7 +78,7 @@ class GenericReader(Protocol):
 
     def get_spectra(
         self, i_spectra: list[int]
-    ) -> tuple[NDArray[float] | list[NDArray[float]], NDArray[float] | list[NDArray[float]]]:
+    ) -> tuple[NDArray[np.float64] | list[NDArray[np.float64]], NDArray[np.float64] | list[NDArray[np.float64]]]:
         """Returns the m/z and intensity arrays of the specified spectra.
         For continuous mode, the arrays are stacked into a single array, whereas
         for processed mode, a list of arrays is returned as they might not have
@@ -90,15 +92,15 @@ class GenericReader(Protocol):
         else:
             return tuple(zip(*[self.get_spectrum(i_spectrum=i) for i in i_spectra]))
 
-    def get_spectrum_mz(self, i_spectrum: int) -> NDArray[float]:
+    def get_spectrum_mz(self, i_spectrum: int) -> NDArray[np.float64]:
         """Returns the m/z values of the i-th spectrum."""
         ...
 
-    def get_spectrum_int(self, i_spectrum: int) -> NDArray[float]:
+    def get_spectrum_int(self, i_spectrum: int) -> NDArray[np.float64]:
         """Returns the intensity values of the i-th spectrum."""
         ...
 
-    def get_spectrum_coordinates(self, i_spectrum: int) -> NDArray[int]:
+    def get_spectrum_coordinates(self, i_spectrum: int) -> NDArray[np.int64]:
         """Returns the coordinates of the i-th spectrum."""
         return self.coordinates[i_spectrum]
 
@@ -141,13 +143,13 @@ class GenericReadFile(Protocol):
         raise NotImplementedError
 
     @property
-    def coordinates(self) -> NDArray[int]:
+    def coordinates(self) -> NDArray[np.int64]:
         """Spatial coordinates of the spectra in the .imzML file.
         Shape: (n_spectra, n_dimensions) where n_dimensions is 2 or 3 depending on the file."""
         raise NotImplementedError
 
     @property
-    def coordinates_2d(self) -> NDArray[int]:
+    def coordinates_2d(self) -> NDArray[np.int64]:
         # TODO double check convention and update docstring accordingly
         return self.coordinates[:, :2]
 
@@ -215,7 +217,7 @@ class GenericWriter(Protocol):
         self,
         mz_arr: np.ndarray,
         int_arr: np.ndarray,
-        coordinates: tuple[int, int] | tuple[int, int, int] | NDArray[int],
+        coordinates: tuple[int, int] | tuple[int, int, int] | NDArray[np.int64],
     ) -> None: ...
 
     def copy_spectra(

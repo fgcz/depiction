@@ -14,14 +14,14 @@ class ConstantModel:
     value: float
 
     @property
-    def coef(self) -> NDArray[float]:
+    def coef(self) -> NDArray[np.float64]:
         return np.array([self.value])
 
     @property
     def is_zero(self) -> bool:
         return self.value == 0
 
-    def predict(self, x: np.ndarray) -> NDArray[float]:
+    def predict(self, x: np.ndarray) -> NDArray[np.float64]:
         return np.full_like(x, self.value)
 
     @classmethod
@@ -33,9 +33,9 @@ class ConstantModel:
         return cls(value=0)
 
     @classmethod
-    def fit_mean(cls, x_arr: NDArray[float], y_arr: NDArray[float]) -> ConstantModel:
+    def fit_mean(cls, x_arr: NDArray[np.float64], y_arr: NDArray[np.float64]) -> ConstantModel:
         return ConstantModel(value=np.mean(y_arr))
 
     @classmethod
-    def fit_median(cls, x_arr: NDArray[float], y_arr: NDArray[float]) -> ConstantModel:
+    def fit_median(cls, x_arr: NDArray[np.float64], y_arr: NDArray[np.float64]) -> ConstantModel:
         return ConstantModel(value=np.median(y_arr))

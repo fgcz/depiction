@@ -9,11 +9,11 @@ from depiction.visualize.plot_image import PlotImage
 
 
 class VisualizeMassShiftMap:
-    def __init__(self, *, models: list[GenericModel], coordinates: NDArray[int]) -> None:
+    def __init__(self, *, models: list[GenericModel], coordinates: NDArray[np.int64]) -> None:
         self._models = models
         self._coordinates = coordinates
 
-    def get_correction_image(self, test_masses: NDArray[float], unit: str = "m/z") -> MultiChannelImage:
+    def get_correction_image(self, test_masses: NDArray[np.float64], unit: str = "m/z") -> MultiChannelImage:
         """Returns a SparseImage2d with the correction values for the given test masses.
         Output channels will be named "test mass <mass>".
         :param test_masses: The test masses for which the correction values should be computed.
@@ -37,7 +37,7 @@ class VisualizeMassShiftMap:
 
     def plot_test_mass_maps_and_histograms(
         self,
-        test_masses: NDArray[float],
+        test_masses: NDArray[np.float64],
         same_scale: bool,
         n_bins: int = 50,
         scale_percentile: float = 100.0,
@@ -94,7 +94,7 @@ class VisualizeMassShiftMap:
         ax_map: plt.Axes,
         ax_hist: plt.Axes,
         correction_image: MultiChannelImage,
-        hist_bins: NDArray[float] | int,
+        hist_bins: NDArray[np.float64] | int,
         same_scale: bool,  # TODO this was already broken before but will probably be useful again
         scale_percentile: float,
         unit: str,

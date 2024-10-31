@@ -27,7 +27,7 @@ def main(image_hdf5: Path, output_all_pixels_pdf: Path, output_foreground_pixels
     plot_threshold_foreground_only(image=image, thresholds=thresholds, output_pdf=output_foreground_pixels_pdf)
 
 
-def plot_threshold_all_pixels(image: MultiChannelImage, thresholds: NDArray[float], output_pdf: Path) -> None:
+def plot_threshold_all_pixels(image: MultiChannelImage, thresholds: NDArray[np.float64], output_pdf: Path) -> None:
     collect = []
     data_flat = image.data_flat
     for threshold in tqdm(thresholds):
@@ -47,7 +47,7 @@ def plot_threshold_all_pixels(image: MultiChannelImage, thresholds: NDArray[floa
     plt.savefig(output_pdf, bbox_inches="tight")
 
 
-def plot_threshold_foreground_only(image: MultiChannelImage, thresholds: NDArray[float], output_pdf: Path) -> None:
+def plot_threshold_foreground_only(image: MultiChannelImage, thresholds: NDArray[np.float64], output_pdf: Path) -> None:
     background_targets = 5
     threshold = 25
     data = image.data_spatial

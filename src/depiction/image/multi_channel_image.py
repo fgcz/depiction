@@ -304,7 +304,7 @@ class MultiChannelImage:
         else:
             return (data != bg_value).any(dim="c")
 
-    def _validate_sparse_values(values: NDArray[float] | DataArray) -> DataArray:
+    def _validate_sparse_values(values: NDArray[np.float64] | DataArray) -> DataArray:
         """Converts the sparse values to a DataArray, if necessary."""
         if hasattr(values, "coords"):
             return values.transpose("i", "c")
@@ -314,7 +314,7 @@ class MultiChannelImage:
             return DataArray(values, dims=("i", "c"))
 
     @staticmethod
-    def _validate_coordinates(coordinates: NDArray[int] | DataArray) -> DataArray:
+    def _validate_coordinates(coordinates: NDArray[np.int64] | DataArray) -> DataArray:
         """Converts the coordinates to a DataArray, if necessary."""
         if not hasattr(coordinates, "coords"):
             return DataArray(coordinates, dims=("i", "d"), coords={"d": ["x", "y"]})

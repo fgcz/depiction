@@ -7,14 +7,14 @@ from numpy.typing import NDArray
 @dataclass
 class FilterByReferencePeakDistance:
     max_distance: float
-    reference_mz: NDArray[float]
+    reference_mz: NDArray[np.float64]
 
     def filter_index_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_idx_arr: NDArray[int],
-    ) -> NDArray[int]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_idx_arr: NDArray[np.int64],
+    ) -> NDArray[np.int64]:
         """Returns the subset of the peak indices which are within the distance threshold of a reference peak.
         :param spectrum_mz_arr: The mz array.
         :param spectrum_int_arr: The intensity array.

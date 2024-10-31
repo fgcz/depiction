@@ -23,9 +23,9 @@ class IsotopePatternMatcher:
     cache_tolerance: float = 0.5
 
     def __post_init__(self) -> None:
-        self._pattern_cache = OrderedDict()  # type: OrderedDict[float, tuple[NDArray[float], NDArray[float]]]
+        self._pattern_cache = OrderedDict()  # type: OrderedDict[float, tuple[NDArray[np.float64], NDArray[np.float64]]]
 
-    def get_averagine_pattern(self, mass: float) -> tuple[NDArray[float], NDArray[float]]:
+    def get_averagine_pattern(self, mass: float) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Returns the averagine isotope pattern for the specified mass value and
         returns the mz and intensity arrays. If a result within `cache_tolerance` is already cached,
         it will be returned instead of computing the pattern (note that a correction will be applied such that the first
@@ -45,8 +45,8 @@ class IsotopePatternMatcher:
 
     def compute_averagine_agreement(
         self,
-        mz_peaks: NDArray[float],
-        int_peaks: NDArray[float],
+        mz_peaks: NDArray[np.float64],
+        int_peaks: NDArray[np.float64],
         n_limit: int,
         distance_tolerance: float,
     ) -> tuple[float, int]:
@@ -74,12 +74,12 @@ class IsotopePatternMatcher:
 
     def compute_averagine_agreement_at_positions(
         self,
-        mz_peaks: NDArray[float],
-        int_peaks: NDArray[float],
-        idx_positions: NDArray[int],
+        mz_peaks: NDArray[np.float64],
+        int_peaks: NDArray[np.float64],
+        idx_positions: NDArray[np.int64],
         n_limit: int,
         distance_tolerance: float,
-    ) -> tuple[NDArray[float], NDArray[int]]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.int64]]:
         agreement_scores = np.zeros(len(idx_positions))
         agreement_lengths = np.zeros(len(idx_positions), dtype=int)
 
@@ -103,12 +103,14 @@ class IsotopePatternMatcher:
         peak_picker: BasicPeakPicker,
         n_limit: int,
         distance_tolerance: float,
-        mz_positions_of_interest: NDArray[float],
+        mz_positions_of_interest: NDArray[np.float64],
         spectra_ids: Optional[list[int]] = None,
-    ) -> list[tuple[NDArray[float], NDArray[int]]]:
+    ) -> list[tuple[NDArray[np.float64], NDArray[np.int64]]]:
         # TODO possibly move this method in the future (since it mixes peak_picker into this class)
 
-        def operation_file(reader: GenericReader, spectra_ids: list[int]) -> list[tuple[NDArray[float], NDArray[int]]]:
+        def operation_file(
+            reader: GenericReader, spectra_ids: list[int]
+        ) -> list[tuple[NDArray[np.float64], NDArray[np.int64]]]:
             results = []
             for spectrum_id in spectra_ids:
                 mz_arr, int_arr = reader.get_spectrum(spectrum_id)
@@ -139,8 +141,8 @@ class IsotopePatternMatcher:
     @classmethod
     def compute_spectra_agreement(
         cls,
-        spectrum_1: tuple[NDArray[float], NDArray[float]],
-        spectrum_2: tuple[NDArray[float], NDArray[float]],
+        spectrum_1: tuple[NDArray[np.float64], NDArray[np.float64]],
+        spectrum_2: tuple[NDArray[np.float64], NDArray[np.float64]],
         n_limit: int,
         distance_tolerance: float,
     ) -> tuple[float, int]:
@@ -168,7 +170,7 @@ class IsotopePatternMatcher:
             )
 
     @staticmethod
-    def cosine_similarity(x_vec: NDArray[float], y_vec: NDArray[float]) -> float:
+    def cosine_similarity(x_vec: NDArray[np.float64], y_vec: NDArray[np.float64]) -> float:
         """Returns the cosine similarity between two vectors."""
         # TODO currently this will print a message when dividing by approximately zero
         return np.dot(x_vec, y_vec) / (np.linalg.norm(x_vec) * np.linalg.norm(y_vec))
@@ -197,7 +199,7 @@ class IsotopePatternMatcher:
     @staticmethod
     def _compute_averagine_pattern(
         mass: float,
-    ) -> tuple[NDArray[float], NDArray[float]]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Computes the averagine isotope pattern for the specified mass value and returns the mz and intensity arrays.
         If possible, use get_averagine_pattern method which will invoke a cached version of this function.
         """

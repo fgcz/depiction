@@ -5,6 +5,7 @@ from pathlib import Path
 
 from depiction.persistence.ram.ram_reader import RamReader
 from typing import TYPE_CHECKING
+import numpy as np
 
 if TYPE_CHECKING:
     from depiction.persistence import ImzmlModeEnum
@@ -15,9 +16,9 @@ if TYPE_CHECKING:
 class RamReadFile:
     def __init__(
         self,
-        mz_arr_list: list[NDArray[float]] | NDArray[float],
-        int_arr_list: list[NDArray[float]] | NDArray[float],
-        coordinates: NDArray[int],
+        mz_arr_list: list[NDArray[np.float64]] | NDArray[np.float64],
+        int_arr_list: list[NDArray[np.float64]] | NDArray[np.float64],
+        coordinates: NDArray[np.int64],
     ) -> None:
         self._mz_arr_list = mz_arr_list
         self._int_arr_list = int_arr_list
@@ -54,9 +55,9 @@ class RamReadFile:
             return reader.imzml_mode
 
     @property
-    def coordinates(self) -> NDArray[int]:
+    def coordinates(self) -> NDArray[np.int64]:
         return self._coordinates
 
     @property
-    def coordinates_2d(self) -> NDArray[int]:
+    def coordinates_2d(self) -> NDArray[np.int64]:
         return self._coordinates[:, :2]

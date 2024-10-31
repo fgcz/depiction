@@ -13,7 +13,10 @@ if TYPE_CHECKING:
 
 class RamReader:
     def __init__(
-        self, mz_arr_list: list[NDArray[float]], int_arr_list: list[NDArray[float]], coordinates: NDArray[int]
+        self,
+        mz_arr_list: list[NDArray[np.float64]],
+        int_arr_list: list[NDArray[np.float64]],
+        coordinates: NDArray[np.int64],
     ) -> None:
         self._mz_arr_list = mz_arr_list
         self._int_arr_list = int_arr_list
@@ -64,11 +67,11 @@ class RamReader:
         return len(self._mz_arr_list)
 
     @property
-    def coordinates(self) -> NDArray[int]:
+    def coordinates(self) -> NDArray[np.int64]:
         return self._coordinates
 
     @property
-    def coordinates_2d(self) -> NDArray[int]:
+    def coordinates_2d(self) -> NDArray[np.int64]:
         return self._coordinates[:, :2]
 
     def get_spectrum(self, i_spectrum: int) -> tuple[np.ndarray, np.ndarray]:
@@ -82,10 +85,10 @@ class RamReader:
         else:
             return mz_arr_list, int_arr_list
 
-    def get_spectrum_mz(self, i_spectrum: int) -> NDArray[float]:
+    def get_spectrum_mz(self, i_spectrum: int) -> NDArray[np.float64]:
         return self._mz_arr_list[i_spectrum]
 
-    def get_spectrum_int(self, i_spectrum: int) -> NDArray[float]:
+    def get_spectrum_int(self, i_spectrum: int) -> NDArray[np.float64]:
         return self._int_arr_list[i_spectrum]
 
     def get_spectrum_n_points(self, i_spectrum: int) -> int:

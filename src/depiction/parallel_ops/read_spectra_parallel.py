@@ -49,7 +49,7 @@ class ReadSpectraParallel:
         self,
         read_file: GenericReadFile,
         operation: Callable[[GenericReader, list[int], ...], T] | Callable[[GenericReader, list[int], int, ...], T],
-        spectra_indices: NDArray[int] | None = None,
+        spectra_indices: NDArray[np.int64] | None = None,
         bind_args: dict[str, Any] | None = None,
         reduce_fn: Callable[[list[T]], V] = list,
         pass_task_index: bool = False,

@@ -18,21 +18,21 @@ if TYPE_CHECKING:
 
 
 class VisualizeCalibrationTargets:
-    def __init__(self, *, mean_mz_arr: NDArray[float], mean_int_arr: NDArray[float]) -> None:
+    def __init__(self, *, mean_mz_arr: NDArray[np.float64], mean_int_arr: NDArray[np.float64]) -> None:
         self._mean_mz_arr = mean_mz_arr
         self._mean_int_arr = mean_int_arr
 
     @property
-    def mean_mz_arr(self) -> NDArray[float]:
+    def mean_mz_arr(self) -> NDArray[np.float64]:
         return self._mean_mz_arr
 
     @property
-    def mean_int_arr(self) -> NDArray[float]:
+    def mean_int_arr(self) -> NDArray[np.float64]:
         return self._mean_int_arr
 
     @classmethod
     def from_mean_spectrum(
-        cls, mean_mz_arr: NDArray[float], mean_int_arr: NDArray[float]
+        cls, mean_mz_arr: NDArray[np.float64], mean_int_arr: NDArray[np.float64]
     ) -> VisualizeCalibrationTargets:
         return cls(mean_mz_arr=mean_mz_arr, mean_int_arr=mean_int_arr)
 
@@ -43,7 +43,7 @@ class VisualizeCalibrationTargets:
         )
         return cls(mean_mz_arr=mean_mz_arr, mean_int_arr=mean_int_arr)
 
-    def integrate_signal_strengths(self, target_mzs: NDArray[float], mz_tol: float) -> pd.DataFrame:
+    def integrate_signal_strengths(self, target_mzs: NDArray[np.float64], mz_tol: float) -> pd.DataFrame:
         collect = defaultdict(list)
         for i_label, target_mz in enumerate(target_mzs):
             arr_min = np.searchsorted(self._mean_mz_arr, target_mz - mz_tol, side="left")
@@ -54,7 +54,7 @@ class VisualizeCalibrationTargets:
         return pd.DataFrame(collect)
 
     def select_signal_by_strengths(
-        self, target_mzs: NDArray[float], mz_tol: float, n_signals: int = 0, strongest: bool = True
+        self, target_mzs: NDArray[np.float64], mz_tol: float, n_signals: int = 0, strongest: bool = True
     ) -> pd.DataFrame:
         df = self.integrate_signal_strengths(target_mzs=target_mzs, mz_tol=mz_tol)
         df = df.sort_values(by="intensity", ascending=not strongest)
@@ -98,9 +98,9 @@ class VisualizeCalibrationTargets:
 
     def plot_target_peak_grid(
         self,
-        target_mzs: NDArray[float],
+        target_mzs: NDArray[np.float64],
         target_labels: list[str],
-        mz_tol: NDArray[float],
+        mz_tol: NDArray[np.float64],
         sort_by_mz: bool = True,
         title: str | None = None,
         grid_cols: int = 5,
@@ -141,7 +141,7 @@ class VisualizeCalibrationTargets:
     @classmethod
     def _get_mean_spectrum_for_file(
         cls, read_file: ImzmlReadFile, parallel_config: ParallelConfig
-    ) -> tuple[NDArray[float], NDArray[float]]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         with read_file.reader() as reader:
             mz_arr_first = reader.get_spectrum_mz(0)
         eval_bins = EvaluateBins.from_mz_values(mz_arr_first)

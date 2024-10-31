@@ -17,10 +17,10 @@ class FilterByIntensity:
 
     def filter_index_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_idx_arr: NDArray[int],
-    ) -> NDArray[int]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_idx_arr: NDArray[np.int64],
+    ) -> NDArray[np.int64]:
         """Returns the subset of the peak indices which have an intensity above the threshold.
         :param spectrum_int_arr: The intensity array.
         :param peak_idx_arr: The indices of the peaks.
@@ -35,18 +35,20 @@ class FilterByIntensity:
 
     def filter_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_mz_arr: NDArray[float],
-        peak_int_arr: NDArray[float],
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_mz_arr: NDArray[np.float64],
+        peak_int_arr: NDArray[np.float64],
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         if len(peak_mz_arr) == 0:
             return peak_mz_arr, peak_int_arr
         int_arr_norm = self._normalize_intensities(spectrum_int_arr=spectrum_int_arr, peak_int_arr=peak_int_arr)
         int_arr_idx = int_arr_norm >= self.min_intensity
         return peak_mz_arr[int_arr_idx], peak_int_arr[int_arr_idx]
 
-    def _normalize_intensities(self, spectrum_int_arr: NDArray[float], peak_int_arr: NDArray[float]) -> NDArray[float]:
+    def _normalize_intensities(
+        self, spectrum_int_arr: NDArray[np.float64], peak_int_arr: NDArray[np.float64]
+    ) -> NDArray[np.float64]:
         if self.normalization == "tic":
             norm = np.sum(spectrum_int_arr)
         elif self.normalization == "median":
@@ -67,8 +69,8 @@ class FilterByIntensity:
 
     def debug_diagnose_threshold_correspondence(
         self,
-        spectrum_int_arr: NDArray[float],
-        peak_int_arr: NDArray[float],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_int_arr: NDArray[np.float64],
     ) -> None:
         input_threshold = self.min_intensity
         input_threshold_unit = self.normalization

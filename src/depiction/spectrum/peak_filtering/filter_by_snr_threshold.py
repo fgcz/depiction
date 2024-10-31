@@ -24,11 +24,11 @@ class FilterBySnrThreshold(PeakFilteringType):
 
     def filter_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_mz_arr: NDArray[float],
-        peak_int_arr: NDArray[float],
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_mz_arr: NDArray[np.float64],
+        peak_int_arr: NDArray[np.float64],
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         selection = self._select_peaks(
             spectrum_mz_arr=spectrum_mz_arr,
             spectrum_int_arr=spectrum_int_arr,
@@ -39,10 +39,10 @@ class FilterBySnrThreshold(PeakFilteringType):
 
     def filter_index_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_idx_arr: NDArray[int],
-    ) -> NDArray[int]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_idx_arr: NDArray[np.int64],
+    ) -> NDArray[np.int64]:
         selection = self._select_peaks(
             spectrum_mz_arr=spectrum_mz_arr,
             spectrum_int_arr=spectrum_int_arr,
@@ -53,18 +53,18 @@ class FilterBySnrThreshold(PeakFilteringType):
 
     def _select_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_mz_arr: NDArray[float],
-        peak_int_arr: NDArray[float],
-    ) -> NDArray[bool]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_mz_arr: NDArray[np.float64],
+        peak_int_arr: NDArray[np.float64],
+    ) -> NDArray[np.bool_]:
         noise_level = self.estimate_noise_level(mz_arr=spectrum_mz_arr, int_arr=spectrum_int_arr)
         peak_noise_level = np.interp(peak_mz_arr, spectrum_mz_arr, noise_level)
         eps = 1e-30
         snr = (peak_int_arr + eps) / (peak_noise_level + eps)
         return snr > self.config.snr_threshold
 
-    def estimate_noise_level(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
+    def estimate_noise_level(self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]) -> NDArray[np.float64]:
         """Estimates the noise level in the signal using median absolute deviation (MAD)."""
         kernel_size = self.config.window_size.convert_to_index_scalar(mz_arr=mz_arr)
         # Ensure kernel size is odd

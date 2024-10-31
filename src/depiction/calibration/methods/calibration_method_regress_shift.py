@@ -28,7 +28,7 @@ class CalibrationMethodRegressShift(CalibrationMethod):
 
     def __init__(
         self,
-        ref_mz_arr: NDArray[float],
+        ref_mz_arr: NDArray[np.float64],
         max_distance: float,
         max_distance_unit: str,
         model_type: str,
@@ -46,7 +46,9 @@ class CalibrationMethodRegressShift(CalibrationMethod):
         self._input_smoothing = input_smoothing
         self._peak_filtering = peak_filtering
 
-    def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
+    def extract_spectrum_features(
+        self, peak_mz_arr: NDArray[np.float64], peak_int_arr: NDArray[np.float64]
+    ) -> DataArray:
         if self._peak_filtering:
             # TODO this is sort of problematic, to be reconsidered how we can avoid passing peak arrays as spectrum
             #      arrays (it should be part of the API and implemented consistently)
@@ -96,8 +98,8 @@ class CalibrationMethodRegressShift(CalibrationMethod):
         return DataArray(model.coef, dims=["c"])
 
     def apply_spectrum_model(
-        self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        self, spectrum_mz_arr: NDArray[np.float64], spectrum_int_arr: NDArray[np.float64], model_coef: DataArray
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         if not self._model_type.startswith("linear"):
             # TODO this shouldn't be hard to implement, basically instead of strings we could use enums and provide some
             #   helper methods. i think it would also make the code cleaner

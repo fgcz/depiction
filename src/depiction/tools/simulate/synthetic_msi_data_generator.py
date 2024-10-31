@@ -25,9 +25,9 @@ class SyntheticMSIDataGenerator:
         self,
         write_file: ImzmlWriteFile,
         label_image: MultiChannelImage,
-        label_masses: NDArray[float],
+        label_masses: NDArray[np.float64],
         n_isotopes: int,
-        mz_arr: NDArray[float],
+        mz_arr: NDArray[np.float64],
         baseline_max_intensity: float = 2.0,
         background_noise_strength: float = 0.05,
     ) -> None:
@@ -52,11 +52,11 @@ class SyntheticMSIDataGenerator:
 
     def _generate_and_write_single_spectrum(
         self,
-        labels: NDArray[int],
+        labels: NDArray[np.int64],
         x: int,
         y: int,
-        label_masses: NDArray[float],
-        mz_arr: NDArray[float],
+        label_masses: NDArray[np.float64],
+        mz_arr: NDArray[np.float64],
         n_isotopes: int,
         baseline_max_intensity: float,
         background_noise_strength: float,
@@ -80,11 +80,11 @@ class SyntheticMSIDataGenerator:
         self,
         peak_masses: Sequence[float],
         peak_intensities: Sequence[float],
-        mz_arr: NDArray[float],
+        mz_arr: NDArray[np.float64],
         n_isotopes: int = 1,
         baseline_max_intensity: float = 2.0,
         background_noise_strength: float = 0.05,
-    ) -> NDArray[float]:
+    ) -> NDArray[np.float64]:
         int_arr = np.zeros_like(mz_arr)
 
         # add bg noise (TODO this is not really that maldi like yet)
@@ -106,10 +106,10 @@ class SyntheticMSIDataGenerator:
         return int_arr
 
     @staticmethod
-    def get_mz_arr(min_mass: float, max_mass: float, bin_width_ppm: float) -> NDArray[float]:
+    def get_mz_arr(min_mass: float, max_mass: float, bin_width_ppm: float) -> NDArray[np.float64]:
         return EstimatePPMError.ppm_to_mz_values(bin_width_ppm, mz_min=min_mass, mz_max=max_mass)
 
     @staticmethod
-    def get_baseline(n_points: int, max_intensity: float = 2.0) -> NDArray[float]:
+    def get_baseline(n_points: int, max_intensity: float = 2.0) -> NDArray[np.float64]:
         # TODO the current implementation is stupid as it does not take into account the actual mz values
         return np.exp(np.linspace(3, 0, n_points)) / np.exp(3) * max_intensity

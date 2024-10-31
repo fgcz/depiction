@@ -14,7 +14,7 @@ class PolynomialModel:
             and the intercept comes last.
     """
 
-    coef: NDArray[float]
+    coef: NDArray[np.float64]
 
     def __post_init__(self) -> None:
         self.coef = np.asarray(self.coef)
@@ -28,7 +28,7 @@ class PolynomialModel:
     def degree(self) -> int:
         return len(self.coef) - 1
 
-    def predict(self, x: NDArray[float]) -> NDArray[float]:
+    def predict(self, x: NDArray[np.float64]) -> NDArray[np.float64]:
         x = np.atleast_1d(x)
         return np.polyval(self.coef, x)
 
@@ -41,7 +41,7 @@ class PolynomialModel:
         return cls([0] * (degree + 1))
 
     @classmethod
-    def fit_lsq(cls, x_arr: NDArray[float], y_arr: NDArray[float], degree: int) -> "PolynomialModel":
+    def fit_lsq(cls, x_arr: NDArray[np.float64], y_arr: NDArray[np.float64], degree: int) -> "PolynomialModel":
         """Fits a polynomial model of degree `degree` to the given data using least squares regression."""
         coef = np.polyfit(x_arr, y_arr, deg=degree)
         return PolynomialModel(coef=coef)

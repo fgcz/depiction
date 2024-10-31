@@ -19,13 +19,13 @@ class StratifiedGrid:
     cells_y: int
 
     @cached_property
-    def edges_x(self) -> NDArray[int]:
+    def edges_x(self) -> NDArray[np.int64]:
         """Grid edges along x-axis in unit interval domain."""
         eps = 1e-12
         return np.linspace(-eps, 1 + eps, self.cells_x + 1)
 
     @cached_property
-    def edges_y(self) -> NDArray[int]:
+    def edges_y(self) -> NDArray[np.int64]:
         """Grid edges along y-axis in unit interval domain."""
         eps = 1e-12
         return np.linspace(-eps, 1 + eps, self.cells_y + 1)
@@ -51,7 +51,7 @@ class StratifiedGrid:
             max_y * (array_y_max - array_y_min) + array_y_min,
         )
 
-    def assign_points(self, array: DataArray) -> dict[int, NDArray[int]]:
+    def assign_points(self, array: DataArray) -> dict[int, NDArray[np.int64]]:
         """Assigns points to the grid cells, returning a dictionary of cell index to point indices.
         This method expects array to have a dimension called i which indicates the index of the point which will be
         part of the return value, and coordinates x and y which are used to determine the grid cell assignment.
@@ -72,7 +72,7 @@ class StratifiedGrid:
             )[0]
         return assignments
 
-    def assign_num_per_cell(self, n_total: int, assignment: dict[int, NDArray[int]]) -> NDArray[int]:
+    def assign_num_per_cell(self, n_total: int, assignment: dict[int, NDArray[np.int64]]) -> NDArray[np.int64]:
         """Returns the number of points to assign to each cell given the total number of points and the assignment,
         of points to cells.
         """

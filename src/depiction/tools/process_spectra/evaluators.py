@@ -16,10 +16,13 @@ from depiction.tools.process_spectra.config import (
     ProcessSpectraStepFilterPeaks,
     ProcessSpectraConfig,
 )
+import numpy as np
 
 
 class Evaluator(Protocol):
-    def evaluate(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> tuple[NDArray[float], NDArray[float]]:
+    def evaluate(
+        self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         raise NotImplementedError
 
 

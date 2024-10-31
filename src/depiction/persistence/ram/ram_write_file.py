@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
-
+import numpy as np
 from depiction.persistence.ram.ram_read_file import RamReadFile
 from tqdm import tqdm
 
@@ -52,7 +52,9 @@ class _Writer:
     def __init__(self, file: RamWriteFile) -> None:
         self._file = file
 
-    def add_spectrum(self, mz_arr: NDArray[float], int_arr: NDArray[float], coordinates: NDArray[int]) -> None:
+    def add_spectrum(
+        self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64], coordinates: NDArray[np.int64]
+    ) -> None:
         self._file._mz_arr_list.append(mz_arr)
         self._file._int_arr_list.append(int_arr)
         self._file._coordinates_list.append(coordinates)

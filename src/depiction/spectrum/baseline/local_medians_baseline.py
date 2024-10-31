@@ -22,7 +22,7 @@ class LocalMediansBaseline(Baseline):
     window_size: int | float
     window_unit: Literal["index", "ppm"] = "index"
 
-    def evaluate_baseline(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
+    def evaluate_baseline(self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]) -> NDArray[np.float64]:
         mz_arr = np.asarray(mz_arr, dtype=float)
         int_arr = np.asarray(int_arr, dtype=float)
 
@@ -35,7 +35,7 @@ class LocalMediansBaseline(Baseline):
 
 
 @njit("float64[:](float64[:], int64)")
-def _eval_fast_unit_index(int_arr: NDArray[float], window_size: int) -> NDArray[float]:
+def _eval_fast_unit_index(int_arr: NDArray[np.float64], window_size: int) -> NDArray[np.float64]:
     int_baseline = np.zeros_like(int_arr)
     n_values = len(int_baseline)
     w_half = window_size // 2
@@ -63,10 +63,10 @@ def _eval_fast_unit_index(int_arr: NDArray[float], window_size: int) -> NDArray[
     ),
 )
 def _eval_fast_unit_ppm(
-    mz_arr: NDArray[float],
-    int_arr: NDArray[float],
+    mz_arr: NDArray[np.float64],
+    int_arr: NDArray[np.float64],
     window_size: float,
-) -> NDArray[float]:
+) -> NDArray[np.float64]:
     int_baseline = np.zeros_like(int_arr)
     n_values = len(int_baseline)
 

@@ -14,12 +14,16 @@ class CalibrationMethodConstantGlobalShift(CalibrationMethod):
     This is a very naive method that is mainly used for a fair comparison of non-targeted calibration methods.
     """
 
-    def __init__(self, ref_mz_arr: NDArray[float], max_distance: float = 2.0, max_distance_unit: str = "mz") -> None:
+    def __init__(
+        self, ref_mz_arr: NDArray[np.float64], max_distance: float = 2.0, max_distance_unit: str = "mz"
+    ) -> None:
         self._ref_mz_arr = ref_mz_arr
         self._max_distance = max_distance
         self._max_distance_unit = max_distance_unit
 
-    def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
+    def extract_spectrum_features(
+        self, peak_mz_arr: NDArray[np.float64], peak_int_arr: NDArray[np.float64]
+    ) -> DataArray:
         distances_mz = ReferencePeakDistances.get_distances_max_peak_in_window(
             peak_mz_arr=peak_mz_arr,
             peak_int_arr=peak_int_arr,
@@ -43,8 +47,8 @@ class CalibrationMethodConstantGlobalShift(CalibrationMethod):
         return features
 
     def apply_spectrum_model(
-        self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        self, spectrum_mz_arr: NDArray[np.float64], spectrum_int_arr: NDArray[np.float64], model_coef: DataArray
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         # subtract the global distance from the m/z values
         [global_distance] = model_coef.values
         return spectrum_mz_arr - global_distance, spectrum_int_arr

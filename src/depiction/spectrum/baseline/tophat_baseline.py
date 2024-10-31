@@ -24,7 +24,7 @@ class TophatBaseline(Baseline):
     window_size: int | float
     window_unit: Literal["ppm", "index"]
 
-    def evaluate_baseline(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
+    def evaluate_baseline(self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]) -> NDArray[np.float64]:
         mz_arr = np.asarray(mz_arr, dtype=float)
         int_arr = np.asarray(int_arr, dtype=float)
 
@@ -36,7 +36,7 @@ class TophatBaseline(Baseline):
         int_arr_approx = (_compute_dilation(int_arr, element_size) + _compute_erosion(int_arr, element_size)) / 2
         return np.minimum(int_arr_approx, int_arr_opened)
 
-    def get_element_size(self, mz_arr: NDArray[float]) -> int:
+    def get_element_size(self, mz_arr: NDArray[np.float64]) -> int:
         if self.window_unit == "ppm":
             # TODO only roughly makes sense for continuous/profile data (not centroided!)
             mean_ppm = np.mean(np.diff(mz_arr) / mz_arr[:-1]) * 1e6
@@ -72,7 +72,7 @@ class TophatBaseline(Baseline):
 #    ]
 # )
 @njit
-def _compute_erosion(x: NDArray[float], element_size: int) -> NDArray[float]:
+def _compute_erosion(x: NDArray[np.float64], element_size: int) -> NDArray[np.float64]:
     eroded = np.zeros_like(x)
     n = len(x)
     hs = element_size // 2
@@ -90,7 +90,7 @@ def _compute_erosion(x: NDArray[float], element_size: int) -> NDArray[float]:
 #    ]
 # )
 @njit
-def _compute_dilation(x: NDArray[float], element_size: int) -> NDArray[float]:
+def _compute_dilation(x: NDArray[np.float64], element_size: int) -> NDArray[np.float64]:
     dilation = np.zeros_like(x)
     n = len(x)
     hs = element_size // 2
@@ -108,17 +108,17 @@ def _compute_dilation(x: NDArray[float], element_size: int) -> NDArray[float]:
 #    ]
 # )
 @njit
-def _compute_opening(int_arr: NDArray[float], element_size: int) -> NDArray[float]:
+def _compute_opening(int_arr: NDArray[np.float64], element_size: int) -> NDArray[np.float64]:
     eroded = _compute_erosion(int_arr, element_size)
     return _compute_dilation(eroded, element_size)
 
 
 @njit(["int64(float64[:], float64)"])
-def _optimize_structuring_element_size(int_arr: NDArray[float], tolerance: float) -> int:
+def _optimize_structuring_element_size(int_arr: NDArray[np.float64], tolerance: float) -> int:
     # TODO this is quite slow, taking about 2s for an array with 40k elements
     openings = []
 
-    def eq_relation(opening_1: NDArray[float], opening_2: NDArray[float]) -> bool:
+    def eq_relation(opening_1: NDArray[np.float64], opening_2: NDArray[np.float64]) -> bool:
         rel_diff = np.abs(opening_1 - opening_2) / np.maximum(opening_1, opening_2)
         return np.all(rel_diff < tolerance)
 

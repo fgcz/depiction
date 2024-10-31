@@ -10,10 +10,10 @@ class FilterNHighestIntensity:
 
     def filter_index_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_idx_arr: NDArray[int],
-    ) -> NDArray[int]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_idx_arr: NDArray[np.int64],
+    ) -> NDArray[np.int64]:
         """Returns up to `max_count` many peaks by picking the ones with the highest intensity.
         If possible `max_count` many peaks will be returned, but if there are not enough peaks in the data,
         all peaks will be returned."""
@@ -28,11 +28,11 @@ class FilterNHighestIntensity:
 
     def filter_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_mz_arr: NDArray[float],
-        peak_int_arr: NDArray[float],
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_mz_arr: NDArray[np.float64],
+        peak_int_arr: NDArray[np.float64],
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Returns up to `max_count` many peaks by picking sequentially the one with the next highest intensity.
         If possible `max_count` many peaks will be returned, but if there are not enough peaks in the data,
         all peaks will be returned.

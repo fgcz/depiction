@@ -33,7 +33,9 @@ class SmoothMedianFilter:
         )
         return MultiChannelImage(dat, is_foreground=is_foreground, is_foreground_label=image.is_foreground_label)
 
-    def _smooth_dense_image(self, image_2d: NDArray[float], is_foreground: NDArray[bool]) -> NDArray[float]:
+    def _smooth_dense_image(
+        self, image_2d: NDArray[np.float64], is_foreground: NDArray[np.bool_]
+    ) -> NDArray[np.float64]:
         if not np.issubdtype(image_2d.dtype, np.floating):
             raise ValueError("The input image must be a floating point array.")
 

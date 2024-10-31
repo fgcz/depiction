@@ -29,7 +29,9 @@ class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
         self._model_smoothing_kernel_std = model_smoothing_kernel_std
         self._max_pairwise_distance = max_pairwise_distance
 
-    def extract_spectrum_features(self, peak_mz_arr: NDArray[float], peak_int_arr: NDArray[float]) -> DataArray:
+    def extract_spectrum_features(
+        self, peak_mz_arr: NDArray[np.float64], peak_int_arr: NDArray[np.float64]
+    ) -> DataArray:
         l_none: float = 1.000482
         # Compute all differences for elements in peak_mz_arr amd store in a DataArray
         delta = scipy.spatial.distance.pdist(np.expand_dims(peak_mz_arr, 1), metric="cityblock")
@@ -53,7 +55,7 @@ class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
         intercept_coef = scipy.stats.trim_mean(delta_intercept, 0.25)
         return DataArray([intercept_coef, slope], dims=["c"])
 
-    def compute_distance_from_MCC(self, delta: NDArray[float], l_none: float = 1.000482) -> NDArray[float]:
+    def compute_distance_from_MCC(self, delta: NDArray[np.float64], l_none: float = 1.000482) -> NDArray[np.float64]:
         delta_lambda = np.zeros_like(delta)
         for i, mi in enumerate(delta):
             term1 = mi % l_none
@@ -76,8 +78,8 @@ class CalibrationMethodMassClusterCenterModel(CalibrationMethod):
         return features
 
     def apply_spectrum_model(
-        self, spectrum_mz_arr: NDArray[float], spectrum_int_arr: NDArray[float], model_coef: DataArray
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        self, spectrum_mz_arr: NDArray[np.float64], spectrum_int_arr: NDArray[np.float64], model_coef: DataArray
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         intercept, slope = model_coef.values
         # Apply the model to the spectrum
         #  need to check if it should be -intercept or +intercept

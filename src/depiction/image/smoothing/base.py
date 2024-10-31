@@ -4,6 +4,7 @@ import xarray
 from numpy.typing import NDArray
 from xarray import DataArray
 
+import numpy as np
 from depiction.image import MultiChannelImage
 from depiction.image.xarray_helper import XarrayHelper
 
@@ -25,7 +26,9 @@ class ChannelWiseSmoothing:
             data_result, is_foreground=is_foreground, is_foreground_label=image.is_foreground_label
         )
 
-    def smooth_channel(self, image_2d: NDArray[float], is_foreground: NDArray[bool]) -> tuple[NDArray[float]]:
+    def smooth_channel(
+        self, image_2d: NDArray[np.float64], is_foreground: NDArray[np.bool_]
+    ) -> tuple[NDArray[np.float64]]:
         raise NotImplementedError
 
     def update_is_foreground(self, data_result: DataArray, is_foreground: DataArray) -> DataArray:

@@ -3,8 +3,8 @@ from numpy.typing import NDArray
 
 
 def extrapolate_labels(
-    sampled_features: NDArray[float], sampled_labels: NDArray[int], full_features: NDArray[float]
-) -> NDArray[int]:
+    sampled_features: NDArray[np.float64], sampled_labels: NDArray[np.int64], full_features: NDArray[np.float64]
+) -> NDArray[np.int64]:
     """Extrapolates cluster labels for a number of sampled features to the full set of features."""
     if sampled_features.shape[1] != full_features.shape[1]:
         raise ValueError(
@@ -19,7 +19,7 @@ def extrapolate_labels(
     return full_labels
 
 
-def get_cluster_centers(features: NDArray[float], labels: NDArray[int]) -> NDArray[float]:
+def get_cluster_centers(features: NDArray[np.float64], labels: NDArray[np.int64]) -> NDArray[np.float64]:
     """Returns the cluster centers for the given features and labels.
     This function assumes consecutive integers as labels.
     :param features: The features for each sample (n_samples, n_features).

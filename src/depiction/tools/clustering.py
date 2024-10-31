@@ -36,7 +36,7 @@ def get_landmark_indices(
     n_landmarks: int,
     rng: np.random.Generator,
     metric: str,
-) -> NDArray[int]:
+) -> NDArray[np.int64]:
     image_joined = image_features.append_channels(image_index)
     image_joined_flat = image_joined.data_flat
     n_images = int(image_index.data_flat.values.max() + 1)
@@ -202,7 +202,9 @@ def clustering(
     output_image.write_hdf5(output_hdf5)
 
 
-def compute_labels(features: NDArray[float], method: MethodEnum, method_params: MethodParamsType) -> NDArray[int]:
+def compute_labels(
+    features: NDArray[np.float64], method: MethodEnum, method_params: MethodParamsType
+) -> NDArray[np.int64]:
     if "n_clusters" in method_params:
         n_clusters = method_params.pop("n_clusters")
     else:

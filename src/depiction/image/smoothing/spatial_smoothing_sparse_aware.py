@@ -26,7 +26,7 @@ class SpatialSmoothingSparseAware(ChannelWiseSmoothing):
     kernel_std: float
     use_interpolation: bool = False
 
-    def smooth_channel(self, image_2d: NDArray[float], is_foreground: NDArray[float]) -> NDArray[float]:
+    def smooth_channel(self, image_2d: NDArray[np.float64], is_foreground: NDArray[np.float64]) -> NDArray[np.float64]:
         image_2d = image_2d.astype(float)
 
         # Get an initial kernel
@@ -53,7 +53,7 @@ class SpatialSmoothingSparseAware(ChannelWiseSmoothing):
         return xarray.ones_like(is_foreground, dtype=bool) if self.use_interpolation else is_foreground
 
     @cached_property
-    def gaussian_kernel(self) -> NDArray[float]:
+    def gaussian_kernel(self) -> NDArray[np.float64]:
         """Returns the gaussian kernel to use for smoothing. The kernel is normalized to sum to 1."""
         kernel_1d = scipy.signal.windows.gaussian(self.kernel_size, self.kernel_std)
         kernel_2d = np.outer(kernel_1d, kernel_1d)

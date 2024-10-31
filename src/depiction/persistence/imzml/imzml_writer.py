@@ -9,6 +9,8 @@ from depiction.persistence.imzml.imzml_alignment_tracker import ImzmlAlignmentTr
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 from depiction.persistence.types import GenericWriter
 
+import numpy as np
+
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
@@ -64,9 +66,9 @@ class ImzmlWriter(GenericWriter):
 
     def add_spectrum(
         self,
-        mz_arr: NDArray[float],
-        int_arr: NDArray[float],
-        coordinates: tuple[int, int] | tuple[int, int, int] | NDArray[int],
+        mz_arr: NDArray[np.float64],
+        int_arr: NDArray[np.float64],
+        coordinates: tuple[int, int] | tuple[int, int, int] | NDArray[np.int64],
     ) -> None:
         if len(mz_arr) != len(int_arr):
             raise ValueError(f"{len(mz_arr)=} and {len(int_arr)=} must be equal.")

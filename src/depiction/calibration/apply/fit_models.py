@@ -1,6 +1,6 @@
 import numpy as np
 import xarray
-from numpy._typing import NDArray
+from numpy.typing import NDArray
 from xarray import DataArray
 
 from depiction.calibration.methods.calibration_method import CalibrationMethod
@@ -32,7 +32,7 @@ class FitModels:
         )
         return result
 
-    def get_chunk_features(self, spectra_indices: NDArray[int], all_features: DataArray) -> DataArray:
+    def get_chunk_features(self, spectra_indices: NDArray[np.int64], all_features: DataArray) -> DataArray:
         collect = []
         for spectrum_id in spectra_indices:
             features = all_features.sel(i=spectrum_id)

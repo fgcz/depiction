@@ -51,7 +51,7 @@ class CorrectBaseline:
             bind_args=dict(baseline_correction=self._baseline_correction),
         )
 
-    def evaluate_spectrum(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
+    def evaluate_spectrum(self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]) -> NDArray[np.float64]:
         try:
             return self._baseline_correction.subtract_baseline(mz_arr, int_arr)
         except np.linalg.LinAlgError:

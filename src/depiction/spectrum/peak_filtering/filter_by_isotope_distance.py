@@ -12,10 +12,10 @@ class FilterByIsotopeDistance:
 
     def filter_index_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_idx_arr: NDArray[int],
-    ) -> NDArray[int]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_idx_arr: NDArray[np.int64],
+    ) -> NDArray[np.int64]:
         """Returns the subset of the peak indices for which the next peak is within the expected distance.
         The full range of permitted distances is [min_dist, max_dist] U [far_dist, inf) which accounts for peaks
         from separate clusters.

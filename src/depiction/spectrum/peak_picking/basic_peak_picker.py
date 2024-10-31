@@ -33,7 +33,9 @@ class BasicPeakPicker:
     min_distance_unit: str | None = None
     peak_filtering: PeakFilteringType | None = None
 
-    def get_smoothed_intensities(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
+    def get_smoothed_intensities(
+        self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
+    ) -> NDArray[np.float64]:
         """Returns the smoothed intensities of the provided spectrum, as it will be used for pick picking."""
         if self.smooth_sigma is None:
             return int_arr
@@ -44,9 +46,9 @@ class BasicPeakPicker:
 
     def pick_peaks_index(
         self,
-        mz_arr: NDArray[float],
-        int_arr: NDArray[float],
-    ) -> NDArray[int]:
+        mz_arr: NDArray[np.float64],
+        int_arr: NDArray[np.float64],
+    ) -> NDArray[np.int64]:
         """Picks the peaks in an intensity array and returns their indices."""
         # TODO consider removing this method in the future, since code that expects it is incompatible with
         #   interpolated peaks. the only reason to keep it would be if there is a place where we want specifically that
@@ -66,18 +68,18 @@ class BasicPeakPicker:
 
     def pick_peaks_mz(
         self,
-        mz_arr: NDArray[float],
-        int_arr: NDArray[float],
-    ) -> NDArray[float]:
+        mz_arr: NDArray[np.float64],
+        int_arr: NDArray[np.float64],
+    ) -> NDArray[np.float64]:
         """Picks the peaks in an intensity array and returns their m/z values."""
         idx_peaks = self.pick_peaks_index(mz_arr=mz_arr, int_arr=int_arr)
         return mz_arr[idx_peaks]
 
     def pick_peaks(
         self,
-        mz_arr: NDArray[float],
-        int_arr: NDArray[float],
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        mz_arr: NDArray[np.float64],
+        int_arr: NDArray[np.float64],
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Picks the peaks in an intensity array and returns their m/z values and intensities."""
         idx_peaks = self.pick_peaks_index(mz_arr=mz_arr, int_arr=int_arr)
         return mz_arr[idx_peaks], int_arr[idx_peaks]
@@ -88,7 +90,7 @@ class BasicPeakPicker:
 
     @staticmethod
     def get_min_distance_indices(
-        min_distance: float | None, min_distance_unit: str | None, mz_arr: NDArray[float]
+        min_distance: float | None, min_distance_unit: str | None, mz_arr: NDArray[np.float64]
     ) -> int | None:
         """
         Returns the minimal distance in terms of indices to use for peak picking,

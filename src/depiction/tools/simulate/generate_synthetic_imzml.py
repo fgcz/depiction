@@ -24,7 +24,7 @@ class GenerateSyntheticImzml:
         self._mz_min = mz_min
         self._mz_max = mz_max
 
-    def generate_shift_map(self, mean: float = 0.3, std: float = 0.1) -> NDArray[float]:
+    def generate_shift_map(self, mean: float = 0.3, std: float = 0.1) -> NDArray[np.float64]:
         """Generates a mass shift map"""
         seed = round(self._rng.uniform() * 1e12)
         noise_gen = PerlinNoise(octaves=6, seed=seed)
@@ -35,16 +35,20 @@ class GenerateSyntheticImzml:
         return (noise_2d - noise_2d.mean()) / noise_2d.std() * std + mean
 
     def get_shifted_target_masses(
-        self, mass_list: NDArray[float], shift: float, std_noise: float = 0.001
-    ) -> NDArray[float]:
+        self, mass_list: NDArray[np.float64], shift: float, std_noise: float = 0.001
+    ) -> NDArray[np.float64]:
         """Given a mean shift returns a shifted mass list for a particular pixel, with some additional normal noise on
         the masses.
         """
         return mass_list + shift + self._rng.normal(scale=std_noise, size=mass_list.shape)
 
     def generate_centroided_spectrum(
-        self, target_masses: NDArray[float], target_intensities: NDArray[float], snr: float = 3.0, n_isotopes: int = 3
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        self,
+        target_masses: NDArray[np.float64],
+        target_intensities: NDArray[np.float64],
+        snr: float = 3.0,
+        n_isotopes: int = 3,
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Generates a centroided spectrum with the given target masses and intensities,
         scaled relative to the maximal value in target_intensities.
         """
@@ -60,7 +64,7 @@ class GenerateSyntheticImzml:
         idx = np.argsort(mz_arr)
         return mz_arr[idx], int_arr[idx]
 
-    def write_file(self, labels: MultiChannelImage, target_masses: NDArray[float], output: GenericWriteFile):
+    def write_file(self, labels: MultiChannelImage, target_masses: NDArray[np.float64], output: GenericWriteFile):
         # input validation
         target_sizes = {"x": self._width, "y": self._height, "c": len(target_masses)}
         if labels.sizes != target_sizes:
@@ -84,8 +88,8 @@ class GenerateSyntheticImzml:
                 writer.add_spectrum(mz_arr, int_arr, coordinates_xy)
 
     def _generate_isotopic_peaks(
-        self, mz_arr: NDArray[float], int_arr: NDArray[float], n_isotopes: int
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64], n_isotopes: int
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         n_peaks = len(mz_arr)
         result_mz = np.zeros(n_isotopes * n_peaks)
         result_int = np.zeros(n_isotopes * n_peaks)
@@ -100,8 +104,8 @@ class GenerateSyntheticImzml:
         return result_mz, result_int
 
     def _generate_noise_peaks(
-        self, n: int, target_mz: NDArray[float], target_min_distance_mz: float
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        self, n: int, target_mz: NDArray[np.float64], target_min_distance_mz: float
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         mz_arr = np.linspace(self._mz_min, self._mz_max, n)
         int_arr = self._rng.uniform(0, 1, n)
         baseline = np.exp(np.linspace(3, 0, len(mz_arr))) / np.exp(3)

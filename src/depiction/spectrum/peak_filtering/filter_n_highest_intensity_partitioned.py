@@ -32,10 +32,10 @@ class FilterNHighestIntensityPartitioned(PeakFilteringType):
 
     def filter_index_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_idx_arr: NDArray[int],
-    ) -> NDArray[int]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_idx_arr: NDArray[np.int64],
+    ) -> NDArray[np.int64]:
         """Returns up to `max_count` many peaks, by picking up to `max_count // n_partitions` many peaks from each
         equal-length segment of the spectrum (in terms of mz values).
         :param spectrum_mz_arr: The mz array of the full spectrum.
@@ -72,11 +72,11 @@ class FilterNHighestIntensityPartitioned(PeakFilteringType):
 
     def filter_peaks(
         self,
-        spectrum_mz_arr: NDArray[float],
-        spectrum_int_arr: NDArray[float],
-        peak_mz_arr: NDArray[float],
-        peak_int_arr: NDArray[float],
-    ) -> tuple[NDArray[float], NDArray[float]]:
+        spectrum_mz_arr: NDArray[np.float64],
+        spectrum_int_arr: NDArray[np.float64],
+        peak_mz_arr: NDArray[np.float64],
+        peak_int_arr: NDArray[np.float64],
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Returns up to `max_count` many peaks, by picking up to `max_count // n_partitions` many peaks from each
         equal-length segment of the spectrum (in terms of mz values).
         :param spectrum_mz_arr: The mz array of the full spectrum.
@@ -109,7 +109,7 @@ class FilterNHighestIntensityPartitioned(PeakFilteringType):
 
         return np.asarray(result_mz), np.asarray(result_int)
 
-    def _get_mz_partitions(self, spectrum_mz_arr: NDArray[float]) -> NDArray[float]:
+    def _get_mz_partitions(self, spectrum_mz_arr: NDArray[np.float64]) -> NDArray[np.float64]:
         """Returns the mz limits of the partitions."""
         mz_min = np.min(spectrum_mz_arr)
         mz_max = np.max(spectrum_mz_arr)

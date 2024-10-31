@@ -9,12 +9,12 @@ class ReferencePeakDistances:
     @staticmethod
     @njit
     def get_distances_max_peak_in_window(
-        peak_mz_arr: NDArray[float],
-        peak_int_arr: NDArray[float],
-        ref_mz_arr: NDArray[float],
+        peak_mz_arr: NDArray[np.float64],
+        peak_int_arr: NDArray[np.float64],
+        ref_mz_arr: NDArray[np.float64],
         max_distance: float,
         max_distance_unit: str,
-    ) -> NDArray[float]:
+    ) -> NDArray[np.float64]:
         """Returns for each reference the signed distance to the maximum peak in a window around the reference.
         The result is always returned in m/z units, regardless of the value of `max_distance_unit`.
         :param peak_mz_arr: The m/z values of the peaks.
@@ -57,11 +57,11 @@ class ReferencePeakDistances:
     @staticmethod
     @njit
     def get_distances_nearest(
-        peak_mz_arr: NDArray[float],
-        ref_mz_arr: NDArray[float],
+        peak_mz_arr: NDArray[np.float64],
+        ref_mz_arr: NDArray[np.float64],
         max_distance_unit: str,
         max_distance: float,
-    ) -> NDArray[float]:
+    ) -> NDArray[np.float64]:
         """Returns for each reference the signed distance to the nearest peak in the sample spectrum.
         The result is always returned in m/z units, regardless of the value of `unit`.
         :param peak_mz_arr: The m/z values of the peaks.

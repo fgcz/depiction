@@ -28,7 +28,7 @@ from depiction.tools.calibrate.spatial_smoothing_config import get_spatial_smoot
 from depiction.tools.filter_peaks.filter_peaks import get_peak_filter
 
 
-def extract_reference_masses(mass_list: Path) -> NDArray[float]:
+def extract_reference_masses(mass_list: Path) -> NDArray[np.float64]:
     if not mass_list.exists():
         raise RuntimeError(
             f"Mass list file {mass_list} does not exist but is required for the calibration method. "

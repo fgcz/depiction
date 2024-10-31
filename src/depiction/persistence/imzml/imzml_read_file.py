@@ -9,6 +9,7 @@ from typing import Any, Optional
 from xml.etree.ElementTree import ElementTree
 
 from numpy.typing import NDArray
+import numpy as np
 
 from depiction.persistence.file_checksums import FileChecksums
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
@@ -65,7 +66,7 @@ class ImzmlReadFile(GenericReadFile):
         return self._cached_properties["imzml_mode"]
 
     @cached_property
-    def coordinates(self) -> NDArray[int]:
+    def coordinates(self) -> NDArray[np.int64]:
         """Returns the spatial coordinates of the spectra in the .imzML file.
         Shape: (n_spectra, n_dimensions) where n_dimensions is 2 or 3 depending on the file."""
         # TODO check if it isn't simply always 3d because of pyimzml

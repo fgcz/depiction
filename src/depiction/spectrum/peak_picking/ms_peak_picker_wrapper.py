@@ -22,7 +22,9 @@ class MSPeakPicker:
     fit_type: str = "quadratic"
     peak_filtering: PeakFilteringType | None = None
 
-    def pick_peaks(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> tuple[NDArray[float], NDArray[float]]:
+    def pick_peaks(
+        self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         peak_list = ms_peak_picker.pick_peaks(mz_arr, int_arr, fit_type=self.fit_type)
         peak_mz = np.array([peak.mz for peak in peak_list])
         peak_int = np.array([peak.intensity for peak in peak_list])

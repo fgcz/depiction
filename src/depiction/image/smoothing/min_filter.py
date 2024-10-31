@@ -53,7 +53,9 @@ class MinFilter(ChannelWiseSmoothing):
     #        is_foreground_label=image.is_foreground_label,
     #    )
 
-    def smooth_channel(self, image_2d: NDArray[float], is_foreground: NDArray[bool]) -> tuple[NDArray[float]]:
+    def smooth_channel(
+        self, image_2d: NDArray[np.float64], is_foreground: NDArray[np.bool_]
+    ) -> tuple[NDArray[np.float64]]:
         if self.kernel_shape != KernelShape.Square:
             raise ValueError("Only square kernel is supported for now")
         if self.percentile == 0:

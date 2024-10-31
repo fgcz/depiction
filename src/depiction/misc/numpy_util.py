@@ -7,7 +7,7 @@ class NumpyUtil:
     """Provides some missing numpy functionality."""
 
     @staticmethod
-    def search_sorted_closest(full_array: NDArray[float], values: NDArray[float]) -> NDArray[int]:
+    def search_sorted_closest(full_array: NDArray[np.float64], values: NDArray[np.float64]) -> NDArray[np.int64]:
         """Returns an array of indices with one entry for every value in values, indicating the index of the closest
         value in full_array. `full_array` must be sorted."""
         # determine the insert indices
@@ -26,7 +26,9 @@ class NumpyUtil:
         return closest_indices
 
     @staticmethod
-    def get_sorted_indices_within_distance(array: NDArray[float], value: float, max_distance: float) -> NDArray[int]:
+    def get_sorted_indices_within_distance(
+        array: NDArray[np.float64], value: float, max_distance: float
+    ) -> NDArray[np.int64]:
         """Returns the indices of values withn at most (inclusive) max_distance from value. This is equivalent to
         np.where(np.abs(array-value) <= max_distance), but this method is faster by making use of the sorted constraint
         on the input array."""

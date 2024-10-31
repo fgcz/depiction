@@ -68,7 +68,7 @@ class CreateImzmlPool:
                     spectrum_ids = self.pool_source_df.query("abs_path == @abs_path").iloc[0]["source_spectrum_id"]
                     writer.copy_spectra(reader, spectrum_ids)
 
-    def _sample_spectra_indices(self) -> list[NDArray[int]]:
+    def _sample_spectra_indices(self) -> list[NDArray[np.int64]]:
         """Returns a list with one element for every file containing the indices of the sampled spectra."""
         rng = np.random.default_rng(self._random_seed)
         per_file_indices = []

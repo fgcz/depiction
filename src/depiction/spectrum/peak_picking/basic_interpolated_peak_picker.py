@@ -23,7 +23,9 @@ class BasicInterpolatedPeakPicker:
 
     # TODO note unlike the BasicPeakPicker, this one does not support pick_peaks_index and is something that might have
     #      to be considered in the rest of the code before it can be used
-    def pick_peaks(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> tuple[NDArray[float], NDArray[float]]:
+    def pick_peaks(
+        self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         # find local maxima
         local_maxima_indices = self._find_local_maxima_indices(mz_arr=mz_arr, int_arr=int_arr)
 
@@ -54,7 +56,7 @@ class BasicInterpolatedPeakPicker:
         return peak_mz, peak_int
 
     def _interpolate_max_mz_and_intensity(
-        self, local_max_index: int, mz_arr: NDArray[float], int_arr: NDArray[float]
+        self, local_max_index: int, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
     ) -> tuple[float, float] | tuple[None, None]:
         """Returns the interpolated m/z and intensity of a local maximum index.
         :param local_max_index: index of the local maximum in the mz_arr and int_arr arrays
@@ -82,7 +84,9 @@ class BasicInterpolatedPeakPicker:
             int_max = spline(mz_max)
             return mz_max, int_max
 
-    def _find_local_maxima_indices(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[int]:
+    def _find_local_maxima_indices(
+        self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
+    ) -> NDArray[np.int64]:
         """Returns the indices of local maxima in the intensity array, respecting the `min_distance` parameter."""
         local_maxima_indices, _ = scipy.signal.find_peaks(
             int_arr,

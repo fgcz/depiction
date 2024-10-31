@@ -13,9 +13,9 @@ from depiction.persistence.types import GenericWriteFile, GenericReadFile, Gener
 
 @dataclass
 class ResampleMassAxis:
-    target_mz_arr: NDArray[float]
+    target_mz_arr: NDArray[np.float64]
 
-    def evaluate_spectrum(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
+    def evaluate_spectrum(self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]) -> NDArray[np.float64]:
         """Resamples the given spectrum to the target mass axis."""
         spline = CubicSpline(x=mz_arr, y=int_arr, extrapolate=False)
         values = spline(self.target_mz_arr)
@@ -43,7 +43,7 @@ class ResampleMassAxis:
 
     @classmethod
     def _evaluate_file_chunk(
-        cls, reader: GenericReader, spectra_ids: list[int], writer: GenericWriter, target_mz_arr: NDArray[float]
+        cls, reader: GenericReader, spectra_ids: list[int], writer: GenericWriter, target_mz_arr: NDArray[np.float64]
     ) -> None:
         resampler = ResampleMassAxis(target_mz_arr=target_mz_arr)
 

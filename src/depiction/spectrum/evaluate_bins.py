@@ -23,7 +23,7 @@ class EvaluateBins:
     Evaluates the binning of spectra, for specific m/z values.
     """
 
-    def __init__(self, bin_edges: NDArray[float], statistic: BinStatistic = BinStatistic.MEAN) -> None:
+    def __init__(self, bin_edges: NDArray[np.float64], statistic: BinStatistic = BinStatistic.MEAN) -> None:
         """
         :param bin_edges: The bin edges to use for binning the spectra, including the lower and upper bounds.
         :param statistic: The statistic to use for evaluating the bins.
@@ -31,7 +31,7 @@ class EvaluateBins:
         self._bin_edges = np.asarray(bin_edges)
         self._statistic = statistic
 
-    def evaluate(self, mz_arr: NDArray[float], int_arr: NDArray[float]) -> NDArray[float]:
+    def evaluate(self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]) -> NDArray[np.float64]:
         """
         Evaluates the binning for the provided spectrum of m/z and intensity values.
         :param mz_arr: The m/z values of the spectrum.
@@ -66,7 +66,7 @@ class EvaluateBins:
         reader: GenericReader,
         spectra_ids: list[int],
         writer: GenericWriter,
-        bin_edges: NDArray[float],
+        bin_edges: NDArray[np.float64],
         statistic: int,
     ) -> None:
         """
@@ -87,11 +87,11 @@ class EvaluateBins:
         error_model="numpy",
     )
     def _compute_evaluate(
-        mz_arr: NDArray[float],
-        int_arr: NDArray[float],
-        bin_edges: NDArray[float],
+        mz_arr: NDArray[np.float64],
+        int_arr: NDArray[np.float64],
+        bin_edges: NDArray[np.float64],
         statistic: int,
-    ) -> NDArray[float]:
+    ) -> NDArray[np.float64]:
         """
         Evaluates the binning for the provided spectrum of m/z and intensity values, accelerated with numba.
         """
@@ -117,19 +117,19 @@ class EvaluateBins:
         return bin_array
 
     @property
-    def mz_values(self) -> NDArray[float]:
+    def mz_values(self) -> NDArray[np.float64]:
         """The m/z values of this binning, corresponding to the centers of each bin."""
         return (self._bin_edges[:-1] + self._bin_edges[1:]) / 2
 
     @property
-    def bin_edges(self) -> NDArray[float]:
+    def bin_edges(self) -> NDArray[np.float64]:
         """The bin edges."""
         view = self._bin_edges.view()
         view.flags.writeable = False
         return view
 
     @classmethod
-    def from_mz_values(cls, mz_values: NDArray[float]) -> EvaluateBins:
+    def from_mz_values(cls, mz_values: NDArray[np.float64]) -> EvaluateBins:
         """Constructs an instance of EvaluateBins from the provided m/z values, i.e. at the center of bins."""
         bin_edges = np.zeros(mz_values.shape[0] + 1, dtype=mz_values.dtype)
         bin_edges[1:-1] = (mz_values[1:] + mz_values[:-1]) / 2

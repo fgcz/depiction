@@ -5,6 +5,7 @@ import functools
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Callable, Any, TYPE_CHECKING
+import numpy as np
 
 from depiction.parallel_ops import ReadSpectraParallel
 from depiction.persistence import (
@@ -36,7 +37,7 @@ class WriteSpectraParallel:
             Callable[[GenericReader, list[int], list[GenericWriter], ...], None]
             | Callable[[GenericReader, list[int], list[GenericWriteFile], ...], None]
         ),
-        spectra_indices: NDArray[int] | None = None,
+        spectra_indices: NDArray[np.int64] | None = None,
         bind_args: dict[str, Any] | None = None,
         open_write_files: bool = True,
     ) -> None:
@@ -84,7 +85,7 @@ class WriteSpectraParallel:
         read_file: GenericReadFile,
         write_files: list[GenericWriteFile],
         operation: Callable[[str, list[str]], None],
-        spectra_indices: NDArray[int] | None = None,
+        spectra_indices: NDArray[np.int64] | None = None,
         bind_args: dict[str, Any] | None = None,
     ) -> None:
         def op(
@@ -123,7 +124,7 @@ class WriteSpectraParallel:
         work_directory: Path,
         read_file: GenericReadFile,
         write_files: list[GenericWriteFile],
-        spectra_indices: NDArray[int] | None,
+        spectra_indices: NDArray[np.int64] | None,
     ) -> list[tuple[ImzmlModeEnum, list[Path]]]:
         # determine the number of tasks
         if spectra_indices is not None:
@@ -195,7 +196,7 @@ class WriteSpectraParallel:
         read_file: GenericReadFile,
         write_file: GenericWriteFile,
         operation: Callable[[GenericReader, list[int], GenericWriter], None],
-        spectra_indices: NDArray[int] | None = None,
+        spectra_indices: NDArray[np.int64] | None = None,
         bind_args: dict[str, Any] | None = None,
     ) -> None:
         def wrap_operation(

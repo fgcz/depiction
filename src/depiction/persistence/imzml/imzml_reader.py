@@ -33,7 +33,7 @@ class ImzmlReader(GenericReader):
         int_arr_lengths: list[int],
         int_arr_dtype: str,
         int_compression: Compression,
-        coordinates: NDArray[int],
+        coordinates: NDArray[np.int64],
         imzml_path: Path,
     ) -> None:
         self._imzml_path = imzml_path
@@ -131,11 +131,11 @@ class ImzmlReader(GenericReader):
         return len(self._int_arr_lengths)
 
     @cached_property
-    def coordinates(self) -> NDArray[int]:
+    def coordinates(self) -> NDArray[np.int64]:
         """Returns the coordinates of the spectra in the imzML file, shape (n_spectra, n_dim)."""
         return self._coordinates
 
-    def get_spectrum_mz(self, i_spectrum: int) -> NDArray[float]:
+    def get_spectrum_mz(self, i_spectrum: int) -> NDArray[np.float64]:
         """Returns the m/z values of the i-th spectrum."""
         file = self.ibd_mmap
         file.seek(self._mz_arr_offsets[i_spectrum])
@@ -144,7 +144,7 @@ class ImzmlReader(GenericReader):
             mz_bytes = zlib.decompress(mz_bytes)
         return np.frombuffer(mz_bytes, dtype=self._mz_arr_dtype)
 
-    def get_spectrum_int(self, i_spectrum: int) -> NDArray[float]:
+    def get_spectrum_int(self, i_spectrum: int) -> NDArray[np.float64]:
         """Returns the intensity values of the i-th spectrum."""
         file = self.ibd_mmap
         file.seek(self._int_arr_offsets[i_spectrum])

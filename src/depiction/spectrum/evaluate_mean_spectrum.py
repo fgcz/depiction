@@ -26,7 +26,7 @@ class EvaluateMeanSpectrum:
         self._parallel_config = parallel_config
         self._eval_bins = eval_bins
 
-    def evaluate_file(self, input_file: GenericReadFile) -> tuple[NDArray[float], NDArray[float]]:
+    def evaluate_file(self, input_file: GenericReadFile) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         if input_file.imzml_mode != ImzmlModeEnum.CONTINUOUS and self._eval_bins is None:
             raise ValueError("Input file must be in 'continuous' mode.")
 
@@ -44,7 +44,7 @@ class EvaluateMeanSpectrum:
         int_arr = total_sum / input_file.n_spectra
         return mz_arr, int_arr
 
-    def _get_result_mz_arr(self, input_file: GenericReadFile) -> NDArray[float]:
+    def _get_result_mz_arr(self, input_file: GenericReadFile) -> NDArray[np.float64]:
         """Returns the m/z array for the result."""
         if self._eval_bins is None:
             with input_file.reader() as reader:
@@ -59,7 +59,7 @@ class EvaluateMeanSpectrum:
         input_file: GenericReadFile,
         parallel_config: ParallelConfig,
         eval_bins: Optional[EvaluateBins],
-    ) -> NDArray[float]:
+    ) -> NDArray[np.float64]:
         # compute sum chunk-wise
         parallelize = ReadSpectraParallel.from_config(parallel_config)
         operation = functools.partial(cls._compute_chunk_sum, eval_bins=eval_bins)
@@ -71,7 +71,7 @@ class EvaluateMeanSpectrum:
     @staticmethod
     def _compute_chunk_sum(
         reader: GenericReader, spectra_ids: list[int], eval_bins: Optional[EvaluateBins]
-    ) -> NDArray[float]:
+    ) -> NDArray[np.float64]:
         if eval_bins is None:
             chunk_sum = np.array(reader.get_spectrum_int(spectra_ids[0]), copy=True)
             for i in spectra_ids[1:]:

@@ -89,6 +89,12 @@ doc = [
 apps = [
     "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main"
 ]
+typing = [
+    "mypy",
+    "pandas-stubs",
+    "types-PyYAML",
+    "scipy-stubs",
+]
 
 [build-system]
 requires = ["setuptools >= 61.0"]

@@ -103,6 +103,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.package-data]
 depiction_targeted_preproc = ["**/*.smk", "**/Snakefile", "**/*.yml", "**/*.yaml"]
 
+[tool.uv]
+reinstall-package = ["depiction"]
+
 [tool.black]
 line-length = 120
 

@@ -34,8 +34,8 @@ class ConstantModel:
 
     @classmethod
     def fit_mean(cls, x_arr: NDArray[np.float64], y_arr: NDArray[np.float64]) -> ConstantModel:
-        return ConstantModel(value=np.mean(y_arr))
+        return ConstantModel(value=float(np.mean(y_arr)))
 
     @classmethod
     def fit_median(cls, x_arr: NDArray[np.float64], y_arr: NDArray[np.float64]) -> ConstantModel:
-        return ConstantModel(value=np.median(y_arr))
+        return ConstantModel(value=float(np.median(y_arr)))

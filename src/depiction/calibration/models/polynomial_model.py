@@ -22,7 +22,7 @@ class PolynomialModel:
     @property
     def is_zero(self) -> bool:
         """Returns True if the model is the (exact) zero function."""
-        return np.all(self.coef == 0)
+        return bool(np.all(self.coef == 0))
 
     @property
     def degree(self) -> int:
@@ -34,11 +34,11 @@ class PolynomialModel:
 
     @classmethod
     def identity(cls, degree: int = 1) -> "PolynomialModel":
-        return cls([0] * degree + [1])
+        return cls(np.array([0] * degree + [1]))
 
     @classmethod
     def zero(cls, degree: int = 1) -> "PolynomialModel":
-        return cls([0] * (degree + 1))
+        return cls(np.array([0] * (degree + 1)))
 
     @classmethod
     def fit_lsq(cls, x_arr: NDArray[np.float64], y_arr: NDArray[np.float64], degree: int) -> "PolynomialModel":

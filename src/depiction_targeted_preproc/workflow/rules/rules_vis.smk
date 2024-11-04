@@ -34,6 +34,18 @@ rule vis_images_ome_tiff:
         " --input-raw-metadata-path {input.raw_metadata}"
 
 
+rule vis_image_ome_zarr:
+    input:
+        netcdf="{sample}/images_{label}.hdf5",
+        raw_metadata="{sample}/raw_metadata.json",
+    output:
+        ngff=directory("{sample}/images_{label}.ome.zarr"),
+    shell:
+        "python -m depiction_targeted_preproc.workflow.vis.images_ome_ngff "
+        " --input-netcdf-path {input.netcdf} --output-zarr-path {output.ngff}"
+        " --input-raw-metadata-path {input.raw_metadata}"
+
+
 rule vis_clustering:
     input:
         netcdf="{sample}/cluster_{label}.hdf5",

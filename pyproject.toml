@@ -2,7 +2,7 @@
 name = "depiction"
 version = "0.1.0"
 description = ""
-authors = [{name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch"}]
+authors = [{ name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" }]
 readme = "README.md"
 license = { text = "Apache-2.0" }
 
@@ -38,6 +38,7 @@ dependencies = [
     "netCDF4<=1.7.1",
     "bioio @ git+https://github.com//bioio-devs/bioio.git@127a87db296db4462a73b227287c9a2a1f190e14",
     "bioio-ome-tiff",
+    "bioio-ome-zarr",
     "loguru",
     "ms-peak-picker",
     "findmfpy",
@@ -131,7 +132,7 @@ ignore = ["ANN101", "ANN102", "TCH002"]
 exclude_also = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
-    ]
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

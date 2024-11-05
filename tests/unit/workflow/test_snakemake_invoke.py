@@ -6,7 +6,7 @@ import pytest
 import sys
 from pytest_mock import MockerFixture
 
-from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
+from snakemake_invoke.snakemake_invoke import SnakemakeInvoke
 
 
 @pytest.fixture

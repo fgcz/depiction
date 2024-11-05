@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from depiction_targeted_preproc.workflow.snakemake_invoke import SnakemakeInvoke
+from snakemake_invoke.snakemake_invoke import SnakemakeInvoke
 
 work_dir = Path(__file__).parent / "data-sandbox"
 

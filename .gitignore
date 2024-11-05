@@ -10,7 +10,9 @@
 .venv
 .vscode
 .python-version
+.nox
 dist
+_build
 __pycache__
 
 *.ibd

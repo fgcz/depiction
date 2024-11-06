@@ -1,10 +1,10 @@
-import zipfile
-from pathlib import Path
-
 import cyclopts
 import yaml
+import zipfile
 from depiction_targeted_preproc.pipeline.prepare_params import Params
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import get_result_files_new
+from pathlib import Path
+from snakemake_invoke.config import SnakemakeInvokeConfig
 from snakemake_invoke.snakemake_invoke import SnakemakeInvoke
 
 app = cyclopts.App()
@@ -19,8 +19,11 @@ def process_chunk(chunk_dir: Path) -> Path:
     result_files = get_result_files_new(requested_artifacts=params.requested_artifacts, sample_dir=chunk_dir)
 
     # invoke snakemake
-    # TODO note report file is deactivated because it's currently broken due to dependencies (jinja2)
-    SnakemakeInvoke(report_file=None).invoke(work_dir=chunk_dir.parent, result_files=result_files)
+    # TODO should we generate the report_file again? before it was broken due to jinja2 update
+    snakemake_config = SnakemakeInvokeConfig(
+        snakefile_path=Path(__file__).parents[1] / "workflow" / "Snakefile",
+    )
+    SnakemakeInvoke(snakemake_config).invoke(work_dir=chunk_dir.parent, result_files=result_files)
 
     # zip the results
     sample_name = chunk_dir.name

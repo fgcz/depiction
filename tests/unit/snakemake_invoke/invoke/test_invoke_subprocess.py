@@ -1,5 +1,23 @@
 import pytest
+import sys
+from pathlib import Path
+from snakemake_invoke.config import SnakemakeInvokeConfig
 from snakemake_invoke.invoke.invoke_subprocess import InvokeSubprocess
+
+
+@pytest.fixture()
+def config_snakefile_path() -> Path:
+    return Path("/tmp/workflow/Snakefile")
+
+
+@pytest.fixture
+def config(config_snakefile_path):
+    return SnakemakeInvokeConfig(snakefile_path=config_snakefile_path)
+
+
+@pytest.fixture
+def invoke(config):
+    return InvokeSubprocess(config=config)
 
 
 @pytest.mark.parametrize(
@@ -16,3 +34,23 @@ from snakemake_invoke.invoke.invoke_subprocess import InvokeSubprocess
 def test_args_to_shell_command(input_args, expected):
     result = InvokeSubprocess._args_to_shell_command(input_args)
     assert result == expected
+
+
+def test_get_base_command(invoke) -> None:
+    base_command = invoke.get_base_command(
+        extra_args=["--keep-going"],
+        work_dir=Path("/tmp/work"),
+    )
+    assert base_command == [
+        sys.executable,
+        "-m",
+        "snakemake",
+        "-d",
+        "/tmp/work",
+        "--cores",
+        "1",
+        "--snakefile",
+        "/tmp/workflow/Snakefile",
+        "--rerun-incomplete",
+        "--keep-going",
+    ]

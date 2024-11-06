@@ -1,4 +1,3 @@
-import os
 import pytest
 from pathlib import Path
 from snakemake_invoke.config import SnakemakeInvokeConfig, ExecutionModel
@@ -43,14 +42,15 @@ def test_invoke_subprocess(mocker, invoke, mock_work_dir, mock_result_files):
     mocked = mocker.patch("snakemake_invoke.snakemake_invoke.InvokeSubprocess")
     invoke.invoke(work_dir=mock_work_dir, result_files=mock_result_files)
     mocked.assert_called_once_with(config=invoke.config)
-    mocked.return_value.invoke.assert_called_once_with(mock_work_dir, mock_result_files)
+    mocked.return_value.invoke.assert_called_once_with(work_dir=mock_work_dir, result_files=mock_result_files)
 
 
 @pytest.mark.parametrize("config_execution_model", [ExecutionModel.CALL_FUNCTION], indirect=True)
 def test_invoke_call_function(mocker, invoke, mock_work_dir, mock_result_files):
-    mocked_method = mocker.patch.object(invoke, "_invoke_direct")
+    mocked = mocker.patch("snakemake_invoke.snakemake_invoke.InvokeCallFunction")
     invoke.invoke(work_dir=mock_work_dir, result_files=mock_result_files)
-    mocked_method.assert_called_once_with(mock_work_dir, mock_result_files)
+    mocked.assert_called_once_with(config=invoke.config)
+    mocked.return_value.invoke.assert_called_once_with(work_dir=mock_work_dir, result_files=mock_result_files)
 
 
 def test_invoke_when_unknown(invoke, mock_work_dir, mock_result_files):
@@ -58,20 +58,3 @@ def test_invoke_when_unknown(invoke, mock_work_dir, mock_result_files):
     with pytest.raises(ValueError) as error:
         invoke.invoke(work_dir=mock_work_dir, result_files=mock_result_files)
     assert str(error.value) == f"Unknown execution model: unknown"
-
-
-@pytest.mark.parametrize(
-    "config_env_variables,expected",
-    [
-        ({}, {"a": "1", "b": "2"}),
-        ({"c": "3"}, {"a": "1", "b": "2", "c": "3"}),
-        ({"a": "x", "c": "3"}, {"a": "x", "b": "2", "c": "3"}),
-    ],
-    indirect=["config_env_variables"],
-)
-def test_set_env_vars(mocker, invoke, expected):
-    original_env_vars = {"a": "1", "b": "2"}
-    mocker.patch("os.environ", original_env_vars)
-    with invoke._set_env_vars():
-        assert dict(os.environ) == expected
-    assert dict(os.environ) == {"a": "1", "b": "2"}

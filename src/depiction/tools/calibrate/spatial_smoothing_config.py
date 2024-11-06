@@ -5,7 +5,7 @@ from typing import Literal, Annotated, Protocol
 from pydantic import BaseModel, Field
 
 from depiction.image import MultiChannelImage
-from depiction.image.smoothing.min_filter import MinFilter, KernelShape
+from depiction.image.smoothing.percentile_filter import PercentileFilter, KernelShape
 from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
 
 
@@ -42,6 +42,6 @@ def get_spatial_smoothing(config: SpatialSmoothingConfig | None) -> SpatialSmoot
             kernel_size=kernel_size, kernel_shape=kernel_shape, percentile=percentile
         ):
             # TODO rename the class to match the config
-            return MinFilter(kernel_size=kernel_size, kernel_shape=kernel_shape, percentile=percentile)
+            return PercentileFilter(kernel_size=kernel_size, kernel_shape=kernel_shape, percentile=percentile)
         case _:
             raise ValueError(f"Unknown spatial smoothing config {config}")

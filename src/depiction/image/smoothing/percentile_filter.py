@@ -32,7 +32,7 @@ class KernelFunction(Enum):
 
 
 @dataclass(frozen=True)
-class MinFilter(ChannelWiseSmoothing):
+class PercentileFilter(ChannelWiseSmoothing):
     kernel_size: int = 5
     kernel_shape: KernelShape = KernelShape.Square
     percentile: float = 0

@@ -31,6 +31,28 @@ uv pip install -e ".[dev]"
 This creates the virtual environment in the `.venv` directory.
 To activate the environment in your shell, you need to `source` the correct activation script from `.venv/bin`, e.g. `.venv/bin/activate` for bash.
 
+### Install `nox`
+
+To run the tests the same way as in the CI, you can use `nox`.
+In general, you can use the latest version.
+It's suggested to install it with `pipx` but any other way is fine too.
+
+```bash
+pipx install nox
+```
+
+Then you can run the checks with
+
+```bash
+nox
+```
+
+or more specifically:
+
+```bash
+nox -s tests
+```
+
 ## Geometry Conventions
 
 TODO these are not used consistently everywhere yet

@@ -22,12 +22,12 @@ from depiction.image.smoothing.base import ChannelWiseSmoothing
 #   - but to make this robust we might want to consider using medians...
 
 
-class KernelShape(Enum):
+class KernelShape(str, Enum):
     Square = "square"
     Circle = "circle"
 
 
-class KernelFunction(Enum):
+class KernelFunction(str, Enum):
     Min = "min"
     AbsMin = "abs_min"
 

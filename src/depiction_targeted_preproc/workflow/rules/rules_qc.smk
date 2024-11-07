@@ -106,7 +106,7 @@ rule qc_plot_test_mass_shifts:
     output:
         pdf="{sample}/qc/plot_test_mass_shifts.pdf",
     shell:
-        "python -m depiction_targeted_preproc.workflow.qc.plot_calibration_map_v2"
+        "python -m depiction_targeted_preproc.workflow.qc.plot_test_mass_shifts"
         " --input-mass-shifts {input.mass_shifts}"
         " --output-pdf {output.pdf}"
 

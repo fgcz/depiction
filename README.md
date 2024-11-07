@@ -13,9 +13,9 @@ This project is in an early state of development. If you are interested, it's be
 
 ## Setup dev environment
 
-Currently, Python 3.12 is required, 3.13 is not compatible yet (missing wheels and e.g. llvmlite).
+Currently, Python 3.12 is required, 3.13 is not compatible yet (missing wheels and e.g. numba/llvmlite).
 
-### Install `uv`
+### Install with `uv`
 
 The application [uv](https://github.com/astral-sh/uv) provides both very fast installation of all required dependencies, as well as functionality to install a particular version of Python for you.
 
@@ -31,7 +31,9 @@ uv pip install -e ".[dev]"
 This creates the virtual environment in the `.venv` directory.
 To activate the environment in your shell, you need to `source` the correct activation script from `.venv/bin`, e.g. `.venv/bin/activate` for bash.
 
-### Install `pre-commit`
+If you use an IDE you may want to point the IDE to the Python interpreter at `.venv/bin/python`.
+
+### Set up `pre-commit`
 
 To check and format the code automatically, you can use `pre-commit`.
 In general, you can use the latest version.
@@ -44,7 +46,7 @@ pre-commit install
 Now, the checks will be run automatically before each commit.
 The first time you might have some delay because the hooks are installed.
 
-### Install `nox`
+### Test with `nox`
 
 To run the tests the same way as in the CI, you can use `nox`.
 In general, you can use the latest version.
@@ -64,6 +66,8 @@ or more specifically:
 ```bash
 nox -s tests
 ```
+
+However, you can also run the tests with `pytest` or from your IDE if you are in the virtual environment.
 
 ## Geometry Conventions
 

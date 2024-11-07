@@ -14,9 +14,9 @@ calibration:
     reg_model_unit: mz
     spatial_smoothing:
       type: PercentileFilter
-      kernel_size: 5
+      kernel_size: 7
       percentile: 0.25
-      kernel_shape: square
+      kernel_shape: circle
     min_points: 3
     peak_filtering:
       filters:

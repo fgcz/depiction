@@ -59,7 +59,9 @@ testing = [
     "pytype>=2023.12.18",
     "logot",
     "pytest",
-    "pytest-mock"
+    "pytest-mock",
+    # TODO to be explored later
+    #"pytest-regtest",
 ]
 dev = [
     "depiction[testing]",

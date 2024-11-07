@@ -15,23 +15,21 @@ This project is in an early state of development. If you are interested, it's be
 
 Currently, Python 3.12 is required, 3.13 is not compatible yet (missing wheels and e.g. llvmlite).
 
-### Using `uv` (recommended)
+### Install `uv`
 
-Install the `pyproject.toml` in editable mode, tested with
-[uv](https://github.com/astral-sh/uv):
+The application [uv](https://github.com/astral-sh/uv) provides both very fast installation of all required dependencies, as well as functionality to install a particular version of Python for you.
+
+If you do not have `uv` installed yet, please consult their [installation instructions](https://docs.astral.sh/uv/getting-started/installation/).
+
+To create a virtual environment using `uv` and install depiction in editable mode (i.e. changes to code are immediately available in the environment), run the following commands:
 
 ```bash
-uv venv
+uv venv -p 3.12
 uv pip install -e ".[dev]"
 ```
 
-### Using `conda`
-
-```bash
-conda create -n exp-2024-05-depiction python=3.11
-conda activate exp-2024-05-depiction
-pip install -e ".[dev]"
-```
+This creates the virtual environment in the `.venv` directory.
+To activate the environment in your shell, you need to `source` the correct activation script from `.venv/bin`, e.g. `.venv/bin/activate` for bash.
 
 ## Geometry Conventions
 

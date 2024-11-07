@@ -1,8 +1,9 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from enum import Enum
 
 import numpy as np
+import scipy.ndimage
+from dataclasses import dataclass
+from enum import Enum
 from numpy.typing import NDArray
 
 from depiction.image.smoothing.base import ChannelWiseSmoothing
@@ -37,31 +38,31 @@ class PercentileFilter(ChannelWiseSmoothing):
     kernel_shape: KernelShape = KernelShape.Square
     percentile: float = 0
 
-    # def smooth_image(self, image: MultiChannelImage) -> MultiChannelImage:
-    #    data = XarrayHelper.ensure_dense(image.data_spatial)
-    #    if self.kernel_shape != KernelShape.Square:
-    #        raise ValueError("Only square kernel is supported for now")
-    #    smoothed_data = np.zeros_like(data.values)
-    #    for c in range(smoothed_data.shape[2]):
-    #        if self.percentile == 0:
-    #            smoothed_data[:, :, c] = _eval_abs_min(data.values[:, :, c], self.kernel_size)
-    #        else:
-    #            smoothed_data[:, :, c] = _eval_abs_percentile(data.values[:, :, c], self.kernel_size, self.percentile)
-    #    return MultiChannelImage(
-    #        DataArray(smoothed_data, dims=data.dims, coords=data.coords),
-    #        is_foreground=image.fg_mask,
-    #        is_foreground_label=image.is_foreground_label,
-    #    )
-
     def smooth_channel(
         self, image_2d: NDArray[np.float64], is_foreground: NDArray[np.bool_]
     ) -> tuple[NDArray[np.float64]]:
-        if self.kernel_shape != KernelShape.Square:
-            raise ValueError("Only square kernel is supported for now")
-        if self.percentile == 0:
-            return _eval_abs_min(image_2d, self.kernel_size)
+        if self.kernel_shape == KernelShape.Square:
+            if self.percentile == 0:
+                return _eval_abs_min(image_2d, self.kernel_size)
+            else:
+                return _eval_abs_percentile(image_2d, self.kernel_size, self.percentile)
+        elif self.kernel_shape == KernelShape.Circle:
+            circle = self.get_circle_kernel_mask()
+            return scipy.ndimage.percentile_filter(
+                image_2d,
+                percentile=np.clip(self.percentile * 100, 0, 100),
+                footprint=circle,
+            )
         else:
-            return _eval_abs_percentile(image_2d, self.kernel_size, self.percentile)
+            msg = f"Unknown kernel shape: {self.kernel_shape}"
+            raise ValueError(msg)
+
+    def get_circle_kernel_mask(self) -> NDArray[np.bool_]:
+        footprint = np.zeros((self.kernel_size, self.kernel_size), dtype=int)
+        for x, y in np.ndindex(footprint.shape):
+            if (x - self.kernel_size // 2) ** 2 + (y - self.kernel_size // 2) ** 2 <= (self.kernel_size // 2) ** 2:
+                footprint[x, y] = True
+        return footprint
 
 
 def _min_by_abs(arr):

@@ -1,11 +1,10 @@
-baseline_correction: null
+process_spectra:
+  steps: []
 calibration:
   method:
     calibration_method: ConstantGlobalShift
   n_jobs: 10
-filter_peaks: null
 n_jobs: 10
-pick_peaks: null
 # TODO maybe this can be made even more specific for the test, to only include the absolutely required info
 requested_artifacts:
   - CALIB_IMAGES

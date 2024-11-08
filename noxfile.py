@@ -27,7 +27,7 @@ def licensecheck(session) -> None:
 
 
 @nox.session(default=False)
-def system_test(session) -> None:
+def system_tests(session) -> None:
     """Runs the system test - slow"""
     session.install(".[testing]")
     session.run("pytest", "--durations=10", "system_tests")

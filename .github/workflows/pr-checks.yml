@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   unit_tests:
-    name: PR Checks
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +20,20 @@ jobs:
         run: pip install nox[uv]
       - name: Run unit tests
         run: nox
+  system_tests:
+    name: System Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - name: Install nox
+        shell: bash
+        run: pip install nox[uv]
+      - name: Run system tests
+        run: nox -s system_tests
 #      - name: Code style
 #        run: ruff check || true
 #        if: success() || failure()

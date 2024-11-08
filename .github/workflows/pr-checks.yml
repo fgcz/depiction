@@ -23,31 +23,18 @@ jobs:
         run: pip install nox[uv]
       - name: Run unit tests
         run: nox
-  system_tests:
-    name: System Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.12
-      - name: Install nox
-        shell: bash
-        run: pip install nox[uv]
-      - name: Run system tests
-        run: nox -s system_tests
-#      - name: Code style
-#        run: ruff check || true
-#        if: success() || failure()
-#code_style:
-#  name: Code Style
-#  runs-on: ubuntu-latest
-#  steps:
-#    - uses: actions/checkout@v4
-#    - uses: ./.github/actions/setup-depiction
-#      with:
-#        python-version: 3.11
-#    - name: Check code with ruff
-#      run:
-#        ruff check || true
+  # TODO add this later with synthetic or shared test data
+  #system_tests:
+  #  name: System Tests
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v4
+  #    - name: Set up Python
+  #      uses: actions/setup-python@v5
+  #      with:
+  #        python-version: 3.12
+  #    - name: Install nox
+  #      shell: bash
+  #      run: pip install nox[uv]
+  #    - name: Run system tests
+  #      run: nox -s system_tests

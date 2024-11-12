@@ -33,7 +33,7 @@ def _get_inputs_spec(
             {
                 "type": "bfabric_dataset",
                 "id": dataset_id,
-                "filename": "mass_list.unstandardized.raw.csv",
+                "filename": "panels/unstandardized_full.csv",
                 "separator": ",",
             },
             {

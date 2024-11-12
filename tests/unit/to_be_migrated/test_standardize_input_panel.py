@@ -21,3 +21,8 @@ def test_standardize(config: StandardizeConfig) -> None:
         {"mass": [1, 2, 3], "label": ["a", "b", "c"], "type": ["something", "something", "something"]}
     )
     pl.testing.assert_frame_equal(result, expected_df)
+
+
+def test_config_load_packaged() -> None:
+    config = StandardizeConfig.load_packaged("standardize_main_config.yml")
+    assert config.select_columns == ["mass", "label", "type"]

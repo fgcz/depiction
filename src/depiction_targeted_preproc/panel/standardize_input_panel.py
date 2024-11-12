@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 import polars as pl
+import yaml
+from pathlib import Path
 from pydantic import BaseModel
 
 
@@ -8,6 +12,11 @@ class StandardizeConfig(BaseModel):
     column_names: dict[str, set[str]]
     select_columns: list[str]
     default_values: dict[str, str]
+
+    @classmethod
+    def load_packaged(cls, name: str) -> StandardizeConfig:
+        path = Path(__file__).parent / "standardize" / name
+        return cls.model_validate(yaml.safe_load(path.read_text()))
 
 
 def _identify_column_correspondence(config: StandardizeConfig, raw_df: pl.DataFrame) -> dict[str, str]:

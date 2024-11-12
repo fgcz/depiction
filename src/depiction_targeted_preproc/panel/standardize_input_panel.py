@@ -1,0 +1,44 @@
+import polars as pl
+from pydantic import BaseModel
+
+
+class StandardizeConfig(BaseModel):
+    column_names: dict[str, set[str]] = {
+        "mass": {"m/z", "mass", "pc-mt (m+h)+"},
+        "label": {"marker", "label"},
+        "type": {"type"},
+    }
+    select_columns: list[str] = ["mass", "label", "type"]
+    default_values: dict[str, str] = {"type": "target"}
+
+
+def _identify_column_correspondence(config: StandardizeConfig, raw_df: pl.DataFrame) -> dict[str, str]:
+    identified_columns = {}
+    for column_name in raw_df.columns:
+        for key, values in config.column_names.items():
+            if column_name.lower() in values:
+                if key not in identified_columns:
+                    identified_columns[key] = column_name
+                else:
+                    raise ValueError(
+                        f"Column {column_name} is ambiguous, it could be {key} or {identified_columns[key]}"
+                    )
+    required_columns = set(config.select_columns) - set(config.default_values.keys())
+    missing_columns = required_columns - set(identified_columns.keys())
+    if missing_columns:
+        raise ValueError(f"Missing columns: {missing_columns}")
+    # reverse the mapping
+    return {original: target for target, original in identified_columns.items()}
+
+
+def standardize(config: StandardizeConfig, raw_df: pl.DataFrame):
+    column_correspondence = _identify_column_correspondence(config=config, raw_df=raw_df)
+    renamed_df = raw_df.select(column_correspondence.keys()).rename(column_correspondence)
+    full_df = renamed_df.with_columns(
+        **{
+            column: pl.lit(config.default_values[column])
+            for column in config.default_values
+            if column not in renamed_df.columns
+        }
+    )
+    return full_df.select(config.select_columns)

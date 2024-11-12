@@ -1,7 +1,7 @@
 rule qc_table_marker_surroundings_baseline:
     input:
         imzml=multiext("{sample}/processed", ".imzML", ".ibd"),
-        mass_list="{sample}/mass_list.visualization.csv",
+        mass_list="{sample}/panels/full.csv",
         config="{sample}/pipeline_params.yml",
     output:
         table="{sample}/qc/table_marker_surroundings_baseline.parquet",
@@ -14,7 +14,7 @@ rule qc_table_marker_surroundings_baseline:
 rule qc_table_marker_surroundings_calib:
     input:
         imzml_peaks="{sample}/calibrated.imzML",
-        mass_list="{sample}/mass_list.visualization.csv",
+        mass_list="{sample}/panels/full.csv",
         config="{sample}/pipeline_params.yml",
     output:
         table="{sample}/qc/table_marker_surroundings_calib.parquet",
@@ -81,7 +81,7 @@ rule qc_plot_peak_density_grouped:
 rule qc_plot_calibration_map:
     input:
         calib_data="{sample}/calib_data.hdf5",
-        mass_list="{sample}/mass_list.visualization.csv",
+        mass_list="{sample}/panels/full.csv",
     output:
         pdf="{sample}/qc/plot_calibration_map.pdf",
     shell:
@@ -115,7 +115,7 @@ rule qc_plot_sample_spectra_before_after:
     input:
         imzml_baseline="{sample}/peaks.imzML",
         imzml_calib="{sample}/calibrated.imzML",
-        mass_list="{sample}/mass_list.visualization.csv",
+        mass_list="{sample}/panels/full.csv",
     output:
         pdf="{sample}/qc/plot_sample_spectra_before_after.pdf",
     shell:

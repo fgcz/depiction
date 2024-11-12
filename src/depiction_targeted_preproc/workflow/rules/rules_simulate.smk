@@ -1,6 +1,7 @@
 # TODO this should be handled differently, i.e. the simulation code should essentially create a new
 #      virtual "sample" maybe not in the raw directory just to be clear about the intentions
 #   -> but then it will require some adjustment in the code that calls it
+# TODO in addition to this above, this might cause conflicts with some of the panel processing rules maybe
 
 
 rule simulate_create_labels:
@@ -19,7 +20,7 @@ rule simulate_create_mass_list:
     input:
         config="{sample}_sim/config/simulate.yml",
     output:
-        mass_list="{sample}_sim/mass_list.raw.csv",
+        mass_list="{sample}_sim/unstandardize_full.csv",
     shell:
         "python -m depiction_targeted_preproc.workflow.simulate.create_mass_list"
         " --config-path {input.config}"
@@ -29,7 +30,7 @@ rule simulate_create_mass_list:
 rule simulate_generate_imzml:
     input:
         image="{sample}_sim/true_labels.hdf5",
-        mass_list="{sample}_sim/mass_list.raw.csv",
+        mass_list="{sample}_sim/full.csv",
         config="{sample}_sim/config/simulate.yml",
     output:
         imzml=multiext("{sample}_sim/raw", ".imzML", ".ibd"),

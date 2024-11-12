@@ -1,5 +1,3 @@
-
-
 rule process_spectra_config:
     input:
         config="{sample}/pipeline_params.yml",
@@ -35,7 +33,7 @@ rule proc_calibrate:
     input:
         imzml=multiext("{sample}/processed", ".imzML", ".ibd"),
         config="{sample}/config/proc_calibrate.yml",
-        mass_list="{sample}/mass_list.calibration.csv",
+        mass_list="{sample}/panels/calibration.csv",
     output:
         imzml=multiext("{sample}/calibrated", ".imzML", ".ibd"),
         calib_data="{sample}/calib_data.hdf5",
@@ -84,24 +82,3 @@ rule proc_cluster_stats:
     shell:
         "python -m depiction_targeted_preproc.workflow.proc.cluster_stats"
         " --input-netcdf-path {input.netcdf} --output-csv-path {output.csv}"
-
-
-rule proc_mass_list_preparation:
-    input:
-        csv="{sample}/mass_list.raw.csv",
-    output:
-        calibration_csv="{sample}/mass_list.calibration.csv",
-        # TODO remove
-        standards_csv="{sample}/mass_list.standards.csv",
-        # TODO remove
-        visualization_csv="{sample}/mass_list.visualization.csv",
-        # TODO remove
-        visualization_mini_csv="{sample}/mass_list.visualization_mini.csv",
-    shell:
-        """
-        python -m depiction_targeted_preproc.workflow.proc.mass_list_preparation \
-        --raw-csv {input.csv} --out-csv {output.calibration_csv}
-        cp {output.calibration_csv} {output.standards_csv}
-        cp {output.calibration_csv} {output.visualization_csv}
-        cp {output.calibration_csv} {output.visualization_mini_csv}
-        """

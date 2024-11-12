@@ -2,7 +2,7 @@ rule vis_images:
     input:
         imzml=multiext("{sample}/calibrated", ".imzML", ".ibd"),
         config="{sample}/pipeline_params.yml",
-        mass_list="{sample}/mass_list.visualization.csv",
+        mass_list="{sample}/panels/full.csv",
     output:
         hdf5="{sample}/images_default.hdf5",
     # TODO how can i pass n-jobs nicely here
@@ -60,7 +60,7 @@ rule vis_test_mass_shifts:
     input:
         calib_hdf5="{sample}/calib_data.hdf5",
         config="{sample}/config/proc_calibrate.yml",
-        mass_list="{sample}/mass_list.calibration.csv",
+        mass_list="{sample}/panels/full.csv",
     output:
         hdf5="{sample}/test_mass_shifts.hdf5",
     shell:

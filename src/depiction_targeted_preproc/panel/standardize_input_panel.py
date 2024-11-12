@@ -5,13 +5,9 @@ from pydantic import BaseModel
 class StandardizeConfig(BaseModel):
     """Configuration for the input panel standardization."""
 
-    column_names: dict[str, set[str]] = {
-        "mass": {"m/z", "mass", "pc-mt (m+h)+"},
-        "label": {"marker", "label"},
-        "type": {"type"},
-    }
-    select_columns: list[str] = ["mass", "label", "type"]
-    default_values: dict[str, str] = {"type": "target"}
+    column_names: dict[str, set[str]]
+    select_columns: list[str]
+    default_values: dict[str, str]
 
 
 def _identify_column_correspondence(config: StandardizeConfig, raw_df: pl.DataFrame) -> dict[str, str]:

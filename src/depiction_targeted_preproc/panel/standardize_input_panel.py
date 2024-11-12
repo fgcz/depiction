@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 
 class StandardizeConfig(BaseModel):
+    """Configuration for the input panel standardization."""
+
     column_names: dict[str, set[str]] = {
         "mass": {"m/z", "mass", "pc-mt (m+h)+"},
         "label": {"marker", "label"},
@@ -13,6 +15,11 @@ class StandardizeConfig(BaseModel):
 
 
 def _identify_column_correspondence(config: StandardizeConfig, raw_df: pl.DataFrame) -> dict[str, str]:
+    """Identifies the correspondence between the columns in the raw dataframe and the standardized columns,
+    returning an entry for each match from raw to standardized column name.
+
+    If required columns are missing, raises a ValueError.
+    """
     identified_columns = {}
     for column_name in raw_df.columns:
         for key, values in config.column_names.items():
@@ -31,7 +38,8 @@ def _identify_column_correspondence(config: StandardizeConfig, raw_df: pl.DataFr
     return {original: target for target, original in identified_columns.items()}
 
 
-def standardize(config: StandardizeConfig, raw_df: pl.DataFrame):
+def standardize(config: StandardizeConfig, raw_df: pl.DataFrame) -> pl.DataFrame:
+    """Standardizes the provided raw dataframe, according to the configuration."""
     column_correspondence = _identify_column_correspondence(config=config, raw_df=raw_df)
     renamed_df = raw_df.select(column_correspondence.keys()).rename(column_correspondence)
     full_df = renamed_df.with_columns(

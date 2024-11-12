@@ -1,7 +1,0 @@
-fields:
-  - name: label
-    type: string
-  - name: mass
-    type: number
-  - name: tol
-    type: number

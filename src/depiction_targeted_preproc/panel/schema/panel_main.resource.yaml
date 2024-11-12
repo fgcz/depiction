@@ -1,8 +1,0 @@
-fields:
-  - name: label
-    type: string
-  - name: mass
-    type: number
-  - name: type
-    type: string
-    categories: [target, standard]

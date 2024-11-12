@@ -99,3 +99,13 @@ rule exp_plot_map_comparison:
 #        " --input-mass-shift-path {input.mass_shift}"
 #        " --output-pdf-path {output.pdf}"
 #
+
+
+rule exp_prepare_calibration_config_with_no_smoothing:
+    input:
+        config="{sample}/config/proc_calibrate.yml",
+    output:
+        config="{sample}/config/proc_calibrate_no_smoothing.yml",
+    shell:
+        "python -m depiction_targeted_preproc.workflow.exp.prepare_calibration_config_with_no_smoothing"
+        " --input-config-path {input.config} --output-config-path {output.config}"

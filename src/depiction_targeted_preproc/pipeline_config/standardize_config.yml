@@ -1,0 +1,7 @@
+column_names:
+  label: [marker, label]
+  mass: [pc-mt (m+h)+, mass, m/z]
+  type: [type]
+default_values:
+  type: target
+select_columns: [mass, label, type]

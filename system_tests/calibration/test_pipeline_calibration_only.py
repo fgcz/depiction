@@ -17,7 +17,7 @@ def copy_input_files(target_dir: Path):
     source_dir = Path(__file__).parents[1] / "inputs"
     shutil.copy(source_dir / "tonsil.imzML", target_dir / "raw.imzML")
     shutil.copy(source_dir / "tonsil.ibd", target_dir / "raw.ibd")
-    shutil.copy(source_dir / "panel.csv", target_dir / "mass_list.unstandardized.raw.csv")
+    shutil.copy(source_dir / "panel.csv", target_dir / "panels" / "unstandardized_full.csv")
 
 
 @pytest.fixture()

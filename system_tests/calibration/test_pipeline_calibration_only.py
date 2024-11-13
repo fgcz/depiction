@@ -17,6 +17,7 @@ def copy_input_files(target_dir: Path):
     source_dir = Path(__file__).parents[1] / "inputs"
     shutil.copy(source_dir / "tonsil.imzML", target_dir / "raw.imzML")
     shutil.copy(source_dir / "tonsil.ibd", target_dir / "raw.ibd")
+    (target_dir / "panels").mkdir(parents=True, exist_ok=True)
     shutil.copy(source_dir / "panel.csv", target_dir / "panels" / "unstandardized_full.csv")
 
 

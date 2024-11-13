@@ -62,6 +62,7 @@ testing = [
     "logot",
     "pytest",
     "pytest-mock",
+    "pytest-pretty",
     # TODO to be explored later
     #"pytest-regtest",
 ]

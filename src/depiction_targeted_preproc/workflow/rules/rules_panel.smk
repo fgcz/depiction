@@ -15,6 +15,20 @@ rule panel_standardized_full:
         "--output-panel-path {output.csv}"
 
 
+# TODO use this in the visualization steps everywhere
+rule panel_visualize_full:
+    input:
+        csv="{sample}/panels/full.csv",
+    output:
+        csv="{sample}/panels/full_visualize.csv",
+    run:
+        import polars as pl
+
+        # TODO this absolutely needs to be configurable too
+        df = pl.read_csv(input.csv).with_columns(tol=pl.lit(0.25)).drop("type")
+        df.write_csv(output.csv)
+
+
 rule panel_filter_calibration:
     input:
         csv="{sample}/panels/full.csv",

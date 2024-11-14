@@ -1,3 +1,6 @@
+# TODO some of these might be more relevant if only using `calibration.csv`, i.e. excluding standards
+
+
 rule qc_table_marker_surroundings_baseline:
     input:
         imzml=multiext("{sample}/processed", ".imzML", ".ibd"),

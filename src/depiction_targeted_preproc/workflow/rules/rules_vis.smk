@@ -2,7 +2,7 @@ rule vis_images:
     input:
         imzml=multiext("{sample}/calibrated", ".imzML", ".ibd"),
         config="{sample}/pipeline_params.yml",
-        mass_list="{sample}/panels/full.csv",
+        mass_list="{sample}/panels/full_visualize.csv",
     output:
         hdf5="{sample}/images_default.hdf5",
     # TODO how can i pass n-jobs nicely here

@@ -1,11 +1,12 @@
 import cyclopts
 import yaml
 import zipfile
+from pathlib import Path
+from snakemake_invoke import SnakemakeInvoke
+from snakemake_invoke.config import SnakemakeInvokeConfig
+
 from depiction_targeted_preproc.pipeline.prepare_params import Params
 from depiction_targeted_preproc.pipeline_config.artifacts_mapping import get_result_files_new
-from pathlib import Path
-from snakemake_invoke.config import SnakemakeInvokeConfig
-from snakemake_invoke.snakemake_invoke import SnakemakeInvoke
 
 app = cyclopts.App()
 

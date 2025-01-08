@@ -1,9 +1,9 @@
+from pathlib import Path
+
 import altair as alt
 import cyclopts
 import polars as pl
-import vegafusion
 from KDEpy import FFTKDE
-from pathlib import Path
 
 from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
 
@@ -91,7 +91,7 @@ def qc_plot_peak_density(
     output_pdf: Path,
     grouped: bool = False,
 ) -> None:
-    vegafusion.enable()
+    alt.data_transformers.enable("vegafusion")
 
     table_calib = pl.read_parquet(table_marker_distances_calib)
     table_baseline = pl.read_parquet(table_marker_distances_baseline)

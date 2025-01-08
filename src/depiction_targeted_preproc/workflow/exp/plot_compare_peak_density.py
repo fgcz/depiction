@@ -1,7 +1,8 @@
+from pathlib import Path
+
+import altair as alt
 import cyclopts
 import polars as pl
-import vegafusion
-from pathlib import Path
 
 from depiction_targeted_preproc.workflow.qc.plot_peak_density import plot_density_combined_full
 
@@ -14,7 +15,7 @@ def exp_plot_compare_peak_density(
     table_marker_distance_uncalib: Path,
     output_pdf: Path,
 ) -> None:
-    vegafusion.enable()
+    alt.data_transformers.enable("vegafusion")
 
     table = pl.concat(
         [

@@ -36,7 +36,7 @@ dependencies = [
     "xarray",
     # TODO unpin when https://github.com/Unidata/netcdf4-python/issues/1343 is resolved
     "netCDF4<=1.7.1",
-    "bioio @ git+https://github.com//bioio-devs/bioio.git@127a87db296db4462a73b227287c9a2a1f190e14",
+    "bioio>=1.2.0",
     "bioio-ome-tiff",
     "bioio-ome-zarr",
     "loguru",

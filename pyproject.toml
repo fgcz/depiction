@@ -22,13 +22,12 @@ dependencies = [
     "pydantic>=2.6.0",
     "pyimzml>=1.5.3",
     "pyyaml>=6.0.1",
-    # TODO quarto-cli 1.5.57 somehow fails to install in my venv
-    "quarto-cli<1.5.57",
+    "quarto-cli",
     "scikit-image>=0.22.0",
     "scikit-learn>=1.3.2",
     "scipy>=1.11.4",
     "seaborn>=0.13.0",
-    "snakemake>=8.10.7",
+    "snakemake @ git+https://github.com/leoschwarz/snakemake@remove-datrie",
     "sparse>=0.15.4",
     "statsmodels>=0.14.0",
     "tqdm>=4.66.1",
@@ -47,9 +46,9 @@ dependencies = [
     "perlin-noise==1.13",
     "pandera[polars]",
     # TODO demote to optional again later, but necessary for pycharm right now
-    "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main",
-    "app_runner @ git+https://github.com/fgcz/bfabricPy.git@main#egg=app_runner&subdirectory=app_runner",
-    "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke@main",
+    "bfabric",
+    "bfabric_app_runner",
+    "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke@remove-datrie",
 ]
 
 [project.scripts]
@@ -94,7 +93,7 @@ doc = [
     "sphinx-autobuild",
 ]
 apps = [
-    "bfabric @ git+https://github.com/fgcz/bfabricPy.git@main"
+    "bfabric"
 ]
 typing = [
     "mypy",

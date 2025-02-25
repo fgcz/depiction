@@ -47,7 +47,7 @@ dependencies = [
     "pandera[polars]",
     # TODO demote to optional again later, but necessary for pycharm right now
     "bfabric",
-    "bfabric_app_runner",
+    "bfabric_app_runner @ git+https://github.com/fgcz/bfabricPy@main#subdirectory=bfabric_app_runner",
     "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke@remove-datrie",
 ]
 

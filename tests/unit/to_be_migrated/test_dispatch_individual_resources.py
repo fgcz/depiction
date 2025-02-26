@@ -1,11 +1,10 @@
-from pathlib import Path
-
 import polars as pl
 import pytest
+from pathlib import Path
 
-from app_runner.dispatch.dispatch_individual_resources import DispatchIndividualResources, config_msi_imzml
 from bfabric import Bfabric
 from bfabric.entities import Resource, Dataset
+from bfabric_app_runner.dispatch.dispatch_individual_resources import DispatchIndividualResources, config_msi_imzml
 
 
 @pytest.fixture()
@@ -27,9 +26,9 @@ def test_dispatch_workunit_when_resources(mocker, mock_dispatch):
     mock_definition = mocker.MagicMock(name="mock_definition")
     mock_definition.execution.resources = [1, 2, 3]
     dispatch_jobs = mocker.patch.object(mock_dispatch, "_dispatch_jobs_resource_flow")
-    write_chunks = mocker.patch("app_runner.dispatch.dispatch_individual_resources.write_chunks_file")
+    write_chunks = mocker.patch("bfabric_app_runner.dispatch.dispatch_individual_resources.write_chunks_file")
     write_workunit_definition = mocker.patch(
-        "app_runner.dispatch.dispatch_individual_resources.write_workunit_definition_file"
+        "bfabric_app_runner.dispatch.dispatch_individual_resources.write_workunit_definition_file"
     )
     mock_dispatch.dispatch_workunit(definition=mock_definition)
     dispatch_jobs.assert_called_once_with(mock_definition, mock_definition.execution.raw_parameters)
@@ -44,9 +43,9 @@ def test_dispatch_workunit_when_dataset(mocker, mock_dispatch):
     mock_definition.execution.resources = []
     mock_definition.execution.dataset = 1
     dispatch_jobs = mocker.patch.object(mock_dispatch, "_dispatch_jobs_dataset_flow")
-    write_chunks = mocker.patch("app_runner.dispatch.dispatch_individual_resources.write_chunks_file")
+    write_chunks = mocker.patch("bfabric_app_runner.dispatch.dispatch_individual_resources.write_chunks_file")
     write_workunit_definition = mocker.patch(
-        "app_runner.dispatch.dispatch_individual_resources.write_workunit_definition_file"
+        "bfabric_app_runner.dispatch.dispatch_individual_resources.write_workunit_definition_file"
     )
     mock_dispatch.dispatch_workunit(definition=mock_definition)
     dispatch_jobs.assert_called_once_with(mock_definition, mock_definition.execution.raw_parameters)

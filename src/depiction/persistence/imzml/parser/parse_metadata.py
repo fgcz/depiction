@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from loguru import logger
 from pathlib import Path
 from xml.etree.ElementTree import ElementTree
 
@@ -29,6 +30,10 @@ class ParseMetadata:
         elements = self._etree.findall(f".//{self._ns}fileDescription/{self._ns}fileContent/{self._ns}cvParam")
         checksums = {}
         for element in elements:
+            if "accession" not in element.attrib:
+                logger.warning(f"Weird cvParam found: {element.attrib}, ignoring.")
+                continue
+
             if element.attrib["accession"] in ("MS:1000568", "IMS:1000090"):
                 checksums["md5"] = element.attrib["value"].lower()
             elif element.attrib["accession"] in ("MS:1000569", "IMS:1000091"):

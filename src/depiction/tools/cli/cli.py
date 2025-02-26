@@ -1,6 +1,7 @@
 from cyclopts import App
 
 from depiction.tools.calibrate.__main__ import app as calibrate
+from depiction.tools.cli.cli_imzml import cmd_imzml
 from depiction.tools.filter_peaks.__main__ import app as filter_peaks
 from depiction.tools.cli.cli_generate_ion_images import app as generate_ion_images
 from depiction.tools.pick_peaks.__main__ import app as pick_peaks
@@ -12,6 +13,8 @@ app.command(correct_baseline, name="correct-baseline")
 app.command(filter_peaks, name="filter-peaks")
 app.command(pick_peaks, name="pick-peaks")
 app.command(generate_ion_images, name="generate-ion-images")
+app.command(cmd_imzml, name="imzml")
+
 
 if __name__ == "__main__":
     app()

@@ -109,3 +109,17 @@ rule exp_prepare_calibration_config_with_no_smoothing:
     shell:
         "python -m depiction_targeted_preproc.workflow.exp.prepare_calibration_config_with_no_smoothing"
         " --input-config-path {input.config} --output-config-path {output.config}"
+
+
+rule vis_test_mass_shifts:
+    input:
+        calib_hdf5="{sample}/calib_data.hdf5",
+        config="{sample}/config/proc_calibrate.yml",
+        mass_list="{sample}/mass_list.calibration.csv",
+    output:
+        hdf5="{sample}/test_mass_shifts.hdf5",
+    shell:
+        "python -m depiction_targeted_preproc.workflow.vis.test_mass_shifts "
+        " --calib-hdf5-path {input.calib_hdf5} --mass-list-path {input.mass_list} "
+        " --config-path {input.config}"
+        " --output-hdf5-path {output.hdf5}"

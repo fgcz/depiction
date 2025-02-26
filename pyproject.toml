@@ -39,6 +39,8 @@ dependencies = [
     "bioio>=1.2.0",
     "bioio-ome-tiff",
     "bioio-ome-zarr",
+    # TODO see: https://github.com/bioio-devs/bioio-tifffile/issues/27
+    "tifffile<2025.2.18",
     "loguru",
     "ms-peak-picker",
     "findmfpy",

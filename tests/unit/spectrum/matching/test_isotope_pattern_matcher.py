@@ -1,6 +1,8 @@
 import numpy as np
 import pytest
 
+pytest.importorskip("alphapept")
+
 from depiction.spectrum.matching.isotope_pattern_matcher import IsotopePatternMatcher
 
 

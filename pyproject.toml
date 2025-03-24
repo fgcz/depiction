@@ -25,7 +25,7 @@ dependencies = [
     "scikit-learn>=1.3.2",
     "scipy>=1.11.4",
     "seaborn>=0.13.0",
-    "snakemake @ git+https://github.com/leoschwarz/snakemake@remove-datrie",
+    "snakemake>=9.1",
     "sparse>=0.15.4",
     "statsmodels>=0.14.0",
     "tqdm>=4.66.1",
@@ -48,7 +48,7 @@ dependencies = [
     # TODO demote to optional again later, but necessary for pycharm right now
     "bfabric",
     "bfabric_app_runner @ git+https://github.com/fgcz/bfabricPy@main#subdirectory=bfabric_app_runner",
-    "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke@remove-datrie",
+    "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke",
 ]
 
 [project.scripts]

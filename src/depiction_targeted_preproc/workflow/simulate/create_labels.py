@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from pathlib import Path
 
-from depiction.tools.simulate import GenerateLabelImage
+from depiction_tools.simulate import GenerateLabelImage
 from depiction_targeted_preproc.pipeline_config.model import SimulateParameters
 
 

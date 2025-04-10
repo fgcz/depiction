@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from depiction.tools.simulate.generate_synthetic_imzml import GenerateSyntheticImzml
+from depiction_tools.simulate import GenerateSyntheticImzml
 
 height = 3
 width = 5

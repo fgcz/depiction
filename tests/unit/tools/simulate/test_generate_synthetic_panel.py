@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import pytest
 
-from depiction.tools.simulate.generate_synthetic_panel import sample_random_mz
+from depiction_tools.simulate.generate_synthetic_panel import sample_random_mz
 
 
 @pytest.fixture

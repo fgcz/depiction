@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from depiction.tools.simulate import SyntheticMSIDataGenerator
+from depiction_tools.simulate import SyntheticMSIDataGenerator
 
 
 def test_get_mz_arr() -> None:

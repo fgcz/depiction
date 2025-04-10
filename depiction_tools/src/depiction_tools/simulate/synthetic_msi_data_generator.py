@@ -5,11 +5,11 @@ from collections.abc import Sequence
 import numpy as np
 import scipy
 import xarray
+from depiction.image.multi_channel_image import MultiChannelImage
+from depiction.spectrum.estimate_ppm_error import EstimatePPMError
 from numpy.typing import NDArray
 
-from depiction.spectrum.estimate_ppm_error import EstimatePPMError
-from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.persistence import ImzmlWriteFile, ImzmlWriter
+from depiction_io.persistence import ImzmlWriteFile, ImzmlWriter
 
 
 # TODO configure shifts

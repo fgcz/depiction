@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from depiction.tools.simulate.generate_label_image import GenerateLabelImage
+from depiction_tools.simulate import GenerateLabelImage
 
 
 @pytest.fixture

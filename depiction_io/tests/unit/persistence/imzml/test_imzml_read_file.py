@@ -1,7 +1,5 @@
-import unittest
 from pathlib import Path
 from typing import NoReturn
-from unittest.mock import patch, MagicMock
 
 import numpy as np
 import pytest
@@ -131,22 +129,20 @@ def test_coordinates_2d(mocker: MockerFixture, mock_read_file: ImzmlReadFile) ->
     np.testing.assert_array_equal(np.array([[1, 2], [4, 5]]), mock_read_file.coordinates_2d)
 
 
-def test_compact_metadata(mock_read_file: ImzmlReadFile) -> None:
+def test_compact_metadata(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
     mock_coordinates = np.array([[1, 2, 3], [3, 3, 3], [1 + 3, 2 + 4, 3 + 5]])
-    with (
-        patch.object(ImzmlReadFile, "n_spectra", 15),
-        patch.object(ImzmlReadFile, "imzml_mode", ImzmlModeEnum.PROCESSED),
-        patch.object(ImzmlReadFile, "coordinates", mock_coordinates),
-        patch.object(ImzmlReadFile, "imzml_file", "mock_imzml_file_path"),
-        patch.object(ImzmlReadFile, "ibd_file", "mock_ibd_file_path"),
-    ):
-        assert mock_read_file.compact_metadata == {
-            "n_spectra": 15,
-            "imzml_mode": "PROCESSED",
-            "coordinate_extent": [4, 5, 6],
-            "imzml_file": "mock_imzml_file_path",
-            "ibd_file": "mock_ibd_file_path",
-        }
+    mocker.patch.object(ImzmlReadFile, "n_spectra", 15)
+    mocker.patch.object(ImzmlReadFile, "imzml_mode", ImzmlModeEnum.PROCESSED)
+    mocker.patch.object(ImzmlReadFile, "coordinates", mock_coordinates)
+    mocker.patch.object(ImzmlReadFile, "imzml_file", "mock_imzml_file_path")
+    mocker.patch.object(ImzmlReadFile, "ibd_file", "mock_ibd_file_path")
+    assert mock_read_file.compact_metadata == {
+        "n_spectra": 15,
+        "imzml_mode": "PROCESSED",
+        "coordinate_extent": [4, 5, 6],
+        "imzml_file": "mock_imzml_file_path",
+        "ibd_file": "mock_ibd_file_path",
+    }
 
 
 def test_metadata_checksums(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
@@ -283,7 +279,7 @@ def test_copy_to(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
 
 
 def test_cached_properties(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
-    mock_reader = MagicMock(name="mock_reader")
+    mock_reader = mocker.MagicMock(name="mock_reader")
     mocker.patch.object(ImzmlReadFile, "reader").return_value.__enter__.return_value = mock_reader
     assert mock_read_file._cached_properties == {
         "n_spectra": mock_reader.n_spectra,
@@ -301,4 +297,4 @@ def test_str(mock_path: Path, mock_read_file: ImzmlReadFile) -> None:
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main()

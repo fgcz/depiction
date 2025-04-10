@@ -118,9 +118,9 @@ class CutoutRectangularRegionImzml:
     def write_operation_info(self) -> None:
         """Writes information about the operation performed into an additional JSON file."""
         information = {
-            "input_imzml": self._read_file.imzml_file,
-            "x_range_abs": self._x_range_abs,
-            "y_range_abs": self._y_range_abs,
+            "input_imzml": str(self._read_file.imzml_file.resolve()),
+            "x_range_abs": (int(self._x_range_abs[0]), int(self._x_range_abs[1])),
+            "y_range_abs": (int(self._y_range_abs[0]), int(self._y_range_abs[1])),
         }
         output_path = self._read_file.imzml_file.with_suffix(".cutout_rectangular_region.json")
         with output_path.open("w") as f:

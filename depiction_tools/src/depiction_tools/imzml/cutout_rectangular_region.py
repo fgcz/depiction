@@ -1,6 +1,5 @@
 import json
 
-import cyclopts
 import numpy as np
 
 from depiction_io.persistence import ImzmlReadFile, ImzmlWriteFile
@@ -127,11 +126,7 @@ class CutoutRectangularRegionImzml:
             json.dump(information, f, indent=1)
 
 
-app = cyclopts.App()
-
-
-@app.default
-def main_cutout_rectangular_region_imzml(
+def cmd_imzml_cutout_rectangular_region(
     input_imzml: str,
     output_imzml: str,
     xmin: float,
@@ -140,7 +135,8 @@ def main_cutout_rectangular_region_imzml(
     ymax: float,
     relative: bool = False,
 ) -> None:
-    """Cuts out a rectangular region from an imzML file, writing it to a new file.
+    """Writes a rectangular region from an imzML file, to a new file.
+
     :param input_imzml: the input imzML file
     :param output_imzml: the output imzML file
     :param xmin: the minimum x value
@@ -170,7 +166,3 @@ def main_cutout_rectangular_region_imzml(
 
     cutout.write_imzml(write_file=write_file)
     cutout.write_operation_info()
-
-
-if __name__ == "__main__":
-    app()

@@ -12,8 +12,9 @@
 .vscode
 .python-version
 .nox
-uv.lock
+build
 dist
+uv.lock
 _build
 __pycache__
 

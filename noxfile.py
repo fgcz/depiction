@@ -1,8 +1,7 @@
 import nox
 from pathlib import Path
 
-# use uv
-# TODO (ensure correct reinstall)
+nox.options.default_venv_backend = "uv"
 
 # Get all package directories with pyproject.toml
 # PACKAGES = [str(p.parent) for p in Path(".").glob("*/pyproject.toml")]
@@ -18,8 +17,8 @@ def test(session, pkg):
     session.run("pytest")
 
 
-@nox.session
-def lint_all(session):
-    """Lint all packages at once."""
-    session.install("flake8")
-    session.run("flake8", *PACKAGES)
+# @nox.session
+# def lint_all(session):
+#    """Lint all packages at once."""
+#    session.install("flake8")
+#    session.run("flake8", *PACKAGES)

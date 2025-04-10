@@ -27,4 +27,15 @@ dependencies = [
     "tifffile<2025.2.18",
     "loguru",
     "pandera[polars]",
+    "cyclopts",
+    "tqdm"
 ]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-mock",
+]
+
+[tool.uv]
+reinstall-package = ["depiction_io"]

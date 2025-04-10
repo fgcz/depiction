@@ -7,7 +7,7 @@ import numpy as np
 
 from depiction_io.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
-from depiction.tools.align_imzml import AlignImzml, AlignImzmlMethod
+from depiction_tools.legacy_imzml._align_imzml import AlignImzml, AlignImzmlMethod
 
 
 class TestAlignImzmlIntegration(unittest.TestCase):

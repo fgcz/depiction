@@ -1,0 +1,15 @@
+[project]
+name = "depiction_tools"
+version = "0.1.0"
+description = ""
+authors = [{ name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" }]
+# TODO
+#readme = "README.md"
+license = { text = "Apache-2.0" }
+
+dependencies = [
+    "depiction_io @ git+https://github.com/fgcz/depiction.git@split-packages#subdirectory=depiction_io",
+]
+
+[tool.uv]
+reinstall-package = ["depiction_tools"]

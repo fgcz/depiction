@@ -3,10 +3,10 @@ import shutil
 from pathlib import Path
 
 from depiction_io.parallel_ops import ParallelConfig
-from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile, ImzmlReadFile
+from depiction_io.persistence import ImzmlModeEnum, ImzmlWriteFile, ImzmlReadFile
 from depiction.spectrum.estimate_ppm_error import EstimatePPMError
 from depiction.spectrum.evaluate_bins import EvaluateBins
-from depiction.tools.align_imzml import main_align_imzml
+from depiction_tools.legacy_imzml._align_imzml import main_align_imzml
 
 app = cyclopts.App()
 

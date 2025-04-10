@@ -4,7 +4,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from depiction_io.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import (
+from depiction_io.persistence import (
     ImzmlReadFile,
     ImzmlWriteFile,
     ImzmlReader,
@@ -67,6 +67,7 @@ def main_limit_mz_range(input_file: str, output_file: str, mz_range: tuple[float
     ImzmlReadFile(output_file).print_summary()
 
 
+# TODO cyclopts
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-file", type=str, help="The input imzML file to read.")

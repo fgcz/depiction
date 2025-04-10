@@ -1,9 +1,9 @@
-import argparse
 import json
 
+import cyclopts
 import numpy as np
 
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
+from depiction_io.persistence import ImzmlReadFile, ImzmlWriteFile
 
 
 class CutoutRectangularRegionImzml:
@@ -127,6 +127,10 @@ class CutoutRectangularRegionImzml:
             json.dump(information, f, indent=1)
 
 
+app = cyclopts.App()
+
+
+@app.default
 def main_cutout_rectangular_region_imzml(
     input_imzml: str,
     output_imzml: str,
@@ -134,16 +138,16 @@ def main_cutout_rectangular_region_imzml(
     xmax: float,
     ymin: float,
     ymax: float,
-    relative: bool,
+    relative: bool = False,
 ) -> None:
-    """Cuts out a rectangular region from an imzML file.
+    """Cuts out a rectangular region from an imzML file, writing it to a new file.
     :param input_imzml: the input imzML file
     :param output_imzml: the output imzML file
     :param xmin: the minimum x value
     :param xmax: the maximum x value
     :param ymin: the minimum y value
     :param ymax: the maximum y value
-    :param relative: whether the provided values are relative (0 to 1) or absolute
+    :param relative: whether the provided values are relative (0 to 1) or absolute in the coordinate system of the input file
     """
     x_range = (xmin, xmax)
     y_range = (ymin, ymax)
@@ -168,26 +172,5 @@ def main_cutout_rectangular_region_imzml(
     cutout.write_operation_info()
 
 
-def main() -> None:
-    """Provides CLI for main_cutout_rectangular_region_imzml."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument("input_imzml", type=str, help="The input imzML file.")
-    parser.add_argument("output_imzml", type=str, help="The output imzML file.")
-    parser.add_argument("--xmin", type=float, help="The minimum x value.")
-    parser.add_argument("--xmax", type=float, help="The maximum x value.")
-    parser.add_argument("--ymin", type=float, help="The minimum y value.")
-    parser.add_argument("--ymax", type=float, help="The maximum y value.")
-    parser.add_argument(
-        "--relative",
-        action="store_true",
-        help=(
-            "If set, the provided values are relative (0 to 1), otherwise they are absolute in the coordinate system "
-            "of the input file."
-        ),
-    )
-    args = vars(parser.parse_args())
-    main_cutout_rectangular_region_imzml(**args)
-
-
 if __name__ == "__main__":
-    main()
+    app()

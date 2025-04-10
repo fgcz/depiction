@@ -13,7 +13,7 @@ from depiction.persistence import (
     ImzmlWriteFile,
     ImzmlModeEnum,
 )
-from depiction.tools.merge_imzml import MergeImzml
+from depiction_tools.legacy.merge_imzml import MergeImzml
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray

@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 
 import numpy as np
 
-from depiction.tools.subsample_imzml import SubsampleMode, SubsampleImzml
+from depiction_tools.legacy_imzml.subsample_imzml import SubsampleMode, SubsampleImzml
 
 
 class TestSubsampleMode(unittest.TestCase):

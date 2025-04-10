@@ -1,4 +1,4 @@
-from depiction.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
+from depiction_io.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
 from tqdm import tqdm
 from collections.abc import Sequence
 import argparse
@@ -29,6 +29,7 @@ def main_merge_imzml(output_imzml: str, input_imzml: list[str], mode: str) -> No
     MergeImzml().merge_paths(input_imzml, output_imzml, ImzmlModeEnum.from_pyimzml_str(mode))
 
 
+# TODO cyclopts
 def main() -> None:
     """Invokes CLI for main_merge_imzml."""
     parser = argparse.ArgumentParser()

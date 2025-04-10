@@ -9,7 +9,7 @@ import pyimzml.ImzMLParser
 import pyimzml.ImzMLWriter
 from tqdm import tqdm
 
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
+from depiction_io.persistence import ImzmlReadFile, ImzmlWriteFile
 
 
 # TODO under development
@@ -121,6 +121,7 @@ def main_split_imzml(input_imzml: str, output_dir: str, n_parts: int, n_spectra:
     return result["output_files"]
 
 
+# TODO cyclopts
 def main() -> None:
     """Invokes CLI for main_split_imzml."""
     logging.basicConfig(level=logging.INFO)

@@ -7,7 +7,7 @@ import xarray
 
 from depiction.misc.integration_test_utils import IntegrationTestUtils
 from depiction.persistence import ImzmlReadFile, ImzmlModeEnum, ImzmlWriteFile
-from depiction.tools.merge_imzml import MergeImzml
+from depiction_tools.legacy.merge_imzml import MergeImzml
 
 
 class TestMergeImzmlIntegration(unittest.TestCase):

@@ -5,7 +5,7 @@ import numba
 import numpy as np
 
 from depiction_io.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader
+from depiction_io.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader
 
 
 class NormalizeSpectraIntensitiesVariant:
@@ -77,6 +77,7 @@ def main_normalize_intensities(
             )
 
 
+# TODO cyclopts
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-imzml", required=True)

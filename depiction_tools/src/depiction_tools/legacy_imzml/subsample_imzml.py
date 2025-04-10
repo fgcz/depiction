@@ -3,7 +3,7 @@ import enum
 import json
 
 import numpy as np
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
+from depiction_io.persistence import ImzmlReadFile, ImzmlWriteFile
 
 
 class SubsampleMode(enum.Enum):
@@ -90,6 +90,7 @@ def main_subsample_imzml(input_imzml: str, output_imzml: str, ratio: float, mode
     )
 
 
+# TODO cyclopts
 def main() -> None:
     """Invokes CLI for main_subsample_imzml."""
     parser = argparse.ArgumentParser()

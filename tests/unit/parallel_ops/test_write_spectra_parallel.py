@@ -8,7 +8,7 @@ from depiction_io.parallel_ops import (
     ReadSpectraParallel,
 )
 from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile
-from depiction.tools.merge_imzml import MergeImzml
+from depiction_tools.legacy.merge_imzml import MergeImzml
 
 
 class TestWriteSpectraParallel(unittest.TestCase):

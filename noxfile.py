@@ -5,7 +5,7 @@ nox.options.default_venv_backend = "uv"
 
 # Get all package directories with pyproject.toml
 # PACKAGES = [str(p.parent) for p in Path(".").glob("*/pyproject.toml")]
-PACKAGES = ["depiction_io"]
+PACKAGES = ["depiction_io", "depiction_tools"]
 
 
 @nox.session

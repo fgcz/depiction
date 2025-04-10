@@ -11,5 +11,11 @@ dependencies = [
     "depiction_io @ git+https://github.com/fgcz/depiction.git@split-packages#subdirectory=depiction_io",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-mock",
+]
+
 [tool.uv]
 reinstall-package = ["depiction_tools"]

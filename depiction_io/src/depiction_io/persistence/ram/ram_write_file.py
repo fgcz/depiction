@@ -3,7 +3,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
 import numpy as np
-from depiction.persistence.ram.ram_read_file import RamReadFile
+from depiction_io.persistence.ram.ram_read_file import RamReadFile
 from tqdm import tqdm
 
 if TYPE_CHECKING:

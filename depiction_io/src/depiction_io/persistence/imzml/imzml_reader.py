@@ -8,10 +8,10 @@ import mmap
 import numpy as np
 import zlib
 
-from depiction.persistence.imzml.compression import Compression
-from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
-from depiction.persistence.imzml.parser.parse_spectra import ParseSpectra
-from depiction.persistence.types import GenericReader
+from depiction_io.persistence.imzml.compression import Compression
+from depiction_io.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
+from depiction_io.persistence.imzml.parser.parse_spectra import ParseSpectra
+from depiction_io.persistence.types import GenericReader
 
 if TYPE_CHECKING:
     from pathlib import Path

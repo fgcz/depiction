@@ -6,10 +6,10 @@ from typing import Optional
 import numpy as np
 from numpy.typing import NDArray
 
-from depiction.parallel_ops import ParallelConfig
-from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
+from depiction_io.parallel_ops import ParallelConfig
+from depiction_io.parallel_ops import ReadSpectraParallel
 from depiction.persistence import ImzmlModeEnum
-from depiction.persistence.types import GenericReadFile, GenericReader
+from depiction_io.persistence.types import GenericReadFile, GenericReader
 from depiction.spectrum.evaluate_bins import EvaluateBins
 
 

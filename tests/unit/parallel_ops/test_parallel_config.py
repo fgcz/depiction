@@ -2,7 +2,7 @@ import unittest
 from functools import cached_property
 from unittest.mock import patch
 
-from depiction.parallel_ops.parallel_config import ParallelConfig
+from depiction_io.parallel_ops import ParallelConfig
 
 
 class TestParallelConfig(unittest.TestCase):

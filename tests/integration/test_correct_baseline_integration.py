@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 from depiction.misc.integration_test_utils import IntegrationTestUtils
-from depiction.parallel_ops.parallel_config import ParallelConfig
+from depiction_io.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
 from depiction.spectrum.baseline import LocalMediansBaseline
 from depiction.tools.correct_baseline.correct_baseline import CorrectBaseline

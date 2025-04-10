@@ -1,0 +1,3 @@
+
+
+python -m bfabric.experimental.app_interface.input_preparation prepare --inputs-yaml inputs.yml --target-folder .

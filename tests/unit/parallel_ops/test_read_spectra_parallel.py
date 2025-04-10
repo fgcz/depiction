@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-from depiction.parallel_ops import ReadSpectraParallel
+from depiction_io.parallel_ops import ReadSpectraParallel
 from depiction.persistence import RamReadFile
 
 mock_n_jobs = 2

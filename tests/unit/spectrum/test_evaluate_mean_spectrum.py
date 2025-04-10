@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 
 from depiction.spectrum.evaluate_mean_spectrum import EvaluateMeanSpectrum
-from depiction.parallel_ops import ReadSpectraParallel
+from depiction_io.parallel_ops import ReadSpectraParallel
 from depiction.persistence import ImzmlModeEnum
 
 

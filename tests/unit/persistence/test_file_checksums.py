@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockFixture
 
-from depiction.persistence.file_checksums import FileChecksums
+from depiction_io.persistence.file_checksums import FileChecksums
 
 
 @pytest.fixture

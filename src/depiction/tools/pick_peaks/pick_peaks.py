@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
+from depiction_io.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction.persistence import ImzmlModeEnum
 from depiction.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader
 from depiction.spectrum.peak_filtering import PeakFilteringType

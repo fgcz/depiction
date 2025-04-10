@@ -2,7 +2,7 @@ from functools import cached_property
 from numpy.typing import NDArray
 from typing import Protocol
 
-from depiction.parallel_ops import ParallelConfig
+from depiction_io.parallel_ops import ParallelConfig
 from depiction.spectrum.peak_filtering import PeakFilteringType
 from depiction.tools.correct_baseline.config import BaselineCorrectionConfig
 from depiction.tools.correct_baseline.correct_baseline import CorrectBaseline

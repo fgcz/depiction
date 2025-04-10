@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from depiction.persistence import ImzmlReadFile
-    from depiction.parallel_ops import ParallelConfig
+    from depiction_io.parallel_ops import ParallelConfig
     from numpy.typing import NDArray
 
 

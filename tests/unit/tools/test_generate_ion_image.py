@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from depiction.image import MultiChannelImage
-from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
+from depiction_io.parallel_ops import ReadSpectraParallel
 from depiction.tools.generate_ion_image import GenerateIonImage
 
 

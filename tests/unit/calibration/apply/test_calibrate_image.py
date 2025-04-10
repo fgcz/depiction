@@ -1,7 +1,7 @@
 import pytest
 
 from depiction.calibration.apply.calibrate_image import CalibrateImage
-from depiction.parallel_ops import ParallelConfig
+from depiction_io.parallel_ops import ParallelConfig
 
 
 @pytest.fixture()

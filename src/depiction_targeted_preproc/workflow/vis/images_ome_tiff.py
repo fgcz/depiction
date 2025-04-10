@@ -4,7 +4,7 @@ import cyclopts
 
 from depiction.image import MultiChannelImage
 from depiction.persistence.image.ome_tiff import OmeTiff
-from depiction.persistence.imzml.metadata import Metadata
+from depiction_io.persistence.imzml import Metadata
 
 app = cyclopts.App()
 

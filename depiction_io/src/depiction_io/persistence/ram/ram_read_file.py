@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from functools import cached_property
 from pathlib import Path
 
-from depiction.persistence.ram.ram_reader import RamReader
+from depiction_io.persistence.ram.ram_reader import RamReader
 from typing import TYPE_CHECKING
 import numpy as np
 

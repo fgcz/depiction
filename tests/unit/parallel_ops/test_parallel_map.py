@@ -2,8 +2,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from depiction.parallel_ops import ParallelConfig
-from depiction.parallel_ops.parallel_map import ParallelMap
+from depiction_io.parallel_ops import ParallelConfig
+from depiction_io.parallel_ops import ParallelMap
 
 
 @pytest.fixture

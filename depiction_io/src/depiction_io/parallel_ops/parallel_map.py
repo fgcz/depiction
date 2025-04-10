@@ -10,7 +10,7 @@ import joblib
 
 
 if TYPE_CHECKING:
-    from depiction.parallel_ops import ParallelConfig
+    from depiction_io.parallel_ops import ParallelConfig
 
     S = TypeVar("S")
     T = TypeVar("T")

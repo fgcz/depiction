@@ -3,7 +3,7 @@ from functools import cached_property
 from pathlib import Path
 from unittest.mock import MagicMock, ANY, patch, call
 
-from depiction.parallel_ops import (
+from depiction_io.parallel_ops import (
     WriteSpectraParallel,
     ReadSpectraParallel,
 )

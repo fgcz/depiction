@@ -11,12 +11,12 @@ from xml.etree.ElementTree import ElementTree
 from numpy.typing import NDArray
 import numpy as np
 
-from depiction.persistence.file_checksums import FileChecksums
-from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
-from depiction.persistence.imzml.imzml_reader import ImzmlReader
-from depiction.persistence.imzml.parser.parse_metadata import ParseMetadata
+from depiction_io.persistence.file_checksums import FileChecksums
+from depiction_io.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
+from depiction_io.persistence.imzml.imzml_reader import ImzmlReader
+from depiction_io.persistence.imzml.parser.parse_metadata import ParseMetadata
 from depiction.persistence.image.pixel_size import PixelSize
-from depiction.persistence.types import GenericReadFile
+from depiction_io.persistence.types import GenericReadFile
 
 
 class ImzmlReadFile(GenericReadFile):

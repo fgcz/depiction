@@ -5,8 +5,8 @@ import numba
 import numpy as np
 from numpy.typing import NDArray
 
-from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence.types import GenericReadFile, GenericWriteFile, GenericReader, GenericWriter
+from depiction_io.parallel_ops import ParallelConfig, WriteSpectraParallel
+from depiction_io.persistence.types import GenericReadFile, GenericWriteFile, GenericReader, GenericWriter
 
 
 class BinStatistic(enum.Enum):

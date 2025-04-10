@@ -1,6 +1,7 @@
 *.egg-info
 *.pyc
 *.png
+.local
 .DS_Store
 .hypothesis
 .idea
@@ -11,6 +12,7 @@
 .vscode
 .python-version
 .nox
+uv.lock
 dist
 _build
 __pycache__

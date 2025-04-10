@@ -10,12 +10,12 @@ from typing import (
 
 import numpy as np
 
-from depiction.parallel_ops.parallel_config import ParallelConfig
-from depiction.parallel_ops.parallel_map import ParallelMap
+from depiction_io.parallel_ops.parallel_config import ParallelConfig
+from depiction_io.parallel_ops.parallel_map import ParallelMap
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
-    from depiction.persistence.types import GenericReadFile, GenericReader
+    from depiction_io.persistence.types import GenericReadFile, GenericReader
 
     T = TypeVar("T")
     V = TypeVar("V")

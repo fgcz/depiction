@@ -2,7 +2,7 @@ import cyclopts
 from bioio.writers import OmeZarrWriter
 from bioio_base.types import PhysicalPixelSizes
 from depiction.image import MultiChannelImage
-from depiction.persistence.imzml.metadata import Metadata
+from depiction_io.persistence.imzml import Metadata
 from pathlib import Path
 
 app = cyclopts.App()

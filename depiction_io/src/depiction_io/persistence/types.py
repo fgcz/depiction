@@ -19,7 +19,7 @@ from contextlib import AbstractContextManager
 from functools import cached_property
 from typing import TextIO
 
-from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
+from depiction_io.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 
 
 # TODO better name

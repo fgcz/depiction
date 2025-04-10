@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 import numpy as np
 
 from depiction.persistence import ImzmlModeEnum
-from depiction.persistence.ram.ram_read_file import RamReadFile
+from depiction_io.persistence.ram.ram_read_file import RamReadFile
 
 
 class TestRamReadFile(unittest.TestCase):

@@ -3,7 +3,7 @@ import cyclopts
 import polars as pl
 from pathlib import Path
 
-from depiction.parallel_ops import ParallelConfig
+from depiction_io.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile
 from depiction.spectrum.evaluate_bins import EvaluateBins
 from depiction.spectrum.evaluate_mean_spectrum import EvaluateMeanSpectrum

@@ -7,7 +7,7 @@ from perlin_noise import PerlinNoise
 
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.persistence import ImzmlWriteFile, ImzmlModeEnum
-from depiction.persistence.types import GenericWriteFile
+from depiction_io.persistence.types import GenericWriteFile
 
 
 class GenerateSyntheticImzml:

@@ -5,7 +5,7 @@ from xarray import DataArray
 from depiction.calibration.apply.apply_models import ApplyModels
 from depiction.calibration.methods.calibration_method import CalibrationMethod
 from depiction.image import MultiChannelImage
-from depiction.parallel_ops import ParallelConfig
+from depiction_io.parallel_ops import ParallelConfig
 
 
 @pytest.fixture

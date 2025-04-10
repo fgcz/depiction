@@ -1,10 +1,5 @@
-from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
-from depiction.persistence.imzml.imzml_read_file import ImzmlReadFile
-from depiction.persistence.imzml.imzml_reader import ImzmlReader
-from depiction.persistence.imzml.imzml_write_file import ImzmlWriteFile
-from depiction.persistence.imzml.imzml_writer import ImzmlWriter
-from depiction.persistence.ram.ram_read_file import RamReadFile
-from depiction.persistence.ram.ram_reader import RamReader
+from depiction_io.persistence.ram.ram_read_file import RamReadFile
+from depiction_io.persistence.ram.ram_reader import RamReader
 
 __all__ = [
     "ImzmlModeEnum",

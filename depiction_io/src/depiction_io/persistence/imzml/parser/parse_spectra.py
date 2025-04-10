@@ -10,8 +10,8 @@ from xml.etree.ElementTree import ElementTree
 import cyclopts
 from loguru import logger
 
-from depiction.persistence.imzml.compression import Compression
-from depiction.persistence.imzml.parser.cv_params import CvParam, extract_cv_param_list
+from depiction_io.persistence.imzml.compression import Compression
+from depiction_io.persistence.imzml.parser.cv_params import CvParam, extract_cv_param_list
 
 
 class DataType(str, Enum):

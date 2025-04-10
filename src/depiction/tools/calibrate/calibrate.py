@@ -15,7 +15,7 @@ from depiction.calibration.methods.calibration_method_dummy import CalibrationMe
 from depiction.calibration.methods.calibration_method_constant_global_shift import CalibrationMethodConstantGlobalShift
 from depiction.calibration.methods.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
 from depiction.calibration.methods.calibration_method_regress_shift import CalibrationMethodRegressShift
-from depiction.parallel_ops import ParallelConfig
+from depiction_io.parallel_ops import ParallelConfig
 from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
 from depiction.tools.calibrate.config import (
     CalibrationRegressShiftConfig,

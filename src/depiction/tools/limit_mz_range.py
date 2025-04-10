@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 from numpy.typing import NDArray
 
-from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
+from depiction_io.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction.persistence import (
     ImzmlReadFile,
     ImzmlWriteFile,

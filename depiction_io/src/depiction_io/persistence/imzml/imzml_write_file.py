@@ -4,11 +4,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from collections.abc import Generator
 
-from depiction.persistence.imzml.imzml_writer import ImzmlWriter
-from depiction.persistence.types import GenericWriteFile
+from depiction_io.persistence.imzml.imzml_writer import ImzmlWriter
+from depiction_io.persistence.types import GenericWriteFile
 
 if TYPE_CHECKING:
-    from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
+    from depiction_io.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 
 
 class ImzmlWriteFile(GenericWriteFile):

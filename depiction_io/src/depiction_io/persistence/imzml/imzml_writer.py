@@ -5,9 +5,9 @@ import pyimzml.ImzMLWriter
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from depiction.persistence.imzml.imzml_alignment_tracker import ImzmlAlignmentTracker
-from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
-from depiction.persistence.types import GenericWriter
+from depiction_io.persistence.imzml.imzml_alignment_tracker import ImzmlAlignmentTracker
+from depiction_io.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
+from depiction_io.persistence.types import GenericWriter
 
 import numpy as np
 

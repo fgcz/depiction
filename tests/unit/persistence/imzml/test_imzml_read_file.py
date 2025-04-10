@@ -8,7 +8,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from depiction.persistence import ImzmlReadFile, ImzmlModeEnum
-from depiction.persistence.imzml.parser.parse_spectra import ParseSpectra
+from depiction_io.persistence.imzml.parser.parse_spectra import ParseSpectra
 
 
 @pytest.fixture()

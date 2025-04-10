@@ -1,0 +1,30 @@
+[project]
+name = "depiction_io"
+version = "0.1.0"
+description = ""
+authors = [{ name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" }]
+# TODO
+#readme = "README.md"
+license = { text = "Apache-2.0" }
+
+# TODO prune this list further if possible
+dependencies = [
+    "h5py>=3.10.0",
+    # TODO unpin when https://github.com/Unidata/netcdf4-python/issues/1343 is resolved (still active?)
+    "numpy>=1.26.2,<2.0.0",
+    "polars>=0.20.14",
+    "pydantic>=2.6.0",
+    "pyimzml>=1.5.3",
+    "pyyaml>=6.0.1",
+    "sparse>=0.15.4",
+    "xarray",
+    # TODO unpin when https://github.com/Unidata/netcdf4-python/issues/1343 is resolved
+    "netCDF4<=1.7.1",
+    "bioio>=1.2.0",
+    "bioio-ome-tiff",
+    "bioio-ome-zarr",
+    # TODO see: https://github.com/bioio-devs/bioio-tifffile/issues/27
+    "tifffile<2025.2.18",
+    "loguru",
+    "pandera[polars]",
+]

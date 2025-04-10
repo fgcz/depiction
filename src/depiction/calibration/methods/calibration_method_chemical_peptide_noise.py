@@ -12,9 +12,9 @@ from xarray import DataArray
 
 from depiction.calibration.methods.calibration_method import CalibrationMethod
 from depiction.image import MultiChannelImage
-from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
+from depiction_io.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction.persistence import ImzmlReader, ImzmlWriter
-from depiction.persistence.types import GenericReadFile, GenericWriteFile
+from depiction_io.persistence.types import GenericReadFile, GenericWriteFile
 
 
 class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):

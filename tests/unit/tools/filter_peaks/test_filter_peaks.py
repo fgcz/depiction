@@ -4,11 +4,11 @@ from pytest_mock import MockerFixture
 from depiction_io.parallel_ops import WriteSpectraParallel, ParallelConfig
 from depiction.persistence import ImzmlReader, ImzmlWriter
 from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned
-from depiction.tools.filter_peaks.config import (
+from depiction_tools.process_spectra.filter_peaks import (
     FilterPeaksConfig,
     FilterNHighestIntensityPartitionedConfig,
 )
-from depiction.tools.filter_peaks.filter_peaks import filter_peaks, _filter_chunk
+from depiction_tools.process_spectra.filter_peaks import filter_peaks, _filter_chunk
 
 
 def test_filter_peaks_when_n_highest_intensity_partitioned(mocker: MockerFixture) -> None:

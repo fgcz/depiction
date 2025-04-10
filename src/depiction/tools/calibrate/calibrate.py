@@ -25,7 +25,7 @@ from depiction.tools.calibrate.config import (
     CalibrationConfig,
 )
 from depiction.tools.calibrate.spatial_smoothing_config import get_spatial_smoothing
-from depiction.tools.filter_peaks.filter_peaks import get_peak_filter
+from depiction_tools.process_spectra.filter_peaks import get_peak_filter
 
 
 def extract_reference_masses(mass_list: Path) -> NDArray[np.float64]:

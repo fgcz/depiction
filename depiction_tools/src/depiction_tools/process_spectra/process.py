@@ -1,7 +1,7 @@
 from depiction_io.parallel_ops import ParallelConfig, WriteSpectraParallel
 from depiction_io.persistence.types import GenericReadFile, GenericWriteFile, GenericReader, GenericWriter
-from depiction.tools.process_spectra.config import ProcessSpectraConfig
-from depiction.tools.process_spectra.evaluators import get_combined_evaluator
+from depiction_tools.process_spectra.config import ProcessSpectraConfig
+from depiction_tools.process_spectra.evaluators import get_combined_evaluator
 
 
 def process_spectra(read_file: GenericReadFile, write_file: GenericWriteFile, config: ProcessSpectraConfig) -> None:

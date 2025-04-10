@@ -4,7 +4,7 @@ from typing import Literal, Self, Annotated
 
 from pydantic import BaseModel, model_validator, Field
 
-from depiction.tools.filter_peaks.config import FilterPeaksConfig
+from depiction_tools.process_spectra.filter_peaks import FilterPeaksConfig
 
 
 class PeakPickerBasicInterpolatedConfig(BaseModel):

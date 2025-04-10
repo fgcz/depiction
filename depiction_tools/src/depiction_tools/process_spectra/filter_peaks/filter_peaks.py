@@ -3,12 +3,12 @@ from __future__ import annotations
 from depiction.spectrum.peak_filtering.filter_by_snr_threshold import FilterBySnrThresholdConfig, FilterBySnrThreshold
 
 from depiction_io.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
+from depiction_io.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
 from depiction.spectrum.peak_filtering import ChainFilters, FilterNHighestIntensityPartitioned, PeakFilteringType
 from depiction.spectrum.peak_filtering.filter_n_highest_intensity_partitioned import (
     FilterNHighestIntensityPartitionedConfig,
 )
-from depiction.tools.filter_peaks.config import FilterPeaksConfig
+from depiction_tools.process_spectra.filter_peaks.config import FilterPeaksConfig
 
 
 def get_peak_filter(config: FilterPeaksConfig) -> PeakFilteringType:

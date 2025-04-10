@@ -5,7 +5,7 @@ from typing import Literal, Annotated
 from pydantic import BaseModel, Field, ConfigDict
 
 from depiction.tools.calibrate.spatial_smoothing_config import GaussianSpatialSmoothingConfig, SpatialSmoothingConfig
-from depiction.tools.filter_peaks.config import FilterPeaksConfig
+from depiction_tools.process_spectra.filter_peaks import FilterPeaksConfig
 
 
 class CalibrationRegressShiftConfig(BaseModel):

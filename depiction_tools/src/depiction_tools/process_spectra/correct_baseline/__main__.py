@@ -7,9 +7,9 @@ import cyclopts
 import yaml
 from loguru import logger
 
-from depiction.persistence import ImzmlReadFile
-from depiction.tools.correct_baseline.correct_baseline import correct_baseline
-from depiction.tools.correct_baseline.config import BaselineVariants, BaselineCorrectionConfig
+from depiction_io.persistence import ImzmlReadFile
+from depiction_tools.process_spectra.correct_baseline.correct_baseline import correct_baseline
+from depiction_tools.process_spectra.correct_baseline.config import BaselineVariants, BaselineCorrectionConfig
 
 app = cyclopts.App()
 

@@ -4,13 +4,13 @@ from typing import Protocol
 
 from depiction_io.parallel_ops import ParallelConfig
 from depiction.spectrum.peak_filtering import PeakFilteringType
-from depiction.tools.correct_baseline.config import BaselineCorrectionConfig
-from depiction.tools.correct_baseline.correct_baseline import CorrectBaseline
-from depiction.tools.filter_peaks.config import FilterPeaksConfig
-from depiction.tools.filter_peaks.filter_peaks import get_peak_filter
-from depiction.tools.pick_peaks.config import PickPeaksConfig
-from depiction.tools.pick_peaks.pick_peaks import get_peak_picker_from_config
-from depiction.tools.process_spectra.config import (
+from depiction_tools.process_spectra.correct_baseline.config import BaselineCorrectionConfig
+from depiction_tools.process_spectra.correct_baseline.correct_baseline import CorrectBaseline
+from depiction_tools.process_spectra.filter_peaks.config import FilterPeaksConfig
+from depiction_tools.process_spectra.filter_peaks.filter_peaks import get_peak_filter
+from depiction_tools.process_spectra.pick_peaks.config import PickPeaksConfig
+from depiction_tools.process_spectra.pick_peaks.pick_peaks import get_peak_picker_from_config
+from depiction_tools.process_spectra.config import (
     ProcessSpectraStepPickPeaks,
     ProcessSpectraStepRemoveBaseline,
     ProcessSpectraStepFilterPeaks,

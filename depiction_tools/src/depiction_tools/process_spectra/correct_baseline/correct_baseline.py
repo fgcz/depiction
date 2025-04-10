@@ -7,10 +7,10 @@ import numpy as np
 
 from depiction_io.parallel_ops import ParallelConfig
 from depiction_io.parallel_ops import WriteSpectraParallel
-from depiction.persistence import ImzmlWriteFile, ImzmlWriter, ImzmlReader, ImzmlReadFile
+from depiction_io.persistence import ImzmlWriteFile, ImzmlWriter, ImzmlReader, ImzmlReadFile
 from depiction.spectrum.baseline.local_medians_baseline import LocalMediansBaseline
 from depiction.spectrum.baseline.tophat_baseline import TophatBaseline
-from depiction.tools.correct_baseline.config import BaselineVariants, BaselineCorrectionConfig
+from depiction_tools.process_spectra.correct_baseline.config import BaselineVariants, BaselineCorrectionConfig
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray

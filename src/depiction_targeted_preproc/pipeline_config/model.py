@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from typing import Self
 
 from depiction.tools.calibrate.config import CalibrationConfig
-from depiction.tools.process_spectra.config import ProcessSpectraConfig
+from depiction_tools.process_spectra.config import ProcessSpectraConfig
 
 
 class Model(BaseModel):

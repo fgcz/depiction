@@ -5,9 +5,12 @@ from pathlib import Path
 import cyclopts
 import yaml
 
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
-from depiction.tools.filter_peaks.config import FilterPeaksConfig, FilterNHighestIntensityPartitionedConfig
-from depiction.tools.filter_peaks.filter_peaks import filter_peaks
+from depiction_io.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
+from depiction_tools.process_spectra.filter_peaks.config import (
+    FilterPeaksConfig,
+    FilterNHighestIntensityPartitionedConfig,
+)
+from depiction_tools.process_spectra.filter_peaks.filter_peaks import filter_peaks
 
 app = cyclopts.App()
 

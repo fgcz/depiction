@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from depiction.tools.correct_baseline.__main__ import run
-from depiction.tools.correct_baseline.config import BaselineVariants
+from depiction_tools.process_spectra.correct_baseline.__main__ import run
+from depiction_tools.process_spectra.correct_baseline.config import BaselineVariants
 
 
 def test_run_when_other_variant(mocker: MockerFixture) -> None:

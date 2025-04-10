@@ -4,7 +4,7 @@ from typing import Any, NoReturn, TYPE_CHECKING
 
 import numpy as np
 
-from depiction.persistence import ImzmlModeEnum
+from depiction_io.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 
 if TYPE_CHECKING:
     from types import TracebackType

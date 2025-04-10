@@ -4,7 +4,7 @@ from unittest.mock import ANY
 
 import numpy as np
 
-from depiction.persistence import ImzmlModeEnum
+from depiction_io.persistence import ImzmlModeEnum
 from depiction_io.persistence.ram.ram_reader import RamReader
 
 

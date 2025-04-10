@@ -4,7 +4,7 @@ import xarray
 from xarray import DataArray
 
 from depiction.persistence.image.ome_tiff import OmeTiff
-from depiction.persistence.image.pixel_size import PixelSize
+from depiction_io.persistence.image.pixel_size import PixelSize
 
 
 @pytest.fixture

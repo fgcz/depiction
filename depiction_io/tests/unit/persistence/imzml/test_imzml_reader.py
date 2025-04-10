@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch, call, PropertyMock
 
 import numpy as np
 
-from depiction.persistence import ImzmlReader, ImzmlModeEnum
+from depiction_io.persistence import ImzmlReader, ImzmlModeEnum
 
 
 # TODO don't wait too long with adding back this test

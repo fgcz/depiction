@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile, ImzmlWriter
+from depiction_io.persistence import ImzmlModeEnum, ImzmlWriteFile, ImzmlWriter
 
 mock_path = Path("/dev/null/test.imzML")
 mock_imzml_mode = ImzmlModeEnum.CONTINUOUS

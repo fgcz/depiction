@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from depiction.persistence.image.pixel_size import PixelSize
+from depiction_io.persistence.image.pixel_size import PixelSize
 
 
 class Metadata(BaseModel):

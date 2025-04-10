@@ -1,14 +1,15 @@
 from __future__ import annotations
+
 import enum
 
 
 class ImzmlModeEnum(enum.Enum):
     """Represents the different modes of imzml files."""
 
-    CONTINUOUS = enum.auto()
+    CONTINUOUS = "continuous"
     """Continuous mode imzML files, they share the same m/z values for all spectra."""
 
-    PROCESSED = enum.auto()
+    PROCESSED = "processed"
     """Processed mode imzML files, they can have different m/z values for each spectrum."""
 
     @classmethod

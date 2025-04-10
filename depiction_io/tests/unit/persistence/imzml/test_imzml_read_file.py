@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 from pytest_mock import MockerFixture
 
-from depiction.persistence import ImzmlReadFile, ImzmlModeEnum
+from depiction_io.persistence import ImzmlReadFile, ImzmlModeEnum
 from depiction_io.persistence.imzml.parser.parse_spectra import ParseSpectra
 
 

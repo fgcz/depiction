@@ -1,14 +1,16 @@
 from __future__ import annotations
+
 from contextlib import contextmanager
 from functools import cached_property
 from pathlib import Path
-
-from depiction_io.persistence.ram.ram_reader import RamReader
 from typing import TYPE_CHECKING
+
 import numpy as np
 
+from depiction_io.persistence.ram.ram_reader import RamReader
+
 if TYPE_CHECKING:
-    from depiction.persistence import ImzmlModeEnum
+    from depiction_io.persistence import ImzmlModeEnum
     from collections.abc import Generator
     from numpy.typing import NDArray
 

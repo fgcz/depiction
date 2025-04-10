@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 from depiction_io.persistence.imzml import Metadata
 from depiction_io.persistence.imzml.parser.parse_metadata import ParseMetadata
-from depiction.persistence.image.pixel_size import PixelSize
+from depiction_io.persistence.image.pixel_size import PixelSize
 
 app = cyclopts.App()
 

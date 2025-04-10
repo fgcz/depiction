@@ -10,7 +10,7 @@ from bioio_base.types import PhysicalPixelSizes
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from depiction.persistence.image.pixel_size import PixelSize
+from depiction_io.persistence.image.pixel_size import PixelSize
 
 if TYPE_CHECKING:
     from depiction.image import MultiChannelImage

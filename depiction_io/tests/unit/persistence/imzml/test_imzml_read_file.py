@@ -77,10 +77,10 @@ def test_reader_when_exception(mocker: MockerFixture, mock_read_file: ImzmlReadF
 
 
 def test_get_reader(mocker: MockerFixture, mock_path: Path, mock_read_file: ImzmlReadFile) -> None:
-    mock_etree = mocker.patch("depiction.persistence.imzml.imzml_reader.ElementTree").return_value
+    mock_etree = mocker.patch("depiction_io.persistence.imzml.imzml_reader.ElementTree").return_value
     mock_parse_spectra = mocker.MagicMock(name="mock_parse_spectra", spec=ParseSpectra)
     construct_parse_spectra = mocker.patch(
-        "depiction.persistence.imzml.imzml_reader.ParseSpectra", return_value=mock_parse_spectra
+        "depiction_io.persistence.imzml.imzml_reader.ParseSpectra", return_value=mock_parse_spectra
     )
     c1 = mocker.MagicMock(name="c1", value="c1")
     c2 = mocker.MagicMock(name="c2", value="c2")
@@ -150,14 +150,14 @@ def test_compact_metadata(mock_read_file: ImzmlReadFile) -> None:
 
 
 def test_metadata_checksums(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
-    mock_etree = mocker.patch("depiction.persistence.imzml.imzml_read_file.ElementTree").return_value
-    mock_parse_metadata = mocker.patch("depiction.persistence.imzml.imzml_read_file.ParseMetadata")
+    mock_etree = mocker.patch("depiction_io.persistence.imzml.imzml_read_file.ElementTree").return_value
+    mock_parse_metadata = mocker.patch("depiction_io.persistence.imzml.imzml_read_file.ParseMetadata")
     assert mock_read_file.metadata_checksums == mock_parse_metadata.return_value.ibd_checksums
     mock_parse_metadata.assert_called_once_with(etree=mock_etree)
 
 
 def test_ibd_checksums(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
-    mock_file_checksums = mocker.patch("depiction.persistence.imzml.imzml_read_file.FileChecksums")
+    mock_file_checksums = mocker.patch("depiction_io.persistence.imzml.imzml_read_file.FileChecksums")
     assert mock_file_checksums.return_value == mock_read_file.ibd_checksums
     mock_file_checksums.assert_called_once_with(file_path=mock_read_file.ibd_file)
 
@@ -265,8 +265,8 @@ def test_print_summary(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> 
 
 
 def test_pixel_size(mocker: MockerFixture, mock_read_file: ImzmlReadFile) -> None:
-    mock_etree = mocker.patch("depiction.persistence.imzml.imzml_read_file.ElementTree").return_value
-    mock_parse_metadata = mocker.patch("depiction.persistence.imzml.imzml_read_file.ParseMetadata")
+    mock_etree = mocker.patch("depiction_io.persistence.imzml.imzml_read_file.ElementTree").return_value
+    mock_parse_metadata = mocker.patch("depiction_io.persistence.imzml.imzml_read_file.ParseMetadata")
     assert mock_read_file.pixel_size == mock_parse_metadata.return_value.pixel_size
     mock_parse_metadata.assert_called_once_with(etree=mock_etree)
 

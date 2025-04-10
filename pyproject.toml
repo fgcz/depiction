@@ -51,8 +51,6 @@ dependencies = [
     "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke",
 ]
 
-[project.scripts]
-depiction-tools = "depiction.tools.cli.cli:app"
 
 [project.optional-dependencies]
 testing = [

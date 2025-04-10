@@ -17,5 +17,8 @@ test = [
     "pytest-mock",
 ]
 
+[project.scripts]
+depiction-tools = "depiction_tools.cli.cli:app"
+
 [tool.uv]
 reinstall-package = ["depiction_tools"]

@@ -1,9 +1,9 @@
-from loguru import logger
 from pathlib import Path
 
 import cyclopts
+from loguru import logger
 
-from depiction.persistence import ImzmlReadFile
+from depiction_io.persistence import ImzmlReadFile
 
 cmd_imzml = cyclopts.App()
 

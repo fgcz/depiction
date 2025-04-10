@@ -8,7 +8,7 @@ from depiction_io.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter,
 from depiction.spectrum.peak_filtering import PeakFilteringType
 from depiction.spectrum.peak_picking import BasicInterpolatedPeakPicker, BasicPeakPicker
 from depiction.spectrum.peak_picking.ms_peak_picker_wrapper import MSPeakPicker
-from depiction_tools.process_spectra.filter_peaks import get_peak_filter
+from depiction_tools.process_spectra.filter_peaks.filter_peaks import get_peak_filter
 from loguru import logger
 
 from depiction_tools.process_spectra.pick_peaks.config import (

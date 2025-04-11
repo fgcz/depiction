@@ -5,7 +5,7 @@ from numpy.typing import NDArray
 from pathlib import Path
 from perlin_noise import PerlinNoise
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 from depiction_io.persistence import ImzmlWriteFile, ImzmlModeEnum
 from depiction_io.persistence.types import GenericWriteFile
 

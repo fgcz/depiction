@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 if TYPE_CHECKING:
-    from depiction.image.multi_channel_image import MultiChannelImage
+    from depiction_image_io.multi_channel_image import MultiChannelImage
     from numpy.typing import NDArray
 
 

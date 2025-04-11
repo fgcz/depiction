@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import xarray.testing
 
-from depiction.image.image_channel_stats import ImageChannelStats
+from depiction_image_ops.image_channel_stats import ImageChannelStats
 
 
 @pytest.fixture

@@ -2,8 +2,8 @@ import pytest
 import xarray
 from xarray import DataArray
 
-from depiction.image.feature_selection import FeatureSelectionIQR, select_features, FeatureSelectionCV
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_ops.feature_selection import FeatureSelectionIQR, select_features, FeatureSelectionCV
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 @pytest.fixture()

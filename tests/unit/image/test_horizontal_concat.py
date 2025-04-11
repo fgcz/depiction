@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from depiction.image.horizontal_concat import horizontal_concat
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_ops.horizontal_concat import horizontal_concat
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 @pytest.fixture

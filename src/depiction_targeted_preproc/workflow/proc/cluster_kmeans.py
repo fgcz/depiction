@@ -8,7 +8,7 @@ from sklearn.decomposition import NMF
 from sklearn.metrics import silhouette_score
 from xarray import DataArray
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 def retain_strongest_signals(data: xarray.DataArray, n_features: int) -> xarray.DataArray:

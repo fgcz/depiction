@@ -4,9 +4,9 @@ from pathlib import Path
 from umap import UMAP
 from xarray import DataArray
 
-from depiction.image.feature_selection import FeatureSelectionIQR, retain_features
-from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.image.multi_channel_image_concatenation import MultiChannelImageConcatenation
+from depiction_image_ops.feature_selection import FeatureSelectionIQR, retain_features
+from depiction_image_io.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image_concatenation import MultiChannelImageConcatenation
 
 app = cyclopts.App()
 

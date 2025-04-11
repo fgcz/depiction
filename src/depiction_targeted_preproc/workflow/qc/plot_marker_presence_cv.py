@@ -3,7 +3,7 @@ import cyclopts
 import polars as pl
 from pathlib import Path
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 # TODO when computing these statistics the big question is whether we should count 0 values as well?

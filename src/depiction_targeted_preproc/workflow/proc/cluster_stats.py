@@ -6,7 +6,7 @@ from pathlib import Path
 from sklearn.metrics import calinski_harabasz_score
 from sklearn.metrics import silhouette_score, davies_bouldin_score
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 from depiction_targeted_preproc.workflow.proc.__cluster_stats import compute_CHAOS, compute_PAS
 
 

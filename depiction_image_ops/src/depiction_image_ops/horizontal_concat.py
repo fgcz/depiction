@@ -1,7 +1,7 @@
 import xarray
 
-from depiction.image.container.alpha_channel import AlphaChannel
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.container.alpha_channel import AlphaChannel
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 def horizontal_concat(

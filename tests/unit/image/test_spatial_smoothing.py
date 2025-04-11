@@ -6,7 +6,7 @@ import xarray as xr
 from sparse import GCXS
 from xarray import DataArray
 
-from depiction.image.smoothing.spatial_smoothing import SpatialSmoothing
+from depiction_image_ops.smoothing import SpatialSmoothing
 
 
 def _convert_array(arr: DataArray, variant: str) -> DataArray:

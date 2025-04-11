@@ -3,7 +3,7 @@ import xarray
 from loguru import logger
 from scipy.optimize import linear_sum_assignment
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 def get_centroids(data_flat: xarray.DataArray) -> np.ndarray:

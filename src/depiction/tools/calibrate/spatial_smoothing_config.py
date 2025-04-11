@@ -5,8 +5,8 @@ from typing import Literal, Annotated, Protocol
 from pydantic import BaseModel, Field
 
 from depiction.image import MultiChannelImage
-from depiction.image.smoothing.percentile_filter import PercentileFilter, KernelShape
-from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
+from depiction_image_ops.smoothing.percentile_filter import PercentileFilter, KernelShape
+from depiction_image_ops.smoothing import SpatialSmoothingSparseAware
 
 
 class GaussianSpatialSmoothingConfig(BaseModel):

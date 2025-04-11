@@ -5,8 +5,8 @@ from pathlib import Path
 
 import numpy as np
 
-from depiction.image.horizontal_concat import horizontal_concat
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_ops.horizontal_concat import horizontal_concat
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 # TODO properly document (y, x) vs (x, y) and the min_coords in get_single_image and get_single_images

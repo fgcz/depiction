@@ -4,8 +4,8 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 from xarray import DataArray
 
-from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.persistence.image.ome_tiff import OmeTiff
+from depiction_image_io.multi_channel_image import MultiChannelImage
+from depiction_image_io.persistence.ome_tiff import OmeTiff
 
 
 @pytest.fixture

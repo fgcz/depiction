@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 from numpy.typing import NDArray
 
-from depiction.image.smoothing.base import ChannelWiseSmoothing
+from depiction_image_ops.smoothing.base import ChannelWiseSmoothing
 
 
 # TODO this is a prototype, not optimized and not tested!

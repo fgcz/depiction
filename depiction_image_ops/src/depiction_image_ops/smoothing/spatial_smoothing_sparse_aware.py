@@ -8,7 +8,7 @@ import xarray
 import xarray as xr
 from numpy.typing import NDArray
 
-from depiction.image.smoothing.base import ChannelWiseSmoothing
+from depiction_image_ops.smoothing.base import ChannelWiseSmoothing
 
 
 @dataclass(frozen=True)

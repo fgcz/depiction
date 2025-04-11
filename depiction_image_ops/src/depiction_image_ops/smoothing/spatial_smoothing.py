@@ -8,7 +8,7 @@ import xarray as xr
 from numpy.typing import NDArray
 from xarray import DataArray
 
-from depiction.image.xarray_helper import XarrayHelper
+from depiction_image_io.xarray_helper import XarrayHelper
 
 
 @dataclass

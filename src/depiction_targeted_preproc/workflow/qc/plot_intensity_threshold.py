@@ -9,7 +9,7 @@ import polars as pl
 from numpy.typing import NDArray
 from tqdm import tqdm
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 app = cyclopts.App()
 

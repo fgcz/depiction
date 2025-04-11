@@ -8,7 +8,7 @@ from xarray import DataArray
 
 from depiction.calibration.methods.calibration_method import CalibrationMethod
 from depiction.image import MultiChannelImage
-from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
+from depiction_image_ops.smoothing import SpatialSmoothingSparseAware
 
 
 class CalibrationMethodMassClusterCenterModel(CalibrationMethod):

@@ -6,7 +6,7 @@ from xarray import DataArray
 
 import numpy as np
 from depiction.image import MultiChannelImage
-from depiction.image.xarray_helper import XarrayHelper
+from depiction_image_io.xarray_helper import XarrayHelper
 
 
 class ChannelWiseSmoothing:

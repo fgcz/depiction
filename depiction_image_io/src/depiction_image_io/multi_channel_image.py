@@ -8,9 +8,9 @@ from numpy.typing import NDArray
 from typing import TYPE_CHECKING, Any, Literal
 from xarray import DataArray
 
-from depiction.image.image_channel_stats import ImageChannelStats
-from depiction.image.sparse_representation import SparseRepresentation
-from depiction.persistence.image.hdf5_image_format import Hdf5ImageFormat
+from depiction_image_ops.image_channel_stats import ImageChannelStats
+from depiction_image_io.sparse_representation import SparseRepresentation
+from depiction_image_io.persistence.hdf5_image_format import Hdf5ImageFormat
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

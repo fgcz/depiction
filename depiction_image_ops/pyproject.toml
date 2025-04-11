@@ -1,0 +1,8 @@
+[project]
+name = "depiction_image_ops"
+version = "0.1.0"
+description = ""
+authors = [{ name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" }]
+# TODO
+#readme = "README.md"
+license = { text = "Apache-2.0" }

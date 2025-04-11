@@ -3,7 +3,7 @@ import pytest
 import xarray
 
 from depiction.clustering.remap_clusters import remap_cluster_labels, get_centroids
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 @pytest.fixture()

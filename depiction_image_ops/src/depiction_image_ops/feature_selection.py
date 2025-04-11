@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Literal, Annotated, Union
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 class FeatureSelectionCV(BaseModel):

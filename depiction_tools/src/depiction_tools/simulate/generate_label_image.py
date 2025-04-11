@@ -7,7 +7,7 @@ import polars as pl
 import xarray
 from xarray import DataArray
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 class GenerateLabelImage:

@@ -4,10 +4,10 @@ import xarray
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
-from depiction.image.container.alpha_channel import AlphaChannel
+from depiction_image_io.container import AlphaChannel
 
 if TYPE_CHECKING:
-    from depiction.image.multi_channel_image import MultiChannelImage
+    from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 # TODO currently the files are not closed, which you can observe e.g. in a notebook when the original files has been
@@ -50,7 +50,7 @@ class Hdf5ImageFormat:
         :param path: The path to the file to read from.
         :param group: The group to read the image from. If `None`, the image will be read from the root group.
         """
-        from depiction.image.multi_channel_image import MultiChannelImage
+        from depiction_image_io.multi_channel_image import MultiChannelImage
 
         combined_array = xarray.open_dataarray(path, group=group)
         is_foreground_label = combined_array.attrs.get("is_foreground_label", "is_foreground")

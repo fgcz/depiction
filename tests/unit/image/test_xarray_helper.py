@@ -3,7 +3,7 @@ import pytest
 import sparse
 from xarray import DataArray
 
-from depiction.image.xarray_helper import XarrayHelper
+from depiction_image_io.xarray_helper import XarrayHelper
 
 
 @pytest.fixture

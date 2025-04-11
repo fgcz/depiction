@@ -1,7 +1,7 @@
 import cyclopts
 from pathlib import Path
 import matplotlib.pyplot as plt
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 app = cyclopts.App()
 

@@ -1,6 +1,6 @@
 import numpy as np
 
-from depiction.image.smoothing.percentile_filter import PercentileFilter, KernelShape
+from depiction_image_ops.smoothing.percentile_filter import PercentileFilter, KernelShape
 
 
 def test_get_circle_kernel_mask():

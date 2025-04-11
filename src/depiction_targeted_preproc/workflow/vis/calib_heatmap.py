@@ -4,7 +4,7 @@ import numpy as np
 import xarray
 from pathlib import Path
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 app = cyclopts.App()
 

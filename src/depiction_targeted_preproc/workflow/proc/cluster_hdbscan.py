@@ -6,7 +6,7 @@ from loguru import logger
 from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 from depiction_targeted_preproc.workflow.proc.cluster_kmeans import retain_strongest_signals
 
 app = cyclopts.App()

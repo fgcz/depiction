@@ -9,8 +9,8 @@ from sparse import GCXS
 from xarray import DataArray
 
 from depiction.image import MultiChannelImage
-from depiction.image.smoothing.spatial_smoothing_sparse_aware import SpatialSmoothingSparseAware
-from depiction.image.xarray_helper import XarrayHelper
+from depiction_image_ops.smoothing import SpatialSmoothingSparseAware
+from depiction_image_io.xarray_helper import XarrayHelper
 
 
 @pytest.fixture(autouse=True)

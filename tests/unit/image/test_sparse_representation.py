@@ -5,7 +5,7 @@ import pytest
 import xarray.testing
 from xarray import DataArray
 
-from depiction.image.sparse_representation import SparseRepresentation
+from depiction_image_io.sparse_representation import SparseRepresentation
 
 
 class Variant(Enum):

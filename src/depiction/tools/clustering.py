@@ -13,9 +13,9 @@ from depiction.clustering.extrapolate import extrapolate_labels
 from depiction.clustering.maxmin_sampling import maxmin_sampling
 from depiction.clustering.metrics import cross_correlation
 from depiction.clustering.stratified_grid import StratifiedGrid
-from depiction.image.feature_selection import FeatureSelectionIQR, retain_features
-from depiction.image.image_normalization import ImageNormalization, ImageNormalizationVariant
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_ops.feature_selection import FeatureSelectionIQR, retain_features
+from depiction_image_ops.image_normalization import ImageNormalization, ImageNormalizationVariant
+from depiction_image_io.multi_channel_image import MultiChannelImage
 
 
 class MethodEnum(Enum):

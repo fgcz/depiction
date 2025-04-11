@@ -4,7 +4,7 @@ from numpy.typing import NDArray
 from xarray import DataArray
 
 from depiction.calibration.models import GenericModel
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 from depiction.visualize.plot_image import PlotImage
 
 

@@ -6,8 +6,8 @@ import xarray
 from pytest_mock import MockerFixture
 from xarray import DataArray
 
-from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.image.multi_channel_image_concatenation import MultiChannelImageConcatenation
+from depiction_image_io.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image_concatenation import MultiChannelImageConcatenation
 
 
 @pytest.fixture()

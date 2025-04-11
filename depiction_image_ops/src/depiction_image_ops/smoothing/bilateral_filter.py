@@ -9,7 +9,7 @@ import xarray as xr
 from loguru import logger
 
 from depiction.image import MultiChannelImage
-from depiction.image.xarray_helper import XarrayHelper
+from depiction_image_io.xarray_helper import XarrayHelper
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray

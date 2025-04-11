@@ -5,7 +5,7 @@ import numpy as np
 from numpy.typing import NDArray
 from xarray import DataArray
 
-from depiction.image.multi_channel_image import MultiChannelImage
+from depiction_image_io.multi_channel_image import MultiChannelImage
 from depiction_io.parallel_ops import ParallelConfig
 from depiction_io.parallel_ops import ReadSpectraParallel
 from depiction.persistence import ImzmlReadFile, ImzmlReader

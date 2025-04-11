@@ -3,7 +3,7 @@ import pytest
 import xarray
 from xarray import DataArray
 
-from depiction.persistence.image.ome_tiff import OmeTiff
+from depiction_image_io.persistence.ome_tiff import OmeTiff
 from depiction_io.persistence.image.pixel_size import PixelSize
 
 

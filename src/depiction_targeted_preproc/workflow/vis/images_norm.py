@@ -3,7 +3,7 @@ from pathlib import Path
 import cyclopts
 
 from depiction.image import MultiChannelImage
-from depiction.image.image_normalization import ImageNormalization, ImageNormalizationVariant
+from depiction_image_ops.image_normalization import ImageNormalization, ImageNormalizationVariant
 
 app = cyclopts.App()
 

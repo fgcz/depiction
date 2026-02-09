@@ -40,7 +40,6 @@ dependencies = [
     # TODO see: https://github.com/bioio-devs/bioio-tifffile/issues/27
     "tifffile<2025.2.18",
     "loguru",
-    "ms-peak-picker",
     "findmfpy",
     "kdepy>=1.1.8",
     "perlin-noise==1.13",
@@ -55,6 +54,10 @@ dependencies = [
 depiction-tools = "depiction.tools.cli.cli:app"
 
 [project.optional-dependencies]
+ms_peak_picker = [
+    "ms-peak-picker",
+]
+
 testing = [
     "coverage>=7.4.3",
     "hypothesis>=6.99.11",

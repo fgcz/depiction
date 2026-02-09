@@ -12,8 +12,7 @@ dependencies = [
     "h5py>=3.10.0",
     "matplotlib>=3.8.2",
     "numba>=0.59.0",
-    # TODO unpin when https://github.com/Unidata/netcdf4-python/issues/1343 is resolved
-    "numpy>=1.26.2,<2.0.0",
+    "numpy>=2.0.0",
     "opencv-python>=4.9.0.80",
     "pandas>=2.1.4",
     "pillow>=10.1.0",
@@ -32,13 +31,11 @@ dependencies = [
     "cyclopts",
     "vegafusion[embed]>=2.0.0",
     "xarray",
-    # TODO unpin when https://github.com/Unidata/netcdf4-python/issues/1343 is resolved
-    "netCDF4<=1.7.1",
-    "bioio>=1.2.0",
-    "bioio-ome-tiff",
+    "h5netcdf",
+    "bioio",
+    "bioio-ome-tiff>=1.4.0",
     "bioio-ome-zarr",
-    # TODO see: https://github.com/bioio-devs/bioio-tifffile/issues/27
-    "tifffile<2025.2.18",
+    "tifffile",
     "loguru",
     "findmfpy",
     "kdepy>=1.1.8",
@@ -46,7 +43,7 @@ dependencies = [
     "pandera[polars]",
     # TODO demote to optional again later, but necessary for pycharm right now
     "bfabric",
-    "bfabric_app_runner @ git+https://github.com/fgcz/bfabricPy@main#subdirectory=bfabric_app_runner",
+    "bfabric_app_runner",
     "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke",
 ]
 

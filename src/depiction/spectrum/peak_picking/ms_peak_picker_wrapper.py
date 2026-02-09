@@ -5,11 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-import ms_peak_picker
 import numpy as np
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
+
     from depiction.spectrum.peak_filtering import PeakFilteringType
 
 
@@ -25,6 +25,8 @@ class MSPeakPicker:
     def pick_peaks(
         self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64]
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+        import ms_peak_picker
+
         peak_list = ms_peak_picker.pick_peaks(mz_arr, int_arr, fit_type=self.fit_type)
         peak_mz = np.array([peak.mz for peak in peak_list])
         peak_int = np.array([peak.intensity for peak in peak_list])

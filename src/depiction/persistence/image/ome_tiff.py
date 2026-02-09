@@ -1,14 +1,13 @@
 # TODO figure out if format specific exporters should actually be moved to a different path
 from __future__ import annotations
 
-import xarray
-from bioio import BioImage
-from bioio.writers import OmeTiffWriter
-from bioio_base.types import PhysicalPixelSizes
-
-# TODO figure out the ideal extension i.e. tif vs tiff!
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+import xarray
+from bioio import BioImage
+from bioio_base.types import PhysicalPixelSizes
+from bioio_ome_tiff.writers import OmeTiffWriter
 
 from depiction.persistence.image.pixel_size import PixelSize
 

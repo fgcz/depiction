@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import mmap
+import zlib
 from functools import cached_property
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from xml.etree.ElementTree import ElementTree
 
-import mmap
 import numpy as np
-import zlib
 
 from depiction.persistence.imzml.compression import Compression
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
@@ -15,6 +15,7 @@ from depiction.persistence.types import GenericReader
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from numpy.typing import NDArray
 
 
@@ -34,6 +35,7 @@ class ImzmlReader(GenericReader):
         int_arr_dtype: str,
         int_compression: Compression,
         coordinates: NDArray[np.int64],
+        physical_coordinates: list[tuple[float, float] | tuple[float, float, float] | None],
         imzml_path: Path,
     ) -> None:
         self._imzml_path = imzml_path
@@ -49,6 +51,7 @@ class ImzmlReader(GenericReader):
         self._int_arr_dtype = int_arr_dtype
         self._int_compression = int_compression
         self._coordinates = coordinates
+        self._physical_coordinates = physical_coordinates
 
         self._mz_bytes = np.dtype(mz_arr_dtype).itemsize
         self._int_bytes = np.dtype(int_arr_dtype).itemsize
@@ -65,6 +68,7 @@ class ImzmlReader(GenericReader):
             "mz_bytes": self._mz_bytes,
             "int_bytes": self._int_bytes,
             "coordinates": self._coordinates,
+            "physical_coordinates": self._physical_coordinates,
         }
 
     # TODO
@@ -82,6 +86,7 @@ class ImzmlReader(GenericReader):
         self._mz_bytes = state["mz_bytes"]
         self._int_bytes = state["int_bytes"]
         self._coordinates = state["coordinates"]
+        self._physical_coordinates = state["physical_coordinates"]
 
     @property
     def imzml_path(self) -> Path:
@@ -132,8 +137,13 @@ class ImzmlReader(GenericReader):
 
     @cached_property
     def coordinates(self) -> NDArray[np.int64]:
-        """Returns the coordinates of the spectra in the imzML file, shape (n_spectra, n_dim)."""
+        """Returns the coordinates of the spectra in the imzml file, shape (n_spectra, n_dim)."""
         return self._coordinates
+
+    @property
+    def physical_coordinates(self) -> list[tuple[float, float] | tuple[float, float, float] | None]:
+        """Returns the physical coordinates of the spectra in the imzml file, shape (n_spectra, n_dim)."""
+        return self._physical_coordinates
 
     def get_spectrum_mz(self, i_spectrum: int) -> NDArray[np.float64]:
         """Returns the m/z values of the i-th spectrum."""
@@ -177,7 +187,9 @@ class ImzmlReader(GenericReader):
             int_arr_dtype=spectra[0].int_arr.data_type.value,
             # TODO
             int_compression=spectra[0].int_arr.compression,
+            # TODO naming is inconsistent (position vs coordinates)
             coordinates=np.asarray([s.position for s in spectra]),
+            physical_coordinates=[s.physical_position for s in spectra],
             imzml_path=path,
         )
 

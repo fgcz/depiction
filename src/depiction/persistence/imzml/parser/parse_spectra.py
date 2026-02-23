@@ -63,6 +63,7 @@ class _ResolvedSpectrum:
     params: dict[str, CvParam]
     params_scan: dict[str, CvParam]
     position: tuple[int, int] | tuple[int, int, int]
+    physical_position: tuple[float, float] | tuple[float, float, float] | None
     mz_arr: _ResolvedBinaryArray
     int_arr: _ResolvedBinaryArray
 
@@ -72,6 +73,7 @@ class _ParsedSpectrumMinimal:
     mz_arr: _ParsedBinaryArrayMinimal
     int_arr: _ParsedBinaryArrayMinimal
     position: tuple[int, int] | tuple[int, int, int]
+    physical_position: tuple[float, float] | tuple[float, float, float] | None
 
     @classmethod
     def from_resolved(cls, s: _ResolvedSpectrum) -> _ParsedSpectrumMinimal:
@@ -79,6 +81,7 @@ class _ParsedSpectrumMinimal:
             mz_arr=_ParsedBinaryArrayMinimal.from_resolved(s.mz_arr),
             int_arr=_ParsedBinaryArrayMinimal.from_resolved(s.int_arr),
             position=s.position,
+            physical_position=s.physical_position,
         )
 
 
@@ -91,6 +94,7 @@ class _SpectrumStatic:
     params: list[CvParam]
     params_scan: list[CvParam]
     position: tuple[int, int] | tuple[int, int, int]
+    physical_position: tuple[float, float] | tuple[float, float, float] | None
     binary_arrays: list[_BinaryArray]
 
     def resolve_mz_int_array(
@@ -144,6 +148,7 @@ class _SpectrumStatic:
                 groups=groups, referenced_groups=self.param_groups_scan, params=self.params_scan
             ),
             position=self.position,
+            physical_position=self.physical_position,
             mz_arr=mz_array,
             int_arr=int_array,
         )
@@ -160,7 +165,7 @@ def _resolve_params(
 
 
 class ParseSpectra:
-    def __init__(self, etree: ElementTree):
+    def __init__(self, etree: ElementTree) -> None:
         self._etree = etree
         self._ns = "{http://psi.hupo.org/ms/mzml}"
 
@@ -187,10 +192,10 @@ class ParseSpectra:
                 for ref in element.findall(f"{self._ns}scanList/{self._ns}scan/{self._ns}referenceableParamGroupRef")
             ]
 
+            # Extract grid position
             position_x = element.find(f"{self._ns}scanList/{self._ns}scan/{self._ns}cvParam[@accession='IMS:1000050']")
             position_y = element.find(f"{self._ns}scanList/{self._ns}scan/{self._ns}cvParam[@accession='IMS:1000051']")
             position_z = element.find(f"{self._ns}scanList/{self._ns}scan/{self._ns}cvParam[@accession='IMS:1000052']")
-
             if not position_z:
                 position = (int(position_x.attrib["value"]), int(position_y.attrib["value"]))
             else:
@@ -199,6 +204,22 @@ class ParseSpectra:
                     int(position_y.attrib["value"]),
                     int(position_z.attrib["value"]),
                 )
+
+            # Extract physical X coordinate if available (from 3DPositionX, Y, Z userParams...)
+            physical_x = element.find(f"{self._ns}scanList/{self._ns}scan/{self._ns}userParam[@name='3DPositionX']")
+            physical_y = element.find(f"{self._ns}scanList/{self._ns}scan/{self._ns}userParam[@name='3DPositionY']")
+            physical_z = element.find(f"{self._ns}scanList/{self._ns}scan/{self._ns}userParam[@name='3DPositionZ']")
+
+            physical_position = None
+            if physical_x is not None and physical_y is not None:
+                if physical_z is None:
+                    physical_position = (float(physical_x.attrib["value"]), float(physical_y.attrib["value"]))
+                else:
+                    physical_position = (
+                        float(physical_x.attrib["value"]),
+                        float(physical_y.attrib["value"]),
+                        float(physical_z.attrib["value"]),
+                    )
 
             binary_arrays = []
             for binary_element in element.findall(f"{self._ns}binaryDataArrayList/{self._ns}binaryDataArray"):
@@ -228,6 +249,7 @@ class ParseSpectra:
                         element.findall(f"{self._ns}scanList/{self._ns}scan/{self._ns}cvParam")
                     ),
                     position=position,
+                    physical_position=physical_position,
                     binary_arrays=binary_arrays,
                 )
             )

@@ -8,14 +8,14 @@ from pathlib import Path
 from typing import Any, Optional
 from xml.etree.ElementTree import ElementTree
 
-from numpy.typing import NDArray
 import numpy as np
+from numpy.typing import NDArray
 
 from depiction.persistence.file_checksums import FileChecksums
+from depiction.persistence.image.pixel_size import PixelSize
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 from depiction.persistence.imzml.imzml_reader import ImzmlReader
 from depiction.persistence.imzml.parser.parse_metadata import ParseMetadata
-from depiction.persistence.image.pixel_size import PixelSize
 from depiction.persistence.types import GenericReadFile
 
 
@@ -71,6 +71,11 @@ class ImzmlReadFile(GenericReadFile):
         Shape: (n_spectra, n_dimensions) where n_dimensions is 2 or 3 depending on the file."""
         # TODO check if it isn't simply always 3d because of pyimzml
         return self._cached_properties["coordinates"]
+
+    @cached_property
+    def physical_coordinates(self) -> list[tuple[float, float] | tuple[float, float, float] | None]:
+        """Returns the physical coordinates of the spectra in the imzml file, shape (n_spectra, n_dim)."""
+        return self._cached_properties["physical_coordinates"]
 
     @property
     def compact_metadata(self) -> dict[str, int | str | list[float]]:
@@ -173,6 +178,7 @@ class ImzmlReadFile(GenericReadFile):
                 "n_spectra": reader.n_spectra,
                 "imzml_mode": reader.imzml_mode,
                 "coordinates": reader.coordinates,
+                "physical_coordinates": reader.physical_coordinates,
             }
 
     def __repr__(self) -> str:

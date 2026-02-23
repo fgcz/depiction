@@ -71,9 +71,7 @@ class ImzmlReader(GenericReader):
             "physical_coordinates": self._physical_coordinates,
         }
 
-    # TODO
     def __setstate__(self, state: dict[str, Any]) -> None:
-        # self._portable_reader = state["portable_reader"]
         self._imzml_path = state["imzml_path"]
         self._ibd_file = None
         self._ibd_mmap = None

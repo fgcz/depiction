@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-import numpy as np
 import warnings
-import xarray
 from functools import cached_property
-from numpy.typing import NDArray
 from typing import TYPE_CHECKING, Any, Literal
+
+import numpy as np
+import xarray
+from numpy.typing import NDArray
 from xarray import DataArray
 
 from depiction.image.image_channel_stats import ImageChannelStats

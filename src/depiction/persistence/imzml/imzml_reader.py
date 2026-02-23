@@ -35,7 +35,7 @@ class ImzmlReader(GenericReader):
         int_arr_dtype: str,
         int_compression: Compression,
         coordinates: NDArray[np.int64],
-        physical_coordinates: list[tuple[float, float] | tuple[float, float, float] | None],
+        physical_coordinates: NDArray[np.float64] | None,
         imzml_path: Path,
     ) -> None:
         self._imzml_path = imzml_path
@@ -141,7 +141,7 @@ class ImzmlReader(GenericReader):
         return self._coordinates
 
     @property
-    def physical_coordinates(self) -> list[tuple[float, float] | tuple[float, float, float] | None]:
+    def physical_coordinates(self) -> NDArray[np.float64] | None:
         """Returns the physical coordinates of the spectra in the imzml file, shape (n_spectra, n_dim)."""
         return self._physical_coordinates
 
@@ -173,6 +173,12 @@ class ImzmlReader(GenericReader):
         parser = ParseSpectra(etree=ElementTree(file=path))
         spectra = parser.parse()
 
+        # combine the physical coordinates if available
+        if spectra[0].physical_position is not None:
+            physical_coordinates = np.vstack([s.physical_position for s in spectra])
+        else:
+            physical_coordinates = None
+
         # TODO refactor this later
         return ImzmlReader(
             mz_arr_offsets=[s.mz_arr.offset for s in spectra],
@@ -189,7 +195,7 @@ class ImzmlReader(GenericReader):
             int_compression=spectra[0].int_arr.compression,
             # TODO naming is inconsistent (position vs coordinates)
             coordinates=np.asarray([s.position for s in spectra]),
-            physical_coordinates=[s.physical_position for s in spectra],
+            physical_coordinates=physical_coordinates,
             imzml_path=path,
         )
 

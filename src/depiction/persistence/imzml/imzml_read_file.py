@@ -73,7 +73,7 @@ class ImzmlReadFile(GenericReadFile):
         return self._cached_properties["coordinates"]
 
     @cached_property
-    def physical_coordinates(self) -> list[tuple[float, float] | tuple[float, float, float] | None]:
+    def physical_coordinates(self) -> NDArray[np.float64] | None:
         """Returns the physical coordinates of the spectra in the imzml file, shape (n_spectra, n_dim)."""
         return self._cached_properties["physical_coordinates"]
 

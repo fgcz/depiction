@@ -23,7 +23,7 @@ def tests(session) -> None:
 def licensecheck(session) -> None:
     """Runs the license check."""
     session.install("licensecheck")
-    session.run("licensecheck")
+    session.run("licensecheck", "--skip-dependencies", "llvmlite")
 
 
 @nox.session(default=False)

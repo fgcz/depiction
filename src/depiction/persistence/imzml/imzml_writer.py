@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-import pyimzml
-import pyimzml.ImzMLWriter
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+import numpy as np
+import pyimzml
+import pyimzml.ImzMLWriter
 
 from depiction.persistence.imzml.imzml_alignment_tracker import ImzmlAlignmentTracker
 from depiction.persistence.imzml.imzml_mode_enum import ImzmlModeEnum
 from depiction.persistence.types import GenericWriter
-
-import numpy as np
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -26,13 +26,22 @@ class ImzmlWriter(GenericWriter):
         self._imzml_alignment_tracker = imzml_alignment_tracker
 
     @classmethod
-    def open(cls, path: str | Path, imzml_mode: ImzmlModeEnum, imzml_alignment_tracking: bool = True) -> ImzmlWriter:
+    def open(
+        cls,
+        path: str | Path,
+        imzml_mode: ImzmlModeEnum,
+        imzml_alignment_tracking: bool = True,
+        mz_dtype: np.typing.DTypeLike = np.float64,
+        intensity_dtype: np.typing.DTypeLike = np.float32,
+    ) -> ImzmlWriter:
         """Opens an imzML file."""
         imzml_alignment_tracker = ImzmlAlignmentTracker() if imzml_alignment_tracking else None
         return cls(
             wrapped_imzml_writer=pyimzml.ImzMLWriter.ImzMLWriter(
                 str(path),
                 mode=ImzmlModeEnum.as_pyimzml_str(imzml_mode),
+                mz_dtype=mz_dtype,
+                intensity_dtype=intensity_dtype,
             ),
             imzml_alignment_tracker=imzml_alignment_tracker,
         )

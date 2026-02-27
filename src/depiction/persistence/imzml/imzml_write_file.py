@@ -1,8 +1,11 @@
 from __future__ import annotations
+
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING
-from collections.abc import Generator
+
+import numpy as np
 
 from depiction.persistence.imzml.imzml_writer import ImzmlWriter
 from depiction.persistence.types import GenericWriteFile
@@ -21,10 +24,19 @@ class ImzmlWriteFile(GenericWriteFile):
             Other values are not supported.
     """
 
-    def __init__(self, path: str | Path, imzml_mode: ImzmlModeEnum, write_mode: str = "x") -> None:
+    def __init__(
+        self,
+        path: str | Path,
+        imzml_mode: ImzmlModeEnum,
+        write_mode: str = "x",
+        mz_dtype: np.typing.DTypeLike = np.float64,
+        intensity_dtype: np.typing.DTypeLike = np.float32,
+    ) -> None:
         self._path = Path(path)
         self._imzml_mode = imzml_mode
         self._write_mode = write_mode
+        self._mz_dtype = mz_dtype
+        self._intensity_dtype = intensity_dtype
 
     @property
     def imzml_file(self) -> Path:
@@ -58,7 +70,12 @@ class ImzmlWriteFile(GenericWriteFile):
         else:
             raise ValueError(f"Invalid write mode: {self._write_mode!r}")
 
-        writer = ImzmlWriter.open(path=self.imzml_file, imzml_mode=self._imzml_mode)
+        writer = ImzmlWriter.open(
+            path=self.imzml_file,
+            imzml_mode=self._imzml_mode,
+            mz_dtype=self._mz_dtype,
+            intensity_dtype=self._intensity_dtype,
+        )
         try:
             yield writer
         finally:

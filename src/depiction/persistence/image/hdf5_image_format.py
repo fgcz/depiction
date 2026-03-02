@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import xarray
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
+
+import xarray
 
 from depiction.image.container.alpha_channel import AlphaChannel
 
@@ -41,7 +42,7 @@ class Hdf5ImageFormat:
         combined_array = self._alpha_channel.stack(data_array=data_array, is_fg_array=is_fg_array)
         combined_array.attrs["is_foreground_label"] = self._image.is_foreground_label
         # TODO engine should not be necessary, but using it for debugging
-        combined_array.to_netcdf(path, mode=mode, group=group, format="NETCDF4", engine="netcdf4")
+        combined_array.to_netcdf(path, mode=mode, group=group, format="NETCDF4")
 
     @classmethod
     def read_hdf5(cls, path: Path, group: str | None = None) -> MultiChannelImage:

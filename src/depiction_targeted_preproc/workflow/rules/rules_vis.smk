@@ -59,7 +59,7 @@ rule vis_image_sd_zarr:
         image = MultiChannelImage.read_hdf5(input.netcdf)
         sd_image = spatialdata.models.Image2DModel.parse(image.data_spatial, c_coords=image.channel_names)
         sd_data = spatialdata.SpatialData(images={"msi": sd_image})
-        sd_data.write_zarr(output.sd)
+        sd_data.write(output.sd)
 
 
 rule vis_clustering:

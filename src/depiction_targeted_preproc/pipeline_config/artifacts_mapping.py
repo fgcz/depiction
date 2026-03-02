@@ -17,7 +17,7 @@ ARTIFACT_FILES_MAPPING = {
         "qc/calibration_model_coefficients.hdf5",
     ],
     # PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff", "images_default.ome.zarr"],
-    PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff"],
+    PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff", "images_default.sd.zarr"],
     # PipelineArtifact.CALIB_HEATMAP: ["images_calib_heatmap.ome.tiff"],
     # TODO
     PipelineArtifact.CALIB_HEATMAP: [

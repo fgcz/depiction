@@ -57,7 +57,7 @@ rule vis_image_sd_zarr:
         from depiction.image.multi_channel_image import MultiChannelImage
 
         image = MultiChannelImage.read_hdf5(input.netcdf)
-        sd_image = spatialdata.models.Image2DModel.parse(image.data_spatial, coords=image.channel_names)
+        sd_image = spatialdata.models.Image2DModel.parse(image.data_spatial, c_coords=image.channel_names)
         sd_data = spatialdata.SpatialData(images={"msi": sd_image})
         sd_data.write_zarr(output.sd)
 

@@ -16,11 +16,14 @@ rule prepare_pipeline_extract_imzml_zip:
         imzml="{sample}/raw.imzML",
         ibd="{sample}/raw.ibd",
     run:
+        import shutil
         import zipfile
 
         with zipfile.ZipFile(input.zip, "r") as archive:
             filenames = archive.namelist()
             imzml_filename = next(filename for filename in filenames if filename.lower().endswith(".imzml"))
             ibd_filename = next(filename for filename in filenames if filename.lower().endswith(".ibd"))
-            archive.extract(imzml_filename, path=output.imzml)
-            archive.extract(ibd_filename, path=output.ibd)
+            with archive.open(imzml_filename) as src, open(output.imzml, "wb") as dst:
+                shutil.copyfileobj(src, dst)
+            with archive.open(ibd_filename) as src, open(output.ibd, "wb") as dst:
+                shutil.copyfileobj(src, dst)

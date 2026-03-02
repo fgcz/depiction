@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-import cyclopts
-import yaml
 from pathlib import Path
 from typing import Any
 
-from app_runner.dispatch.dispatch_individual_resources import DispatchIndividualResources, config_msi_imzml
+import cyclopts
+import yaml
 from bfabric import Bfabric
 from bfabric.entities import Resource
 from bfabric.experimental.workunit_definition import WorkunitDefinition
+from bfabric_app_runner.dispatch.dispatch_individual_resources import DispatchIndividualResources, config_msi_imzml
+
 from depiction_targeted_preproc.pipeline.prepare_inputs import write_inputs_spec
 from depiction_targeted_preproc.pipeline.prepare_params import parse_params
 

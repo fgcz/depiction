@@ -42,8 +42,8 @@ dependencies = [
     "perlin-noise==1.13",
     "pandera[polars]",
     # TODO demote to optional again later, but necessary for pycharm right now
-    "bfabric",
-    "bfabric_app_runner",
+    "bfabric @ git+https://github.com/fgcz/bfabricPy@fixes-20260302#subdirectory=bfabric",
+    "bfabric_app_runner @ git+https://github.com/fgcz/bfabricPy@fixes-20260302#subdirectory=bfabric_app_runner",
     "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke",
 ]
 

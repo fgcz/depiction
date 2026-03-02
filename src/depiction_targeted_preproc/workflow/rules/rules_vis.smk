@@ -46,6 +46,22 @@ rule vis_image_ome_zarr:
         " --input-raw-metadata-path {input.raw_metadata}"
 
 
+rule vis_image_sd_zarr:
+    input:
+        netcdf="{sample}/images_{label}.hdf5",
+        raw_metadata="{sample}/raw_metadata.json",
+    output:
+        sd=directory("{sample}/images_{label}.sd.zarr"),
+    run:
+        import spatialdata
+        from depiction.image.multi_channel_image import MultiChannelImage
+
+        image = MultiChannelImage.read_hdf5(input.netcdf)
+        sd_image = spatialdata.models.Image2DModel.parse(image.data_spatial, c_coords=image.channel_names)
+        sd_data = spatialdata.SpatialData(images={"msi": sd_image})
+        sd_data.write(output.sd)
+
+
 rule vis_clustering:
     input:
         netcdf="{sample}/cluster_{label}.hdf5",

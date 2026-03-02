@@ -41,9 +41,10 @@ dependencies = [
     "kdepy>=1.1.8",
     "perlin-noise==1.13",
     "pandera[polars]",
+    "spatialdata>=0.7.2",
     # TODO demote to optional again later, but necessary for pycharm right now
     "bfabric",
-    "bfabric_app_runner",
+    "bfabric_app_runner >= 0.5.1",
     "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke",
 ]
 
@@ -78,7 +79,6 @@ dev = [
     "xmltodict",
     "hdbscan",
     "nox[uv]",
-    "spatialdata>=0.2.3",
     "spatialdata-plot>=0.2.1",
     "types-tqdm",
     "rpy2",

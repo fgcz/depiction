@@ -1,12 +1,12 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
 import xarray
-from pathlib import Path
+from depiction.image.multi_channel_image import MultiChannelImage
 from pytest_mock import MockerFixture
 from xarray import DataArray
-
-from depiction.image.multi_channel_image import MultiChannelImage
 
 
 @pytest.fixture
@@ -223,9 +223,7 @@ def test_drop_channels_when_coords_and_not_allow_missing(mock_image: MultiChanne
 def test_write_hdf5(mocker: MockerFixture, mock_image: MultiChannelImage) -> None:
     mocker.patch("xarray.DataArray.to_netcdf")
     mock_image.write_hdf5(Path("test.h5"))
-    mock_image.data_spatial.to_netcdf.assert_called_once_with(
-        Path("test.h5"), engine="netcdf4", format="NETCDF4", group=None, mode="w"
-    )
+    mock_image.data_spatial.to_netcdf.assert_called_once_with(Path("test.h5"), format="NETCDF4", group=None, mode="w")
 
 
 def test_read_hdf5(mocker: MockerFixture, mock_data: DataArray) -> None:

@@ -5,6 +5,7 @@ description = ""
 authors = [{ name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" }]
 readme = "README.md"
 license = { text = "Apache-2.0" }
+requires-python = ">= 3.13"
 
 dependencies = [
     "altair>=5.5.0",

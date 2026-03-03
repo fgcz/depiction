@@ -1,7 +1,8 @@
-import cyclopts
-import yaml
 import zipfile
 from pathlib import Path
+
+import cyclopts
+import yaml
 from snakemake_invoke import SnakemakeInvoke
 from snakemake_invoke.config import SnakemakeInvokeConfig
 
@@ -33,8 +34,10 @@ def process_chunk(chunk_dir: Path) -> Path:
     zip_file_path = output_dir / f"{sample_name}.zip"
     with zipfile.ZipFile(zip_file_path, "w") as zip_file:
         for result_file in result_files:
-            zip_entry_path = result_file.relative_to(chunk_dir.parent)
-            zip_file.write(result_file, arcname=zip_entry_path)
+            for file_path in result_file.rglob("*"):
+                if file_path.is_file():
+                    zip_entry_path = file_path.relative_to(chunk_dir.parent)
+                    zip_file.write(file_path, arcname=zip_entry_path)
     return zip_file_path
 
 

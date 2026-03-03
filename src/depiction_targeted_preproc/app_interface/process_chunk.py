@@ -34,10 +34,14 @@ def process_chunk(chunk_dir: Path) -> Path:
     zip_file_path = output_dir / f"{sample_name}.zip"
     with zipfile.ZipFile(zip_file_path, "w") as zip_file:
         for result_file in result_files:
-            for file_path in result_file.rglob("*"):
-                if file_path.is_file():
-                    zip_entry_path = file_path.relative_to(chunk_dir.parent)
-                    zip_file.write(file_path, arcname=zip_entry_path)
+            if result_file.is_file():
+                zip_entry_path = result_file.relative_to(chunk_dir.parent)
+                zip_file.write(result_file, arcname=zip_entry_path)
+            elif result_file.is_dir():
+                for file_path in result_file.rglob("*"):
+                    if file_path.is_file():
+                        zip_entry_path = file_path.relative_to(chunk_dir.parent)
+                        zip_file.write(file_path, arcname=zip_entry_path)
     return zip_file_path
 
 

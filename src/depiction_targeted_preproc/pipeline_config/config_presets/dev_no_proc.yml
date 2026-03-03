@@ -1,0 +1,5 @@
+process_spectra:
+  steps: []
+calibration:
+  method: null
+  n_jobs: 10

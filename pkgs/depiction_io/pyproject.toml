@@ -18,7 +18,6 @@ dependencies = [
     "h5netcdf",
     "tqdm>=4.66.1",
     "cyclopts",
-    "depiction",  # for MultiChannelImage import in ome_tiff.py
 ]
 
 [project.optional-dependencies]

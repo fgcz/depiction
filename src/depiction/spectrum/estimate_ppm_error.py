@@ -9,7 +9,7 @@ from depiction.parallel_ops import ParallelConfig
 from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
 
 if TYPE_CHECKING:
-    from depiction.persistence.types import GenericReadFile, GenericReader
+    from depiction_io.types import GenericReadFile, GenericReader
 
 
 class EstimatePPMError:

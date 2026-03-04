@@ -2,7 +2,7 @@ import importlib.util
 from unittest.mock import MagicMock
 
 import pytest
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import ImzmlReadFile, ImzmlWriteFile
 from depiction.tools.pick_peaks.config import (
     PeakPickerBasicInterpolatedConfig,
     PeakPickerFindMFPyConfig,

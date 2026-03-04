@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
-from depiction.persistence import ImzmlReadFile, ImzmlReader
+from depiction_io import ImzmlReadFile, ImzmlReader
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 
 

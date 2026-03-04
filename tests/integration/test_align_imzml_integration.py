@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 from depiction.parallel_ops.parallel_config import ParallelConfig
-from depiction.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
+from depiction_io import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
 from depiction.tools.align_imzml import AlignImzml, AlignImzmlMethod
 
 

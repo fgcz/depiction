@@ -9,7 +9,7 @@ import pyimzml.ImzMLParser
 import pyimzml.ImzMLWriter
 from tqdm import tqdm
 
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import ImzmlReadFile, ImzmlWriteFile
 
 
 # TODO under development

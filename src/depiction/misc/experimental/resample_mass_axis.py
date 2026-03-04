@@ -7,8 +7,8 @@ from numpy.typing import NDArray
 from scipy.interpolate import CubicSpline
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import ImzmlModeEnum
-from depiction.persistence.types import GenericWriteFile, GenericReadFile, GenericWriter, GenericReader
+from depiction_io import ImzmlModeEnum
+from depiction_io.types import GenericWriteFile, GenericReadFile, GenericWriter, GenericReader
 
 
 @dataclass

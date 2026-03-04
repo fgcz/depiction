@@ -3,7 +3,7 @@ import enum
 import json
 
 import numpy as np
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import ImzmlReadFile, ImzmlWriteFile
 
 
 class SubsampleMode(enum.Enum):

@@ -6,7 +6,7 @@ from pathlib import Path
 from skimage.transform import resize_local_mean
 from typing import Optional
 
-from depiction.persistence import ImzmlReadFile
+from depiction_io import ImzmlReadFile
 
 app = cyclopts.App()
 

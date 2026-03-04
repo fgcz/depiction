@@ -8,7 +8,7 @@ from typing import Callable, Any, TYPE_CHECKING
 import numpy as np
 
 from depiction.parallel_ops import ReadSpectraParallel
-from depiction.persistence import (
+from depiction_io import (
     ImzmlReadFile,
     ImzmlWriteFile,
     ImzmlModeEnum,
@@ -18,7 +18,7 @@ from depiction.tools.merge_imzml import MergeImzml
 if TYPE_CHECKING:
     from numpy.typing import NDArray
     from depiction.parallel_ops.parallel_config import ParallelConfig
-    from depiction.persistence.types import GenericReadFile, GenericWriteFile, GenericWriter, GenericReader
+    from depiction_io.types import GenericReadFile, GenericWriteFile, GenericWriter, GenericReader
 
 
 class WriteSpectraParallel:

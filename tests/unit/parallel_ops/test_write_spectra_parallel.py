@@ -7,7 +7,7 @@ from depiction.parallel_ops import (
     WriteSpectraParallel,
     ReadSpectraParallel,
 )
-from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile
+from depiction_io import ImzmlModeEnum, ImzmlWriteFile
 from depiction.tools.merge_imzml import MergeImzml
 
 

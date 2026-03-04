@@ -2,7 +2,7 @@ import cyclopts
 import polars as pl
 from pathlib import Path
 
-from depiction.persistence import ImzmlReadFile
+from depiction_io import ImzmlReadFile
 from depiction.visualize.plot_mass_spectrum import PlotMassSpectrum
 
 app = cyclopts.App()

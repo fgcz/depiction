@@ -11,10 +11,21 @@ def lint(session: nox.Session) -> None:
 
 
 @nox.session
-def tests(session) -> None:
-    """Runs the test suite."""
+def tests_depiction(session) -> None:
+    """Runs test suite for main depiction package."""
     testfiles = session.posargs if session.posargs else ["tests"]
-    session.install(".[testing]")
+    session.install("-e", ".[testing]")
+    session.install("pytest-xdist")
+    session.run("pytest", "-n", "auto", "--durations=10", "--durations-min=1.0", *testfiles)
+
+
+@nox.session
+def tests_depiction_io(session) -> None:
+    """Runs test suite for depiction_io package."""
+    testfiles = session.posargs if session.posargs else ["pkgs/depiction_io/tests"]
+    # Install workspace packages (depiction and depiction_io) in editable mode
+    session.install("-e", ".[testing]")
+    session.install("-e", "pkgs/depiction_io[testing]")
     session.install("pytest-xdist")
     session.run("pytest", "-n", "auto", "--durations=10", "--durations-min=1.0", *testfiles)
 

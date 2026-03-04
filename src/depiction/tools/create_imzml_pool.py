@@ -7,7 +7,7 @@ import os
 from numpy.typing import NDArray
 from tqdm import tqdm
 
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import ImzmlReadFile, ImzmlWriteFile
 
 
 class CreateImzmlPool:

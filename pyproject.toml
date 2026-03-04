@@ -1,3 +1,10 @@
+[tool.uv.workspace]
+members = [".", "pkgs/*"]
+
+[tool.uv.sources]
+depiction = { workspace = true }
+depiction_io = { workspace = true }
+
 [project]
 name = "depiction"
 version = "0.1.0"
@@ -19,7 +26,6 @@ dependencies = [
     "pillow>=10.1.0",
     "polars>=0.20.14",
     "pydantic>=2.6.0",
-    "pyimzml>=1.5.3",
     "pyyaml>=6.0.1",
     "scikit-image>=0.22.0",
     "scikit-learn>=1.3.2",
@@ -27,22 +33,21 @@ dependencies = [
     "seaborn>=0.13.0",
     "snakemake>=9.1",
     "sparse>=0.15.4",
+    "spatialdata>=0.7.2",
     "statsmodels>=0.14.0",
     "tqdm>=4.66.1",
     "cyclopts",
     "vegafusion[embed]>=2.0.0",
     "xarray",
     "h5netcdf",
-    "bioio",
-    "bioio-ome-tiff>=1.4.0",
     "bioio-ome-zarr",
     "tifffile",
+    "depiction_io",  # workspace dependency for I/O operations
     "loguru",
     "findmfpy",
     "kdepy>=1.1.8",
     "perlin-noise==1.13",
     "pandera[polars]",
-    "spatialdata>=0.7.2",
     # TODO demote to optional again later, but necessary for pycharm right now
     "bfabric",
     "bfabric_app_runner >= 0.5.1",
@@ -107,6 +112,13 @@ typing = [
 [build-system]
 requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["depiction*"]
 
 [tool.setuptools.package-data]
 depiction_targeted_preproc = ["**/*.smk", "**/Snakefile", "**/*.yml", "**/*.yaml"]

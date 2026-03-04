@@ -5,7 +5,7 @@ import yaml
 from loguru import logger
 from pathlib import Path
 
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
+from depiction_io import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
 from depiction.tools.pick_peaks.config import PickPeaksConfig, PeakPickerFindMFPyConfig, PeakPickerMSPeakPickerConfig
 from depiction.tools.pick_peaks.pick_peaks import pick_peaks
 

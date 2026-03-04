@@ -3,9 +3,9 @@ from loguru import logger
 from pathlib import Path
 from pydantic import ValidationError
 
-from depiction.persistence.imzml.metadata import Metadata
-from depiction.persistence.imzml.parser.parse_metadata import ParseMetadata
-from depiction.persistence.image.pixel_size import PixelSize
+from depiction_io.imzml.metadata import Metadata
+from depiction_io.imzml.parser.parse_metadata import ParseMetadata
+from depiction_io.image.pixel_size import PixelSize
 
 app = cyclopts.App()
 

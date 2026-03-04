@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import ImzmlModeEnum
-from depiction.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader
+from depiction_io import ImzmlModeEnum
+from depiction_io import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader
 from depiction.spectrum.peak_filtering import PeakFilteringType
 from depiction.spectrum.peak_picking import BasicInterpolatedPeakPicker, BasicPeakPicker
 from depiction.spectrum.peak_picking.ms_peak_picker_wrapper import MSPeakPicker

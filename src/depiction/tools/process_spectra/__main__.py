@@ -3,7 +3,7 @@ import yaml
 from pathlib import Path
 from rich.pretty import pprint
 
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
+from depiction_io import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
 from depiction.tools.process_spectra.config import ProcessSpectraConfig
 from depiction.tools.process_spectra.process import process_spectra
 

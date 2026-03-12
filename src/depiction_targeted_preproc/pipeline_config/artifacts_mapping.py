@@ -25,6 +25,7 @@ ARTIFACT_FILES_MAPPING = {
     ],
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",
+        "qc/plot_spatial_distribution_qc.pdf",
         # "qc/plot_spectra_for_marker.pdf",
         # "qc/plot_sample_spectra_before_after.pdf",
         "cluster_default_kmeans.hdf5",

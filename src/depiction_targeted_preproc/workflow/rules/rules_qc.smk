@@ -195,6 +195,7 @@ rule qc_plot_spatial_distribution:
         image_hdf5="{sample}/images_default.hdf5",
     output:
         pdf="{sample}/qc/plot_spatial_distribution_qc.pdf",
+        csv="{sample}/qc/spatial_distribution_qc.csv",
     shell:
         "python -m depiction_targeted_preproc.workflow.qc.plot_spatial_distribution_qc"
-        " --image-hdf5 {input.image_hdf5} --output-pdf {output.pdf}"
+        " --image-hdf5 {input.image_hdf5} --output-pdf {output.pdf} --output-csv {output.csv}"

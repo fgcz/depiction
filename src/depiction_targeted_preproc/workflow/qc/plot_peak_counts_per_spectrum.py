@@ -1,11 +1,12 @@
+from pathlib import Path
+
 import altair as alt
 import cyclopts
 import polars as pl
 from loguru import logger
-from pathlib import Path
 
-from depiction.parallel_ops import ReadSpectraParallel, ParallelConfig
-from depiction.persistence import ImzmlReadFile, ImzmlReader
+from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
+from depiction.persistence import ImzmlReader, ImzmlReadFile
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
 
@@ -49,7 +50,7 @@ def qc_plot_peak_counts_per_spectrum(
     logger.info(f"Mass groups: {mass_groups}")
 
     peak_counts = get_peak_counts(read_peaks=read_peaks, mass_groups=mass_groups, n_jobs=config.n_jobs)
-    logger.info("Peak counts: {peak_counts}")
+    logger.info(f"Peak counts: {peak_counts}")
 
     plot_df = peak_counts.join(mass_groups, on="group_index", how="left")
     n_peaks = plot_df["n_peaks"].sum()

@@ -62,6 +62,44 @@ rule vis_image_sd_zarr:
         sd_data.write(output.sd)
 
 
+rule vis_tic_image:
+    input:
+        imzml=multiext("{sample}/raw", ".imzML", ".ibd"),
+    output:
+        hdf5="{sample}/tic_image.hdf5",
+    shell:
+        "python -m depiction.tools.cli.cli_generate_tic_image"
+        " --imzml-path {input.imzml[0]} --output-hdf5-path {output.hdf5}"
+
+
+rule vis_tic_sd_zarr:
+    input:
+        netcdf="{sample}/tic_image.hdf5",
+        raw_metadata="{sample}/raw_metadata.json",
+    output:
+        sd=directory("{sample}/tic_image.sd.zarr"),
+    run:
+        import spatialdata
+        from depiction.image.multi_channel_image import MultiChannelImage
+
+        image = MultiChannelImage.read_hdf5(input.netcdf)
+        sd_image = spatialdata.models.Image2DModel.parse(image.data_spatial, c_coords=image.channel_names)
+        sd_data = spatialdata.SpatialData(images={"msi": sd_image})
+        sd_data.write(output.sd)
+
+
+rule vis_tic_ome_tiff:
+    input:
+        netcdf="{sample}/tic_image.hdf5",
+        raw_metadata="{sample}/raw_metadata.json",
+    output:
+        ometiff="{sample}/tic_image.ome.tiff",
+    shell:
+        "python -m depiction_targeted_preproc.workflow.vis.images_ome_tiff "
+        " --input-netcdf-path {input.netcdf} --output-ometiff-path {output.ometiff}"
+        " --input-raw-metadata-path {input.raw_metadata}"
+
+
 rule vis_clustering:
     input:
         netcdf="{sample}/cluster_{label}.hdf5",

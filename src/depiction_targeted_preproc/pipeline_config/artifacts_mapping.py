@@ -26,6 +26,8 @@ ARTIFACT_FILES_MAPPING = {
     PipelineArtifact.RAW_TIC: ["tic_image.ome.tiff", "tic_image.sd.zarr"],
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",
+        "qc/plot_spatial_distribution_qc.pdf",
+        "qc/spatial_distribution_qc.csv",
         # "qc/plot_spectra_for_marker.pdf",
         # "qc/plot_sample_spectra_before_after.pdf",
         "cluster_default_kmeans.hdf5",

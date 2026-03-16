@@ -69,7 +69,7 @@ def get_spatial_coherence_scores(
         if len(valid_scales) == 1:
             auc = correlations[0]
         else:
-            auc = float(np.trapz(correlations, x=x_values) / (x_values[-1] - x_values[0]))
+            auc = float(np.trapezoid(correlations, x=x_values) / (x_values[-1] - x_values[0]))
         scores.append(auc)
 
     return pl.DataFrame({"label": labels, "spatial_coherence": scores})

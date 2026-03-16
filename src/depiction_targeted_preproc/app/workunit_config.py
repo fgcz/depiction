@@ -1,18 +1,18 @@
 from __future__ import annotations
-from pydantic import ConfigDict
+
 from functools import cached_property
 from pathlib import Path
 from typing import Annotated
 
 import yaml
 from bfabric import Bfabric
-from bfabric.entities import Workunit, Project
-from pydantic import BaseModel, AliasPath, Field, WrapValidator
+from bfabric.entities import Project, Workunit
+from pydantic import AliasPath, BaseModel, ConfigDict, Field, WrapValidator
 
 from depiction_targeted_preproc.pipeline_config.model import (
+    PipelineArtifact,
     PipelineParameters,
     PipelineParametersPreset,
-    PipelineArtifact,
 )
 
 
@@ -121,6 +121,8 @@ class WorkunitConfig:
             requested_artifacts.add(PipelineArtifact.CALIB_IMZML)
         if self._data.output_activate_calibrated_ometiff:
             requested_artifacts.add(PipelineArtifact.CALIB_IMAGES)
+            # NOTE: hijacking this for now
+            requested_artifacts.add(PipelineArtifact.RAW_TIC)
         if self._data.output_activate_calibration_qc:
             requested_artifacts.add(PipelineArtifact.CALIB_QC)
         return requested_artifacts

@@ -34,6 +34,7 @@ class PipelineArtifact(str, Enum):
     CALIB_IMAGES = "CALIB_IMAGES"
     CALIB_QC = "CALIB_QC"
     CALIB_HEATMAP = "CALIB_HEATMAP"
+    RAW_TIC = "RAW_TIC"
     DEBUG = "DEBUG"
 
 

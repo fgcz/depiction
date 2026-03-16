@@ -113,5 +113,38 @@ def test_generate_range_images_for_file(mocker, mock_generate: GenerateIonImage,
     assert result == mock_multi_channel_image.from_flat.return_value
 
 
+def test_generate_tic_image_for_file(mocker, mock_parallel_config, mock_generate):
+    mock_input_file = mocker.MagicMock(name="mock_input_file", spec=["coordinates_array_2d"])
+    mock_parallelize = mocker.patch.object(ReadSpectraParallel, "from_config").return_value
+    mock_parallelize.map_chunked.return_value = np.array([[5.0], [10.0]])
+    mock_from_flat = mocker.patch.object(MultiChannelImage, "from_flat")
+
+    result = mock_generate.generate_tic_image_for_file(input_file=mock_input_file)
+
+    assert result == mock_from_flat.return_value
+    mock_from_flat.assert_called_once_with(
+        values=ANY, coordinates=mock_input_file.coordinates_array_2d, channel_names=["TIC"]
+    )
+    mock_parallelize.map_chunked.assert_called_once_with(
+        read_file=mock_input_file,
+        operation=GenerateIonImage._compute_tic_chunk,
+        bind_args={},
+        reduce_fn=ANY,
+    )
+
+
+def test_compute_tic_chunk() -> None:
+    mock_reader = MagicMock(name="reader")
+    mock_reader.get_spectrum_int.side_effect = {
+        3: np.array([1.0, 2.0, 3.0]),
+        7: np.array([4.0, 5.0]),
+    }.__getitem__
+
+    result = GenerateIonImage._compute_tic_chunk(reader=mock_reader, spectra_ids=[3, 7])
+
+    assert result.shape == (2, 1)
+    np.testing.assert_array_equal([[6.0], [9.0]], result)
+
+
 if __name__ == "__main__":
     pytest.main()

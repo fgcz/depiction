@@ -23,6 +23,7 @@ ARTIFACT_FILES_MAPPING = {
     PipelineArtifact.CALIB_HEATMAP: [
         "qc/plot_calibration_map.pdf",
     ],
+    PipelineArtifact.RAW_TIC: ["tic_image.ome.tiff", "tic_image.sd.zarr"],
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",
         "qc/plot_spatial_distribution_qc.pdf",

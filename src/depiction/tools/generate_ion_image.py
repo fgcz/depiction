@@ -92,6 +92,27 @@ class GenerateIonImage:
             mz_ranges=[(mz - tol, mz + tol) for mz, tol in zip(mz_values, tol_values)],
         )
 
+    def generate_tic_image_for_file(self, input_file: ImzmlReadFile) -> MultiChannelImage:
+        parallelize = ReadSpectraParallel.from_config(self._parallel_config)
+        array = parallelize.map_chunked(
+            read_file=input_file,
+            operation=self._compute_tic_chunk,
+            bind_args={},
+            reduce_fn=lambda chunks: np.concatenate(chunks, axis=0),
+        )
+        return MultiChannelImage.from_flat(
+            values=DataArray(array, dims=("i", "c")),
+            coordinates=input_file.coordinates_array_2d,
+            channel_names=["TIC"],
+        )
+
+    @staticmethod
+    def _compute_tic_chunk(reader: ImzmlReader, spectra_ids: list[int]) -> NDArray[np.float64]:
+        result = np.zeros((len(spectra_ids), 1), dtype=float)
+        for i, spectrum_id in enumerate(spectra_ids):
+            result[i, 0] = np.sum(reader.get_spectrum_int(spectrum_id))
+        return result
+
     @staticmethod
     def _compute_for_mz_ranges(
         reader: ImzmlReader,

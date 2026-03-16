@@ -2,9 +2,10 @@ from pathlib import Path
 
 import cyclopts
 import yaml
-from depiction_targeted_preproc.pipeline.prepare_params import Params
-from depiction_targeted_preproc.pipeline_config.model import PipelineParametersPreset, PipelineParameters
 from loguru import logger
+
+from depiction_targeted_preproc.pipeline.prepare_params import Params
+from depiction_targeted_preproc.pipeline_config.model import PipelineParameters, PipelineParametersPreset
 
 app = cyclopts.App()
 

@@ -76,8 +76,12 @@ class ImzyReader(GenericReader):
         Reading `IMS:1000030`/`IMS:1000031` instead would disagree on a single-spectrum file,
         which the corpus pins down deliberately.
         """
-        mz_offsets = self.reader.byte_offsets[:, 0]
-        return ImzmlModeEnum.CONTINUOUS if len(np.unique(mz_offsets)) == 1 else ImzmlModeEnum.PROCESSED
+        byte_offsets = getattr(self.reader, "byte_offsets", None)
+        if byte_offsets is None:
+            # A vendor reader: there is no `.ibd` offset table to infer sharing from, and
+            # no vendor format stores one m/z axis for the whole acquisition.
+            return ImzmlModeEnum.PROCESSED
+        return ImzmlModeEnum.CONTINUOUS if len(np.unique(byte_offsets[:, 0])) == 1 else ImzmlModeEnum.PROCESSED
 
     @property
     def n_spectra(self) -> int:
@@ -107,7 +111,10 @@ class ImzyReader(GenericReader):
         `depiction.tools.experimental.msi_hdf5`, and the test that would have caught it is
         `@unittest.skip`ped); this backend does not reproduce it.
         """
-        return int(self.reader.byte_offsets[i_spectrum, 3])
+        byte_offsets = getattr(self.reader, "byte_offsets", None)
+        if byte_offsets is None:
+            return len(self.get_spectrum_mz(i_spectrum))
+        return int(byte_offsets[i_spectrum, 3])
 
     def get_spectra(
         self, i_spectra: list[int]

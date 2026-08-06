@@ -1,4 +1,4 @@
-## depiction_io
+# depiction_io
 ```{toctree}
 :glob:
 *

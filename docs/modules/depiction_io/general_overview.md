@@ -1,4 +1,4 @@
-## General overview
+# General overview
 
 `depiction_io` contains functionality to read and write mass spectrometry imaging (MSI) data from
 and to the file system.

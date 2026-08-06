@@ -1,6 +1,6 @@
-## Mass spectrometry imaging data
+# Mass spectrometry imaging data
 
-### Reading data
+## Reading data
 
 We have a `GenericReadFile` protocol, which encodes a container file handle, from which we can obtain `GenericReader` instances,
 which perform the actual reading of the data.
@@ -16,7 +16,7 @@ In general the idea is that creating the file should be quick, whereas additiona
     :show-inheritance:
 ```
 
-### Writing data
+## Writing data
 
 ```{eval-rst}
 .. autoclass:: depiction_io.types.GenericWriteFile
@@ -27,7 +27,7 @@ In general the idea is that creating the file should be quick, whereas additiona
     :show-inheritance:
 ```
 
-### Format: ImzML
+## Format: ImzML
 
 Currently, we parse imzML ourselves with a simple etree-based parser, whereas writing is performed by pyImzML.
 This is expected to be replaced by [imzy](https://github.com/vandeplaslab/imzy) behind the protocols above;
@@ -42,7 +42,7 @@ see `docs/refactoring/ROADMAP.md`.
     :members:
 ```
 
-### Format: RAM
+## Format: RAM
 
 In-memory implementations of the same protocols, holding the spectra as plain arrays. They exist so
 that code operating on MSI data can be tested without touching the file system, and are used

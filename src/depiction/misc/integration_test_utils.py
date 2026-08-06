@@ -1,6 +1,6 @@
 from numpy.typing import ArrayLike
 
-from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile
+from depiction_io import ImzmlModeEnum, ImzmlWriteFile
 
 
 class IntegrationTestUtils:

@@ -7,7 +7,7 @@ import cyclopts
 import yaml
 from loguru import logger
 
-from depiction.persistence import ImzmlReadFile
+from depiction_io import ImzmlReadFile
 from depiction.tools.correct_baseline.correct_baseline import correct_baseline
 from depiction.tools.correct_baseline.config import BaselineVariants, BaselineCorrectionConfig
 

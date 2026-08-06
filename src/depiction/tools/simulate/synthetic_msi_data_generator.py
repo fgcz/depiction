@@ -9,7 +9,7 @@ from numpy.typing import NDArray
 
 from depiction.spectrum.estimate_ppm_error import EstimatePPMError
 from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.persistence import ImzmlWriteFile, ImzmlWriter
+from depiction_io import ImzmlWriteFile, ImzmlWriter
 
 
 # TODO configure shifts

@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 from skimage.transform import resize_local_mean
 
-from depiction.persistence import ImzmlReadFile
+from depiction_io import ImzmlReadFile
 
 app = cyclopts.App()
 

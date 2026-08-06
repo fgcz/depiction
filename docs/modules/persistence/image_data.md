@@ -9,8 +9,8 @@ have some small helpers for the most important formats we support.
 The following methods are available to read and write `MultiChannelImage` objects to and from OME-TIFF files.
 
 ```{eval-rst}
-.. automethod:: depiction.persistence.format_ome_tiff.OmeTiff.read_image
-.. automethod:: depiction.persistence.format_ome_tiff.OmeTiff.write_image
+.. automethod:: depiction_io.format_ome_tiff.OmeTiff.read_image
+.. automethod:: depiction_io.format_ome_tiff.OmeTiff.write_image
 ```
 
 ### Format: OME-NGFF

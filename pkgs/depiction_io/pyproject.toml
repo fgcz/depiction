@@ -1,0 +1,45 @@
+[project]
+name = "depiction_io"
+version = "0.1.0"
+description = "Reading and writing mass-spectrometry imaging data."
+authors = [{ name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" }]
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">= 3.13"
+
+# Deliberately minimal, and verified by an import scan rather than inherited from the
+# parent: notably absent are bioio/bioio-ome-tiff/tifffile, which are only needed by
+# OME-TIFF handling -- that lives in `depiction.image`, not here.
+dependencies = [
+    "numpy>=2.0.0",
+    "xarray",
+    "pydantic>=2.6.0",
+    "tqdm>=4.66.1",
+    "loguru",
+    "pyimzml>=1.5.3",
+    # only for the `parse_spectra` debugging entry point
+    "cyclopts",
+]
+
+[project.optional-dependencies]
+testing = [
+    "pytest",
+    "pytest-mock",
+    "pytest-pretty",
+    "hypothesis>=6.99.11",
+]
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.check-tests-structure]
+sources_path = "src/depiction_io"
+tests_path = "tests/unit"
+allow_missing_tests = true

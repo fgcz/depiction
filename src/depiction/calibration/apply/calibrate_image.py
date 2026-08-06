@@ -7,7 +7,7 @@ from depiction.calibration.apply.fit_models import FitModels
 from depiction.calibration.methods.calibration_method import CalibrationMethod
 from depiction.image import MultiChannelImage
 from depiction.parallel_ops import ParallelConfig
-from depiction.persistence.types import GenericReadFile, GenericWriteFile
+from depiction_io.types import GenericReadFile, GenericWriteFile
 
 
 class CalibrateImage:

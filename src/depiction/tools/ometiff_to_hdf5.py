@@ -1,7 +1,7 @@
 import cyclopts
 from pathlib import Path
 
-from depiction.persistence.image.ome_tiff import OmeTiff
+from depiction.image.ome_tiff import OmeTiff
 
 app = cyclopts.App()
 

@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from depiction.parallel_ops import ReadSpectraParallel
-from depiction.persistence import RamReadFile
+from depiction_io import RamReadFile
 
 mock_n_jobs = 2
 mock_task_size = None

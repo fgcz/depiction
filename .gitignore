@@ -13,6 +13,8 @@
 .nox
 dist
 _build
+# build/ in any package, not just the root (workspace members build too)
+build/
 __pycache__
 
 *.ibd

@@ -6,7 +6,7 @@ import cyclopts
 import yaml
 from loguru import logger
 
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
+from depiction_io import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
 from depiction.tools.calibrate.calibrate import calibrate
 from depiction.tools.calibrate.config import CalibrationConfig, CalibrationConstantGlobalShiftConfig
 

@@ -11,7 +11,7 @@ from depiction.spectrum.estimate_ppm_error import EstimatePPMError
 from depiction.spectrum.evaluate_bins import EvaluateBins
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.write_spectra_parallel import WriteSpectraParallel
-from depiction.persistence import (
+from depiction_io import (
     ImzmlReadFile,
     ImzmlModeEnum,
     ImzmlWriteFile,

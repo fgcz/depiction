@@ -4,7 +4,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import (
+from depiction_io import (
     ImzmlReadFile,
     ImzmlWriteFile,
     ImzmlReader,

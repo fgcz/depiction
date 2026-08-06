@@ -4,7 +4,7 @@ import polars as pl
 from loguru import logger
 from pathlib import Path
 
-from depiction.persistence import ImzmlReadFile
+from depiction_io import ImzmlReadFile
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
 from depiction_targeted_preproc.workflow.qc.plot_peak_counts_per_spectrum import get_peak_counts

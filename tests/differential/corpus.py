@@ -20,7 +20,7 @@ from xml.etree import ElementTree
 import numpy as np
 from numpy.typing import NDArray
 
-from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile
+from depiction_io import ImzmlModeEnum, ImzmlWriteFile
 
 MZML_NS = "http://psi.hupo.org/ms/mzml"
 _NS = f"{{{MZML_NS}}}"

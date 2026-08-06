@@ -12,7 +12,7 @@ from depiction.spectrum.evaluate_bins import EvaluateBins
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from depiction.persistence import ImzmlReadFile
+    from depiction_io import ImzmlReadFile
     from depiction.parallel_ops import ParallelConfig
     from numpy.typing import NDArray
 

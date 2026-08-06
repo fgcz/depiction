@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 from collections.abc import Generator
 
-from depiction.persistence.image.ome_tiff import OmeTiff
+from depiction.image.ome_tiff import OmeTiff
 from depiction_targeted_preproc.app_interface.process_chunk import process_chunk
 
 

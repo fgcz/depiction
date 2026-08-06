@@ -7,8 +7,8 @@ from numpy.typing import NDArray
 
 from depiction.parallel_ops import ParallelConfig
 from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
-from depiction.persistence import ImzmlModeEnum
-from depiction.persistence.types import GenericReadFile, GenericReader
+from depiction_io import ImzmlModeEnum
+from depiction_io.types import GenericReadFile, GenericReader
 from depiction.spectrum.evaluate_bins import EvaluateBins
 
 

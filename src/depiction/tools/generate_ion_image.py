@@ -7,7 +7,7 @@ from xarray import DataArray
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
-from depiction.persistence import ImzmlReadFile, ImzmlReader
+from depiction_io import ImzmlReadFile, ImzmlReader
 
 
 class GenerateIonImage:

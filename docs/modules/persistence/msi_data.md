@@ -8,10 +8,10 @@ which perform the actual reading of the data.
 In general the idea is that creating the file should be quick, whereas additional parsing might be necessary to create the reader instance.
 
 ```{eval-rst}
-.. autoclass:: depiction.persistence.types.GenericReadFile
+.. autoclass:: depiction_io.types.GenericReadFile
     :members:
     :show-inheritance:
-.. autoclass:: depiction.persistence.types.GenericReader
+.. autoclass:: depiction_io.types.GenericReader
     :members:
     :show-inheritance:
 ```
@@ -19,10 +19,10 @@ In general the idea is that creating the file should be quick, whereas additiona
 ### Writing data
 
 ```{eval-rst}
-.. autoclass:: depiction.persistence.types.GenericWriteFile
+.. autoclass:: depiction_io.types.GenericWriteFile
     :members:
     :show-inheritance:
-.. autoclass:: depiction.persistence.types.GenericWriter
+.. autoclass:: depiction_io.types.GenericWriter
     :members:
     :show-inheritance:
 ```
@@ -33,7 +33,7 @@ Currently, we parse imzML ourselves with a simple etree-based parser, whereas wr
 This might be changed under the hood in the future.
 
 ```{eval-rst}
-.. autoclass:: depiction.persistence.ImzmlModeEnum
+.. autoclass:: depiction_io.ImzmlModeEnum
     :members:
 ```
 

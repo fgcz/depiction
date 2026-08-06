@@ -6,7 +6,7 @@ import polars as pl
 from loguru import logger
 
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
-from depiction.persistence import ImzmlReader, ImzmlReadFile
+from depiction_io import ImzmlReader, ImzmlReadFile
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
 

@@ -5,7 +5,7 @@ import awkward
 import h5py
 import numpy as np
 from tqdm import tqdm
-from depiction.persistence import ImzmlReader, ImzmlModeEnum, ImzmlReadFile
+from depiction_io import ImzmlReader, ImzmlModeEnum, ImzmlReadFile
 
 
 def batched(iterable, n):

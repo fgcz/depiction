@@ -1,6 +1,6 @@
 """Differential tests over the ``GenericReader`` seam.
 
-Every assertion here is phrased against the protocol in ``depiction.persistence.types``,
+Every assertion here is phrased against the protocol in ``depiction_io.types``,
 never against a concrete backend. That is deliberate: when a second imzML backend is
 added, it gets registered in ``READ_FILE_BACKENDS`` and this file becomes a genuine
 A/B comparison without any of the assertions changing.
@@ -21,8 +21,8 @@ from collections.abc import Callable
 import numpy as np
 import pytest
 
-from depiction.persistence import ImzmlModeEnum, ImzmlReadFile, RamReadFile
-from depiction.persistence.types import GenericReadFile
+from depiction_io import ImzmlModeEnum, ImzmlReadFile, RamReadFile
+from depiction_io.types import GenericReadFile
 from tests.differential.corpus import Case
 
 #: Backends that can open a corpus case from disk. A second entry here turns every test

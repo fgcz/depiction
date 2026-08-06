@@ -6,7 +6,7 @@ import numpy as np
 import xarray
 
 from depiction.misc.integration_test_utils import IntegrationTestUtils
-from depiction.persistence import ImzmlReadFile, ImzmlModeEnum, ImzmlWriteFile
+from depiction_io import ImzmlReadFile, ImzmlModeEnum, ImzmlWriteFile
 from depiction.tools.merge_imzml import MergeImzml
 
 

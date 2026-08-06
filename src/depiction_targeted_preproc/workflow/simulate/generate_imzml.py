@@ -4,7 +4,7 @@ import polars as pl
 from pathlib import Path
 
 from depiction.image.multi_channel_image import MultiChannelImage
-from depiction.persistence import ImzmlWriteFile, ImzmlModeEnum
+from depiction_io import ImzmlWriteFile, ImzmlModeEnum
 from depiction.tools.simulate import SyntheticMSIDataGenerator
 from depiction_targeted_preproc.pipeline_config.model import SimulateParameters
 

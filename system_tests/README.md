@@ -37,5 +37,7 @@ calibration pipeline's numerical output.
 
 Making these tests runnable in CI would mean either publishing a redistributable
 acquisition of comparable size, or rewriting the test to assert on properties that
-hold for synthetic input. Both are real work and neither was done; see
+hold for synthetic input. Both are real work and neither was done; the intended
+route — a small, openly licensed acquisition downloaded and checksum-verified at test
+time — is written up as Phase G in
 [`docs/refactoring/ROADMAP.md`](../docs/refactoring/ROADMAP.md).

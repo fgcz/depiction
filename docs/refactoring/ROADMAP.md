@@ -2,7 +2,7 @@
 
 Status: **partially executed**, 2026-08-06. Author: Leonardo Schwarz.
 
-Phases A, B and F are done. Phases C, D and E are **not started** and are described
+Phases A, B and F are done. Phases C, D, E and G are **not started** and are described
 below as a plan for whoever picks this up; see [What a successor needs](#what-a-successor-needs).
 
 ## Context
@@ -264,6 +264,44 @@ legitimate difference.
 
 Net effect: roughly **−1,100 LOC of custom parsing**, `pyimzml` gone, Bruker `.d` support
 gained.
+
+### Phase G — A downloadable public fixture for the system tests (not started)
+
+Last, because it is independent of everything above and only worth doing once the I/O
+layer has stopped moving. Phase F established that the system tests
+([`system_tests/README.md`](../../system_tests/README.md)) cannot run in CI as written:
+their only fixture is a 1.26 GB FGCZ-local acquisition, and the assertions
+(`128 x 137` pixels, 118 channels, 10131 non-zero) are pinned to that one file. The test
+therefore skips everywhere except one laptop, which is indistinguishable from not having
+it.
+
+The fix is a redistributable acquisition that the test suite fetches on demand:
+
+1. **Find a public imzML/ibd pair** that is small enough to download per CI run (target
+   well under 100 MB — a single small tissue section or a cropped acquisition), openly
+   licensed, and served from a stable, citable location. Candidate sources, in rough order
+   of how likely they are to give a permanent URL:
+   [METASPACE](https://metaspace2020.org), Zenodo, PRIDE, and the example data shipped by
+   other MSI toolchains (`pyimzml`, `imzy`, Cardinal, SCiLS). Record the DOI/accession, the
+   licence, and a SHA-256 next to the download code — an unpinned fixture is a test that
+   changes underneath you.
+   *If nothing suitable exists, cropping and re-publishing a slice of an in-house
+   acquisition under CC-BY is a legitimate fallback, but it needs the data owner's sign-off.*
+2. **Add a cached download**, not a committed file: a session-scoped pytest fixture that
+   downloads into a cache directory (`XDG_CACHE_HOME`, overridable by env var), verifies
+   the checksum, and skips — never fails — when the network is unavailable. `system_tests/inputs/inputs.yml`
+   already lists fixtures declaratively and is the natural place for the URL and hash.
+3. **Rewrite the assertions** so they hold for the fixture. This is the real work, not the
+   download: the current values are magic numbers copied from one output. Prefer assertions
+   derived from the input (pixel count matches the coordinate list, channel count matches
+   the panel, output geometry matches the acquisition's bounding box) so a future fixture
+   swap does not mean re-deriving constants by hand.
+4. **Enable the CI job** that Phase F replaced with a comment in
+   `.github/workflows/pr-checks.yml`, with the download cached across runs
+   (`actions/cache` keyed on the checksum) and the job kept off the fast path if it is slow.
+
+Keep the FGCZ tonsil path working alongside it — a large real acquisition is still the
+better regression test, it just cannot be the *only* one.
 
 ### Cost to be aware of
 

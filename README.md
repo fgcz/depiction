@@ -76,6 +76,10 @@ nox -s tests_depiction_io
 `tests_depiction_io` deliberately installs only `depiction_io`, so an accidental dependency on
 `depiction` fails there rather than being masked by the parent environment.
 
+`nox` also builds the Sphinx documentation (`nox -s docs`) with warnings treated as errors, so a
+broken autodoc reference fails the build rather than silently dropping a page. The slow end-to-end
+`system_tests` session is not part of the default run; see [system_tests/README.md](system_tests/README.md).
+
 However, you can also run the tests with `pytest` or from your IDE if you are in the virtual environment.
 
 ## Geometry Conventions

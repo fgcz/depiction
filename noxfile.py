@@ -39,6 +39,19 @@ def tests_depiction_io(session) -> None:
 
 
 @nox.session
+def docs(session) -> None:
+    """Builds the Sphinx documentation, treating warnings as errors.
+
+    Nothing built these docs before, which is how an autodoc reference to a module that had
+    been deleted months earlier survived unnoticed. `-W` is what makes that impossible to
+    repeat. Note that intersphinx fetches remote inventories, so this session needs network
+    access and will fail if one of the referenced sites is unreachable.
+    """
+    session.install(".[doc]")
+    session.run("sphinx-build", "-W", "-b", "html", "docs", "docs/_build/html", *session.posargs)
+
+
+@nox.session
 def licensecheck(session) -> None:
     """Runs the license check."""
     session.install("licensecheck")

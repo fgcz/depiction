@@ -1278,7 +1278,6 @@ dependencies = [
     { name = "numba" },
     { name = "numpy" },
     { name = "pydantic" },
-    { name = "pyimzml" },
     { name = "tqdm" },
     { name = "xarray" },
 ]
@@ -1300,7 +1299,6 @@ requires-dist = [
     { name = "numba", specifier = ">=0.61" },
     { name = "numpy", specifier = ">=2.0.0" },
     { name = "pydantic", specifier = ">=2.6.0" },
-    { name = "pyimzml", specifier = ">=1.5.3" },
     { name = "pytest", marker = "extra == 'testing'" },
     { name = "pytest-mock", marker = "extra == 'testing'" },
     { name = "pytest-pretty", marker = "extra == 'testing'" },
@@ -4336,19 +4334,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pyimzml"
-version = "1.5.5"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "wheezy-template" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/08/31/9bea42c08939196e999ed9cce3c0d5e7167a42af11dba4d6d356a4870899/pyimzML-1.5.5.tar.gz", hash = "sha256:296ca2d98aff7769a6779c5b55eb0960e511b3dc6ed01b72b42fe787f8da7091", size = 61903, upload-time = "2024-11-04T14:19:02.268Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/73/7c/db60e60bcc720ee8bee3d29f77e6ffcbb7dcf4e3c82fdb30240ad358a0b7/pyimzML-1.5.5-py3-none-any.whl", hash = "sha256:d0477aa5878567bbcccd1509d3485907d3fe30367726b67fb2b689ef2bb939e4", size = 64523, upload-time = "2024-11-04T14:19:00.852Z" },
-]
-
-[[package]]
 name = "pynndescent"
 version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -6370,12 +6355,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/89/24/a2eb353a6edac9a03
 wheels = [
     { url = "https://files.pythonhosted.org/packages/87/22/b76d483683216dde3d67cba61fb2444be8d5be289bf628c13fc0fd90e5f9/wheel-0.46.3-py3-none-any.whl", hash = "sha256:4b399d56c9d9338230118d705d9737a2a468ccca63d5e813e2a4fc7815d8bc4d", size = 30557, upload-time = "2026-01-22T12:39:48.099Z" },
 ]
-
-[[package]]
-name = "wheezy-template"
-version = "3.2.5"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/43/1d/b4fb6ee3f6a0af54ac26e0425b7947bd7d9ed786a75ca173a40640c25bc6/wheezy_template-3.2.5.tar.gz", hash = "sha256:c7c0bf85af0f70ca2ef4b6ea9a74ef372f73392aa17bea0d885dcba7356d0867", size = 19324, upload-time = "2026-02-18T09:05:21.933Z" }
 
 [[package]]
 name = "widgetsnbextension"

@@ -42,7 +42,11 @@ def test_writer_when_success(mocker: MockerFixture, mock_write_file: ImzmlWriteF
     with mock_write_file.writer() as writer:
         assert writer == mock_open.return_value
     mock_open.assert_called_once_with(
-        path=mock_write_file.imzml_file, imzml_mode=mock_imzml_mode, mz_dtype=np.float64, intensity_dtype=np.float32
+        path=mock_write_file.imzml_file,
+        imzml_mode=mock_imzml_mode,
+        mz_dtype=np.float64,
+        intensity_dtype=np.float32,
+        overwrite=False,
     )
     mock_open.return_value.close.assert_called_once_with()
 
@@ -62,7 +66,11 @@ def test_writer_when_mode_w_file_exists(mocker: MockerFixture) -> None:
         assert writer == mock_open.return_value
     assert mock_unlink.mock_calls == [mocker.call(), mocker.call()]
     mock_open.assert_called_once_with(
-        path=mock_write_file.imzml_file, imzml_mode=mock_imzml_mode, mz_dtype=np.float64, intensity_dtype=np.float32
+        path=mock_write_file.imzml_file,
+        imzml_mode=mock_imzml_mode,
+        mz_dtype=np.float64,
+        intensity_dtype=np.float32,
+        overwrite=True,
     )
     mock_open.return_value.close.assert_called_once_with()
 

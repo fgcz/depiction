@@ -16,7 +16,6 @@ dependencies = [
     "pydantic>=2.6.0",
     "tqdm>=4.66.1",
     "loguru",
-    "pyimzml>=1.5.3",
     # only for the `parse_spectra` debugging entry point
     "cyclopts",
     # the imzy backend (`depiction_io.imzy_backend`). It pulls ~40 transitive packages,

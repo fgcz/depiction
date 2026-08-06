@@ -75,6 +75,9 @@ class ImzmlWriteFile(GenericWriteFile):
             imzml_mode=self._imzml_mode,
             mz_dtype=self._mz_dtype,
             intensity_dtype=self._intensity_dtype,
+            # The checks above already cleared the way; this only stops imzy from refusing
+            # to start over a leftover .ibd whose .imzML was removed.
+            overwrite=self._write_mode == "w",
         )
         try:
             yield writer

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import zlib
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -41,7 +41,7 @@ class Spectra:
     """The source data for one corpus case, before it is written to disk."""
 
     mz: list[NDArray[np.float64]]
-    int: list[NDArray[np.float64]]
+    intensities: list[NDArray[np.float64]]
     coordinates: NDArray[np.int64]
 
     @property
@@ -66,7 +66,7 @@ class Case:
     #: True when the file on disk has zlib-compressed binary arrays.
     compressed: bool = False
     #: Set for a compressed case: the name of the uncompressed case it was derived from.
-    derived_from: str | None = field(default=None)
+    derived_from: str | None = None
 
     @property
     def expected_mz(self) -> list[NDArray[np.float64]]:
@@ -76,7 +76,7 @@ class Case:
     @property
     def expected_int(self) -> list[NDArray[np.float64]]:
         """The intensity arrays as they should read back, i.e. after the writer's dtype cast."""
-        return [np.asarray(arr, dtype=self.int_dtype) for arr in self.spectra.int]
+        return [np.asarray(arr, dtype=self.int_dtype) for arr in self.spectra.intensities]
 
 
 def make_spectra(
@@ -116,7 +116,7 @@ def make_spectra(
     elif n_dim != 2:
         raise ValueError(f"n_dim must be 2 or 3, got {n_dim}")
 
-    return Spectra(mz=mz, int=intensities, coordinates=coords)
+    return Spectra(mz=mz, intensities=intensities, coordinates=coords)
 
 
 def write_case(
@@ -132,7 +132,7 @@ def write_case(
     path = directory / f"{name}.imzML"
     write_file = ImzmlWriteFile(path, imzml_mode=imzml_mode, mz_dtype=mz_dtype, intensity_dtype=int_dtype)
     with write_file.writer() as writer:
-        for mz, intensity, coords in zip(spectra.mz, spectra.int, spectra.coordinates):
+        for mz, intensity, coords in zip(spectra.mz, spectra.intensities, spectra.coordinates):
             writer.add_spectrum(mz, intensity, tuple(int(c) for c in coords))
     return Case(
         name=name,

@@ -112,7 +112,7 @@ build-backend = "setuptools.build_meta"
 depiction_targeted_preproc = ["**/*.smk", "**/Snakefile", "**/*.yml", "**/*.yaml"]
 
 [tool.uv]
-reinstall-package = ["depiction"]
+reinstall-package = ["depiction", "depiction_io"]
 
 [tool.uv.workspace]
 members = [".", "pkgs/*"]

@@ -40,7 +40,10 @@ class FlexImagingInfoFile:
 
     @classmethod
     def parse_in_directory(cls, directory: str) -> FlexImagingInfoFile:
-        [match] = Path(directory).glob("*_info.txt")
+        # The dotfile filter is not cosmetic: unlike glob.glob, Path.glob matches names
+        # starting with a dot, so a macOS resource fork ("._scan_info.txt") sitting next
+        # to the real file -- routine on SMB shares -- would make this unpack two entries.
+        [match] = (path for path in Path(directory).glob("*_info.txt") if not path.name.startswith("."))
         with match.open() as file:
             return cls.parse_file(file=file)
 

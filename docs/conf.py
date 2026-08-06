@@ -23,7 +23,10 @@ extensions = [
     "sphinx.ext.intersphinx",
 ]
 
-templates_path = ["_templates"]
+# `_templates` and `_static` are deliberately not configured: both directories were empty, so
+# git never tracked them, and `html_static_path` pointing at a directory that does not exist in
+# a fresh clone is a warning -- which `nox -s docs` turns into an error. Re-add either setting
+# together with the file that justifies it.
 # `refactoring/` is repository documentation, not published API docs; the archive under it
 # is also kept byte-identical on purpose and must not be reformatted or parsed.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "refactoring"]
@@ -39,4 +42,3 @@ intersphinx_mapping = {
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "sphinx_book_theme"
-html_static_path = ["_static"]

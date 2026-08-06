@@ -23,18 +23,5 @@ jobs:
         run: pip install nox[uv]
       - name: Run unit tests
         run: nox
-  # TODO add this later with synthetic or shared test data
-  #system_tests:
-  #  name: System Tests
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #    - uses: actions/checkout@v6
-  #    - name: Set up Python
-  #      uses: actions/setup-python@v6
-  #      with:
-  #        python-version: 3.12
-  #    - name: Install nox
-  #      shell: bash
-  #      run: pip install nox[uv]
-  #    - name: Run system tests
-  #      run: nox -s system_tests
+  # There is deliberately no system_tests job: the only fixture is a 1.26 GB acquisition
+  # that cannot be committed, and the assertions are pinned to it. See system_tests/README.md.

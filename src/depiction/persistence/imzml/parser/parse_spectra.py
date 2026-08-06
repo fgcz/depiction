@@ -191,7 +191,10 @@ class ParseSpectra:
             position_y = element.find(f"{self._ns}scanList/{self._ns}scan/{self._ns}cvParam[@accession='IMS:1000051']")
             position_z = element.find(f"{self._ns}scanList/{self._ns}scan/{self._ns}cvParam[@accession='IMS:1000052']")
 
-            if not position_z:
+            # NOTE: must be `is None`, not a truthiness test -- an Element with no children is
+            #       falsy, so `if not position_z` silently dropped the z coordinate of every
+            #       3D file.
+            if position_z is None:
                 position = (int(position_x.attrib["value"]), int(position_y.attrib["value"]))
             else:
                 position = (

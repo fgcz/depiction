@@ -169,10 +169,11 @@ class GenericReadFile(Protocol):
         # TODO should this really be here
         raise NotImplementedError
 
+    @property
     def is_checksum_valid(self) -> bool | None:
         """Returns True if the checksum of the .ibd file matches the expected value. False otherwise.
         This operation can be slow for large files, but will be cached after the first call.
-        `None` is returned when checksum information is available.
+        `None` is returned when no checksum information is available.
         """
         # TODO should this really be here
         raise NotImplementedError

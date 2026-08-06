@@ -36,6 +36,9 @@ repos:
       - id: mixed-line-ending
       - id: name-tests-test
         args: ["--pytest-test-first"]
+        # corpus.py builds the differential-test fixtures; it holds no tests itself and
+        # is imported by them, so the test_*.py convention does not apply.
+        exclude: ^tests/differential/corpus\.py$
       - id: requirements-txt-fixer
       - id: trailing-whitespace
       - id: pretty-format-json

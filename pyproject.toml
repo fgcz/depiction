@@ -155,6 +155,9 @@ exclude_also = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "compressed_only: differential test that only applies to the zlib-compressed corpus cases",
+]
 
 [tool.codespell]
 ignore-words-list = "averagine,coo"

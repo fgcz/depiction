@@ -1,5 +1,4 @@
 import numpy as np
-from typing import Optional
 
 
 class ImzmlAlignmentTracker:
@@ -9,7 +8,7 @@ class ImzmlAlignmentTracker:
     once a native implementation of the imzml parser is available.
     """
 
-    def __init__(self, first_mz_arr: Optional[np.ndarray] = None, is_aligned: bool = False) -> None:
+    def __init__(self, first_mz_arr: np.ndarray | None = None, is_aligned: bool = False) -> None:
         self._first_mz_arr = first_mz_arr
         self._is_aligned = is_aligned
 

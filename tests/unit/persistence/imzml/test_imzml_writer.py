@@ -1,4 +1,3 @@
-import os
 import unittest
 from functools import cached_property
 from pathlib import Path
@@ -28,14 +27,14 @@ class TestImzmlWriter(unittest.TestCase):
 
     def test_open_when_continuous(self) -> None:
         with TemporaryDirectory() as tmpdir:
-            mock_path = os.path.join(tmpdir, "test.imzML")
+            mock_path = str(Path(tmpdir) / "test.imzML")
             writer = ImzmlWriter.open(path=mock_path, imzml_mode=ImzmlModeEnum.CONTINUOUS)
             self.assertEqual(Path(mock_path), writer.imzml_path)
             self.assertEqual(ImzmlModeEnum.CONTINUOUS, writer.imzml_mode)
 
     def test_open_when_processed(self) -> None:
         with TemporaryDirectory() as tmpdir:
-            mock_path = os.path.join(tmpdir, "test.imzML")
+            mock_path = str(Path(tmpdir) / "test.imzML")
             writer = ImzmlWriter.open(path=mock_path, imzml_mode=ImzmlModeEnum.PROCESSED)
             self.assertEqual(Path(mock_path), writer.imzml_path)
             self.assertEqual(ImzmlModeEnum.PROCESSED, writer.imzml_mode)

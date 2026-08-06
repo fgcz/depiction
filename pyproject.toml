@@ -126,13 +126,25 @@ using = "PEP631"
 [tool.ruff]
 line-length = 120
 indent-width = 4
-target-version = "py39"
+# must match `requires-python` above; when this said "py39" ruff reported every `match`
+# statement in the codebase as a syntax error.
+target-version = "py313"
 
 [tool.ruff.lint]
-select = ["ANN", "BLE", "D103", "E", "F", "PLW", "PTH", "SIM", "UP", "TCH"]
-# Note: "TCH002" would be useful, but it also has false positives and needs to be deactivated in particular
-#        for the command-line interface module since the inspect module will currently fail everything there.
-ignore = ["ANN101", "ANN102", "TCH002"]
+# Deliberately NOT enforced, so that what is left can actually be kept green:
+#  - "ANN" / "D103": ~210 pre-existing violations (missing annotations, missing
+#    docstrings on public functions) on a codebase heading for an archived state.
+#  - "TC": moving an import into a `TYPE_CHECKING` block breaks anything that resolves
+#    annotations at runtime, and this project does that in two places at once — pydantic
+#    models (e.g. depiction_targeted_preproc/pipeline_config/model.py) and cyclopts CLIs
+#    (the various __main__.py). 56 violations, all in that blast radius.
+select = ["BLE", "E", "F", "PLW", "PTH", "SIM", "UP"]
+# "UP042" (`class Foo(str, Enum)` -> `StrEnum`) is not a cosmetic fix: the two differ in
+# `str()` and f-string interpolation ("Foo.X" vs "x"). All six occurrences are config
+# enums that flow through pydantic models and snakemake YAML, so converting them is a
+# serialization change that belongs in its own commit with its own tests, not in a lint
+# sweep.
+ignore = ["UP042"]
 
 [tool.coverage.report]
 # TODO make it work?

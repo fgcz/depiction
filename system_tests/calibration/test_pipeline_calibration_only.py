@@ -1,7 +1,7 @@
 import pytest
 import shutil
 from pathlib import Path
-from typing import Generator
+from collections.abc import Generator
 
 from depiction.persistence.image.ome_tiff import OmeTiff
 from depiction_targeted_preproc.app_interface.process_chunk import process_chunk
@@ -22,7 +22,7 @@ def copy_input_files(target_dir: Path):
 
 
 @pytest.fixture()
-def work_dir(config_yaml_path: Path, tmp_path: Path) -> Generator[Path, None, None]:
+def work_dir(config_yaml_path: Path, tmp_path: Path) -> Generator[Path]:
     dir = tmp_path / "work"
     dir.mkdir()
     shutil.copy(Path(__file__).parent / "configs" / "params.yml", dir / "params.yml")

@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import (
     Any,
-    Callable,
     TypeVar,
     TYPE_CHECKING,
     TypedDict,
 )
+from collections.abc import Callable
 
 import numpy as np
 

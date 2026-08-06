@@ -35,7 +35,7 @@ class RamReadFile:
         return Path("/dev/null")
 
     @contextmanager
-    def reader(self) -> Generator[RamReader, None, None]:
+    def reader(self) -> Generator[RamReader]:
         reader = self.get_reader()
         try:
             yield reader

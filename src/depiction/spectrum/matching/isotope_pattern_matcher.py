@@ -3,7 +3,6 @@ from collections import OrderedDict
 import numpy as np
 from dataclasses import dataclass
 from numpy.typing import NDArray
-from typing import Optional
 
 from depiction.misc.numpy_util import NumpyUtil
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
@@ -104,7 +103,7 @@ class IsotopePatternMatcher:
         n_limit: int,
         distance_tolerance: float,
         mz_positions_of_interest: NDArray[np.float64],
-        spectra_ids: Optional[list[int]] = None,
+        spectra_ids: list[int] | None = None,
     ) -> list[tuple[NDArray[np.float64], NDArray[np.int64]]]:
         # TODO possibly move this method in the future (since it mixes peak_picker into this class)
 
@@ -175,7 +174,7 @@ class IsotopePatternMatcher:
         # TODO currently this will print a message when dividing by approximately zero
         return np.dot(x_vec, y_vec) / (np.linalg.norm(x_vec) * np.linalg.norm(y_vec))
 
-    def _find_closest_cache_mass(self, mass: float) -> Optional[float]:
+    def _find_closest_cache_mass(self, mass: float) -> float | None:
         """Tries to find the closest mass in the cache to the specified mass value. If no value exists, or it is not
         within the specified tolerance, None is returned."""
         if not self._pattern_cache:

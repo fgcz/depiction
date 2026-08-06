@@ -1,8 +1,7 @@
 import argparse
 
 import logging
-import os
-from typing import Optional
+from pathlib import Path
 
 import numpy as np
 import pyimzml.ImzMLParser
@@ -17,8 +16,8 @@ class SplitImzml:
     def __init__(
         self,
         source_imzml_path: str,
-        n_parts: Optional[int],
-        n_spectra_per_part: Optional[int],
+        n_parts: int | None,
+        n_spectra_per_part: int | None,
     ) -> None:
         self._source_imzml_path = source_imzml_path
         self._n_parts = n_parts
@@ -34,7 +33,7 @@ class SplitImzml:
 
     def write_splits(self, output_dir: str) -> dict:
         split_indices = self._get_split_indices()
-        os.makedirs(output_dir, exist_ok=True)
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
         self._logger.info(f"Splitting file into {len(split_indices)} parts.")
 
         output_files = []  # type: list[str]
@@ -46,7 +45,7 @@ class SplitImzml:
 
         for i_part, indices in tqdm(enumerate(split_indices), desc=" part", position=0):
             output_spectra_indices.append(indices)
-            filename = os.path.join(output_dir, f"part_{i_part}.imzML")
+            filename = str(Path(output_dir) / f"part_{i_part}.imzML")
             output_files.append(filename)
 
             with pyimzml.ImzMLWriter.ImzMLWriter(filename, mode=imzml_mode) as writer:
@@ -62,8 +61,8 @@ class ImzmlSplitter:
     def __init__(
         self,
         read_file: ImzmlReadFile,
-        n_parts: Optional[int],
-        n_spectra_per_part: Optional[int],
+        n_parts: int | None,
+        n_spectra_per_part: int | None,
     ) -> None:
         self._read_file = read_file
         self._n_parts = n_parts
@@ -78,7 +77,7 @@ class ImzmlSplitter:
 
     def write_splits(self, output_dir: str) -> dict:
         split_indices = self.get_split_indices()
-        os.makedirs(output_dir, exist_ok=True)
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
         self._logger.info(f"Splitting file into {len(split_indices)} parts.")
 
         output_files = []  # type: list[str]
@@ -89,7 +88,7 @@ class ImzmlSplitter:
 
             for i_part, indices in tqdm(enumerate(split_indices), desc=" part", position=0):
                 output_spectra_indices.append(indices)
-                filename = os.path.join(output_dir, f"part_{i_part}.imzML")
+                filename = str(Path(output_dir) / f"part_{i_part}.imzML")
                 output_files.append(filename)
                 with ImzmlWriteFile(path=filename, imzml_mode=self._read_file.imzml_mode).writer() as writer:
                     # writer.deactivate_alignment_tracker()

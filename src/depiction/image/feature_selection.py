@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Literal, Annotated, Union
+from typing import Literal, Annotated
 
 from depiction.image.multi_channel_image import MultiChannelImage
 
@@ -14,7 +14,7 @@ class FeatureSelectionIQR(BaseModel):
     n_features: int
 
 
-FeatureSelection = Annotated[Union[FeatureSelectionCV, FeatureSelectionIQR], Field(discriminator="method")]
+FeatureSelection = Annotated[FeatureSelectionCV | FeatureSelectionIQR, Field(discriminator="method")]
 
 
 def select_features(feature_selection: FeatureSelection, image: MultiChannelImage) -> list[str]:

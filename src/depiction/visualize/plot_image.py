@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import math
-from typing import Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from collections.abc import Callable
 
 import numpy as np
 from matplotlib import pyplot as plt

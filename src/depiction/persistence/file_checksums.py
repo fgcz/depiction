@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import hashlib
 from functools import cached_property
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
+from collections.abc import Callable
 
 if TYPE_CHECKING:
     from pathlib import Path

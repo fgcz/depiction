@@ -7,7 +7,7 @@ import scipy.stats
 import seaborn
 from loguru import logger
 from numpy.typing import NDArray
-from typing import Literal, Optional, Any
+from typing import Literal, Any
 from xarray import DataArray
 
 from depiction.calibration.methods.calibration_method import CalibrationMethod
@@ -101,8 +101,8 @@ class ChemicalNoiseCalibration:
         self,
         peak_mz_arr: NDArray[np.float64],
         unit: Literal["m/z", "ppm"] = "m/z",
-        ax: Optional[matplotlib.axes.Axes] = None,
-        scatter_kwargs: Optional[dict[str, Any]] = None,
+        ax: matplotlib.axes.Axes | None = None,
+        scatter_kwargs: dict[str, Any] | None = None,
         robust_regression: bool = True,
     ) -> None:
         scatter_kwargs = {"s": 1} | (scatter_kwargs or {})

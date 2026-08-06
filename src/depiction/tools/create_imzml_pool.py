@@ -3,7 +3,7 @@ from functools import cached_property
 
 import numpy as np
 import pandas as pd
-import os
+from pathlib import Path
 from numpy.typing import NDArray
 from tqdm import tqdm
 
@@ -50,12 +50,12 @@ class CreateImzmlPool:
         return pd.DataFrame(collect)
 
     def _create_output_directory(self, write_file: ImzmlWriteFile) -> None:
-        output_directory = os.path.dirname(write_file.imzml_file)
-        os.makedirs(output_directory, exist_ok=True)
+        Path(write_file.imzml_file).parent.mkdir(parents=True, exist_ok=True)
 
     def _write_metadata(self, write_file: ImzmlWriteFile) -> None:
-        pool_source_path = os.path.splitext(write_file.imzml_file)[0] + "_source.json"
-        pool_content_path = os.path.splitext(write_file.imzml_file)[0] + "_content.json"
+        imzml_path = Path(write_file.imzml_file)
+        pool_source_path = imzml_path.with_name(f"{imzml_path.stem}_source.json")
+        pool_content_path = imzml_path.with_name(f"{imzml_path.stem}_content.json")
         self.pool_source_df.to_json(pool_source_path, index=False, indent=2)
         self.pool_content_df.to_json(pool_content_path, index=False, indent=2)
 

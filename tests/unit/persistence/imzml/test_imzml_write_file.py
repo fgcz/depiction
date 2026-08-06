@@ -49,9 +49,8 @@ def test_writer_when_success(mocker: MockerFixture, mock_write_file: ImzmlWriteF
 
 def test_writer_when_mode_x_file_exists(mocker: MockerFixture, mock_write_file: ImzmlWriteFile) -> None:
     mocker.patch.object(Path, "exists", return_value=True)
-    with pytest.raises(ValueError):
-        with mock_write_file.writer():
-            pass
+    with pytest.raises(ValueError), mock_write_file.writer():
+        pass
 
 
 def test_writer_when_mode_w_file_exists(mocker: MockerFixture) -> None:

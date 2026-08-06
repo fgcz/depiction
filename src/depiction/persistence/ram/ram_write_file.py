@@ -36,7 +36,7 @@ class RamWriteFile:
     #    self._coordinates.append(coordinates)
 
     @contextmanager
-    def writer(self) -> Generator[_Writer, None, None]:
+    def writer(self) -> Generator[_Writer]:
         yield _Writer(self)
 
     def to_read_file(self) -> RamReadFile:

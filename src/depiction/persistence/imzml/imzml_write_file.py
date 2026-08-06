@@ -56,7 +56,7 @@ class ImzmlWriteFile(GenericWriteFile):
         return self._imzml_mode
 
     @contextmanager
-    def writer(self) -> Generator[ImzmlWriter, None, None]:
+    def writer(self) -> Generator[ImzmlWriter]:
         """Opens the .imzML file for writing and yields an `ImzmlWriter` instance."""
         if self._write_mode == "x":
             if self.imzml_file.exists():

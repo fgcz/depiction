@@ -1,6 +1,6 @@
-import os
 import unittest
 from functools import cached_property
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import numpy as np
@@ -19,8 +19,8 @@ class TestCorrectBaselineIntegration(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp_dir = TemporaryDirectory()
         self.addCleanup(self.tmp_dir.cleanup)
-        self.mock_input_file_path = os.path.join(self.tmp_dir.name, "input.imzML")
-        self.mock_output_file_path = os.path.join(self.tmp_dir.name, "output.imzML")
+        self.mock_input_file_path = str(Path(self.tmp_dir.name) / "input.imzML")
+        self.mock_output_file_path = str(Path(self.tmp_dir.name) / "output.imzML")
 
         self.mock_baseline_spectrum = [10, 11, 10, 10, 250, 10, 10, 10, 11, 200, 10, 10]
         self.mock_clean_spectrum = [0, 1, 0, 0, 240, 0, 0, 0, 1, 190, 0, 0]

@@ -9,7 +9,7 @@ def test_coef() -> None:
 
 
 def test_value() -> None:
-    assert 1234 == ConstantModel(value=1234).value
+    assert ConstantModel(value=1234).value == 1234
 
 
 def test_is_zero() -> None:

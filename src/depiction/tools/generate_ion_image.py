@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
@@ -57,7 +56,7 @@ class GenerateIonImage:
         self,
         input_file: ImzmlReadFile,
         mz_ranges: list[tuple[float, float]],
-        channel_names: Optional[list[str]] = None,
+        channel_names: list[str] | None = None,
     ) -> MultiChannelImage:
         """Generates an image for each of the provided mz ranges, and returns a multi-channel `SparseImage2d` with
         the summed intensities.

@@ -5,7 +5,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from xml.etree.ElementTree import ElementTree
 
 from numpy.typing import NDArray
@@ -44,7 +44,7 @@ class ImzmlReadFile(GenericReadFile):
         return self._path.with_suffix(".ibd")
 
     @contextmanager
-    def reader(self) -> Generator[ImzmlReader, None, None]:
+    def reader(self) -> Generator[ImzmlReader]:
         """Returns a context manager that yields an `ImzmlReader` instance."""
         reader = self.get_reader()
         try:
@@ -95,7 +95,7 @@ class ImzmlReadFile(GenericReadFile):
         return FileChecksums(file_path=self.ibd_file)
 
     @cached_property
-    def is_checksum_valid(self) -> Optional[bool]:
+    def is_checksum_valid(self) -> bool | None:
         """Returns True if the checksum of the .ibd file matches the expected value. False otherwise.
         This operation can be slow for large files, but will be cached after the first call.
         `None` is returned when checksum information is available.

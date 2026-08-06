@@ -1,6 +1,5 @@
 from loguru import logger
 from pathlib import Path
-from typing import Optional
 
 from depiction.calibration.apply.apply_models import ApplyModels
 from depiction.calibration.apply.extract_features import ExtractFeatures
@@ -23,7 +22,7 @@ class CalibrateImage:
         self._coefficient_output_file = coefficient_output_file
 
     def calibrate_image(
-        self, read_peaks: GenericReadFile, write_file: GenericWriteFile, read_full: Optional[GenericReadFile] = None
+        self, read_peaks: GenericReadFile, write_file: GenericWriteFile, read_full: GenericReadFile | None = None
     ) -> None:
         read_full = read_full or read_peaks
 

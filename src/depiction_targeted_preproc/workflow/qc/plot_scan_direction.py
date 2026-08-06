@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 from skimage.transform import resize_local_mean
-from typing import Optional
 
 from depiction.persistence import ImzmlReadFile
 
@@ -31,7 +30,7 @@ def qc_plot_scan_direction(
 
 def visualize_coordinates_direction(
     coordinates: np.ndarray,
-    ax: Optional[plt.Axes] = None,
+    ax: plt.Axes | None = None,
     target_n_width: int = 30,
     target_n_height: int = 30,
     max_distance: float = 2.0,

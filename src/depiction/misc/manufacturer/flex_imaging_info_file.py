@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import glob
+from pathlib import Path
 from typing import TextIO
 
 import pandas as pd
@@ -40,8 +40,8 @@ class FlexImagingInfoFile:
 
     @classmethod
     def parse_in_directory(cls, directory: str) -> FlexImagingInfoFile:
-        [match] = glob.glob(f"{directory}/*_info.txt")
-        with open(match) as file:
+        [match] = Path(directory).glob("*_info.txt")
+        with match.open() as file:
             return cls.parse_file(file=file)
 
     @classmethod

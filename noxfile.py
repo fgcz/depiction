@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import nox
 
 nox.options.default_venv_backend = "uv"
@@ -28,8 +30,11 @@ def tests_depiction_io(session) -> None:
     """
     session.install("./pkgs/depiction_io[testing]")
     session.install("pytest-xdist")
+    # posargs are resolved *before* the chdir, so paths can be given relative to the
+    # repository root as in every other session; otherwise `nox -s tests_depiction_io --
+    # pkgs/depiction_io/tests/unit/imzml` would resolve against the wrong base.
+    testfiles = [str(Path(arg).resolve()) for arg in session.posargs] or ["tests"]
     session.chdir("pkgs/depiction_io")
-    testfiles = session.posargs if session.posargs else ["tests"]
     session.run("pytest", "-n", "auto", "--durations=10", "--durations-min=1.0", *testfiles)
 
 

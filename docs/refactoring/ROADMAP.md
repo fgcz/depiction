@@ -120,7 +120,8 @@ pkgs/depiction_io/src/depiction_io/
 
 **Corrections to the prior execution:**
 
-- **Keep `src/depiction/persistence/__init__.py` as a deprecation shim** re-exporting from `depiction_io` with a `DeprecationWarning`. The prior attempt deleted it and rewrote all ~90 call sites in one commit, which is why nothing was independently reviewable. Rewrite call sites in a *separate* commit, then drop the shim in Phase F.
+- ~~**Keep `src/depiction/persistence/__init__.py` as a deprecation shim** re-exporting from `depiction_io` with a `DeprecationWarning`. Rewrite call sites in a *separate* commit, then drop the shim in Phase F.~~
+  **Not done — decided against, deliberately.** The shim would have lived about two weeks before Phase F deleted it again, leaving a successor with two import paths and no reason for either. All 134 statements across 86 files were rewritten in the same commit as the move. The concern behind the original correction (the prior attempt's one-commit rewrite is *why* nothing was independently reviewable) was addressed differently: the branch is five commits, each green under `nox`, with the mechanical bulk quarantined in one of them and verified by a grep gate plus unchanged test counts on both sides of the split.
 - Watch the `mv` target-exists trap that produced `pkgs/depiction_io/tests/unit/imzml/imzml/` and `.../ram/ram/` last time.
 
 Split `noxfile.py` into `tests_depiction` / `tests_depiction_io` sessions; update CI to run both.
@@ -167,7 +168,6 @@ Net effect: roughly **-1,100 LOC of custom parsing**, `pyimzml` gone, Bruker `.d
 
 Under the dormant end state this is the part that actually matters. Do not let it get squeezed.
 
-- Drop the `depiction.persistence` deprecation shim; single import path.
 - **README:** it currently claims *"Python 3.12 is required, 3.13 is not compatible yet"* — contradicted by `requires-python >= 3.13`, `.python-version`, and CI. Fix, and document the workspace layout.
 - **Sphinx docs:** `docs/modules/persistence/image_data.md` autodoc-references `depiction.persistence.format_ome_tiff.OmeTiff`, a path that has not existed for some time — autodoc would fail. Retarget all of `docs/modules/persistence/` at `depiction_io`; fill or delete the two empty stub headings (`### Format: RAM`, `### Format: NetCDF4`).
 - Commit `uv.lock` (currently untracked, as is `pylock.toml`) so the environment is reproducible from a cold clone. **The single highest-value archive action.**

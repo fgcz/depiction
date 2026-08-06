@@ -31,6 +31,8 @@ ACC_ZLIB_COMPRESSION = "MS:1000574"
 ACC_EXTERNAL_OFFSET = "IMS:1000102"
 ACC_EXTERNAL_ENCODED_LENGTH = "IMS:1000104"
 ACC_IBD_SHA1 = "IMS:1000091"
+#: Checksum flavours this rewriter cannot recompute; see `compress_case`.
+OTHER_CHECKSUM_ACCESSIONS = frozenset({"MS:1000568", "IMS:1000090", "MS:1003151", "IMS:1000092"})
 
 # The .ibd begins with a 16-byte UUID header that must survive recompression untouched.
 IBD_HEADER_SIZE = 16
@@ -207,10 +209,19 @@ def compress_case(case: Case, directory: Path) -> Case:
     out_ibd.write_bytes(bytes(out_bytes))
 
     # Recompute the ibd checksum, otherwise is_checksum_valid would report a spurious
-    # failure that has nothing to do with compression.
+    # failure that has nothing to do with compression. pyimzml only ever emits SHA-1, so
+    # that is all this handles -- but fail loudly rather than silently leaving a stale
+    # checksum behind if that ever stops being true.
+    updated = 0
     for param in root.iter(f"{_NS}cvParam"):
-        if param.attrib.get("accession") == ACC_IBD_SHA1:
+        accession = param.attrib.get("accession")
+        if accession == ACC_IBD_SHA1:
             param.attrib["value"] = hashlib.sha1(bytes(out_bytes)).hexdigest().upper()
+            updated += 1
+        elif accession in OTHER_CHECKSUM_ACCESSIONS:
+            raise NotImplementedError(f"{case.path} declares checksum {accession}, which this rewriter cannot update")
+    if updated != 1:
+        raise ValueError(f"Expected exactly one {ACC_IBD_SHA1} cvParam in {case.path}, found {updated}")
 
     tree.write(out_imzml, encoding="utf-8", xml_declaration=True)
 

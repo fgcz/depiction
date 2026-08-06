@@ -97,15 +97,17 @@ def test_extract_spectrum_features_ppm_unit(mocker, reference_mz_values):
     int_arr = np.array([1000.0, 2000.0, 3000.0])
     distances = np.array([0.5, 0.5, 0.5])
 
-    with mocker.patch.object(ReferencePeakDistances, "get_distances_max_peak_in_window", return_value=distances):
-        with mocker.patch.object(ReferencePeakDistances, "get_distances_nearest", return_value=distances):
-            result = calibration.extract_spectrum_features(mz_arr, int_arr)
+    with (
+        mocker.patch.object(ReferencePeakDistances, "get_distances_max_peak_in_window", return_value=distances),
+        mocker.patch.object(ReferencePeakDistances, "get_distances_nearest", return_value=distances),
+    ):
+        result = calibration.extract_spectrum_features(mz_arr, int_arr)
 
-            assert isinstance(result, DataArray)
-            assert result.dims == ("c",)
-            # Check PPM conversion
-            expected_ppm = distances / reference_mz_values * 1e6
-            assert np.allclose(result.values, expected_ppm)
+        assert isinstance(result, DataArray)
+        assert result.dims == ("c",)
+        # Check PPM conversion
+        expected_ppm = distances / reference_mz_values * 1e6
+        assert np.allclose(result.values, expected_ppm)
 
 
 def test_insufficient_points(regress_shift_calibration, sample_spectrum_data, mocker):

@@ -6,7 +6,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence.types import GenericReadFile, GenericWriteFile, GenericReader, GenericWriter
+from depiction_io.types import GenericReadFile, GenericWriteFile, GenericReader, GenericWriter
 
 
 class BinStatistic(enum.Enum):

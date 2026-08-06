@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import nox
 
 nox.options.default_venv_backend = "uv"
@@ -11,8 +13,8 @@ def lint(session: nox.Session) -> None:
 
 
 @nox.session
-def tests(session) -> None:
-    """Runs the test suite."""
+def tests_depiction(session) -> None:
+    """Runs the test suite of the `depiction` package."""
     testfiles = session.posargs if session.posargs else ["tests"]
     session.install(".[testing]")
     session.install("pytest-xdist")
@@ -20,10 +22,30 @@ def tests(session) -> None:
 
 
 @nox.session
+def tests_depiction_io(session) -> None:
+    """Runs the test suite of the `depiction_io` package.
+
+    Installs only `depiction_io`, so that an accidental dependency on `depiction`
+    fails here rather than being masked by the parent's environment.
+    """
+    session.install("./pkgs/depiction_io[testing]")
+    session.install("pytest-xdist")
+    # posargs are resolved *before* the chdir, so paths can be given relative to the
+    # repository root as in every other session; otherwise `nox -s tests_depiction_io --
+    # pkgs/depiction_io/tests/unit/imzml` would resolve against the wrong base.
+    testfiles = [str(Path(arg).resolve()) for arg in session.posargs] or ["tests"]
+    session.chdir("pkgs/depiction_io")
+    session.run("pytest", "-n", "auto", "--durations=10", "--durations-min=1.0", *testfiles)
+
+
+@nox.session
 def licensecheck(session) -> None:
     """Runs the license check."""
     session.install("licensecheck")
-    session.run("licensecheck", "--skip-dependencies", "llvmlite")
+    # depiction_io is skipped because it is our own workspace member (same license as the
+    # root) and because licensecheck's resolver cannot parse the `-e file:///...` entry
+    # that uv emits for a workspace dependency.
+    session.run("licensecheck", "--skip-dependencies", "llvmlite", "depiction_io")
 
 
 @nox.session(default=False)

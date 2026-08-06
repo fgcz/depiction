@@ -47,7 +47,7 @@ def find_num_clusters(data):
         model = KMeans(n_clusters=n_clusters, init="k-means++", max_iter=100, n_init=1)
         labels = model.fit_predict(data)
         sil_score = silhouette_score(data, labels)
-        print("The average silhouette score for %i clusters is %0.2f" % (n_clusters, sil_score))
+        print(f"The average silhouette score for {n_clusters:d} clusters is {sil_score:0.2f}")
         if sil_score > sil_score_max:
             sil_score_max = sil_score
             best_n_clusters = n_clusters

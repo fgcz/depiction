@@ -1,6 +1,9 @@
 ci:
   autoupdate_commit_msg: "chore: update pre-commit hooks"
   autofix_commit_msg: "style: pre-commit fixes"
+# Rescued artefacts of the aborted refactorings, kept byte-identical to their
+# originals on purpose. Reformatting them would destroy the thing being archived.
+exclude: ^docs/refactoring/archive/
 repos:
   - repo: https://github.com/psf/black
     rev: "24.8.0"
@@ -11,17 +14,19 @@ repos:
     hooks:
       - id: blacken-docs
         additional_dependencies: [black==24.*]
-  # TODO add later, when improved
-  #- repo: https://github.com/astral-sh/ruff-pre-commit
-  #  rev: "v0.4.1"
-  #  hooks:
-  #    - id: ruff
-  #      args: ["--fix", "--show-fixes"]
-  #    - id: ruff-format
+  # Lint only. `black` above stays the formatter; ruff-format would agree with it at
+  # line-length 120, but swapping formatters would mean reformatting the whole repo.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "v0.16.1"
+    hooks:
+      - id: ruff-check
+        args: ["--fix", "--show-fixes"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: "v4.6.0"
     hooks:
       - id: check-added-large-files
+        # the lockfile is committed deliberately, for reproducibility
+        exclude: ^uv\.lock$
       - id: check-case-conflict
       - id: check-merge-conflict
       - id: check-symlinks
@@ -31,6 +36,9 @@ repos:
       - id: mixed-line-ending
       - id: name-tests-test
         args: ["--pytest-test-first"]
+        # corpus.py builds the differential-test fixtures; it holds no tests itself and
+        # is imported by them, so the test_*.py convention does not apply.
+        exclude: ^tests/differential/corpus\.py$
       - id: requirements-txt-fixer
       - id: trailing-whitespace
       - id: pretty-format-json

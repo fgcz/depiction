@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
@@ -13,7 +12,7 @@ class FilterByIntensity:
     """
 
     min_intensity: float
-    normalization: Optional[str] = None
+    normalization: str | None = None
 
     def filter_index_peaks(
         self,

@@ -8,7 +8,8 @@ def extrapolate_labels(
     """Extrapolates cluster labels for a number of sampled features to the full set of features."""
     if sampled_features.shape[1] != full_features.shape[1]:
         raise ValueError(
-            f"Number of features must be the same in sampled_features ({sampled_features.shape[1]}) and full_features ({full_features.shape[1]})"
+            f"Number of features must be the same in sampled_features ({sampled_features.shape[1]}) "
+            f"and full_features ({full_features.shape[1]})"
         )
     n_full_samples = full_features.shape[0]
     cluster_centers = get_cluster_centers(features=sampled_features, labels=sampled_labels)

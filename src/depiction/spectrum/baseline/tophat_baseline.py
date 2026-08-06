@@ -7,7 +7,7 @@ import numpy as np
 from numba import njit
 from numpy.typing import NDArray
 
-from depiction.persistence.types import GenericReadFile
+from depiction_io.types import GenericReadFile
 from depiction.spectrum.baseline.baseline import Baseline
 
 

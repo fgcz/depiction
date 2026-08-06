@@ -10,7 +10,6 @@ from bfabric.entities import Resource
 from bfabric.experimental.workunit_definition import WorkunitDefinition
 from bfabric_app_runner.dispatch.dispatch_individual_resources import DispatchIndividualResources, config_msi_imzml
 
-from depiction_targeted_preproc.pipeline.params_io import write_params
 from depiction_targeted_preproc.pipeline.prepare_inputs import write_inputs_spec
 from depiction_targeted_preproc.pipeline.prepare_params import parse_params
 

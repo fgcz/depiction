@@ -1,4 +1,4 @@
-from depiction.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
+from depiction_io import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
 from tqdm import tqdm
 from collections.abc import Sequence
 import argparse

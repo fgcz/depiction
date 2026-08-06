@@ -59,7 +59,8 @@ def qc_plot_spectra_for_marker(
     # c_peaks_spec1 = make_spectrum_plot(plot_df, 1)
     ##chart = chart & (c_peaks_spec0 | c_peaks_spec1)
 
-    # chart = ((c_density_baseline | c_density_calibrated).resolve_scale(y="shared") & (c_peaks_spec0 | c_peaks_spec1).resolve_scale(y="shared")).resolve_scale(x="shared")
+    # chart = ((c_density_baseline | c_density_calibrated).resolve_scale(y="shared")
+    #          & (c_peaks_spec0 | c_peaks_spec1).resolve_scale(y="shared")).resolve_scale(x="shared")
     chart = (c_density_baseline | c_density_calibrated).resolve_scale(y="shared", x="shared")
     # TODO not using the facet functionality, because it's currently a bit buggy for layered charts...
     ## TODO first only make a density plot

@@ -29,7 +29,7 @@ def cluster_dbscan(input_netcdf_path: Path, output_netcdf_path: Path) -> None:
     data_scaled = scaler.transform(reduced_data.values)
 
     try:
-        clusterer = HDBSCAN_flat(data_scaled, n_clusters=10)
+        clusterer = HDBSCAN_flat(data_scaled, n_clusters=n_clusters)
         # min_cluster_size=math.ceil(0.02 * data_scaled.shape[0]))
         clusters = clusterer.labels_
     except IndexError:

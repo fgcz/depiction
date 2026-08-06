@@ -3,8 +3,8 @@ import pytest
 import xarray
 from xarray import DataArray
 
-from depiction.persistence.image.ome_tiff import OmeTiff
-from depiction.persistence.image.pixel_size import PixelSize
+from depiction.image.ome_tiff import OmeTiff
+from depiction_io.pixel_size import PixelSize
 
 
 @pytest.fixture

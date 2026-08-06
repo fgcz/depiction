@@ -4,7 +4,7 @@ import cyclopts
 import polars as pl
 
 from depiction.parallel_ops import ParallelConfig
-from depiction.persistence import ImzmlReadFile
+from depiction_io import ImzmlReadFile
 from depiction.tools.generate_ion_image import GenerateIonImage
 
 app = cyclopts.App()

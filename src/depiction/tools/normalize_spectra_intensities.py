@@ -5,7 +5,7 @@ import numba
 import numpy as np
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction.persistence import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader
+from depiction_io import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader
 
 
 class NormalizeSpectraIntensitiesVariant:
@@ -69,12 +69,12 @@ def main_normalize_intensities(
     input_imzml: str, output_imzml: str, variant: NormalizeSpectraIntensitiesVariant, n_jobs: int
 ) -> None:
     parallel_config = ParallelConfig(n_jobs=n_jobs)
-    with ImzmlReadFile(input_imzml) as read_file:
-        with ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode) as write_file:
-            normalize_intensities = NormalizeSpectraIntensities(variant=variant)
-            normalize_intensities.process_file(
-                read_file=read_file, write_file=write_file, parallel_config=parallel_config
-            )
+    with (
+        ImzmlReadFile(input_imzml) as read_file,
+        ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode) as write_file,
+    ):
+        normalize_intensities = NormalizeSpectraIntensities(variant=variant)
+        normalize_intensities.process_file(read_file=read_file, write_file=write_file, parallel_config=parallel_config)
 
 
 def main() -> None:

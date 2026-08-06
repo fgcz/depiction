@@ -205,10 +205,7 @@ def clustering(
 def compute_labels(
     features: NDArray[np.float64], method: MethodEnum, method_params: MethodParamsType
 ) -> NDArray[np.int64]:
-    if "n_clusters" in method_params:
-        n_clusters = method_params.pop("n_clusters")
-    else:
-        n_clusters = 10
+    n_clusters = method_params.pop("n_clusters") if "n_clusters" in method_params else 10
     if method == MethodEnum.KMEANS:
         clu = KMeans(n_clusters=n_clusters, **method_params).fit(features)
         return clu.labels_

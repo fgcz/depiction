@@ -19,9 +19,8 @@ class WindowSize(BaseModel):
 
     @model_validator(mode="after")
     def validate_when_index_unit_is_integer(self) -> Self:
-        if self.unit == WindowUnit.index:
-            if not isinstance(self.size, int):
-                raise ValueError(f"Window size must be an integer for unit {self.unit!r}")
+        if self.unit == WindowUnit.index and not isinstance(self.size, int):
+            raise ValueError(f"Window size must be an integer for unit {self.unit!r}")
         return self
 
     def convert_to_index_scalar(self, mz_arr: np.ndarray) -> int:

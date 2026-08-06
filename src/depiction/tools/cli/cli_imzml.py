@@ -3,7 +3,7 @@ from pathlib import Path
 
 import cyclopts
 
-from depiction.persistence import ImzmlReadFile
+from depiction_io import ImzmlReadFile
 
 cmd_imzml = cyclopts.App()
 

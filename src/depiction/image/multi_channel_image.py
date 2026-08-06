@@ -10,7 +10,7 @@ from xarray import DataArray
 
 from depiction.image.image_channel_stats import ImageChannelStats
 from depiction.image.sparse_representation import SparseRepresentation
-from depiction.persistence.image.hdf5_image_format import Hdf5ImageFormat
+from depiction.image.hdf5_image_format import Hdf5ImageFormat
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -236,7 +236,8 @@ class MultiChannelImage:
 
     def with_channel_names(self, channel_names: Sequence[str]) -> MultiChannelImage:
         """Returns a copy with the specified channel names."""
-        # TODO too specific! it would be better to have a "rename_channels" method instead that allows specifying only some
+        # TODO too specific! it would be better to have a "rename_channels" method instead that
+        #      allows specifying only some
         #      or, do a "select" like in polars
         return MultiChannelImage(
             data=self._data.assign_coords(c=channel_names),
@@ -273,7 +274,8 @@ class MultiChannelImage:
     # TODO reconsider:there is actually a problem, whether it should use bg_mask only or also replace individual values
     #     since both could be necessary it should be implemented in a sane and maintainable manner
     #    def replace_bg_value(self, new_bg_value: float) -> MultiChannelImage:
-    #        """Returns a copy with the background value replaced, i.e. changing all occurrences of the current background
+    #        """Returns a copy with the background value replaced, i.e. changing all occurrences
+    #        of the current background
     #        value to the new background value and setting the new background value in the attributes."""
     #        data = self._data.where(~self.bg_mask, new_bg_value)
     #        data.attrs["bg_value"] = new_bg_value

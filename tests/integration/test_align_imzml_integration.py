@@ -1,4 +1,3 @@
-import os
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -6,7 +5,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 from depiction.parallel_ops.parallel_config import ParallelConfig
-from depiction.persistence import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
+from depiction_io import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
 from depiction.tools.align_imzml import AlignImzml, AlignImzmlMethod
 
 
@@ -14,8 +13,8 @@ class TestAlignImzmlIntegration(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp_dir = TemporaryDirectory()
         self.addCleanup(self.tmp_dir.cleanup)
-        self.mock_input_file_path = os.path.join(self.tmp_dir.name, "input.imzML")
-        self.mock_output_file_path = os.path.join(self.tmp_dir.name, "output.imzML")
+        self.mock_input_file_path = str(Path(self.tmp_dir.name) / "input.imzML")
+        self.mock_output_file_path = str(Path(self.tmp_dir.name) / "output.imzML")
         self.mock_parallel_config = ParallelConfig(n_jobs=2)
 
     def mock_input_file(self, mz_arr_list: list[list[int]], imzml_mode: ImzmlModeEnum) -> ImzmlReadFile:

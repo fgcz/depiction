@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -9,13 +9,13 @@ from depiction.parallel_ops import ParallelConfig
 from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
 
 if TYPE_CHECKING:
-    from depiction.persistence.types import GenericReadFile, GenericReader
+    from depiction_io.types import GenericReadFile, GenericReader
 
 
 class EstimatePPMError:
     """Estimates PPM error for a given imzML file, which can be used as a reference for aligning imzML files."""
 
-    def __init__(self, parallel_config: Optional[ParallelConfig] = None) -> None:
+    def __init__(self, parallel_config: ParallelConfig | None = None) -> None:
         if parallel_config is None:
             parallel_config = ParallelConfig.no_parallelism()
         self._parallel_config = parallel_config

@@ -2,7 +2,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from depiction.parallel_ops import WriteSpectraParallel, ParallelConfig
-from depiction.persistence import ImzmlReader, ImzmlWriter
+from depiction_io import ImzmlReader, ImzmlWriter
 from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned
 from depiction.tools.filter_peaks.config import (
     FilterPeaksConfig,

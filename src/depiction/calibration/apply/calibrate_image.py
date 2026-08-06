@@ -1,6 +1,5 @@
 from loguru import logger
 from pathlib import Path
-from typing import Optional
 
 from depiction.calibration.apply.apply_models import ApplyModels
 from depiction.calibration.apply.extract_features import ExtractFeatures
@@ -8,7 +7,7 @@ from depiction.calibration.apply.fit_models import FitModels
 from depiction.calibration.methods.calibration_method import CalibrationMethod
 from depiction.image import MultiChannelImage
 from depiction.parallel_ops import ParallelConfig
-from depiction.persistence.types import GenericReadFile, GenericWriteFile
+from depiction_io.types import GenericReadFile, GenericWriteFile
 
 
 class CalibrateImage:
@@ -23,7 +22,7 @@ class CalibrateImage:
         self._coefficient_output_file = coefficient_output_file
 
     def calibrate_image(
-        self, read_peaks: GenericReadFile, write_file: GenericWriteFile, read_full: Optional[GenericReadFile] = None
+        self, read_peaks: GenericReadFile, write_file: GenericWriteFile, read_full: GenericReadFile | None = None
     ) -> None:
         read_full = read_full or read_peaks
 

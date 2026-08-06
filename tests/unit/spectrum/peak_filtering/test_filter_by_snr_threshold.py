@@ -115,7 +115,9 @@ def test_window_size_conversion(mock_filter, sample_spectrum):
 #
 #    # Test with single-element arrays
 #    single_mz, single_intensity = np.array([100]), np.array([10])
-#    filtered_mz, filtered_intensity = mock_filter.filter_peaks(single_mz, single_intensity, single_mz, single_intensity)
+#    filtered_mz, filtered_intensity = mock_filter.filter_peaks(
+#        single_mz, single_intensity, single_mz, single_intensity
+#    )
 #    assert len(filtered_mz) <= 1
 #    assert len(filtered_intensity) <= 1
 #

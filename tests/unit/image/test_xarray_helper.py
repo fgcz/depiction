@@ -43,7 +43,7 @@ def test_ensure_dense_copy(dense_dataarray) -> None:
     assert isinstance(result.data, np.ndarray)
     assert np.array_equal(result.data, dense_dataarray.data)
     assert result is not dense_dataarray
-    assert np.shares_memory(result.data, dense_dataarray.data) == False
+    assert not np.shares_memory(result.data, dense_dataarray.data)
 
 
 def test_ensure_dense_no_copy(dense_dataarray) -> None:

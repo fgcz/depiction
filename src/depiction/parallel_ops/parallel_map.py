@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import functools
 import operator
-from typing import TypeVar, TYPE_CHECKING, Callable, Any
+from typing import TypeVar, TYPE_CHECKING, Any
+from collections.abc import Callable
 
 import joblib
 

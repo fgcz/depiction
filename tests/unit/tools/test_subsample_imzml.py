@@ -1,5 +1,6 @@
 import unittest
 from functools import cached_property
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import numpy as np
@@ -37,7 +38,9 @@ class TestSubsampleImzml(unittest.TestCase):
         )
 
     @patch.object(SubsampleImzml, "determine_spectra_to_keep")
-    @patch("builtins.open")
+    # autospec so that the Path instance is passed through as `self` and the target path
+    # stays asserted; a plain patch.object would drop it.
+    @patch.object(Path, "open", autospec=True)
     @patch("json.dump")
     def test_dump_subsample_info(self, mock_json_dump, mock_open, method_determine_spectra_to_keep) -> None:
         mock_read_file = MagicMock(name="mock_read_file", imzml_file="dummy_input.imzML")
@@ -46,7 +49,7 @@ class TestSubsampleImzml(unittest.TestCase):
 
         self.target.dump_subsample_info(read_file=mock_read_file, output_imzml=output_path)
 
-        mock_open.assert_called_once_with("dummy_output.subsample_info.json", "w")
+        mock_open.assert_called_once_with(Path("dummy_output.subsample_info.json"), "w")
         mock_json_dump.assert_called_once_with(
             {
                 "input_imzml": "dummy_input.imzML",

@@ -1,15 +1,14 @@
 # TODO this might need to be refactored in the future, especially how binning is mixed into this
 from __future__ import annotations
 import functools
-from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
 
 from depiction.parallel_ops import ParallelConfig
 from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
-from depiction.persistence import ImzmlModeEnum
-from depiction.persistence.types import GenericReadFile, GenericReader
+from depiction_io import ImzmlModeEnum
+from depiction_io.types import GenericReadFile, GenericReader
 from depiction.spectrum.evaluate_bins import EvaluateBins
 
 
@@ -20,8 +19,8 @@ class EvaluateMeanSpectrum:
 
     def __init__(
         self,
-        parallel_config: Optional[ParallelConfig] = None,
-        eval_bins: Optional[EvaluateBins] = None,
+        parallel_config: ParallelConfig | None = None,
+        eval_bins: EvaluateBins | None = None,
     ) -> None:
         self._parallel_config = parallel_config
         self._eval_bins = eval_bins
@@ -58,7 +57,7 @@ class EvaluateMeanSpectrum:
         cls,
         input_file: GenericReadFile,
         parallel_config: ParallelConfig,
-        eval_bins: Optional[EvaluateBins],
+        eval_bins: EvaluateBins | None,
     ) -> NDArray[np.float64]:
         # compute sum chunk-wise
         parallelize = ReadSpectraParallel.from_config(parallel_config)
@@ -70,7 +69,7 @@ class EvaluateMeanSpectrum:
 
     @staticmethod
     def _compute_chunk_sum(
-        reader: GenericReader, spectra_ids: list[int], eval_bins: Optional[EvaluateBins]
+        reader: GenericReader, spectra_ids: list[int], eval_bins: EvaluateBins | None
     ) -> NDArray[np.float64]:
         if eval_bins is None:
             chunk_sum = np.array(reader.get_spectrum_int(spectra_ids[0]), copy=True)

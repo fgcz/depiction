@@ -1,69 +1,20 @@
 import argparse
 
 import logging
-import os
-from typing import Optional
+from pathlib import Path
 
 import numpy as np
-import pyimzml.ImzMLParser
-import pyimzml.ImzMLWriter
 from tqdm import tqdm
 
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
-
-
-# TODO under development
-class SplitImzml:
-    def __init__(
-        self,
-        source_imzml_path: str,
-        n_parts: Optional[int],
-        n_spectra_per_part: Optional[int],
-    ) -> None:
-        self._source_imzml_path = source_imzml_path
-        self._n_parts = n_parts
-        self._n_spectra_per_part = n_spectra_per_part
-
-    def _get_split_indices(self) -> list[np.ndarray[int]]:
-        """Returns a list with the indices per split part."""
-        n_spectra_file = len(pyimzml.ImzMLParser.ImzMLParser(self._source_imzml_path).coordinates)
-        if self._n_parts and self._n_spectra_per_part:
-            raise ValueError("Only one of n_parts and n_spectra can be provided.")
-        n_parts = self._n_parts if self._n_parts else max(n_spectra_file // self._n_spectra_per_part, 1)
-        return np.array_split(np.arange(n_spectra_file), n_parts)
-
-    def write_splits(self, output_dir: str) -> dict:
-        split_indices = self._get_split_indices()
-        os.makedirs(output_dir, exist_ok=True)
-        self._logger.info(f"Splitting file into {len(split_indices)} parts.")
-
-        output_files = []  # type: list[str]
-        output_spectra_indices = []  # type: list[np.ndarray[int]]
-        parser = pyimzml.ImzMLParser.ImzMLParser(self._source_imzml_path)
-
-        file_params = parser.metadata.file_description.param_by_name
-        imzml_mode = "processed" if file_params.get("processed", False) else "continuous"
-
-        for i_part, indices in tqdm(enumerate(split_indices), desc=" part", position=0):
-            output_spectra_indices.append(indices)
-            filename = os.path.join(output_dir, f"part_{i_part}.imzML")
-            output_files.append(filename)
-
-            with pyimzml.ImzMLWriter.ImzMLWriter(filename, mode=imzml_mode) as writer:
-                for index in tqdm(indices, desc="  spectrum", position=1):
-                    writer.addSpectrum(*parser.getspectrum(index), parser.coordinates[index])
-
-    @property
-    def _logger(self) -> logging.Logger:
-        return logging.getLogger(__name__)
+from depiction_io import ImzmlReadFile, ImzmlWriteFile
 
 
 class ImzmlSplitter:
     def __init__(
         self,
         read_file: ImzmlReadFile,
-        n_parts: Optional[int],
-        n_spectra_per_part: Optional[int],
+        n_parts: int | None,
+        n_spectra_per_part: int | None,
     ) -> None:
         self._read_file = read_file
         self._n_parts = n_parts
@@ -78,7 +29,7 @@ class ImzmlSplitter:
 
     def write_splits(self, output_dir: str) -> dict:
         split_indices = self.get_split_indices()
-        os.makedirs(output_dir, exist_ok=True)
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
         self._logger.info(f"Splitting file into {len(split_indices)} parts.")
 
         output_files = []  # type: list[str]
@@ -89,7 +40,7 @@ class ImzmlSplitter:
 
             for i_part, indices in tqdm(enumerate(split_indices), desc=" part", position=0):
                 output_spectra_indices.append(indices)
-                filename = os.path.join(output_dir, f"part_{i_part}.imzML")
+                filename = str(Path(output_dir) / f"part_{i_part}.imzML")
                 output_files.append(filename)
                 with ImzmlWriteFile(path=filename, imzml_mode=self._read_file.imzml_mode).writer() as writer:
                     # writer.deactivate_alignment_tracker()

@@ -1,12 +1,12 @@
-import os
 import unittest
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import numpy as np
 import xarray
 
 from depiction.misc.integration_test_utils import IntegrationTestUtils
-from depiction.persistence import ImzmlReadFile, ImzmlModeEnum, ImzmlWriteFile
+from depiction_io import ImzmlReadFile, ImzmlModeEnum, ImzmlWriteFile
 from depiction.tools.merge_imzml import MergeImzml
 
 
@@ -14,9 +14,9 @@ class TestMergeImzmlIntegration(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp_dir = TemporaryDirectory()
         self.addCleanup(self.tmp_dir.cleanup)
-        self.mock_input_file_1_path = os.path.join(self.tmp_dir.name, "input_1.imzML")
-        self.mock_input_file_2_path = os.path.join(self.tmp_dir.name, "input_2.imzML")
-        self.mock_output_file_path = os.path.join(self.tmp_dir.name, "output.imzML")
+        self.mock_input_file_1_path = str(Path(self.tmp_dir.name) / "input_1.imzML")
+        self.mock_input_file_2_path = str(Path(self.tmp_dir.name) / "input_2.imzML")
+        self.mock_output_file_path = str(Path(self.tmp_dir.name) / "output.imzML")
 
     def test_merge_continuous(self) -> None:
         IntegrationTestUtils.populate_test_file(

@@ -1,8 +1,6 @@
-from typing import Optional
-
 from numpy.typing import ArrayLike
 
-from depiction.persistence import ImzmlModeEnum, ImzmlWriteFile
+from depiction_io import ImzmlModeEnum, ImzmlWriteFile
 
 
 class IntegrationTestUtils:
@@ -12,7 +10,7 @@ class IntegrationTestUtils:
         mz_arr_list: list[ArrayLike] | ArrayLike,
         int_arr_list: list[ArrayLike] | ArrayLike,
         imzml_mode: ImzmlModeEnum,
-        coordinates_list: Optional[list[tuple[int, ...]]] = None,
+        coordinates_list: list[tuple[int, ...]] | None = None,
     ) -> None:
         if coordinates_list is None:
             coordinates_list = [(0, i) for i in range(len(mz_arr_list))]

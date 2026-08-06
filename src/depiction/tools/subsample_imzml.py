@@ -1,9 +1,10 @@
 import argparse
 import enum
 import json
+from pathlib import Path
 
 import numpy as np
-from depiction.persistence import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import ImzmlReadFile, ImzmlWriteFile
 
 
 class SubsampleMode(enum.Enum):
@@ -65,7 +66,7 @@ class SubsampleImzml:
             "seed": self._seed,
         }
         json_file_name = output_imzml.removesuffix(".imzML") + ".subsample_info.json"
-        with open(json_file_name, "w") as f:
+        with Path(json_file_name).open("w") as f:
             json.dump(info, f, indent=1)
 
 

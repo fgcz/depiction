@@ -1,5 +1,0 @@
-## Persistence
-```{toctree}
-:glob:
-*
-```

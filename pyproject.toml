@@ -8,6 +8,7 @@ license = { text = "Apache-2.0" }
 requires-python = ">= 3.13"
 
 dependencies = [
+    "depiction_io",
     "altair>=5.5.0",
     "vl-convert-python",
     "h5py>=3.10.0",
@@ -19,7 +20,6 @@ dependencies = [
     "pillow>=10.1.0",
     "polars>=0.20.14",
     "pydantic>=2.6.0",
-    "pyimzml>=1.5.3",
     "pyyaml>=6.0.1",
     "scikit-image>=0.22.0",
     "scikit-learn>=1.3.2",
@@ -112,7 +112,13 @@ build-backend = "setuptools.build_meta"
 depiction_targeted_preproc = ["**/*.smk", "**/Snakefile", "**/*.yml", "**/*.yaml"]
 
 [tool.uv]
-reinstall-package = ["depiction"]
+reinstall-package = ["depiction", "depiction_io"]
+
+[tool.uv.workspace]
+members = [".", "pkgs/*"]
+
+[tool.uv.sources]
+depiction_io = { workspace = true }
 
 [tool.black]
 line-length = 120
@@ -126,13 +132,25 @@ using = "PEP631"
 [tool.ruff]
 line-length = 120
 indent-width = 4
-target-version = "py39"
+# must match `requires-python` above; when this said "py39" ruff reported every `match`
+# statement in the codebase as a syntax error.
+target-version = "py313"
 
 [tool.ruff.lint]
-select = ["ANN", "BLE", "D103", "E", "F", "PLW", "PTH", "SIM", "UP", "TCH"]
-# Note: "TCH002" would be useful, but it also has false positives and needs to be deactivated in particular
-#        for the command-line interface module since the inspect module will currently fail everything there.
-ignore = ["ANN101", "ANN102", "TCH002"]
+# Deliberately NOT enforced, so that what is left can actually be kept green:
+#  - "ANN" / "D103": ~210 pre-existing violations (missing annotations, missing
+#    docstrings on public functions) on a codebase heading for an archived state.
+#  - "TC": moving an import into a `TYPE_CHECKING` block breaks anything that resolves
+#    annotations at runtime, and this project does that in two places at once — pydantic
+#    models (e.g. depiction_targeted_preproc/pipeline_config/model.py) and cyclopts CLIs
+#    (the various __main__.py). 56 violations, all in that blast radius.
+select = ["BLE", "E", "F", "PLW", "PTH", "SIM", "UP"]
+# "UP042" (`class Foo(str, Enum)` -> `StrEnum`) is not a cosmetic fix: the two differ in
+# `str()` and f-string interpolation ("Foo.X" vs "x"). All six occurrences are config
+# enums that flow through pydantic models and snakemake YAML, so converting them is a
+# serialization change that belongs in its own commit with its own tests, not in a lint
+# sweep.
+ignore = ["UP042"]
 
 [tool.coverage.report]
 # TODO make it work?
@@ -143,6 +161,9 @@ exclude_also = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "compressed_only: differential test that only applies to the zlib-compressed corpus cases",
+]
 
 [tool.codespell]
 ignore-words-list = "averagine,coo"

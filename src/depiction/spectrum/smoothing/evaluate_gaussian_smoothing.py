@@ -1,4 +1,3 @@
-from typing import Optional
 import scipy
 import numpy as np
 
@@ -8,7 +7,7 @@ class EvaluateGaussianSmoothing:
     Evaluates Gaussian smoothing of intensities.
     """
 
-    def __init__(self, window: int = 5, sd: Optional[float] = None) -> None:
+    def __init__(self, window: int = 5, sd: float | None = None) -> None:
         """
         :param window: The window size of the Gaussian filter. Default is 5.
         :param sd: The standard deviation of the Gaussian filter. Default is window / 4.

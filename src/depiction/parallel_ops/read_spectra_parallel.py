@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import (
     Any,
-    Callable,
     TypeVar,
     TYPE_CHECKING,
     TypedDict,
 )
+from collections.abc import Callable
 
 import numpy as np
 
@@ -15,7 +15,7 @@ from depiction.parallel_ops.parallel_map import ParallelMap
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
-    from depiction.persistence.types import GenericReadFile, GenericReader
+    from depiction_io.types import GenericReadFile, GenericReader
 
     T = TypeVar("T")
     V = TypeVar("V")

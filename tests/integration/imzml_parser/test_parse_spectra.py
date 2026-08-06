@@ -3,9 +3,9 @@ from xml.etree import ElementTree
 
 import pytest
 
-from depiction.persistence.imzml.compression import Compression
-from depiction.persistence.imzml.parser.parse_spectra import ParseSpectra
-from depiction.persistence.imzml.parser.cv_params import CvParam
+from depiction_io.imzml.compression import Compression
+from depiction_io.imzml.parser.parse_spectra import ParseSpectra
+from depiction_io.imzml.parser.cv_params import CvParam
 
 
 @pytest.fixture

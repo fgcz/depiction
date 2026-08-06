@@ -56,11 +56,32 @@ class ImzyReader(GenericReader):
         if self._reader is None:
             import imzy
 
+            self._discard_stale_icache()
             # imzy writes an `.icache` sidecar next to the input, so a read-only input tree
             # silently degrades to a full re-parse on every open.
             # upstream: no cache_dir argument; see ROADMAP.md, Phase D gap (3).
             self._reader = imzy.get_reader(self._path)
         return self._reader
+
+    def _discard_stale_icache(self) -> None:
+        """Removes imzy's offset cache when it predates the file it describes.
+
+        imzy reloads `<stem>.icache` on sight -- no size, mtime or UUID check -- so a cache
+        left over from an earlier file at the same path makes it report that file's spectrum
+        count and coordinates while slicing the current `.ibd`. Overwriting through
+        `ImzmlWriteFile` clears the cache already; this catches the paths that do not go
+        through it, such as a file replaced by an external tool.
+
+        Deleting a cache that was in fact valid costs a re-parse, so the comparison
+        deliberately errs towards deleting. A cache that cannot be removed is left to raise:
+        reading through a stale one is the outcome this exists to prevent.
+        # upstream: the cache carries no provenance; see ROADMAP.md, Phase D gap (3).
+        """
+        icache = self._path.with_suffix(".icache")
+        if not icache.exists():
+            return
+        if icache.stat().st_mtime <= self._path.stat().st_mtime:
+            icache.unlink()
 
     def close(self) -> None:
         """Drops the underlying reader. imzy holds no persistent handle, so this frees only
@@ -93,6 +114,15 @@ class ImzyReader(GenericReader):
         """Returns the coordinates of the spectra, shape (n_spectra, n_dim)."""
         coordinates = np.asarray(self.reader.xyz_coordinates, dtype=np.int64)
         return coordinates if self._declares_z else coordinates[:, :2]
+
+    def get_spectrum(self, i_spectrum: int) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+        """Returns the m/z and intensity arrays of the i-th spectrum.
+
+        Overridden because imzy reads both arrays and reopens the `.ibd` on every call, so
+        the protocol's default -- one call per array -- would open the file twice and read
+        each array twice. This is the hot path in nearly every tool.
+        """
+        return self.reader.get_spectrum(i_spectrum)
 
     def get_spectrum_mz(self, i_spectrum: int) -> NDArray[np.float64]:
         """Returns the m/z values of the i-th spectrum."""

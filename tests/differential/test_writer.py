@@ -8,6 +8,7 @@ a process boundary.
 
 from __future__ import annotations
 
+import os
 import shutil
 from pathlib import Path
 from xml.etree import ElementTree
@@ -16,7 +17,7 @@ import numpy as np
 import pytest
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction_io import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile, ImzyReadFile
+from depiction_io import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile, ImzmlWriter, ImzyReadFile
 from depiction_io.types import GenericReadFile, GenericReader, GenericWriter
 from tests.differential.corpus import Case, make_spectra, write_case
 
@@ -94,6 +95,64 @@ def test_empty_spectra_read_back_as_empty_arrays(file_with_an_empty_spectrum: Pa
         assert len(reader.get_spectrum_mz(0)) == 3
         assert len(reader.get_spectrum_mz(1)) == 0
         assert len(reader.get_spectrum_int(1)) == 0
+
+
+def _write(path: Path, n_spectra: int, n_points: int) -> None:
+    write_file = ImzmlWriteFile(path, imzml_mode=ImzmlModeEnum.PROCESSED, write_mode="w" if path.exists() else "x")
+    with write_file.writer() as writer:
+        for i in range(n_spectra):
+            writer.add_spectrum(np.arange(n_points, dtype=np.float64) + 100.0, np.ones(n_points), (i + 1, 1))
+
+
+def test_overwriting_invalidates_the_imzy_offset_cache(tmp_path: Path) -> None:
+    """Regression: imzy reloads `<stem>.icache` without checking it still matches the file.
+
+    Reading once leaves the cache behind; overwriting the file used to leave it there, after
+    which imzy reported the *old* spectrum count and coordinates while slicing the *new*
+    .ibd -- the same silent-corruption class the compression guard exists to prevent, and
+    reachable by any pipeline that regenerates an output at a path it already read.
+    """
+    path = tmp_path / "a.imzML"
+    _write(path, n_spectra=2, n_points=3)
+    assert ImzyReadFile(path).n_spectra == 2
+    assert path.with_suffix(".icache").exists(), "imzy no longer caches; this guard may be obsolete"
+
+    _write(path, n_spectra=5, n_points=7)
+    read_file = ImzyReadFile(path)
+    assert read_file.n_spectra == ImzmlReadFile(path).n_spectra == 5
+    with read_file.reader() as reader:
+        assert len(reader.get_spectrum_mz(0)) == 7
+
+
+def test_stale_cache_left_by_another_tool_is_discarded(tmp_path: Path) -> None:
+    # The writer clears the cache for files it writes; this covers a file replaced by
+    # something else, where only the read side can notice.
+    path = tmp_path / "b.imzML"
+    _write(path, n_spectra=2, n_points=3)
+    assert ImzyReadFile(path).n_spectra == 2
+    icache = path.with_suffix(".icache")
+    stale = icache.read_bytes()
+
+    _write(path, n_spectra=4, n_points=5)
+    icache.write_bytes(stale)
+    os.utime(icache, (0, 0))
+
+    assert ImzyReadFile(path).n_spectra == 4
+    assert not icache.exists() or icache.stat().st_mtime > path.stat().st_mtime
+
+
+def test_writer_rejects_a_suffix_imzy_would_rewrite(tmp_path: Path) -> None:
+    # imzy forces the suffix to `.imzML`; on a case-sensitive filesystem that silently puts
+    # the data somewhere other than where `ImzmlWriteFile.imzml_file` says it is.
+    with pytest.raises(ValueError, match=r"\.imzML"):
+        ImzmlWriter.open(path=tmp_path / "out.imzml", imzml_mode=ImzmlModeEnum.PROCESSED)
+
+
+def test_failure_in_the_body_is_not_masked_by_close(tmp_path: Path) -> None:
+    # Closing a writer with no spectra raises; that must not replace the real error.
+    write_file = ImzmlWriteFile(tmp_path / "boom.imzML", imzml_mode=ImzmlModeEnum.PROCESSED)
+    with pytest.raises(ZeroDivisionError), write_file.writer():
+        1 / 0
 
 
 def _copy_chunk(reader: GenericReader, spectra_indices: list[int], writers: list[GenericWriter]) -> None:

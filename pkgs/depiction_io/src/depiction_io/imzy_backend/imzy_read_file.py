@@ -29,8 +29,10 @@ class ImzyReadFile(GenericReadFile):
 
     Construction is cheap and does no I/O, so instances can be handed to worker processes.
     The imzML scan that guards against compressed input runs on the first access that needs
-    a reader, and its result is kept on the instance so that it travels with the pickle
-    rather than being repeated in every worker.
+    a reader. Its result is cached on the instance, so it travels with the pickle *if the
+    parent process already triggered it* -- `ReadSpectraParallel` only does that when it is
+    called without explicit indices. Otherwise every worker re-walks the XML once, which is
+    correct but not free on a multi-GB acquisition.
 
     Checksums and pixel size are read with `ParseMetadata`, not with imzy: imzy parses no
     checksums at all, and reports a pixel size of 1 where the file declares none, whereas

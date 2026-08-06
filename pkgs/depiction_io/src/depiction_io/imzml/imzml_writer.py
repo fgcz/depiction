@@ -43,6 +43,11 @@ class ImzmlWriter(GenericWriter):
     ) -> ImzmlWriter:
         """Opens an imzML file."""
         imzml_alignment_tracker = ImzmlAlignmentTracker() if imzml_alignment_tracking else None
+        # imzy rewrites the suffix to `.imzML` rather than using the path it was given, so on
+        # a case-sensitive filesystem a caller who asked for `out.imzml` would find nothing
+        # there and the data in `out.imzML`. pyimzml wrote the name verbatim.
+        if Path(path).suffix != ".imzML":
+            raise ValueError(f"Expected a path ending in '.imzML', got {path!r}; imzy would write elsewhere.")
         return cls(
             wrapped_imzml_writer=DepictionIMZMLWriter(
                 str(path),

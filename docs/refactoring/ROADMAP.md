@@ -188,8 +188,22 @@ The reader is **opt-in and not the default**; the writer flip is unconditional.
   real data; doing it now would be an unverifiable change to every tool for the benefit of
   a backend that is not yet trusted.
 - **Writer.** `pyimzml` is gone. Two imzy behaviours had to be corrected first — see Phase D
-  gaps (4) and (5) — and one behaviour changed on purpose: closing a writer that received
-  no spectrum now raises, where pyimzml wrote a malformed file.
+  gaps (4) and (5) — and imzy rewrites the output suffix to `.imzML` rather than using the
+  path it was given, so `ImzmlWriter.open` rejects any other spelling instead of quietly
+  writing somewhere else.
+
+  **Two behaviour changes a successor should know about**, both consequences of imzy
+  refusing to write nothing:
+
+  - *An empty spectrum now aborts the run.* pyimzml wrote it; imzy warns and drops it,
+    which would desynchronise the pixel count; this adapter raises. `filter_peaks` can
+    produce one for a noise pixel, so a dataset that used to process may now fail. Raising
+    was chosen over silent loss deliberately, but "write it anyway" is not available from
+    imzy and "drop the coordinate too" is the untaken third option.
+  - *Closing a writer with no spectra raises.* Reachable from `SubsampleImzml` with a ratio
+    that rounds to zero and from `CutoutRectangularRegion` with an empty selection, both of
+    which used to produce a file — though a malformed one, per the TODO this replaced. The
+    error does not mask a failure raised inside the `with` body.
 - **Tests.** `tests/differential/` now runs every assertion against both readers, and gained
   a pickle round trip, a writer-output module (`test_writer.py`), and a
   `WriteSpectraParallel` → `MergeImzml` round trip. The Bruker `.d` path is plumbed but
@@ -240,7 +254,7 @@ Two pre-existing bugs surfaced while doing this; see *Known, still unfixed* belo
 
 ### Phase D — Upstream contributions to imzy (not started)
 
-**Five** gaps, not the three originally identified. Each is independently useful; open
+**Five** gaps, not the three originally identified — and gap (3) turned out to be three problems wearing one coat. Each is independently useful; open
 them as issues first, with the failing case. All five are worked around in-tree today,
 behind `# upstream:` markers.
 
@@ -255,9 +269,21 @@ behind `# upstream:` markers.
    `WriteSpectraParallel` needs them. Note that `BaseReader._get_reader_kwargs()` returns
    `{}` and `IMZMLReader` does not override it, so for imzML this is simply "re-open by
    path" — simpler than it first appears.
-3. **`.icache` sidecar is written next to the input `.imzML`.** Read-only input trees
-   degrade to a full re-parse on every open, and `_write_icache_safely` swallows the
-   failure. A `cache_dir` argument and/or an `IMZY_CACHE_DIR` env var would fix it.
+3. **The `.icache` sidecar is unvalidated, unrelocatable and racy.** Three problems in one
+   file, the first of which is the most dangerous thing found in the whole migration:
+   - **No provenance check.** `_init` reloads `<stem>.icache` on sight — no size, mtime or
+     UUID comparison — so a cache left from an earlier file at the same path makes imzy
+     report *that* file's spectrum count and coordinates while slicing the *current*
+     `.ibd`. Reproducible in four lines, and reachable by any pipeline that regenerates an
+     output it has already read. Worked around on both sides: `ImzmlWriteFile` deletes the
+     cache before writing, and `ImzyReader` deletes one that predates its `.imzML`. Storing
+     the `.ibd` UUID in the cache would fix it properly.
+   - **No `cache_dir`.** Read-only input trees degrade to a full re-parse on every open,
+     and `_write_icache_safely` swallows the failure.
+   - **A fixed temp name.** `write_icache` always writes `<stem>.icache.npz` before
+     renaming, so concurrent first reads of one file — exactly what `ReadSpectraParallel`
+     does — clobber each other. Benign in practice, since the `OSError` is swallowed and
+     the rename is atomic, but it should be `mkstemp`-based.
 4. **The writer silently drops empty spectra.** `IMZMLWriter.add_spectrum` catches
    `_EmptySpectrumError`, warns and returns `False` — *before* consulting its own
    `on_error="error"` setting. `filter_peaks` can emit empty spectra today and `pyimzml`

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Generator
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -51,6 +51,11 @@ class ImzmlWriteFile(GenericWriteFile):
         return self._path.with_suffix(".ibd")
 
     @property
+    def icache_file(self) -> Path:
+        """The path of the offset cache imzy would write beside this file."""
+        return self._path.with_suffix(".icache")
+
+    @property
     def imzml_mode(self) -> ImzmlModeEnum:
         """The imzml mode of the .imzML file."""
         return self._imzml_mode
@@ -70,6 +75,13 @@ class ImzmlWriteFile(GenericWriteFile):
         else:
             raise ValueError(f"Invalid write mode: {self._write_mode!r}")
 
+        # imzy caches an offset table in `<stem>.icache` beside whatever it reads, and
+        # reloads it on sight without checking that it still matches the file. Leaving a
+        # stale one behind means the next imzy read of this path reports the *previous*
+        # file's spectrum count and coordinates while slicing the *new* .ibd -- silently.
+        # See `imzy_reader` for the read-side half of this guard.
+        self.icache_file.unlink(missing_ok=True)
+
         writer = ImzmlWriter.open(
             path=self.imzml_file,
             imzml_mode=self._imzml_mode,
@@ -81,7 +93,13 @@ class ImzmlWriteFile(GenericWriteFile):
         )
         try:
             yield writer
-        finally:
+        except BaseException:
+            # Closing an empty writer raises, which would replace whatever went wrong in
+            # the body with a misleading "no spectra" error.
+            with suppress(Exception):
+                writer.close()
+            raise
+        else:
             writer.close()
 
     def __repr__(self) -> str:

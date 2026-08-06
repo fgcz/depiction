@@ -38,6 +38,7 @@ def test_writer_when_success(mocker: MockerFixture, mock_write_file: ImzmlWriteF
     mock_imzml_file = mocker.MagicMock(name="mock_imzml_file", spec=Path)
     mock_imzml_file.exists.return_value = False
     mocker.patch.object(Path, "exists", return_value=False)
+    mocker.patch.object(Path, "unlink")
     mock_open = mocker.patch.object(ImzmlWriter, "open")
     with mock_write_file.writer() as writer:
         assert writer == mock_open.return_value
@@ -64,7 +65,8 @@ def test_writer_when_mode_w_file_exists(mocker: MockerFixture) -> None:
     mock_open = mocker.patch.object(ImzmlWriter, "open")
     with mock_write_file.writer() as writer:
         assert writer == mock_open.return_value
-    assert mock_unlink.mock_calls == [mocker.call(), mocker.call()]
+    # .imzML, .ibd, then imzy's stale offset cache.
+    assert mock_unlink.mock_calls == [mocker.call(), mocker.call(), mocker.call(missing_ok=True)]
     mock_open.assert_called_once_with(
         path=mock_write_file.imzml_file,
         imzml_mode=mock_imzml_mode,

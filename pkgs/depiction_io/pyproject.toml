@@ -19,6 +19,16 @@ dependencies = [
     "pyimzml>=1.5.3",
     # only for the `parse_spectra` debugging entry point
     "cyclopts",
+    # the imzy backend (`depiction_io.imzy_backend`). It pulls ~40 transitive packages,
+    # which is a real cost for a package that is otherwise deliberately minimal; the
+    # justification is in docs/refactoring/ROADMAP.md.
+    "imzy>=0.3.0",
+    # not imported here: imzy depends on `numba` without any lower bound, and a fresh
+    # resolve then satisfies "some numba compatible with the newest numpy" by walking back
+    # to numba 0.53 (2021), whose setup.py refuses to build on Python 3.13. 0.61 is the
+    # first release that supports 3.13; pinning the floor keeps the numpy ceiling that
+    # numba itself declares in play instead.
+    "numba>=0.61",
 ]
 
 [project.optional-dependencies]

@@ -54,31 +54,38 @@ class ImzmlReader(GenericReader):
         self._int_bytes = np.dtype(int_arr_dtype).itemsize
 
     def __getstate__(self) -> dict[str, Any]:
+        # NOTE: the compression entries were missing until the differential pickle test was
+        #       added, so an unpickled reader raised AttributeError on the first read. It
+        #       went unnoticed because `ReadSpectraParallel` pickles the *read file* and
+        #       builds a fresh reader in the worker; nothing in the codebase pickles a
+        #       reader directly.
         return {
             "imzml_path": self._imzml_path,
             "mz_arr_offsets": self._mz_arr_offsets,
             "mz_arr_lengths": self._mz_arr_lengths,
             "mz_arr_dtype": self._mz_arr_dtype,
+            "mz_compression": self._mz_compression,
             "int_arr_offsets": self._int_arr_offsets,
             "int_arr_lengths": self._int_arr_lengths,
             "int_arr_dtype": self._int_arr_dtype,
+            "int_compression": self._int_compression,
             "mz_bytes": self._mz_bytes,
             "int_bytes": self._int_bytes,
             "coordinates": self._coordinates,
         }
 
-    # TODO
     def __setstate__(self, state: dict[str, Any]) -> None:
-        # self._portable_reader = state["portable_reader"]
         self._imzml_path = state["imzml_path"]
         self._ibd_file = None
         self._ibd_mmap = None
         self._mz_arr_offsets = state["mz_arr_offsets"]
         self._mz_arr_lengths = state["mz_arr_lengths"]
         self._mz_arr_dtype = state["mz_arr_dtype"]
+        self._mz_compression = state["mz_compression"]
         self._int_arr_offsets = state["int_arr_offsets"]
         self._int_arr_lengths = state["int_arr_lengths"]
         self._int_arr_dtype = state["int_arr_dtype"]
+        self._int_compression = state["int_compression"]
         self._mz_bytes = state["mz_bytes"]
         self._int_bytes = state["int_bytes"]
         self._coordinates = state["coordinates"]

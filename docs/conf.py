@@ -13,10 +13,20 @@ author = "Leonardo Schwarz"
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["myst_parser", "sphinx.ext.autodoc", "sphinxcontrib.autodoc_pydantic", "sphinx.ext.intersphinx"]
+# napoleon: the codebase writes Google-style docstrings ("Args:", "Returns:"), which plain
+# autodoc renders as a docutils indentation error.
+extensions = [
+    "myst_parser",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinxcontrib.autodoc_pydantic",
+    "sphinx.ext.intersphinx",
+]
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+# `refactoring/` is repository documentation, not published API docs; the archive under it
+# is also kept byte-identical on purpose and must not be reformatted or parsed.
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "refactoring"]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

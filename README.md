@@ -4,16 +4,22 @@ This package provides functionality to process and visualize mass-spectrometry i
 Currently, it requires your data to be available in the `imzML` format.
 The full pipeline is also in the process of being developed.
 
-The project is structured in two general parts:
+The repository is a [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/) with two
+packages:
 
-- `depiction`: implements the whole functionality to process the data
-- `depiction_targeted_preproc`: implements a pipeline that based on some configuration file creates outputs like qc report and .ome.tiff files
+- `depiction` (in `src/`): implements the whole functionality to process the data. It also contains
+  `depiction_targeted_preproc`, a pipeline that based on some configuration file creates outputs like
+  a qc report and .ome.tiff files.
+- `depiction_io` (in `pkgs/depiction_io/`): reading and writing MSI data. Everything else talks to
+  the protocols in `depiction_io.types` rather than to a file format, so the storage backend can be
+  changed without touching the callers. See
+  [`pkgs/depiction_io/README.md`](pkgs/depiction_io/README.md).
 
 This project is in an early state of development. If you are interested, it's best to reach out to us.
 
 ## Setup dev environment
 
-Currently, Python 3.12 is required, 3.13 is not compatible yet (missing wheels and e.g. numba/llvmlite).
+Python 3.13 is required.
 
 ### Install with `uv`
 
@@ -21,11 +27,10 @@ The application [uv](https://github.com/astral-sh/uv) provides both very fast in
 
 If you do not have `uv` installed yet, please consult their [installation instructions](https://docs.astral.sh/uv/getting-started/installation/).
 
-To create a virtual environment using `uv` and install depiction in editable mode (i.e. changes to code are immediately available in the environment), run the following commands:
+To create the virtual environment and install every workspace package in editable mode (i.e. changes to code are immediately available in the environment), run:
 
 ```bash
-uv venv -p 3.12
-uv pip install -e ".[dev]"
+uv sync --extra dev
 ```
 
 This creates the virtual environment in the `.venv` directory.
@@ -61,11 +66,15 @@ Then you can run the checks with
 nox
 ```
 
-or more specifically:
+or more specifically, one package's tests at a time:
 
 ```bash
-nox -s tests
+nox -s tests_depiction
+nox -s tests_depiction_io
 ```
+
+`tests_depiction_io` deliberately installs only `depiction_io`, so an accidental dependency on
+`depiction` fails there rather than being masked by the parent environment.
 
 However, you can also run the tests with `pytest` or from your IDE if you are in the virtual environment.
 

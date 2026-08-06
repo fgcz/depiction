@@ -30,11 +30,27 @@ In general the idea is that creating the file should be quick, whereas additiona
 ### Format: ImzML
 
 Currently, we parse imzML ourselves with a simple etree-based parser, whereas writing is performed by pyImzML.
-This might be changed under the hood in the future.
+This is expected to be replaced by [imzy](https://github.com/vandeplaslab/imzy) behind the protocols above;
+see `docs/refactoring/ROADMAP.md`.
 
 ```{eval-rst}
+.. autoclass:: depiction_io.ImzmlReadFile
+    :members: reader, get_reader
+.. autoclass:: depiction_io.ImzmlWriteFile
+    :members: writer
 .. autoclass:: depiction_io.ImzmlModeEnum
     :members:
 ```
 
 ### Format: RAM
+
+In-memory implementations of the same protocols, holding the spectra as plain arrays. They exist so
+that code operating on MSI data can be tested without touching the file system, and are used
+extensively by the test suite.
+
+```{eval-rst}
+.. autoclass:: depiction_io.RamReadFile
+    :members:
+.. autoclass:: depiction_io.RamReader
+    :members:
+```

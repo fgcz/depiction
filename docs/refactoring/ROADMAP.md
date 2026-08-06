@@ -195,11 +195,11 @@ The reader is **opt-in and not the default**; the writer flip is unconditional.
   **Two behaviour changes a successor should know about**, both consequences of imzy
   refusing to write nothing:
 
-  - *An empty spectrum now aborts the run.* pyimzml wrote it; imzy warns and drops it,
-    which would desynchronise the pixel count; this adapter raises. `filter_peaks` can
-    produce one for a noise pixel, so a dataset that used to process may now fail. Raising
-    was chosen over silent loss deliberately, but "write it anyway" is not available from
-    imzy and "drop the coordinate too" is the untaken third option.
+  - *An empty spectrum is refused by the writer.* pyimzml wrote it; imzy warns and drops
+    it, which would desynchronise the pixel count; this adapter raises. The one caller that
+    can produce one, `filter_peaks`, now drops the pixel explicitly and logs it — which is
+    what its sibling `pick_peaks` has always done for the same situation. The policy sits
+    in the tool, where it is visible, rather than in the I/O layer, where it was silent.
   - *Closing a writer with no spectra raises.* Reachable from `SubsampleImzml` with a ratio
     that rounds to zero and from `CutoutRectangularRegion` with an empty selection, both of
     which used to produce a file — though a malformed one, per the TODO this replaced. The

@@ -1,105 +1,95 @@
 # depiction: finish the aborted split, migrate I/O to `imzy`, leave it archivable
 
-Status: **proposed**, 2026-08-06. Author: Leonardo Schwarz.
+Status: **partially executed**, 2026-08-06. Author: Leonardo Schwarz.
+
+Phases A, B and F are done. Phases C, D and E are **not started** and are described
+below as a plan for whoever picks this up; see [What a successor needs](#what-a-successor-needs).
 
 ## Context
 
-`depiction` has accumulated **three mutually inconsistent, never-completed refactorings** over ~14 months. None reached a green test run, and the debris is now actively confusing.
+`depiction` had accumulated **three mutually inconsistent, never-completed refactorings**
+over ~14 months. None reached a green test run, and the debris was actively confusing.
 
 | Attempt | Where | State |
 |---|---|---|
-| `split-packages` (Apr 2025) | branch + `origin/split-packages` | 4-way split (`depiction_io` / `depiction_image_io` / `depiction_image_ops` / `depiction_tools`), 221 files, abandoned mid-move at "start moving image code". Left the untracked top-level `depiction_*/` egg-info dirs in the working tree. |
-| `refactor_depiction_image.md` (Mar 2025) | was `.local/`, now [archive/2025-03-multi-channel-image-plan.md](archive/2025-03-multi-channel-image-plan.md) | `MultiChannelImage` → `MultiChannelImage` + `MultiChannelMaskedImage`, `AlphaChannel`→`MaskChannel`. Never started. Only trace is branch `better-bg-handling`. |
-| `separate-depiction-io` (Mar 2026) | worktree `feats/separate-depiction-io`, plan archived as [archive/2026-03-separate-depiction-io-plan.md](archive/2026-03-separate-depiction-io-plan.md) | 2-way split to a uv workspace, 108 files, ~80% done. **Does not import**: the commits deleted `ome_tiff.py` and `hdf5_image_format.py` from `persistence/` but the replacement copies in `src/depiction/image/` were never `git add`ed. Those two files are rescued in [`archive/`](archive/). |
+| `split-packages` (Apr 2025) | tag `archive/split-packages` | 4-way split (`depiction_io` / `depiction_image_io` / `depiction_image_ops` / `depiction_tools`), 221 files, abandoned mid-move at "start moving image code" |
+| `refactor_depiction_image.md` (Mar 2025) | [archive/2025-03-multi-channel-image-plan.md](archive/2025-03-multi-channel-image-plan.md) | `MultiChannelImage` → `MultiChannelImage` + `MultiChannelMaskedImage`, `AlphaChannel`→`MaskChannel`. Never started |
+| `separate-depiction-io` (Mar 2026) | tag `archive/separate-depiction-io`, plan at [archive/2026-03-separate-depiction-io-plan.md](archive/2026-03-separate-depiction-io-plan.md) | 2-way split to a uv workspace, 108 files, ~80% done, **did not import** — the commits deleted `ome_tiff.py` and `hdf5_image_format.py` from `persistence/` but the replacement copies were never `git add`ed |
 
-The branch `split-depiction-io` is an **empty placeholder** — identical to `dev`, zero commits. Attempt #3 never started.
+Separately, [`vandeplaslab/imzy`](https://github.com/vandeplaslab/imzy) (BSD-3, v0.3.0,
+actively maintained) covers most of what `depiction.persistence` did and adds what it
+lacked entirely: **Bruker `.d` (TSF/TDF/NeoFlex) and Waters `.raw`** readers, plus a
+materially better imzML writer than the `pyimzml` one still in use.
 
-Separately, [`vandeplaslab/imzy`](https://github.com/vandeplaslab/imzy) (BSD-3, v0.3.0 Jun 2026, actively maintained) covers most of what `depiction.persistence` does and adds what it lacks entirely: **Bruker `.d` (TSF/TDF/NeoFlex) and Waters `.raw`** readers, plus a materially better imzML writer than the `pyimzml` one currently in use.
-
-**Goal:** land the two-package split, replace the hand-rolled imzML I/O with `imzy`, and leave the repo coherent, reproducible and green — suitable for going dormant.
+**Goal:** land the two-package split, replace the hand-rolled imzML I/O with `imzy`, and
+leave the repo coherent, reproducible and green — suitable for going dormant.
 
 ### Decisions taken
 
-- **End state: archive / dormant.** Nobody actively maintains it after handover; it must be reproducible and coherent, not feature-complete.
-- **Split scope: two packages** — `depiction_io` + `depiction`, uv workspace. Not the 4-way split. The `MultiChannelImage` refactoring stays out of scope (archived, not executed).
-- **imzy: adapter first, full replacement as the target.** Build the adapter behind the *existing* `GenericReader`/`GenericWriter` protocols, then close the three upstream gaps, then delete the custom parser. The adapter is deliberately shaped so the last step is a deletion, not a rewrite.
-
-> One honest caveat on the archive goal: under "dormant", a package split earns less than it would under "publish to PyPI". It is still worth doing here for one specific reason — `depiction_io` is exactly the blast radius of the imzy migration, so the split *is* the seam that makes the migration reviewable and reversible. Anything beyond that boundary (the 4-way split) would be churn without payoff, and is excluded.
-
----
-
-## What already exists and should be reused
-
-The seam is already there and is the right one. Do **not** invent new abstractions.
-
-- **`src/depiction/persistence/types.py`** — four Protocols: `GenericReadFile` (cheap, picklable file handle) / `GenericReader` (open handle) / `GenericWriteFile` / `GenericWriter`. Every consumer (86 files, 134 imports) already talks to these, not to imzML directly. imzy plugs in *underneath* this layer.
-- **`src/depiction/persistence/imzml/imzml_reader.py`** — mmap + `np.frombuffer` + `zlib`, picklable via `__getstate__`/`__setstate__`. This is the behaviour the imzy adapter must match, and the reference implementation for the upstream PRs.
-- **`src/depiction/persistence/ram/`** — `RamReadFile`/`RamReader`/`RamWriteFile`. imzy has **no equivalent**; ~80 unit tests depend on it. Keep as-is, move into `depiction_io`.
-- **`src/depiction/tools/simulate/generate_synthetic_imzml.py`** — reuse to build the differential-test corpus rather than committing binary fixtures.
-- **`src/depiction/parallel_ops/{read,write}_spectra_parallel.py`** — the multiprocessing chunk/merge machinery. The *only* consumer that cares about picklability; the acceptance test for the imzy pickle work.
-- **[archive/2026-03-separate-depiction-io-plan.md](archive/2026-03-separate-depiction-io-plan.md)** — its Phase 1 (workspace config) and its circular-dependency resolution are correct and get reused verbatim.
-
-### imzy: verified capability assessment
-
-Read directly from a clone of `main` (~10.2k LOC).
-
-**Strictly better than what depiction has:**
-
-- `IMZMLWriter` (`src/imzy/_writers/_imzml.py`) — dtype control, `ibd_mode` auto/continuous/processed, polarity, pixel size, image shape, coordinate origin, SHA-1 over the ibd, `on_error` policy, context manager. `pyimzml` offers none of this.
-- Bruker TSF/TDF/NeoFlex readers via the Bruker SDK (`CDLL`). Linux + Windows only — **not macOS** (`src/imzy/plugins.py` hard-disables them on Mac). Fine for FGCZ Linux; local Mac dev gets imzML only.
-- `get_ion_image(s)`, `get_tic`, `get_normalizations`, `to_hdf5`/`to_zarr` centroid extraction.
-
-**Three concrete gaps vs. the current reader — these are the full-replacement blockers:**
-
-1. **No zlib support — the one hard blocker.** `_read_spectrum` is a bare `np.frombuffer(mz_bytes, dtype=self.mz_precision)`; nothing anywhere in imzy inspects `MS:1000574`. A zlib-compressed `.ibd` **silently produces noise, not an error**. `depiction`'s reader handles `Compression.Zlib` (`imzml_reader.py:143-154`, flag parsed in `parse_spectra.py:107`).
-
-   Compressed input is rare here but has happened. Rare + silent is the worst combination for a repo about to go dormant: a successor hits it in 2028 and gets plausible-looking noise with no diagnostic. This is a read-side concern only — `depiction`'s writer calls `pyimzml.ImzMLWriter` without compression args, and imzy's writer only emits `MS:1000576 "no compression"`, so nothing in either toolchain *produces* compressed output.
-2. **Readers are not picklable.** No `__getstate__`/`__setstate__`. There *is* `BaseReader._get_reader_kwargs()`, so a pickle path is ~30 LOC — but it does not exist today, and `WriteSpectraParallel` needs it.
-3. **Writes a `.icache` sidecar next to the input `.imzML`.** Read-only input directories degrade to re-parsing on every open (`_write_icache_safely` swallows the failure). No way to redirect the cache.
-
-Minor: seek/read rather than mmap; single global `mz_precision`/`int_precision` (the same assumption depiction already makes); transitive deps on the same author's `koyo` / `ims-utils` / `yoki5` / `pluggy` ecosystem.
+- **End state: archive / dormant.** Nobody actively maintains it after handover; it must
+  be reproducible and coherent, not feature-complete.
+- **Split scope: two packages** — `depiction_io` + `depiction`, uv workspace. Not the
+  4-way split. The `MultiChannelImage` refactoring stays out of scope (archived, not
+  executed).
+- **imzy: adapter first, full replacement as the target.** Build the adapter behind the
+  *existing* `GenericReader`/`GenericWriter` protocols, then close the upstream gaps, then
+  delete the custom parser.
+- **Archive hygiene (Phase F) was pulled forward, ahead of the imzy work.** Phase C only
+  pays off if Phase E also lands, and Phase E is blocked on inputs that may never arrive.
+  Phase F is unblocked and leaves the repo coherent regardless.
 
 ---
 
-## Roadmap — 2 weeks
+## What was done
 
-Work on a fresh branch off `dev`. `split-depiction-io` is empty; either reuse it or cut `io-refactor` from `dev`.
+### Day 0 — Rescue ✅
 
-### Day 0 — Rescue before anything else ✅ done
+Two files existed **only** as untracked files inside a gitignored worktree. All four
+rescued artefacts are in [`archive/`](archive/): `ome_tiff.py.rescued`,
+`hdf5_image_format.py.rescued`, and the two archived plans.
 
-Two files existed **only** as untracked files on disk inside a gitignored worktree. All four are now in [`archive/`](archive/):
+### Phase A — Consolidate and de-risk ✅ (PR #36)
 
-```
-archive/ome_tiff.py.rescued                       # load-bearing
-archive/hdf5_image_format.py.rescued              # load-bearing
-archive/2026-03-separate-depiction-io-plan.md
-archive/2025-03-multi-channel-image-plan.md
-```
+1. **Debris cleared.** The untracked `depiction_io/`, `depiction_image_io/`,
+   `depiction_image_ops/`, `depiction_spectrum_ops/`, `depiction_tools/` egg-info dirs are
+   gone, as are the merged and aborted branches. The two aborted attempts were **tagged
+   rather than deleted** (`archive/split-packages`, `archive/separate-depiction-io`).
+2. **CI made honest.** `ruff` is enforced through pre-commit and CI, and
+   `[tool.ruff] target-version` now matches `requires-python` (it said `py39`, which made
+   ruff report every `match` statement in the codebase as a syntax error).
+3. **Differential-test harness built** — `tests/differential/`. `corpus.py` generates a
+   parametrised corpus covering continuous × processed, float32 × float64 m/z and
+   intensity, 2D × 3D coordinates, a single-spectrum edge case and a single-point-spectra
+   edge case; `test_reader_parity.py` asserts byte-identical spectra, coordinates,
+   `n_spectra` and `imzml_mode` over every registered backend.
 
-Commit these before `git worktree remove feats/separate-depiction-io`.
+   **This harness is the load-bearing deliverable of the whole plan.** Adding a second
+   entry to `READ_FILE_BACKENDS` turns every test in it into an A/B parity check.
+4. **Zlib handled without a specimen.** Nothing in either toolchain can *produce* a
+   compressed `.ibd` — depiction's writer passes no compression argument to `pyimzml`, and
+   imzy's writer emits `MS:1000576` unconditionally. So `corpus.compress_case` rewrites an
+   uncompressed case into a zlib twin, whose expected contents are by construction exactly
+   its uncompressed twin's. Any discrepancy is a decompression bug and nothing else. A real
+   FGCZ specimen would only add provenance, not coverage.
 
-### Phase A — Consolidate and de-risk (Days 1–2)
+**Six real bugs surfaced**, most by the lint gate or the harness rather than by reading:
 
-Goal: one clean starting point, and a safety net that makes every later step verifiable.
+1. **3D imzML files silently lost the z coordinate** — `if not position_z` on an
+   `Element` with no children, which is falsy. Also matters for Phase C: imzy reads
+   `xyz_coordinates`, so post-swap 3D files would have gained a column and looked like a
+   regression.
+2. `depiction_targeted_preproc/app_interface/dispatch_app.py` did not import at all —
+   it referenced a `params_io` module that exists nowhere.
+3. `GenericReadFile.is_checksum_valid` declared a method where every implementation and
+   caller uses the property form.
+4. `calibration/__init__.py` wrote `__ALL__`.
+5. `cluster_hdbscan.py` computed `n_clusters` and then passed a hardcoded `10`.
+6. `OmeTiff.read_image`/`write_image` were missing from the built docs (autodoc pointed
+   at a `format_ome_tiff` module deleted months earlier).
 
-1. **Clear the debris.** Delete untracked `depiction_io/`, `depiction_image_io/`, `depiction_image_ops/`, `depiction_spectrum_ops/`, `depiction_tools/` (egg-info residue only, no source). Delete branches `split-packages`, `separate-depiction-io`, `refactor-snakemake-invoke`, `separate-app-runner`, `tmp/20241105_del1`, `dev-deploy-batch` (all zero-ahead of `dev` or superseded) — after the Day-0 rescue is committed. Push the deletion of `origin/split-packages`.
-2. **Get CI honest.** `.github/workflows/pr-checks.yml` runs `nox` (lint + tests + licensecheck) on py3.13. Enable the `ruff` pre-commit hook currently commented out in `.pre-commit-config.yaml`, fix the fallout, and set `[tool.ruff] target-version = "py313"` (currently `py39`, contradicting `requires-python >= 3.13`). Add the refactor branch to the CI trigger list.
-3. **Build the differential-test harness.** `tests/differential/` — a parametrised corpus generated by `generate_synthetic_imzml.py` covering: continuous × processed, float32 × float64 m/z and intensity, zlib × uncompressed, 2D × 3D coordinates, empty spectra. For each file, assert that every `GenericReader` implementation returns byte-identical `get_spectrum_mz/int` and identical `coordinates`, `n_spectra`, `imzml_mode`.
+### Phase B — The two-package split ✅ (PR #36)
 
-   **This harness is the load-bearing deliverable of the whole plan.** Everything after it is "swap a backend and watch the harness stay green."
-4. **Capture a zlib specimen.** Compressed input is rare but confirmed to occur, so gap (1) is a blocker, not a footnote — the task is evidence, not a go/no-go. Sweep for a real one:
-   ```
-   grep -lc 'MS:1000574' <dataset>/*.imzML   # zlib compression cvParam
-   ```
-   Add whatever turns up (or a synthetic equivalent, if no real file is still around) to the differential corpus as a permanent fixture. A synthetic file is enough to drive the work; a real one is better because it also pins down which vendor/export path produces them.
-
-**Exit criteria:** `nox` green on a clean tree; differential harness green against the existing reader; one branch, no ghost dirs.
-
-### Phase B — The two-package split (Days 3–4)
-
-Reuse the archived plan's Phases 1–5, with the two corrections its own execution got wrong.
-
-**Layout** — uv workspace, `[tool.uv.workspace] members = [".", "pkgs/*"]`:
+Layout, as a uv workspace with `[tool.uv.workspace] members = [".", "pkgs/*"]`:
 
 ```
 pkgs/depiction_io/src/depiction_io/
@@ -111,120 +101,204 @@ pkgs/depiction_io/src/depiction_io/
 └── ram/                # RamReadFile / RamReader / RamWriteFile
 ```
 
-`depiction_io` owns `pyimzml` (→ later `imzy`), `numpy`, `xarray`, `pydantic`, `loguru`, `tqdm`. The root `depiction` drops them.
+The two circular-dependency knots were resolved by moving *sideways*, not down:
+`Hdf5ImageFormat` and `OmeTiff` take and return `MultiChannelImage`, so both live in
+`src/depiction/image/`. Consequently `depiction_io` declares no `bioio*` and no
+`tifffile` — the prior attempt left those stale and shipped a README advertising OME-TIFF
+support the package no longer had.
 
-**The two knots**, resolved the way both prior attempts concluded:
+`noxfile.py` gained `tests_depiction` / `tests_depiction_io`, the latter installing *only*
+`depiction_io` so that an accidental dependency on `depiction` fails there rather than
+being masked by the parent environment.
 
-- `Hdf5ImageFormat` ↔ `MultiChannelImage` is genuinely circular → `Hdf5ImageFormat` moves to `src/depiction/image/`, not into `depiction_io`.
-- `OmeTiff.read_image/write_image` take/return `MultiChannelImage` → also moves to `src/depiction/image/`. **Consequently drop `bioio`, `bioio-ome-tiff`, `tifffile` from `depiction_io`'s deps** — the prior attempt left them stale, and left the `depiction_io` README advertising OME-TIFF support it no longer had.
+**Deliberately not done:** ~~a `depiction.persistence` deprecation shim~~. It would have
+lived about two weeks before Phase F deleted it again, leaving a successor with two import
+paths and no reason for either. All 134 import statements across 86 files were rewritten
+in the same commit as the move. The concern behind the original correction — that the
+prior attempt's one-commit rewrite is *why* nothing was independently reviewable — was
+addressed differently: five commits, each green under `nox`, with the mechanical bulk
+quarantined in one of them and verified by a grep gate plus unchanged test counts on both
+sides of the split.
 
-**Corrections to the prior execution:**
+### Phase F — Archive hygiene ✅
 
-- ~~**Keep `src/depiction/persistence/__init__.py` as a deprecation shim** re-exporting from `depiction_io` with a `DeprecationWarning`. Rewrite call sites in a *separate* commit, then drop the shim in Phase F.~~
-  **Not done — decided against, deliberately.** The shim would have lived about two weeks before Phase F deleted it again, leaving a successor with two import paths and no reason for either. All 134 statements across 86 files were rewritten in the same commit as the move. The concern behind the original correction (the prior attempt's one-commit rewrite is *why* nothing was independently reviewable) was addressed differently: the branch is five commits, each green under `nox`, with the mechanical bulk quarantined in one of them and verified by a grep gate plus unchanged test counts on both sides of the split.
-- Watch the `mv` target-exists trap that produced `pkgs/depiction_io/tests/unit/imzml/imzml/` and `.../ram/ram/` last time.
+- **README** corrected (it claimed *"Python 3.12 is required, 3.13 is not compatible
+  yet"*, contradicted by `requires-python`, `.python-version` and CI) and now describes the
+  workspace layout.
+- **`uv.lock` committed**, so the environment reproduces from a cold clone. The single
+  highest-value archive action.
+- **Sphinx docs retargeted** at the new layout, and — more importantly — **built in CI**.
+  `nox -s docs` runs `sphinx-build -W`. Nothing built the docs before, which is exactly how
+  the stale `format_ome_tiff` autodoc target survived unnoticed.
+- **`system_tests` resolved honestly.** The only fixture is a 1.26 GB acquisition that
+  cannot be committed, and the assertions are pinned to it, so the CI job the old TODO
+  promised is not possible as written. The tests now skip with a message naming what is
+  missing instead of failing with `FileNotFoundError` for anyone outside FGCZ, the
+  provenance is recorded in `system_tests/README.md`, and the dead commented-out CI job is
+  replaced by the reason it is absent.
+- **Branches culled.** See below.
 
-Split `noxfile.py` into `tests_depiction` / `tests_depiction_io` sessions; update CI to run both.
+#### Branch inventory
 
-**Exit criteria:** `uv sync` clean; both test suites green; `uv pip show depiction | grep pyimzml` empty; `depiction-tools --help` works.
+Everything with unmerged content was tagged before deletion; nothing was lost.
 
-### Phase C — imzy adapter behind the existing protocols (Days 5–7)
+| Branch | Disposition |
+|---|---|
+| `optional-package`, `specify-dtype` | deleted — squash-merged, `git cherry` clean against `dev` |
+| `spatial-dist-plot`, `tic-image` | deleted — merged as PRs #31 and #33; changed files verified byte-identical to `dev` |
+| `opencode/nimble-wizard` | deleted with its worktree — zero commits ahead |
+| `extract-physical` | tag `archive/extract-physical` — adds `physical_coordinates` parsing |
+| `tiff-orientation` | tag `archive/tiff-orientation` — **byte-identical diff to `extract-physical`**, despite the name |
+| `imzml-zip-pipeline` | tag `archive/imzml-zip-pipeline` — zip inputs for `depiction_targeted_preproc` |
+| `better-bg-handling` | tag `archive/better-bg-handling` — 76 commits, Oct 2024 |
+| `dev-calibration` | tag `archive/dev-calibration` — 16 commits, May 2024 |
 
-New module `pkgs/depiction_io/src/depiction_io/imzy_backend/`:
-
-- `ImzyReadFile(GenericReadFile)` — holds a path, cheap and picklable; `get_reader()` opens an `imzy` reader. Maps `n_spectra`←`n_pixels`, `coordinates`←`xyz_coordinates`, `pixel_size`←`(x_pixel_size, y_pixel_size)`.
-- `ImzyReader(GenericReader)` — wraps `imzy.BaseReader`. `get_spectrum_mz/int` over `_read_spectrum`; `imzml_mode` derived from whether m/z arrays are shared. Implements `__getstate__`/`__setstate__` **in the adapter** via `_get_reader_kwargs()` + path — this is the prototype for upstream PR #2.
-- `ImzyWriteFile(GenericWriteFile)` / `ImzyWriter(GenericWriter)` — wraps `imzy.IMZMLWriter`. Maps `ImzmlModeEnum` → `ibd_mode`, forwards `pixel_size`.
-- Backend selection: a `DEPICTION_IO_BACKEND` env var / `get_read_file(path)` dispatcher, defaulting to the legacy reader. `.d` paths route to imzy unconditionally (nothing else can read them).
-
-Run the differential harness with both backends. **Expected failures at this point: zlib files.** Record them as `xfail` pointing at the upstream issue — do not paper over them.
-
-**Install the zlib guard in the same commit.** Before Phase D lands anything, `ImzyReadFile` must detect `MS:1000574` on open and `raise NotImplementedError` with a pointer to the upstream issue. Silent noise is not an acceptable interim state, and this guard is the thing that makes the rest of the migration safe to leave half-finished if the two weeks run out. Assert it in the differential harness so it cannot regress.
-
-Then **flip the writer first**: make `ImzmlWriteFile` use `imzy.IMZMLWriter` by default and drop `pyimzml` from `depiction_io`. The writer has no gaps and is strictly better, and `WriteSpectraParallel`'s chunk-then-`MergeImzml` path is the sharp edge — validate it here, while the reader is still the known-good one.
-
-**Exit criteria:** differential harness green for both backends on uncompressed files; `pyimzml` gone from the dependency tree; `ReadSpectraParallel`/`WriteSpectraParallel` green against the imzy backend.
-
-### Phase D — Upstream contributions to imzy (Days 8–10)
-
-Three PRs to `vandeplaslab/imzy`, each independently useful, each removing one blocker. Open them as issues first, with the failing-case description.
-
-1. **zlib decompression — required, do this one first.** Parse the compression `cvParam` per binary-array group (`MS:1000574` zlib / `MS:1000576` none), store the flag in the `.icache` (bump cache version so stale caches regenerate), decompress in `_read_spectrum`/`_read_spectra`. Reference: `imzml_reader.py:138-154`, `parse_spectra.py:107`, `compression.py`. **Reader half only** — neither toolchain writes compressed output, so `IMZMLWriter` support is out of scope and would only slow review. Worth reporting the silent-corruption behaviour as a bug in its own right, independent of the fix.
-2. **Picklable readers** — `__getstate__`/`__setstate__` on `BaseReader` built on `_get_reader_kwargs()`, dropping open file handles and lazily reopening. Reference: `imzml_reader.py:56-84`.
-3. **Configurable `.icache` location** — a `cache_dir` argument and/or `IMZY_CACHE_DIR` env, so read-only input trees work without silently falling back to a full re-parse on every open.
-
-Assume upstream review is slow. **Do not block on merge:** carry each fix in the adapter (or a pinned fork) so Phase E can proceed, and leave a `# upstream: <PR url>` marker at every carried patch so a successor can delete them when the PRs land. If PR (1) turns out unnecessary per the Phase-A/4 data check, drop it and say so.
-
-### Phase E — Flip the default, delete the custom parser (Days 11–13)
-
-1. Make imzy the default backend. Run the full suite + `system_tests` + at least one real end-to-end `depiction_targeted_preproc` pipeline run.
-2. **Delete** `depiction_io/imzml/parser/` (`parse_spectra.py`, `parse_metadata.py`, `cv_params.py` — 368 LOC), `imzml_reader.py`, `compression.py`, `imzml_alignment_tracker.py`, and their tests. Retarget the integration tests under `tests/integration/imzml_parser/` at the imzy backend rather than deleting them — they encode real cvParam edge cases (cf. commit `46f3f56 "handle weird cvParam entries"`) worth keeping as regression coverage.
-3. **Keep** `ram/` (no imzy equivalent), `file_checksums.py`, `imzml_zip.py`, `pixel_size.py`, `types.py`.
-4. *Optional, last, skippable:* `GenericReader.imzml_mode` / `ImzmlModeEnum` is imzML-specific naming that becomes nonsense once Bruker `.d` readers exist. Rename to `spectra_mode` / `SpectraMode` with a deprecated alias. Mechanical (33 sites) but pure churn — cut it if anything above slipped.
-
-Net effect: roughly **-1,100 LOC of custom parsing**, `pyimzml` gone, Bruker `.d` support gained for free.
-
-### Phase F — Archive hygiene (Day 14)
-
-Under the dormant end state this is the part that actually matters. Do not let it get squeezed.
-
-- **README:** it currently claims *"Python 3.12 is required, 3.13 is not compatible yet"* — contradicted by `requires-python >= 3.13`, `.python-version`, and CI. Fix, and document the workspace layout.
-- **Sphinx docs:** `docs/modules/persistence/image_data.md` autodoc-references `depiction.persistence.format_ome_tiff.OmeTiff`, a path that has not existed for some time — autodoc would fail. Retarget all of `docs/modules/persistence/` at `depiction_io`; fill or delete the two empty stub headings (`### Format: RAM`, `### Format: NetCDF4`).
-- Commit `uv.lock` (currently untracked, as is `pylock.toml`) so the environment is reproducible from a cold clone. **The single highest-value archive action.**
-- Extend this document with what was actually done, what was deliberately not done, and which imzy patches are carried locally against which upstream PRs.
-- Delete or mark stale the remaining branches (`extract-physical`, `imzml-zip-pipeline`, `tic-image`, `specify-dtype`, `better-bg-handling`, `tiff-orientation`, `update-deps`, `dev-calibration`, `optional-package`) — merge what's worth merging, delete the rest. An archived repo with 15 dangling branches is not archived.
-- Enable the `system_tests` CI job (currently fully commented out with *"TODO add this later with synthetic or shared test data"*) using the Phase-A synthetic corpus.
+Nothing was rebased and merged. Every branch with real work touches
+`src/depiction/persistence/`, which Phase B deleted, so each would need a manual rebase
+onto the new layout — worth doing only for code someone will maintain. Note that
+`extract-physical`'s feature exists natively in imzy
+(`BaseReader.get_physical_coordinates`, `x_pixel_size`, `y_pixel_size`), so re-deriving it
+after Phase C would be cheaper than rebasing it now.
 
 ---
 
-## Critical files
+## What was deliberately not done
 
-**Config / structure**
+- **The deprecation shim** (above).
+- **`ANN` and `D103` are not enforced by ruff.** ~210 pre-existing violations (missing
+  annotations, missing docstrings on public functions) on a codebase heading for an
+  archived state. What is enforced can actually be kept green, which is the point.
+- **`TC` is not enforced.** Moving an import into a `TYPE_CHECKING` block breaks anything
+  that resolves annotations at runtime, and this project does that in two places at once —
+  pydantic models and cyclopts CLIs. 56 violations, all in that blast radius.
+- **`UP042` (`class Foo(str, Enum)` → `StrEnum`) is ignored.** Not cosmetic: the two
+  differ in `str()` and f-string interpolation (`"Foo.X"` vs `"x"`). All six occurrences
+  are config enums flowing through pydantic models and snakemake YAML, so converting them
+  is a serialization change needing its own commit and tests.
+- **`system_tests` in CI** — impossible with a 1.26 GB non-redistributable fixture; see
+  `system_tests/README.md`.
+- **Phases C, D and E** — see below.
 
-- `pyproject.toml` → workspace root; drop `pyimzml`, `bioio*`, `tifffile`, `h5netcdf`
-- `pkgs/depiction_io/pyproject.toml` → new
-- `noxfile.py`, `.github/workflows/pr-checks.yml`, `.pre-commit-config.yaml`
+### Known, still unfixed
 
-**Moves (24 files)** — `src/depiction/persistence/{imzml,ram}/`, `types.py`, `file_checksums.py`, `imzml_zip.py`, `image/pixel_size.py` → `pkgs/depiction_io/src/depiction_io/`
+`src/depiction/tools/create_imzml_pool.py:67` has an orphaned
+`str(imzml_file.imzml_file.absolute())` whose result is discarded, leaving `@abs_path`
+undefined in the pandas query two lines below. Pre-existing; out of scope for the work
+above.
 
-**Moves (2 files, circular-dependency fix)** — `persistence/image/{ome_tiff,hdf5_image_format}.py` → `src/depiction/image/`. Rescued copies are in [`archive/`](archive/); do not re-derive them.
+---
 
-**New** — `pkgs/depiction_io/src/depiction_io/imzy_backend/`, `tests/differential/`
+## What a successor needs
 
-**Import rewrite (86 files, 134 statements)** — mechanical `depiction.persistence.X` → `depiction_io.X`, heaviest in `src/depiction/tools/` (27), `src/depiction_targeted_preproc/workflow/` (9), `tests/`
+### Phase C — imzy adapter behind the existing protocols (not started)
 
-**Untested today, and now load-bearing** — `types.py`, `imzml_zip.py`, `compression.py`, `imzml_alignment_tracker.py`, `hdf5_image_format.py`, `pixel_size.py` have no unit tests. Add coverage for `types.py` and `compression.py` in Phase A; the rest can ride on the differential harness.
+New module `pkgs/depiction_io/src/depiction_io/imzy_backend/`:
+
+- `ImzyReadFile(GenericReadFile)` — holds a path, cheap and picklable. `n_spectra` ←
+  `n_pixels`, `coordinates` ← `xyz_coordinates`, `pixel_size` ←
+  `(x_pixel_size, y_pixel_size)`. Reuse the existing `FileChecksums` and
+  `ParseMetadata.ibd_checksums` for `is_checksum_valid`; imzy parses no checksums and both
+  classes are already backend-independent.
+- `ImzyReader(GenericReader)` — wraps `imzy.IMZMLReader`. `imzml_mode` has to be derived
+  the same way the legacy reader derives it (all m/z byte offsets identical → continuous),
+  because imzy has no mode concept. Point `get_spectra` at `_read_spectra(indices)`, which
+  opens the `.ibd` once per chunk; imzy seek/reads where depiction mmaps, and that is where
+  the difference shows up under `ReadSpectraParallel`.
+- Backend selection defaulting to legacy, with `.d` paths routing to imzy unconditionally
+  (nothing else can read them) and a clear error on macOS, where `imzy/plugins.py` disables
+  the Bruker readers.
+- **The zlib guard lands in the same commit.** `ImzyReadFile` must detect `MS:1000574` on
+  open and raise `NotImplementedError`. Silent noise is not an acceptable interim state,
+  and this guard is what makes the migration safe to abandon mid-flight. Assert it against
+  the corpus's existing `*_zlib` cases.
+
+Then flip the writer, with the guard described in gap (4) below.
+
+### Phase D — Upstream contributions to imzy (not started)
+
+**Four** gaps, not the three originally identified. Each is independently useful; open
+them as issues first, with the failing case.
+
+1. **No zlib support — the one hard blocker.** `_read_spectrum` is a bare
+   `np.frombuffer(mz_bytes, dtype=self.mz_precision)`; nothing anywhere in imzy inspects
+   `MS:1000574`, and `byte_offsets` stores array lengths, not encoded lengths. A
+   zlib-compressed `.ibd` therefore **silently produces noise, not an error**. Reference
+   implementation: `imzml_reader.py`, `parse_spectra.py`, `compression.py`. Reader half
+   only — neither toolchain writes compressed output. Worth reporting the silent-corruption
+   behaviour as a bug in its own right, independent of the fix.
+2. **Readers are not picklable.** No `__getstate__`/`__setstate__`, and
+   `WriteSpectraParallel` needs them. Note that `BaseReader._get_reader_kwargs()` returns
+   `{}` and `IMZMLReader` does not override it, so for imzML this is simply "re-open by
+   path" — simpler than it first appears.
+3. **`.icache` sidecar is written next to the input `.imzML`.** Read-only input trees
+   degrade to a full re-parse on every open, and `_write_icache_safely` swallows the
+   failure. A `cache_dir` argument and/or an `IMZY_CACHE_DIR` env var would fix it.
+4. **The writer silently drops empty spectra.** `IMZMLWriter.add_spectrum` catches
+   `_EmptySpectrumError`, warns and returns `False` — *before* consulting its own
+   `on_error="error"` setting. `filter_peaks` can emit empty spectra today and `pyimzml`
+   writes them, so a naive writer flip would drop pixels and desynchronise `n_spectra`
+   from `coordinates`. Until this is fixed upstream, the adapter must raise on an empty m/z
+   array before delegating, and must treat a `False` return as an error.
+
+Assume upstream review is slow. **Do not block on merge:** carry each fix in the adapter
+(or a pinned fork) and leave a `# upstream: <PR url>` marker at every carried patch.
+
+### Phase E — Flip the default, delete the custom parser (not started, blocked)
+
+**Blocked on inputs only the maintainer can provide:** a real dataset plus pre-refactor
+baseline outputs. Without them there is no way to tell a writer regression from a
+legitimate difference.
+
+1. Make imzy the default backend; run the full suite, `system_tests`, and at least one
+   real end-to-end `depiction_targeted_preproc` run diffed against a baseline.
+2. **Delete** `depiction_io/imzml/parser/` (`parse_spectra.py`, `parse_metadata.py`,
+   `cv_params.py`), `imzml_reader.py`, `compression.py`, `imzml_alignment_tracker.py`, and
+   their tests. Retarget the integration tests under `tests/integration/imzml_parser/` at
+   the imzy backend rather than deleting them — they encode real cvParam edge cases
+   (cf. commit `46f3f56 "handle weird cvParam entries"`) worth keeping.
+3. **Keep** `ram/` (no imzy equivalent), `file_checksums.py`, `imzml_zip.py`,
+   `pixel_size.py`, `types.py`.
+4. *Optional, skippable:* `GenericReader.imzml_mode` / `ImzmlModeEnum` is imzML-specific
+   naming that becomes nonsense once Bruker `.d` readers exist. Renaming to `spectra_mode`
+   / `SpectraMode` is mechanical (33 sites) but pure churn.
+
+Net effect: roughly **−1,100 LOC of custom parsing**, `pyimzml` gone, Bruker `.d` support
+gained.
+
+### Cost to be aware of
+
+`imzy` pulls roughly 40 transitive packages — matplotlib, h5py, hdf5plugin, mpire,
+requests, numba, and the same author's `koyo` / `ims-utils` / `yoki5`. All licences are
+permissive (BSD-3 / MIT / Apache-2.0), so `nox -s licensecheck` survives, but
+`depiction_io`'s "minimal I/O package" property does not. Worth paying once, deliberately,
+and only if Phase E follows.
 
 ---
 
 ## Verification
 
-Run at the end of every phase, not just at the end:
-
 ```bash
-uv sync                                       # workspace resolves
-nox                                           # lint + tests_depiction + tests_depiction_io + licensecheck
-uv run pytest tests/differential -v           # both backends, byte-identical
+uv sync --extra testing --extra dev
+nox                                           # lint + both test suites + licensecheck + docs
+uv run pytest tests/differential -v           # reader parity over every registered backend
 uv run pytest tests/unit/parallel_ops -v      # pickling across process boundaries
-nox -s system_tests                           # real data, slow
-depiction-tools --help && depiction-tools imzml --help
+nox -s system_tests                           # real data, slow, skips without the local fixture
+depiction-tools --help
 ```
 
-Backend-parity check (Phase C onward):
-
-```bash
-DEPICTION_IO_BACKEND=legacy uv run pytest tests/ -q
-DEPICTION_IO_BACKEND=imzy   uv run pytest tests/ -q   # identical results
-```
-
-Dependency isolation (Phase B onward):
+Dependency isolation — the check that proves the split is real, not cosmetic:
 
 ```bash
 uv pip show depiction    | grep -i 'pyimzml\|bioio'   # must be empty
-uv pip show depiction_io | grep -i imzy               # must be present
+uv pip show depiction_io | grep -i 'bioio\|tifffile'  # must be empty
 ```
 
-End-to-end: one full `depiction_targeted_preproc` pipeline run on a real dataset, diffing the `.ome.tiff` and QC outputs against a pre-refactor baseline. This is the only check that covers the snakemake glue, and the one that would catch a writer regression.
+From Phase C onward, additionally:
+
+```bash
+DEPICTION_IO_BACKEND=legacy uv run pytest tests -q
+DEPICTION_IO_BACKEND=imzy   uv run pytest tests -q    # identical results
+```
 
 ---
 
@@ -232,8 +306,9 @@ End-to-end: one full `depiction_targeted_preproc` pipeline run on a real dataset
 
 | Risk | Mitigation |
 |---|---|
-| Zlib-compressed input → imzy silently reads noise. Confirmed to occur here, if rarely | Three layers: hard guard raising `NotImplementedError` (Phase C, lands before any default flip); zlib fixture permanently in the differential corpus (Phase A/4); upstream PR #1 (Phase D, first PR). The guard is what makes the migration safe to abandon mid-flight |
-| imzy PRs not merged in 2 weeks | Carry patches in-tree behind `# upstream: <url>` markers; never block a phase on review |
-| `WriteSpectraParallel` chunk/merge breaks under the new writer | Flip the writer first (Phase C), while the reader is still known-good, so failures have one cause |
-| Bruker readers unavailable on macOS | Expected — `imzy/plugins.py` disables them on Mac. Local dev is imzML-only; gate Bruker tests on platform |
-| Two weeks runs out mid-migration, leaving attempt #4 | Every phase ends green and shippable. Phases A+B alone (4 days) already leave the repo better than today. Phase F is non-negotiable — cut Phase E's optional rename, not the archive hygiene |
+| Zlib-compressed input → imzy silently reads noise | Hard guard raising `NotImplementedError` before any default flip; zlib twins permanently in the differential corpus; upstream PR (1) |
+| imzy's writer silently drops empty spectra | Adapter-side guard that raises before delegating and on a `False` return; upstream PR (4) |
+| imzy PRs not merged quickly | Carry patches in-tree behind `# upstream: <url>` markers; never block a phase on review |
+| `WriteSpectraParallel` chunk/merge breaks under the new writer | Flip the writer while the reader is still known-good, so failures have one cause |
+| Bruker readers unavailable on macOS | Expected — `imzy/plugins.py` disables them there. Local dev is imzML-only; gate Bruker tests on platform |
+| The migration is abandoned mid-flight | Phases A, B and F are done and green, and left the repo better off on their own. The legacy backend stays the default until Phase E, so an abandoned Phase C is inert code plus this document, not a fourth half-finished refactoring |

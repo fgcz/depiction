@@ -10,23 +10,25 @@ from depiction_io.backend import BACKEND_ENV_VAR
 IMZML = Path("/tmp/does_not_need_to_exist.imzML")
 
 
-def test_default_is_the_legacy_backend() -> None:
-    # The imzy backend is not validated against real acquisitions yet, so a caller that
-    # expresses no preference must keep getting the parser that is.
-    assert isinstance(get_read_file(IMZML), ImzmlReadFile)
-
-
-def test_explicit_backend_wins(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv(BACKEND_ENV_VAR, "legacy")
-    assert isinstance(get_read_file(IMZML, backend="imzy"), ImzyReadFile)
-
-
-def test_environment_variable_selects_imzy(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv(BACKEND_ENV_VAR, "imzy")
+def test_default_is_the_imzy_backend() -> None:
     assert isinstance(get_read_file(IMZML), ImzyReadFile)
 
 
-def test_suffix_is_matched_case_insensitively() -> None:
+def test_explicit_backend_wins(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv(BACKEND_ENV_VAR, "imzy")
+    assert isinstance(get_read_file(IMZML, backend="legacy"), ImzmlReadFile)
+
+
+def test_environment_variable_selects_the_legacy_parser(monkeypatch: pytest.MonkeyPatch) -> None:
+    # The escape hatch, for as long as the legacy parser is still here.
+    monkeypatch.setenv(BACKEND_ENV_VAR, "legacy")
+    assert isinstance(get_read_file(IMZML), ImzmlReadFile)
+
+
+def test_suffix_is_matched_case_insensitively(monkeypatch: pytest.MonkeyPatch) -> None:
+    # An .IMZML is still an imzML, so the backend setting must apply to it rather than it
+    # being mistaken for a vendor format.
+    monkeypatch.setenv(BACKEND_ENV_VAR, "legacy")
     assert isinstance(get_read_file(Path("/tmp/upper.IMZML")), ImzmlReadFile)
 
 

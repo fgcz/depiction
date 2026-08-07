@@ -141,6 +141,16 @@ class TestCrossImplementation:
         np.testing.assert_array_equal(ram.coordinates_2d, read_file.coordinates_2d)
 
 
+def test_summary_agrees_across_backends(case: Case) -> None:
+    """`print_summary` is user-visible output, so the backends must not disagree on it.
+
+    `ImzyReadFile` omitted the file-size lines and the m/z-range line until the backends
+    were about to be swapped, which would have quietly shortened what `limit_mz_range`
+    prints. Comparing the whole string is what keeps a future divergence visible.
+    """
+    assert ImzmlReadFile(case.path).summary() == ImzyReadFile(case.path).summary()
+
+
 @pytest.mark.compressed_only
 class TestCompression:
     """A zlib file must be indistinguishable from the uncompressed file it came from.

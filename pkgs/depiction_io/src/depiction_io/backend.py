@@ -1,13 +1,13 @@
 """Chooses which reader implementation opens a file.
 
-The legacy `ImzmlReadFile` is the default and stays the default: the imzy backend is not
-yet validated against real acquisitions (see `docs/refactoring/ROADMAP.md`, Phase E), so it
-is opt-in per call or through the `DEPICTION_IO_BACKEND` environment variable.
+The imzy backend is the default. `tests/differential/` asserts that it and the legacy
+`ImzmlReadFile` are indistinguishable across the whole corpus -- every dtype, both modes,
+2D and 3D coordinates, the degenerate shapes and the zlib twins -- and both have been read
+against real third-party acquisitions (see `docs/refactoring/public-test-data.md`).
 
-Note that the tools in `depiction` still construct `ImzmlReadFile` directly rather than
-going through this function, so the environment variable does not currently redirect them.
-Routing those call sites through here is the first step of Phase E, at which point flipping
-the default becomes a one-line change.
+The legacy parser stays reachable through `DEPICTION_IO_BACKEND=legacy` for exactly as long
+as it takes to be confident in the swap; `docs/refactoring/ROADMAP.md`, Phase E, is where it
+gets deleted.
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ ReadBackend = Literal["legacy", "imzy"]
 #: Overrides the default backend for .imzML files.
 BACKEND_ENV_VAR = "DEPICTION_IO_BACKEND"
 
-DEFAULT_BACKEND: ReadBackend = "legacy"
+DEFAULT_BACKEND: ReadBackend = "imzy"
 
 
 def get_read_file(path: str | Path, backend: ReadBackend | None = None) -> GenericReadFile:

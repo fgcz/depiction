@@ -10,6 +10,7 @@ from xml.etree.ElementTree import ElementTree
 import numpy as np
 
 from depiction_io.file_checksums import FileChecksums
+from depiction_io.imzml.imzml_mode_enum import ImzmlModeEnum
 from depiction_io.imzml.parser.parse_metadata import ParseMetadata
 from depiction_io.imzy_backend.imzml_scan import ImzmlScan, scan_imzml
 from depiction_io.imzy_backend.imzy_reader import ImzyReader
@@ -20,7 +21,6 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
-    from depiction_io.imzml.imzml_mode_enum import ImzmlModeEnum
     from depiction_io.pixel_size import PixelSize
 
 
@@ -135,6 +135,19 @@ class ImzyReadFile(GenericReadFile):
         else:
             raise ValueError(f"Invalid metadata_checksums: {self.metadata_checksums}")
 
+    @cached_property
+    def file_sizes_bytes(self) -> dict[str, int]:
+        """Returns the sizes of the .imzML and .ibd files in bytes."""
+        return {
+            "imzml": self.imzml_file.stat().st_size,
+            "ibd": self.ibd_file.stat().st_size,
+        }
+
+    @cached_property
+    def file_sizes_mb(self) -> dict[str, float]:
+        """Returns the sizes of the .imzML and .ibd files in MB."""
+        return {k: v / 1024**2 for k, v in self.file_sizes_bytes.items()}
+
     def summary(self, checksums: bool = True) -> str:
         if checksums:
             checksum_valid = self.is_checksum_valid
@@ -143,11 +156,27 @@ class ImzyReadFile(GenericReadFile):
             checksum_line = f"is_checksum_valid: {checksum_valid}\n"
         else:
             checksum_line = ""
+
+        if not self.is_imzml:
+            # A vendor format is a directory, not an .imzML/.ibd pair, so neither the file
+            # sizes nor the m/z line below can be produced for it.
+            return f"file: {self._path}\nimzML mode: {self.imzml_mode.name}\nn_spectra: {self.n_spectra}\n"
+
+        if self.imzml_mode == ImzmlModeEnum.CONTINUOUS:
+            with self.reader() as reader:
+                mz_arr = reader.get_spectrum_mz(0)
+            mz_range_line = f"m/z range: {mz_arr.min():.2f} - {mz_arr.max():.2f} ({len(mz_arr)} bins)\n"
+        else:
+            mz_range_line = ""
+
+        file_sizes = self.file_sizes_mb
         return (
-            f"file: {self._path}\n"
+            f"imzML file: {self._path} ({file_sizes['imzml']:.2f} MB)\n"
+            f"ibd file: {self.ibd_file} ({file_sizes['ibd']:.2f} MB)\n"
             f"imzML mode: {self.imzml_mode.name}\n"
             f"n_spectra: {self.n_spectra}\n"
             f"{checksum_line}"
+            f"{mz_range_line}"
         )
 
     @cached_property

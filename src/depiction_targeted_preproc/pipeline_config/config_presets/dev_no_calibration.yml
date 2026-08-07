@@ -6,6 +6,7 @@ process_spectra:
         window_unit: ppm
     - pick:
         peak_picker:
+          # needs the optional `findmf` extra: uv sync --extra findmf
           peak_picker_type: FindMFPy
           int_threshold: 0.0
         force_peak_picker: no

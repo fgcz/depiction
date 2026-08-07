@@ -39,20 +39,14 @@ class InvokeCallFunction:
                 workdir=work_dir,
             )
             dag_api = workflow_api.dag(
-                dag_settings=DAGSettings(
-                    targets=[str(p) for p in result_files], force_incomplete=True
-                )
+                dag_settings=DAGSettings(targets=[str(p) for p in result_files], force_incomplete=True)
             )
             with self._set_env_vars():
-                dag_api.execute_workflow(
-                    execution_settings=ExecutionSettings(
-                        keep_going=self.config.continue_on_error
-                    )
-                )
+                dag_api.execute_workflow(execution_settings=ExecutionSettings(keep_going=self.config.continue_on_error))
             # TODO this misses the report file generation
 
     @contextlib.contextmanager
-    def _set_env_vars(self) -> Generator[None, None, None]:
+    def _set_env_vars(self) -> Generator[None]:
         """Temporarily sets the configured environment variables for the duration of the context."""
         old_env = os.environ.copy()
         os.environ.update(self.config.env_variables or {})

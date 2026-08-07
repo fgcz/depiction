@@ -1,0 +1,37 @@
+[project]
+name = "snakemake_invoke"
+version = "0.1.1"
+description = "Simple Python API wrapper to invoke a Snakemake workflow"
+authors = [{ name = "Leonardo Schwarz", email = "leonardo.schwarz@fgcz.ethz.ch" }]
+readme = "README.md"
+license = { file = "LICENSE" }
+# Upstream declared ">=3.12"; kept as it was, even though the workspace is 3.13-only, so
+# that this package's own metadata does not silently claim more than was tested upstream.
+requires-python = ">= 3.12"
+
+dependencies = [
+    "snakemake>=8.24",
+    "pydantic>=2.9",
+    "loguru",
+]
+
+[project.optional-dependencies]
+testing = [
+    "pytest",
+    "pytest-mock",
+]
+
+# setuptools rather than upstream's hatchling: one build backend for the whole workspace,
+# and this package no longer builds sdists or wheels of its own.
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+snakemake_invoke = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

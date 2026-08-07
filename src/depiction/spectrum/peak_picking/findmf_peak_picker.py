@@ -1,5 +1,6 @@
-# TODO extremely experimental, not part of pyproject.toml dependencies etc,
-#   usage not yet recommended!
+# Bindings to findMF. `findmfpy` is an optional dependency (the `findmf` extra), so this
+# module must only ever be imported lazily -- `depiction.tools.pick_peaks` does that, and
+# turns the resulting ModuleNotFoundError into a message naming the extra.
 from __future__ import annotations
 
 from dataclasses import dataclass

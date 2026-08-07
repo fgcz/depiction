@@ -39,6 +39,20 @@ def tests_depiction_io(session) -> None:
 
 
 @nox.session
+def tests_snakemake_invoke(session) -> None:
+    """Runs the test suite of the vendored `snakemake_invoke` package.
+
+    It came with tests, and vendored code that nothing runs is how a copy quietly stops
+    being the thing it was copied from. Installed on its own, like `depiction_io`, so that
+    the parent's environment cannot mask a missing dependency.
+    """
+    session.install("./pkgs/snakemake_invoke[testing]")
+    testfiles = [str(Path(arg).resolve()) for arg in session.posargs] or ["tests"]
+    session.chdir("pkgs/snakemake_invoke")
+    session.run("pytest", "--durations=10", "--durations-min=1.0", *testfiles)
+
+
+@nox.session
 def docs(session) -> None:
     """Builds the Sphinx documentation, treating warnings as errors.
 
@@ -55,10 +69,10 @@ def docs(session) -> None:
 def licensecheck(session) -> None:
     """Runs the license check."""
     session.install("licensecheck")
-    # depiction_io is skipped because it is our own workspace member (same license as the
-    # root) and because licensecheck's resolver cannot parse the `-e file:///...` entry
-    # that uv emits for a workspace dependency.
-    session.run("licensecheck", "--skip-dependencies", "llvmlite", "depiction_io")
+    # depiction_io and snakemake_invoke are skipped because they are our own workspace
+    # members (same license as the root) and because licensecheck's resolver cannot parse
+    # the `-e file:///...` entry that uv emits for a workspace dependency.
+    session.run("licensecheck", "--skip-dependencies", "llvmlite", "depiction_io", "snakemake_invoke")
 
 
 @nox.session(default=False)

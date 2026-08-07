@@ -42,6 +42,9 @@ Two things that file does beyond pinning versions:
   dependency. The baseline's own `pyproject.toml` declares it with **no revision** — the bug
   Phase G found and fixed on `dev` — so installed as written it resolves the git HEAD, where
   `SnakemakeInvoke` is no longer in `__init__.py`, and `process_chunk` fails at import.
+  That line is now **hand-maintained**: the current tree vendors `snakemake_invoke` into
+  `pkgs/`, so a plain re-export silently drops it. The regeneration comment at the top of
+  `constraints.txt` says so; heed it.
 
 Check the result:
 

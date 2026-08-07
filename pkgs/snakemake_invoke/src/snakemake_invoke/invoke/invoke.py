@@ -19,17 +19,11 @@ class SnakemakeInvoke:
         :param result_files: The list of result files to generate (relative to `work_dir`).
         """
         if self.config.execution_model == ExecutionModel.SUBPROCESS:
-            InvokeSubprocess(config=self.config).invoke(
-                work_dir=work_dir, result_files=result_files
-            )
+            InvokeSubprocess(config=self.config).invoke(work_dir=work_dir, result_files=result_files)
         elif self.config.execution_model == ExecutionModel.CALL_FUNCTION:
-            InvokeCallFunction(config=self.config).invoke(
-                work_dir=work_dir, result_files=result_files
-            )
+            InvokeCallFunction(config=self.config).invoke(work_dir=work_dir, result_files=result_files)
         else:
             typing.assert_never(self.config.execution_model)
 
     def dry_run(self, work_dir: Path, result_files: list[Path]) -> None:
-        InvokeSubprocess(config=self.config).invoke(
-            work_dir, result_files, extra_args=["--dryrun", "--printshellcmds"]
-        )
+        InvokeSubprocess(config=self.config).invoke(work_dir, result_files, extra_args=["--dryrun", "--printshellcmds"])

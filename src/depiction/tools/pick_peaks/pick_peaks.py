@@ -96,9 +96,21 @@ def get_peak_picker(config: PickPeaksConfig, peak_filtering: PeakFilteringType |
         case PeakPickerMSPeakPickerConfig() as peak_picker_config:
             return MSPeakPicker(fit_type=peak_picker_config.fit_type, peak_filtering=peak_filtering)
         case PeakPickerFindMFPyConfig() as peak_picker_config:
-            # TODO refactor this later?
-            # NOTE: importing this here since it has non-standard dependencies
-            from depiction.spectrum.peak_picking.findmf_peak_picker import FindMFPeakPicker
+            # `findmfpy` is an optional dependency, so the import is deferred to here -- which
+            # is also the last point at which failing is cheap. Everything downstream of this
+            # function runs inside `WriteSpectraParallel`'s workers, where a ModuleNotFoundError
+            # surfaces once per chunk after the file has already been opened.
+            try:
+                from depiction.spectrum.peak_picking.findmf_peak_picker import FindMFPeakPicker
+            except ModuleNotFoundError as error:
+                if error.name != "findmfpy":
+                    # something else is missing; do not blame the extra for it
+                    raise
+                raise ModuleNotFoundError(
+                    "The FindMFPy peak picker requires the optional `findmfpy` package, which is not installed. "
+                    "Install it with `uv sync --extra findmf` (or `pip install 'depiction[findmf]'`), or choose "
+                    "another `peak_picker_type`."
+                ) from error
 
             return FindMFPeakPicker(
                 resolution=peak_picker_config.resolution,

@@ -38,7 +38,6 @@ dependencies = [
     "bioio-ome-zarr",
     "tifffile",
     "loguru",
-    "findmfpy",
     "kdepy>=1.1.8",
     "perlin-noise==1.13",
     "pandera[polars]",
@@ -46,12 +45,8 @@ dependencies = [
     # TODO demote to optional again later, but necessary for pycharm right now
     "bfabric",
     "bfabric_app_runner >= 0.5.1",
-    # Pinned to a revision, not to a branch. `uv.lock` already recorded this commit, but the
-    # nox sessions install with `uv pip install .`, which does not consult the lockfile -- so
-    # every fresh environment resolved the git HEAD instead. Upstream has since moved
-    # `SnakemakeInvoke` out of `__init__.py`, which broke `nox -s system_tests` at import time
-    # on any cold clone while the committed lockfile kept `.venv` working.
-    "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke@e7e3c337a022fe4d65894d88b99167fa5bbab67e",
+    # Vendored into `pkgs/`; see that package's README for the upstream revision and why.
+    "snakemake_invoke",
 ]
 
 [project.scripts]
@@ -62,7 +57,18 @@ ms_peak_picker = [
     "ms-peak-picker",
 ]
 
+# The FindMF peak picker. Optional because `findmfpy` is a C++ extension with a single 2024
+# release and cp313-only wheels (macOS arm64, manylinux/musllinux x86_64): on any other
+# platform, or on a later interpreter, requiring it means requiring a compiler -- for a peak
+# picker that two dev presets use and the pipeline's default path does not.
+findmf = [
+    "findmfpy",
+]
+
 testing = [
+    # so that CI keeps exercising the FindMFPy branch of `get_peak_picker`, which would
+    # otherwise skip itself out of existence the moment the dependency became optional
+    "depiction[findmf]",
     "coverage>=7.4.3",
     "hypothesis>=6.99.11",
     "pytype>=2023.12.18",
@@ -117,13 +123,14 @@ build-backend = "setuptools.build_meta"
 depiction_targeted_preproc = ["**/*.smk", "**/Snakefile", "**/*.yml", "**/*.yaml"]
 
 [tool.uv]
-reinstall-package = ["depiction", "depiction_io"]
+reinstall-package = ["depiction", "depiction_io", "snakemake_invoke"]
 
 [tool.uv.workspace]
 members = [".", "pkgs/*"]
 
 [tool.uv.sources]
 depiction_io = { workspace = true }
+snakemake_invoke = { workspace = true }
 
 [tool.black]
 line-length = 120

@@ -1,27 +1,39 @@
 # snakemake_invoke
 
-[![Actions Status][actions-badge]][actions-link]
-[![Documentation Status][rtd-badge]][rtd-link]
+A small wrapper for invoking a Snakemake workflow from Python: build the command line from a
+pydantic config, run it, and ask for a list of target files.
 
-[![PyPI version][pypi-version]][pypi-link]
-[![Conda-Forge][conda-badge]][conda-link]
-[![PyPI platforms][pypi-platforms]][pypi-link]
+## Provenance
 
-[![GitHub Discussion][github-discussions-badge]][github-discussions-link]
+Vendored on 2026-08-07 from <https://github.com/leoschwarz/snakemake_invoke> at revision
+`e7e3c337a022fe4d65894d88b99167fa5bbab67e`, which is the revision `depiction` already
+pinned. Same author, same Apache-2.0 licence (see `LICENSE`).
 
-<!-- SPHINX-START -->
+It was vendored because a git dependency on a personal GitHub repository is the one part of
+this repository's dependency set that cannot be rebuilt from the repository itself, and the
+package is 215 lines used at two call sites. It is not on PyPI, so nothing else can claim
+the name. **This copy is the maintained one** — upstream is history, not a source to pull
+from.
 
-<!-- prettier-ignore-start -->
-[actions-badge]:            https://github.com/leoschwarz/snakemake_invoke/workflows/CI/badge.svg
-[actions-link]:             https://github.com/leoschwarz/snakemake_invoke/actions
-[conda-badge]:              https://img.shields.io/conda/vn/conda-forge/snakemake_invoke
-[conda-link]:               https://github.com/conda-forge/snakemake_invoke-feedstock
-[github-discussions-badge]: https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github
-[github-discussions-link]:  https://github.com/leoschwarz/snakemake_invoke/discussions
-[pypi-link]:                https://pypi.org/project/snakemake_invoke/
-[pypi-platforms]:           https://img.shields.io/pypi/pyversions/snakemake_invoke
-[pypi-version]:             https://img.shields.io/pypi/v/snakemake_invoke
-[rtd-badge]:                https://readthedocs.org/projects/snakemake_invoke/badge/?version=latest
-[rtd-link]:                 https://snakemake_invoke.readthedocs.io/en/latest/?badge=latest
+The first commit of the copy is byte-identical to that revision; formatting to this
+repository's conventions (black at 120, ruff) came immediately after, so the two are
+separable in the history.
 
-<!-- prettier-ignore-end -->
+## What is here
+
+- `config.py` — `SnakemakeInvokeConfig`: snakefile path, core count, environment variables,
+  and the execution model.
+- `invoke/invoke.py` — `SnakemakeInvoke`, the entry point, dispatching on that model.
+- `invoke/invoke_subprocess.py` — the path this repository uses. It runs snakemake as a
+  subprocess of `sys.executable`, so that the workflow's own `python -m depiction...` shell
+  commands resolve against the same interpreter.
+- `invoke/invoke_call_function.py` — `snakemake.api` in-process instead. **Unused here**,
+  and upstream's own comment says it is not on par with the subprocess path (no report
+  generation). It was carried across rather than deleted, so that the copy is the copy.
+
+## Callers
+
+`depiction_targeted_preproc/app_interface/process_chunk.py` — the B-Fabric app entry point,
+which turns a chunk directory into a zip of pipeline artifacts. Also
+`depiction_cluster_sandbox/run_cluster_sandbox.py`, which is a sandbox rather than a
+supported entry point.

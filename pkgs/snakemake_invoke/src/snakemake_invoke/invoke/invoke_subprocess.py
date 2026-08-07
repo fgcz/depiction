@@ -56,9 +56,7 @@ class InvokeSubprocess:
             *[str(file.relative_to(work_dir)) for file in result_files],
         ]
 
-    def get_command_create_report(
-        self, base_command: list[str], result_files: list[Path], work_dir: Path
-    ) -> list[str]:
+    def get_command_create_report(self, base_command: list[str], result_files: list[Path], work_dir: Path) -> list[str]:
         if self.config.report_file is None:
             return []
         return [

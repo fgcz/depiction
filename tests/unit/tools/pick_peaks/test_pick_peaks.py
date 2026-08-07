@@ -1,4 +1,5 @@
 import importlib.util
+import sys
 from unittest.mock import MagicMock
 
 import pytest
@@ -76,6 +77,21 @@ def test_get_peak_picker_when_find_mf_peak_picker(mock_filtering: MagicMock) -> 
     assert picker.int_threshold == 0.4
     assert picker.area
     assert picker.max_peaks == 10
+
+
+def test_get_peak_picker_when_find_mf_peak_picker_and_not_installed(
+    mocker: MockerFixture, mock_filtering: MagicMock
+) -> None:
+    # `None` in sys.modules is what the import machinery treats as "this module is
+    # unavailable", so this reproduces a missing `findmf` extra whether or not `findmfpy`
+    # happens to be installed in the environment running the test. The wrapper module has to
+    # go too, or an earlier test's import of it satisfies this one from cache; `patch.dict`
+    # restores the whole mapping afterwards, including that eviction.
+    mocker.patch.dict(sys.modules, {"findmfpy": None})
+    sys.modules.pop("depiction.spectrum.peak_picking.findmf_peak_picker", None)
+    config = PickPeaksConfig(peak_picker=PeakPickerFindMFPyConfig(), n_jobs=1)
+    with pytest.raises(ModuleNotFoundError, match="uv sync --extra findmf"):
+        get_peak_picker(config, mock_filtering)
 
 
 if __name__ == "__main__":

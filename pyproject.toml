@@ -46,7 +46,12 @@ dependencies = [
     # TODO demote to optional again later, but necessary for pycharm right now
     "bfabric",
     "bfabric_app_runner >= 0.5.1",
-    "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke",
+    # Pinned to a revision, not to a branch. `uv.lock` already recorded this commit, but the
+    # nox sessions install with `uv pip install .`, which does not consult the lockfile -- so
+    # every fresh environment resolved the git HEAD instead. Upstream has since moved
+    # `SnakemakeInvoke` out of `__init__.py`, which broke `nox -s system_tests` at import time
+    # on any cold clone while the committed lockfile kept `.venv` working.
+    "snakemake_invoke @ git+https://github.com/leoschwarz/snakemake_invoke@e7e3c337a022fe4d65894d88b99167fa5bbab67e",
 ]
 
 [project.scripts]

@@ -1247,7 +1247,7 @@ requires-dist = [
     { name = "scipy-stubs", marker = "extra == 'typing'" },
     { name = "seaborn", specifier = ">=0.13.0" },
     { name = "snakemake", specifier = ">=9.1" },
-    { name = "snakemake-invoke", git = "https://github.com/leoschwarz/snakemake_invoke" },
+    { name = "snakemake-invoke", git = "https://github.com/leoschwarz/snakemake_invoke?rev=e7e3c337a022fe4d65894d88b99167fa5bbab67e" },
     { name = "sparse", specifier = ">=0.15.4" },
     { name = "spatialdata", specifier = ">=0.7.2" },
     { name = "spatialdata-plot", marker = "extra == 'dev'", specifier = ">=0.2.1" },
@@ -5448,7 +5448,7 @@ wheels = [
 [[package]]
 name = "snakemake-invoke"
 version = "0.1.1"
-source = { git = "https://github.com/leoschwarz/snakemake_invoke#e7e3c337a022fe4d65894d88b99167fa5bbab67e" }
+source = { git = "https://github.com/leoschwarz/snakemake_invoke?rev=e7e3c337a022fe4d65894d88b99167fa5bbab67e#e7e3c337a022fe4d65894d88b99167fa5bbab67e" }
 dependencies = [
     { name = "loguru" },
     { name = "pydantic" },

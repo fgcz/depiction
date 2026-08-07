@@ -13,8 +13,8 @@ from xarray import DataArray
 from depiction.calibration.methods.calibration_method import CalibrationMethod
 from depiction.image import MultiChannelImage
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction_io import ImzmlReader, ImzmlWriter
-from depiction_io.types import GenericReadFile, GenericWriteFile
+from depiction_io import GenericReadFile, GenericReader, ImzmlWriter
+from depiction_io.types import GenericWriteFile
 
 
 class CalibrationMethodChemicalPeptideNoise(CalibrationMethod):
@@ -195,7 +195,7 @@ class ChemicalNoiseCalibration:
         """Applies `align_masses` to all spectra in the given file and writes the results to the output file."""
         parallelize = WriteSpectraParallel.from_config(parallel_config)
 
-        def chunk_operation(reader: ImzmlReader, spectra_indices: list[int], writer: ImzmlWriter) -> None:
+        def chunk_operation(reader: GenericReader, spectra_indices: list[int], writer: ImzmlWriter) -> None:
             for spectrum_id in spectra_indices:
                 mz_arr, int_arr = reader.get_spectrum(spectrum_id)
                 mz_arr = self.align_masses(mz_arr, int_arr)

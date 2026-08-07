@@ -4,12 +4,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction_io import (
-    ImzmlReadFile,
-    ImzmlWriteFile,
-    ImzmlReader,
-    ImzmlWriter,
-)
+from depiction_io import GenericReadFile, GenericReader, ImzmlWriteFile, ImzmlWriter, get_read_file
 
 
 class LimitMzRange:
@@ -23,11 +18,11 @@ class LimitMzRange:
 
     def evaluate_file(
         self,
-        read_file: ImzmlReadFile,
+        read_file: GenericReadFile,
         write_file: ImzmlWriteFile,
         parallel_config: ParallelConfig,
     ) -> None:
-        def chunk_operation(reader: ImzmlReader, spectra_ids: list[int], writer: ImzmlWriter, mz_range) -> None:
+        def chunk_operation(reader: GenericReader, spectra_ids: list[int], writer: ImzmlWriter, mz_range) -> None:
             for spectrum_id in spectra_ids:
                 mz_arr, int_arr = reader.get_spectrum(spectrum_id)
                 mz_arr_new, int_arr_new = self._evaluate_spectrum(mz_arr, int_arr, mz_range)
@@ -53,7 +48,7 @@ class LimitMzRange:
 def main_limit_mz_range(input_file: str, output_file: str, mz_range: tuple[float, float], n_jobs: int) -> None:
     # check the input file
     print("Checking the input file:")
-    read_file = ImzmlReadFile(input_file)
+    read_file = get_read_file(input_file)
     read_file.print_summary()
     # set up for output
     write_file = ImzmlWriteFile(output_file, imzml_mode=read_file.imzml_mode)
@@ -64,7 +59,7 @@ def main_limit_mz_range(input_file: str, output_file: str, mz_range: tuple[float
     limit.evaluate_file(read_file=read_file, write_file=write_file, parallel_config=parallel_config)
     # finally check the output
     print("Output information:")
-    ImzmlReadFile(output_file).print_summary()
+    get_read_file(output_file).print_summary()
 
 
 def main() -> None:

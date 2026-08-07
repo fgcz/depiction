@@ -7,7 +7,7 @@ import numpy as np
 
 from depiction.misc.integration_test_utils import IntegrationTestUtils
 from depiction.parallel_ops.parallel_config import ParallelConfig
-from depiction_io import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
+from depiction_io import GenericReadFile, ImzmlModeEnum, ImzmlWriteFile, get_read_file
 from depiction.spectrum.baseline import LocalMediansBaseline
 from depiction.tools.correct_baseline.correct_baseline import CorrectBaseline
 
@@ -27,7 +27,7 @@ class TestCorrectBaselineIntegration(unittest.TestCase):
         self.mock_mz_arr = [(i + 1) * 100 for i in range(len(self.mock_baseline_spectrum))]
 
     @cached_property
-    def mock_input_file(self) -> ImzmlReadFile:
+    def mock_input_file(self) -> GenericReadFile:
         IntegrationTestUtils.populate_test_file(
             path=self.mock_input_file_path,
             mz_arr_list=[self.mock_mz_arr, self.mock_mz_arr, self.mock_mz_arr],
@@ -38,7 +38,7 @@ class TestCorrectBaselineIntegration(unittest.TestCase):
             ],
             imzml_mode=ImzmlModeEnum.CONTINUOUS,
         )
-        return ImzmlReadFile(self.mock_input_file_path)
+        return get_read_file(self.mock_input_file_path)
 
     def test_evaluate_file(self) -> None:
         correct_baseline = CorrectBaseline(
@@ -50,7 +50,7 @@ class TestCorrectBaselineIntegration(unittest.TestCase):
             write_file=ImzmlWriteFile(self.mock_output_file_path, imzml_mode=ImzmlModeEnum.CONTINUOUS),
         )
 
-        with ImzmlReadFile(self.mock_output_file_path).reader() as reader:
+        with get_read_file(self.mock_output_file_path).reader() as reader:
             self.assertEqual(3, reader.n_spectra)
             spectra = reader.get_spectra([0, 1, 2])
 

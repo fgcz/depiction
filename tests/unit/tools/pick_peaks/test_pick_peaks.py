@@ -2,7 +2,7 @@ import importlib.util
 from unittest.mock import MagicMock
 
 import pytest
-from depiction_io import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import GenericReadFile, ImzmlWriteFile
 from depiction.tools.pick_peaks.config import (
     PeakPickerBasicInterpolatedConfig,
     PeakPickerFindMFPyConfig,
@@ -20,7 +20,7 @@ def mock_filtering(mocker: MockerFixture) -> MagicMock:
 
 @pytest.fixture()
 def mock_input_file(mocker: MockerFixture) -> MagicMock:
-    return mocker.MagicMock(name="mock_input_file", spec=ImzmlReadFile)
+    return mocker.MagicMock(name="mock_input_file", spec=GenericReadFile)
 
 
 @pytest.fixture()

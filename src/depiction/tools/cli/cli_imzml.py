@@ -3,7 +3,7 @@ from pathlib import Path
 
 import cyclopts
 
-from depiction_io import ImzmlReadFile
+from depiction_io import get_read_file
 
 cmd_imzml = cyclopts.App()
 
@@ -14,7 +14,7 @@ def cmd_imzml_verify(imzml_path: Path) -> None | int:
     the correct checksum.
     :param imzml_path: Path to the .imzML file.
     """
-    read_file = ImzmlReadFile(imzml_path)
+    read_file = get_read_file(imzml_path)
     if read_file.is_checksum_valid:
         logger.success(f"Checksum for {imzml_path} is valid.")
     else:

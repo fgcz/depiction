@@ -9,7 +9,7 @@ from depiction.tools.correct_baseline.config import BaselineVariants
 
 def test_run_when_other_variant(mocker: MockerFixture) -> None:
     mock_imzml_mode = mocker.MagicMock(name="mock_imzml_mode", spec=[])
-    construct_imzml_read_file = mocker.patch("depiction.tools.correct_baseline.correct_baseline.ImzmlReadFile")
+    construct_imzml_read_file = mocker.patch("depiction.tools.correct_baseline.correct_baseline.get_read_file")
     construct_imzml_read_file.return_value.imzml_mode = mock_imzml_mode
     construct_imzml_write_file = mocker.patch("depiction.tools.correct_baseline.correct_baseline.ImzmlWriteFile")
     construct_correct_baseline = mocker.patch(

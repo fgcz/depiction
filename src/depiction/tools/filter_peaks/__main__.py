@@ -5,7 +5,7 @@ from pathlib import Path
 import cyclopts
 import yaml
 
-from depiction_io import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
+from depiction_io import ImzmlModeEnum, ImzmlWriteFile, get_read_file
 from depiction.tools.filter_peaks.config import FilterPeaksConfig, FilterNHighestIntensityPartitionedConfig
 from depiction.tools.filter_peaks.filter_peaks import filter_peaks
 
@@ -21,7 +21,7 @@ def run_config(
     parsed = FilterPeaksConfig.model_validate(yaml.safe_load(config.read_text()))
     filter_peaks(
         config=parsed,
-        input_file=ImzmlReadFile(input_imzml),
+        input_file=get_read_file(input_imzml),
         output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
     )
 
@@ -38,7 +38,7 @@ def run(
     config = FilterPeaksConfig(filters=[peaks_filter], n_jobs=n_jobs)
     filter_peaks(
         config=config,
-        input_file=ImzmlReadFile(input_imzml),
+        input_file=get_read_file(input_imzml),
         output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
     )
 

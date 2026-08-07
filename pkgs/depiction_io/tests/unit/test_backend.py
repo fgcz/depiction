@@ -4,47 +4,37 @@ from pathlib import Path
 
 import pytest
 
-from depiction_io import ImzmlReadFile, ImzyReadFile, get_read_file
-from depiction_io.backend import BACKEND_ENV_VAR
+from depiction_io import ImzyReadFile, get_read_file
 
 IMZML = Path("/tmp/does_not_need_to_exist.imzML")
 
 
-def test_default_is_the_legacy_backend() -> None:
-    # The imzy backend is not validated against real acquisitions yet, so a caller that
-    # expresses no preference must keep getting the parser that is.
-    assert isinstance(get_read_file(IMZML), ImzmlReadFile)
-
-
-def test_explicit_backend_wins(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv(BACKEND_ENV_VAR, "legacy")
-    assert isinstance(get_read_file(IMZML, backend="imzy"), ImzyReadFile)
-
-
-def test_environment_variable_selects_imzy(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv(BACKEND_ENV_VAR, "imzy")
+def test_returns_a_read_file() -> None:
+    # The path does not exist, which is deliberate: read files are handed to worker
+    # processes, so construction must not touch the disk.
     assert isinstance(get_read_file(IMZML), ImzyReadFile)
 
 
-def test_suffix_is_matched_case_insensitively() -> None:
-    assert isinstance(get_read_file(Path("/tmp/upper.IMZML")), ImzmlReadFile)
-
-
-def test_unknown_backend_is_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv(BACKEND_ENV_VAR, "pyimzml")
-    with pytest.raises(ValueError, match="Unknown backend"):
-        get_read_file(IMZML)
-
-
-def test_vendor_format_ignores_the_backend_setting(monkeypatch: pytest.MonkeyPatch) -> None:
-    # Nothing but imzy can read a Bruker .d, so asking for the legacy backend cannot be
-    # honoured; on macOS imzy cannot either, and that has to be said plainly.
-    monkeypatch.setenv(BACKEND_ENV_VAR, "legacy")
+def test_vendor_format_is_accepted_where_imzy_can_read_it(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("sys.platform", "linux")
     assert isinstance(get_read_file(Path("/tmp/acquisition.d")), ImzyReadFile)
 
 
 def test_vendor_format_on_macos_explains_itself(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Nothing but imzy can read a Bruker .d, and on macOS imzy cannot either. Saying so
+    # here beats failing somewhere inside the reader.
     monkeypatch.setattr("sys.platform", "darwin")
     with pytest.raises(RuntimeError, match="macOS"):
         get_read_file(Path("/tmp/acquisition.d"))
+
+
+def test_imzml_is_unaffected_by_the_macos_vendor_check(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("sys.platform", "darwin")
+    assert isinstance(get_read_file(IMZML), ImzyReadFile)
+
+
+def test_suffix_is_matched_case_insensitively(monkeypatch: pytest.MonkeyPatch) -> None:
+    # An .IMZML is still an imzML, so it must not be mistaken for a vendor format and
+    # rejected on macOS.
+    monkeypatch.setattr("sys.platform", "darwin")
+    assert isinstance(get_read_file(Path("/tmp/upper.IMZML")), ImzyReadFile)

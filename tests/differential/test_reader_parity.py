@@ -1,19 +1,30 @@
 """Differential tests over the ``GenericReader`` seam.
 
-Every assertion here is phrased against the protocol in ``depiction_io.types``,
-never against a concrete backend. That is deliberate: when a second imzML backend is
-added, it gets registered in ``READ_FILE_BACKENDS`` and this file becomes a genuine
-A/B comparison without any of the assertions changing.
+Every assertion here is phrased against the protocol in ``depiction_io.types``, never
+against a concrete backend, so a second backend is registered in ``READ_FILE_BACKENDS``
+and inherits the whole file without any assertion changing. That is how the imzy migration
+was carried out: for the length of it this ran as a genuine A/B comparison between the
+hand-rolled parser and imzy, and the parser was only deleted once they were proven
+indistinguishable across the corpus.
 
-The file earns its keep four ways:
+**With the parser gone this is no longer an A/B comparison**, and it should not be read as
+one. What keeps it meaningful is that ``corpus.Case`` carries the source arrays
+independently of any reader -- ``expected_mz``, ``expected_int`` and ``coordinates`` are
+what was handed to the writer, not what some reader returned -- so the assertions are
+backend-against-ground-truth. ``TestCrossImplementation`` additionally cross-checks against
+``RamReadFile``, which shares no code with the imzML path.
+
+What was genuinely lost is a second *XML parser* to disagree with imzy. A bug that the
+writer and the reader share symmetrically would now go unseen here; only real acquisitions
+(``docs/refactoring/public-test-data.md``) can catch that class of thing.
+
+The file earns its keep three ways:
 
 1. round-trip -- what the writer wrote is what the reader reads, per dtype and mode;
-2. cross-implementation -- ``ImzmlReadFile`` must agree with ``RamReadFile``;
-3. A/B -- every assertion runs against both the legacy parser and the imzy backend, and
-   they must be indistinguishable;
-4. compression -- a zlib file must read identically to the uncompressed file it was
-   derived from, which is the check that makes swapping in a backend without zlib
-   support fail loudly instead of silently returning noise.
+2. cross-implementation -- the on-disk reader must agree with ``RamReadFile``;
+3. compression -- a zlib file must read identically to the uncompressed file it was
+   derived from, which is the check that catches a backend reading a compressed .ibd as
+   raw floats and returning noise rather than raising.
 """
 
 from __future__ import annotations
@@ -24,20 +35,14 @@ from collections.abc import Callable
 import numpy as np
 import pytest
 
-from depiction_io import ImzmlModeEnum, ImzmlReadFile, ImzyReadFile, RamReadFile
-from depiction_io.imzy_backend import UnsupportedCompressionError
+from depiction_io import ImzmlModeEnum, ImzyReadFile, RamReadFile
 from depiction_io.types import GenericReadFile
 from tests.differential.corpus import Case
 
-#: Backends that can open a corpus case from disk. Every test below runs once per entry,
-#: which is what makes this an A/B comparison rather than a round-trip check.
+#: Backends that can open a corpus case from disk. Every test below runs once per entry.
 READ_FILE_BACKENDS: dict[str, Callable[[Case], GenericReadFile]] = {
-    "imzml": lambda case: ImzmlReadFile(case.path),
     "imzy": lambda case: ImzyReadFile(case.path),
 }
-
-#: Backends that refuse compressed input instead of reading it. See `TestCompression`.
-BACKENDS_WITHOUT_COMPRESSION = {"imzy"}
 
 
 @pytest.fixture(params=sorted(READ_FILE_BACKENDS))
@@ -47,14 +52,6 @@ def backend(request: pytest.FixtureRequest) -> str:
 
 @pytest.fixture
 def read_file(backend: str, case: Case) -> GenericReadFile:
-    """A read file the backend can actually read.
-
-    A backend that does not support compression is skipped for the compressed cases rather
-    than xfailed, because "it raises" is not a weaker form of "it reads" -- it is the
-    intended behaviour, and `TestCompression` asserts it directly.
-    """
-    if case.compressed and backend in BACKENDS_WITHOUT_COMPRESSION:
-        pytest.skip(f"{backend} refuses compressed input; see TestCompression")
     return READ_FILE_BACKENDS[backend](case)
 
 
@@ -153,6 +150,23 @@ class TestCrossImplementation:
         np.testing.assert_array_equal(ram.coordinates_2d, read_file.coordinates_2d)
 
 
+def test_summary_reports_the_whole_file(case: Case) -> None:
+    """`print_summary` is user-visible output, so its content is pinned rather than assumed.
+
+    `ImzyReadFile` omitted the file-size lines and the m/z-range line until the backends
+    were swapped, which would have quietly shortened what `limit_mz_range` prints. While
+    both readers existed this compared the two strings; with one reader left, the lines
+    themselves are the assertion.
+    """
+    summary = ImzyReadFile(case.path).summary()
+    assert str(case.path) in summary
+    assert "MB)" in summary, "file sizes"
+    assert f"n_spectra: {case.spectra.n_spectra}" in summary
+    assert "is_checksum_valid: True" in summary
+    if case.expected_read_mode == ImzmlModeEnum.CONTINUOUS:
+        assert f"({len(case.expected_mz[0])} bins)" in summary
+
+
 @pytest.mark.compressed_only
 class TestCompression:
     """A zlib file must be indistinguishable from the uncompressed file it came from.
@@ -168,16 +182,6 @@ class TestCompression:
     def test_ibd_is_actually_smaller_or_different(self, case: Case, corpus: dict[str, Case]) -> None:
         source = corpus[case.derived_from]
         assert case.path.with_suffix(".ibd").read_bytes() != source.path.with_suffix(".ibd").read_bytes()
-
-    def test_backends_without_compression_refuse_to_read(self, case: Case, backend: str) -> None:
-        # The point of the guard, and the reason the `read_file` fixture is allowed to skip
-        # these cases elsewhere: a backend that cannot decompress must say so rather than
-        # read the .ibd as raw floats and return noise.
-        if backend not in BACKENDS_WITHOUT_COMPRESSION:
-            pytest.skip(f"{backend} supports compressed input")
-        read_file = READ_FILE_BACKENDS[backend](case)
-        with pytest.raises(UnsupportedCompressionError):
-            read_file.n_spectra
 
     def test_reads_identically_to_uncompressed_twin(
         self, read_file: GenericReadFile, case: Case, corpus: dict[str, Case], backend: str

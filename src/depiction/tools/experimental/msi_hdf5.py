@@ -5,7 +5,7 @@ import awkward
 import h5py
 import numpy as np
 from tqdm import tqdm
-from depiction_io import ImzmlReader, ImzmlModeEnum, ImzmlReadFile
+from depiction_io import GenericReader, ImzmlModeEnum, get_read_file
 
 
 def batched(iterable, n):
@@ -34,7 +34,7 @@ class MsiHdf5:
     def __init__(self, path: str) -> None:
         self._path = path
 
-    def write_imzml(self, imzml_reader: ImzmlReader) -> None:
+    def write_imzml(self, imzml_reader: GenericReader) -> None:
         self.write_coordinates(imzml_reader.coordinates)
         batch_size = 1000
         n_spectra = imzml_reader.n_spectra
@@ -53,7 +53,7 @@ class MsiHdf5:
                 self.append_awkward_2d(awkward.Array(batch), "int_arr")
 
     # TODO if giving it another chance: make use of the following method
-    def count_total_datapoints(self, imzml_reader: ImzmlReader) -> int:
+    def count_total_datapoints(self, imzml_reader: GenericReader) -> int:
         """Returns the total number of data points in the imzML file."""
         return sum(imzml_reader.get_spectrum_n_points(i_spectrum) for i_spectrum in range(imzml_reader.n_spectra))
 
@@ -104,7 +104,7 @@ class MsiHdf5:
 
 
 def main_imzml_to_hdf5(input_file: str, output_file: str) -> None:
-    with ImzmlReadFile(input_file).reader() as reader:
+    with get_read_file(input_file).reader() as reader:
         writer = MsiHdf5(output_file)
         writer.write_imzml(reader)
 

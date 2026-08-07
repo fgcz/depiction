@@ -7,13 +7,13 @@ from pathlib import Path
 from numpy.typing import NDArray
 from tqdm import tqdm
 
-from depiction_io import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import GenericReadFile, ImzmlWriteFile
 
 
 class CreateImzmlPool:
     """Combines randomly sampled spectra from several files into a pool, which can be used for further processing."""
 
-    def __init__(self, source_files: list[ImzmlReadFile], n_spectra_per_file: int, random_seed: int = 0) -> None:
+    def __init__(self, source_files: list[GenericReadFile], n_spectra_per_file: int, random_seed: int = 0) -> None:
         self._source_files = sorted(source_files, key=lambda x: x.imzml_file)
         self._n_spectra_per_file = n_spectra_per_file
         self._random_seed = random_seed

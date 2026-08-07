@@ -68,8 +68,8 @@ class ImzmlWriteFile(GenericWriteFile):
                 raise ValueError(f"File {self.imzml_file} already exists.")
         elif self._write_mode == "w":
             if self.imzml_file.exists():
-                # TODO make the handling more robust, analogous to the changes in ImzmlReadFile, however there might
-                #      need to be a bigger refactoring in the future anyhow.
+                # TODO this unlinks before checking that the writer can be opened, so a failure
+                #      here leaves neither the old file nor a new one.
                 self.imzml_file.unlink()
                 self.ibd_file.unlink()
         else:

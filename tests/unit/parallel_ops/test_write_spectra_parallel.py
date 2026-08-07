@@ -266,7 +266,7 @@ class TestWriteSpectraParallel(unittest.TestCase):
         self.assertEqual(mock_writer_instances[1], mock_operation.mock_calls[0].args[2][1])
 
     @patch.object(MergeImzml, "merge")
-    @patch("depiction.parallel_ops.write_spectra_parallel.ImzmlReadFile")
+    @patch("depiction.parallel_ops.write_spectra_parallel.get_read_file")
     def test_merge_results(self, mock_read_file, method_merge) -> None:
         mock_read_file.side_effect = lambda path: {"read_file": path}
         mock_write_file_0 = MagicMock(

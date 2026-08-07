@@ -17,32 +17,41 @@ if TYPE_CHECKING:
 class ImzyReader(GenericReader):
     """Reads spectra through `imzy`, behind the `GenericReader` protocol.
 
-    Unlike `ImzmlReader` this holds no file handle and no offset table of its own: imzy
-    opens the `.ibd` per read call and keeps the offsets on its own reader object.
+    This holds no file handle and no offset table of its own: imzy opens the `.ibd` per
+    read call and keeps the offsets on its own reader object.
     """
 
-    def __init__(self, path: str | Path, declares_z: bool = True) -> None:
+    def __init__(
+        self, path: str | Path, declares_z: bool = True, encoded_lengths: dict[int, int] | None = None
+    ) -> None:
         """
         Args:
             path: the .imzML (or Bruker .d) file to read.
             declares_z: whether `coordinates` should include the z column. imzy always
                 reports one; see `imzml_scan` for why it must not be passed on blindly.
+            encoded_lengths: the offset -> encoded length map of a zlib-compressed file, or
+                None when it is uncompressed. Its presence is what selects the decompressing
+                reader.
         """
         self._path = Path(path)
         self._declares_z = declares_z
+        self._encoded_lengths = encoded_lengths
         self._reader: BaseReader | None = None
 
     def __getstate__(self) -> dict[str, Any]:
         # imzy readers hold an offset table parsed from the file and are not picklable, so
-        # the state is the path and the one thing that cannot be recovered from it cheaply.
+        # the state is the path and the things that cannot be recovered from it cheaply.
         # `_get_reader_kwargs()` returns `{}` for imzML, so re-opening by path is lossless.
+        # The encoded lengths travel rather than being re-derived: recovering them means
+        # another walk of the XML, which is the expensive half of opening a large file.
         # upstream: imzy readers implement neither __getstate__ nor __setstate__; see
         # ROADMAP.md, Phase D gap (2).
-        return {"path": self._path, "declares_z": self._declares_z}
+        return {"path": self._path, "declares_z": self._declares_z, "encoded_lengths": self._encoded_lengths}
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         self._path = state["path"]
         self._declares_z = state["declares_z"]
+        self._encoded_lengths = state["encoded_lengths"]
         self._reader = None
 
     @property
@@ -54,13 +63,20 @@ class ImzyReader(GenericReader):
     def reader(self) -> BaseReader:
         """The underlying imzy reader, opened on first use."""
         if self._reader is None:
-            import imzy
-
             self._discard_stale_icache()
             # imzy writes an `.icache` sidecar next to the input, so a read-only input tree
             # silently degrades to a full re-parse on every open.
             # upstream: no cache_dir argument; see ROADMAP.md, Phase D gap (3).
-            self._reader = imzy.get_reader(self._path)
+            if self._encoded_lengths is None:
+                import imzy
+
+                self._reader = imzy.get_reader(self._path)
+            else:
+                # `get_reader` dispatches on the file suffix and would hand back the plain
+                # imzML reader, which cannot decompress.
+                from depiction_io.imzy_backend.zlib_reader import ZlibIMZMLReader
+
+                self._reader = ZlibIMZMLReader(self._path, encoded_lengths=self._encoded_lengths)
         return self._reader
 
     def _discard_stale_icache(self) -> None:
@@ -92,8 +108,9 @@ class ImzyReader(GenericReader):
     def imzml_mode(self) -> ImzmlModeEnum:
         """Returns the mode of the imzML file.
 
-        imzy has no notion of continuous vs processed, so the mode is derived exactly the way
-        `ImzmlReader` derives it -- all spectra sharing one m/z offset means continuous.
+        imzy has no notion of continuous vs processed, so the mode is inferred from the offset
+        table: all spectra sharing one m/z offset means continuous. This is what the parser
+        this backend replaced did, which is why the swap did not change any tool's behaviour.
         Reading `IMS:1000030`/`IMS:1000031` instead would disagree on a single-spectrum file,
         which the corpus pins down deliberately.
         """
@@ -135,11 +152,12 @@ class ImzyReader(GenericReader):
     def get_spectrum_n_points(self, i_spectrum: int) -> int:
         """Returns the number of data points in the i-th spectrum, without reading it.
 
-        NOTE: `ImzmlReader` disagrees here. It returns `IMS:1000104`, the *encoded length* in
-        bytes, so for an uncompressed float32 array its answer is four times this one. That
-        is a pre-existing bug in the legacy reader (its only caller is
-        `depiction.tools.experimental.msi_hdf5`, and the test that would have caught it is
-        `@unittest.skip`ped); this backend does not reproduce it.
+        This is `IMS:1000103`, the element count. The parser this backend replaced returned
+        `IMS:1000104` instead -- the *encoded length* in bytes, four times larger for an
+        uncompressed float32 array. That was a long-standing bug: its only caller is
+        `depiction.tools.experimental.msi_hdf5`, and the test that would have caught it was
+        skipped in its entirety. So this method now returns something different from what it
+        used to, on purpose.
         """
         byte_offsets = getattr(self.reader, "byte_offsets", None)
         if byte_offsets is None:
@@ -153,7 +171,7 @@ class ImzyReader(GenericReader):
 
         Routed onto imzy's batched read, which opens the `.ibd` once for the whole chunk
         rather than once per spectrum. That is the difference that shows up under
-        `ReadSpectraParallel`: imzy seek/reads where `ImzmlReader` mmaps, so the default
+        `ReadSpectraParallel`: imzy seek/reads rather than mmapping, so the protocol's default
         implementation of this method would pay one `open()` per spectrum.
         """
         # `_read_spectra` is private; a public batched read is what imzy is missing here.

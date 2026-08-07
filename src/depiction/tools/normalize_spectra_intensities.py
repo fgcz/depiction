@@ -5,7 +5,7 @@ import numba
 import numpy as np
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction_io import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader
+from depiction_io import GenericReadFile, GenericReader, ImzmlWriteFile, ImzmlWriter, get_read_file
 
 
 class NormalizeSpectraIntensitiesVariant:
@@ -19,7 +19,7 @@ class NormalizeSpectraIntensities:
     variant: NormalizeSpectraIntensitiesVariant
 
     def process_file(
-        self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile, parallel_config: ParallelConfig
+        self, read_file: GenericReadFile, write_file: ImzmlWriteFile, parallel_config: ParallelConfig
     ) -> None:
         write_parallel = WriteSpectraParallel.from_config(parallel_config)
         write_parallel.map_chunked_to_file(
@@ -30,7 +30,7 @@ class NormalizeSpectraIntensities:
         )
 
     @classmethod
-    def _process_chunk(cls, reader: ImzmlReader, indices: list[int], writer: ImzmlWriter, variant: str) -> None:
+    def _process_chunk(cls, reader: GenericReader, indices: list[int], writer: ImzmlWriter, variant: str) -> None:
         method = cls._get_operation(variant=variant)
         for id_spectrum in indices:
             mz_arr, int_arr, coords = reader.get_spectrum_with_coords(id_spectrum)
@@ -70,7 +70,7 @@ def main_normalize_intensities(
 ) -> None:
     parallel_config = ParallelConfig(n_jobs=n_jobs)
     with (
-        ImzmlReadFile(input_imzml) as read_file,
+        get_read_file(input_imzml) as read_file,
         ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode) as write_file,
     ):
         normalize_intensities = NormalizeSpectraIntensities(variant=variant)

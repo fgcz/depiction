@@ -7,13 +7,13 @@ from xarray import DataArray
 from depiction.image.multi_channel_image import MultiChannelImage
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.read_spectra_parallel import ReadSpectraParallel
-from depiction_io import ImzmlReadFile, ImzmlReader
+from depiction_io import GenericReadFile, GenericReader
 
 
 class GenerateIonImage:
     """Generates ion images from an imzML file.
 
-    The generate_*_for_file methods use an `ImzmlReadFile` as input, and take a list of selections of what to plot.
+    The generate_*_for_file methods use an `GenericReadFile` as input, and take a list of selections of what to plot.
     If multiple selections should be plotted, the class is designed to avoid reading the data multiple times, and thus
     it can be expected to be faster than calling the generate_*_for_file methods multiple times.
     """
@@ -25,7 +25,7 @@ class GenerateIonImage:
 
     def generate_ion_images_for_file(
         self,
-        input_file: ImzmlReadFile,
+        input_file: GenericReadFile,
         mz_values: Sequence[float],
         tol: float | Sequence[float],
         channel_names: list[str] | bool = False,
@@ -54,7 +54,7 @@ class GenerateIonImage:
 
     def generate_range_images_for_file(
         self,
-        input_file: ImzmlReadFile,
+        input_file: GenericReadFile,
         mz_ranges: list[tuple[float, float]],
         channel_names: list[str] | None = None,
     ) -> MultiChannelImage:
@@ -80,7 +80,7 @@ class GenerateIonImage:
     @classmethod
     def _compute_channels_chunk(
         cls,
-        reader: ImzmlReader,
+        reader: GenericReader,
         spectra_ids: list[int],
         mz_values: Sequence[float],
         tol_values: Sequence[float],
@@ -91,7 +91,7 @@ class GenerateIonImage:
             mz_ranges=[(mz - tol, mz + tol) for mz, tol in zip(mz_values, tol_values)],
         )
 
-    def generate_tic_image_for_file(self, input_file: ImzmlReadFile) -> MultiChannelImage:
+    def generate_tic_image_for_file(self, input_file: GenericReadFile) -> MultiChannelImage:
         parallelize = ReadSpectraParallel.from_config(self._parallel_config)
         array = parallelize.map_chunked(
             read_file=input_file,
@@ -106,7 +106,7 @@ class GenerateIonImage:
         )
 
     @staticmethod
-    def _compute_tic_chunk(reader: ImzmlReader, spectra_ids: list[int]) -> NDArray[np.float64]:
+    def _compute_tic_chunk(reader: GenericReader, spectra_ids: list[int]) -> NDArray[np.float64]:
         result = np.zeros((len(spectra_ids), 1), dtype=float)
         for i, spectrum_id in enumerate(spectra_ids):
             result[i, 0] = np.sum(reader.get_spectrum_int(spectrum_id))
@@ -114,7 +114,7 @@ class GenerateIonImage:
 
     @staticmethod
     def _compute_for_mz_ranges(
-        reader: ImzmlReader,
+        reader: GenericReader,
         spectra_ids: list[int],
         mz_ranges: list[tuple[float, float]],
     ) -> NDArray[np.float64]:

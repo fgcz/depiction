@@ -3,7 +3,7 @@ import yaml
 from pathlib import Path
 from rich.pretty import pprint
 
-from depiction_io import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
+from depiction_io import ImzmlModeEnum, ImzmlWriteFile, get_read_file
 from depiction.tools.process_spectra.config import ProcessSpectraConfig
 from depiction.tools.process_spectra.process import process_spectra
 
@@ -20,7 +20,7 @@ def validate(config_file: Path) -> ProcessSpectraConfig:
 @app.default
 def run(input_imzml_file: Path, output_imzml_file: Path, config_file: Path) -> None:
     config = validate(config_file)
-    read_file = ImzmlReadFile(input_imzml_file)
+    read_file = get_read_file(input_imzml_file)
     # TODO in the future we might implement logic to determine when this can still be set to CONTINUOUS
     write_file = ImzmlWriteFile(output_imzml_file, ImzmlModeEnum.PROCESSED)
     process_spectra(read_file=read_file, write_file=write_file, config=config)

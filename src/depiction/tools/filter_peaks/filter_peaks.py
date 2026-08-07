@@ -5,7 +5,7 @@ from loguru import logger
 from depiction.spectrum.peak_filtering.filter_by_snr_threshold import FilterBySnrThresholdConfig, FilterBySnrThreshold
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction_io import ImzmlReadFile, ImzmlWriteFile, ImzmlReader, ImzmlWriter
+from depiction_io import GenericReadFile, GenericReader, ImzmlWriteFile, ImzmlWriter
 from depiction.spectrum.peak_filtering import ChainFilters, FilterNHighestIntensityPartitioned, PeakFilteringType
 from depiction.spectrum.peak_filtering.filter_n_highest_intensity_partitioned import (
     FilterNHighestIntensityPartitionedConfig,
@@ -31,7 +31,7 @@ def get_peak_filter(config: FilterPeaksConfig) -> PeakFilteringType:
 
 
 def _filter_chunk(
-    reader: ImzmlReader, indices: list[int], writer: ImzmlWriter, peaks_filter: PeakFilteringType
+    reader: GenericReader, indices: list[int], writer: ImzmlWriter, peaks_filter: PeakFilteringType
 ) -> None:
     """Returns the filtered peaks for the given indices."""
     for spectrum_id in indices:
@@ -46,7 +46,7 @@ def _filter_chunk(
         writer.add_spectrum(mz_arr, int_arr, coords)
 
 
-def filter_peaks(config: FilterPeaksConfig, input_file: ImzmlReadFile, output_file: ImzmlWriteFile) -> None:
+def filter_peaks(config: FilterPeaksConfig, input_file: GenericReadFile, output_file: ImzmlWriteFile) -> None:
     """Filters the peaks in `input_file` and writes them to `output_file` according to the `config`."""
     peaks_filter = get_peak_filter(config)
     # TODO n_jobs handling

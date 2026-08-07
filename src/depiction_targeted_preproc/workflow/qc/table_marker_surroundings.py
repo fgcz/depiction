@@ -5,12 +5,12 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
-from depiction_io import ImzmlReadFile, ImzmlReader
+from depiction_io import GenericReadFile, GenericReader, get_read_file
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 
 
 def _get_marker_surroundings_chunk(
-    reader: ImzmlReader, spectra_ids: list[int], targets: list[tuple[float, str]], mz_max_dist: float
+    reader: GenericReader, spectra_ids: list[int], targets: list[tuple[float, str]], mz_max_dist: float
 ) -> pl.DataFrame:
     collect = []
     for i_spectrum in spectra_ids:
@@ -35,7 +35,7 @@ def _get_marker_surroundings_chunk(
 
 
 def get_marker_surroundings(
-    read_file: ImzmlReadFile, mz_targets: Sequence[float], mz_labels: Sequence[str], mz_max_dist: float, n_jobs: int
+    read_file: GenericReadFile, mz_targets: Sequence[float], mz_labels: Sequence[str], mz_max_dist: float, n_jobs: int
 ) -> pl.DataFrame:
     read_parallel = ReadSpectraParallel.from_config(ParallelConfig(n_jobs=n_jobs))
     return read_parallel.map_chunked(
@@ -63,7 +63,7 @@ def qc_table_marker_surroundings(
     config = PipelineParameters.parse_yaml(config_path)
     n_jobs = config.n_jobs
 
-    read_file = ImzmlReadFile(imzml_peaks)
+    read_file = get_read_file(imzml_peaks)
     mass_list_df = pl.read_csv(mass_list)
     dist_df = get_marker_surroundings(
         read_file=read_file,

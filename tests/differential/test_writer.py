@@ -17,7 +17,7 @@ import numpy as np
 import pytest
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction_io import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile, ImzmlWriter, ImzyReadFile
+from depiction_io import ImzmlModeEnum, ImzmlWriteFile, ImzmlWriter, ImzyReadFile
 from depiction_io.types import GenericReadFile, GenericReader, GenericWriter
 from tests.differential.corpus import Case, make_spectra, write_case
 
@@ -87,9 +87,8 @@ def file_with_an_empty_spectrum(tmp_path: Path) -> Path:
     return path
 
 
-@pytest.mark.parametrize("read_file_cls", [ImzmlReadFile, ImzyReadFile])
-def test_empty_spectra_read_back_as_empty_arrays(file_with_an_empty_spectrum: Path, read_file_cls: type) -> None:
-    read_file = read_file_cls(file_with_an_empty_spectrum)
+def test_empty_spectra_read_back_as_empty_arrays(file_with_an_empty_spectrum: Path) -> None:
+    read_file = ImzyReadFile(file_with_an_empty_spectrum)
     assert read_file.n_spectra == 2
     with read_file.reader() as reader:
         assert len(reader.get_spectrum_mz(0)) == 3
@@ -119,7 +118,7 @@ def test_overwriting_invalidates_the_imzy_offset_cache(tmp_path: Path) -> None:
 
     _write(path, n_spectra=5, n_points=7)
     read_file = ImzyReadFile(path)
-    assert read_file.n_spectra == ImzmlReadFile(path).n_spectra == 5
+    assert read_file.n_spectra == 5
     with read_file.reader() as reader:
         assert len(reader.get_spectrum_mz(0)) == 7
 
@@ -167,9 +166,7 @@ def test_write_spectra_parallel_round_trip(case: Case, tmp_path: Path) -> None:
     disagreement between the two halves shows up as lost or reordered spectra rather than
     as an exception.
     """
-    if case.compressed:
-        pytest.skip("the imzy backend refuses compressed input, and the legacy path is covered by the twin")
-    read_file: GenericReadFile = ImzmlReadFile(case.path)
+    read_file: GenericReadFile = ImzyReadFile(case.path)
     output = tmp_path / "merged.imzML"
     parallel = WriteSpectraParallel.from_config(ParallelConfig(n_jobs=2, task_size=2))
     parallel.map_chunked_to_files(
@@ -178,7 +175,7 @@ def test_write_spectra_parallel_round_trip(case: Case, tmp_path: Path) -> None:
         operation=_copy_chunk,
     )
 
-    merged = ImzmlReadFile(output)
+    merged = ImzyReadFile(output)
     assert merged.n_spectra == case.spectra.n_spectra
     np.testing.assert_array_equal(read_file.coordinates, merged.coordinates)
     # The chunk files that `WriteSpectraParallel` writes are opened with `ImzmlWriteFile`'s

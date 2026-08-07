@@ -12,7 +12,7 @@ from depiction.spectrum.evaluate_bins import EvaluateBins
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from depiction_io import ImzmlReadFile
+    from depiction_io import GenericReadFile
     from depiction.parallel_ops import ParallelConfig
     from numpy.typing import NDArray
 
@@ -37,7 +37,9 @@ class VisualizeCalibrationTargets:
         return cls(mean_mz_arr=mean_mz_arr, mean_int_arr=mean_int_arr)
 
     @classmethod
-    def from_imzml_file(cls, read_file: ImzmlReadFile, parallel_config: ParallelConfig) -> VisualizeCalibrationTargets:
+    def from_imzml_file(
+        cls, read_file: GenericReadFile, parallel_config: ParallelConfig
+    ) -> VisualizeCalibrationTargets:
         mean_mz_arr, mean_int_arr = cls._get_mean_spectrum_for_file(
             read_file=read_file, parallel_config=parallel_config
         )
@@ -140,7 +142,7 @@ class VisualizeCalibrationTargets:
 
     @classmethod
     def _get_mean_spectrum_for_file(
-        cls, read_file: ImzmlReadFile, parallel_config: ParallelConfig
+        cls, read_file: GenericReadFile, parallel_config: ParallelConfig
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         with read_file.reader() as reader:
             mz_arr_first = reader.get_spectrum_mz(0)

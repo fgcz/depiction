@@ -1,9 +1,10 @@
 # depiction: finish the aborted split, migrate I/O to `imzy`, leave it archivable
 
-Status: **partially executed**, 2026-08-06. Author: Leonardo Schwarz.
+Status: **partially executed**, 2026-08-07. Author: Leonardo Schwarz.
 
-Phases A, B, C and F are done. Phases D, E and G are **not started** and are described
-below as a plan for whoever picks this up; see [What a successor needs](#what-a-successor-needs).
+Phases A, B, C, E and F are done. Phase D is done on the reader side only; Phase G is
+**not started** and is described below as a plan for whoever picks it up; see
+[What a successor needs](#what-a-successor-needs).
 
 ## Context
 
@@ -179,14 +180,14 @@ The reader is **opt-in and not the default**; the writer flip is unconditional.
   `writer.add_spectrum` in five tools, so an invented z column would have propagated.
   Deriving it in the same walk as the compression check costs nothing and makes the two
   backends agree by construction rather than by test.
-- **`backend.py`.** `get_read_file(path)` returns the legacy reader unless
-  `DEPICTION_IO_BACKEND=imzy` or an explicit argument says otherwise; a non-imzML path goes
+- **`backend.py`.** `get_read_file(path)` returned the legacy reader unless
+  `DEPICTION_IO_BACKEND=imzy` or an explicit argument said otherwise; a non-imzML path went
   to imzy regardless, with a clear error on macOS where `imzy/plugins.py` disables the
-  Bruker readers. **Caveat:** the tools in `depiction` still construct `ImzmlReadFile`
-  directly, so the environment variable does not redirect them yet. Routing those 46 call
-  sites through the seam is deliberately left to Phase E, where it is verifiable against
-  real data; doing it now would be an unverifiable change to every tool for the benefit of
-  a backend that is not yet trusted.
+  Bruker readers. At this point the tools still constructed `ImzmlReadFile` directly, so the
+  environment variable did not redirect them — routing those call sites was deliberately
+  left to Phase E rather than made an unverifiable change to every tool for the benefit of a
+  backend not yet trusted. *Superseded by Phase E: there is one backend now and the
+  environment variable is gone.*
 - **Writer.** `pyimzml` is gone. Two imzy behaviours had to be corrected first — see Phase D
   gaps (4) and (5) — and imzy rewrites the output suffix to `.imzML` rather than using the
   path it was given, so `ImzmlWriter.open` rejects any other spelling instead of quietly
@@ -210,6 +211,55 @@ The reader is **opt-in and not the default**; the writer flip is unconditional.
   **exercised by nothing**: it cannot run on macOS and there is no fixture.
 
 Two pre-existing bugs surfaced while doing this; see *Known, still unfixed* below.
+
+### Phase E — imzy as the default, custom parser deleted ✅
+
+The reader is the default and the hand-rolled parser is gone: **−1,238 lines**
+(`imzml_reader.py`, `imzml_read_file.py`, `parser/parse_spectra.py`, `parser/cv_params.py`,
+`compression.py` and the two test modules for them, one of which was `@unittest.skip`ped in
+its entirety and had been asserting nothing for a long time).
+
+Done in four steps, each green under `nox`, with the legacy backend still registered in the
+differential harness through the third — so the A/B parity suite was proving the two readers
+indistinguishable at the exact commit that flipped the default.
+
+- **zlib is read rather than refused.** This was the one hard blocker (Phase D gap 1), and
+  not a hypothetical: the only real-world imzML in the repository, the chunks under
+  `tests/integration/imzml_parser/`, is a zlib-compressed FGCZ export. `imzml_scan.py` now
+  collects `IMS:1000104` encoded lengths during the walk it was already doing, keyed by the
+  block's offset — which means the reader never has to work out which `binaryDataArray` was
+  the m/z one, and a continuous file's shared m/z block collapses to one entry.
+  `zlib_reader.py` subclasses imzy's `IMZMLReader` and inflates at the three places it turns
+  bytes into floats; `_ENCODED_READ_SITES` pins that list so an imzy upgrade adding a fourth
+  fails loudly rather than quietly returning noise again. Numpress stays refused — undoing
+  it needs a codec, not a length. Both guards were mutation-checked.
+- **The tools go through the seam.** ~35 `ImzmlReadFile(...)` constructions became
+  `get_read_file(...)`, and the annotations that named a concrete reader became the
+  protocols they actually require, now exported from `depiction_io`. Behaviour-preserving
+  while the default was still legacy, which is what made the flip a one-line change.
+- **`ImzyReadFile` was not quite a drop-in.** It had no `file_sizes_bytes`/`file_sizes_mb`
+  and its `summary()` omitted the file-size and m/z-range lines, so flipping first would
+  have silently shortened what `limit_mz_range` prints. Ported before the flip, and the
+  two backends' `summary()` output was compared as whole strings while both existed.
+- **`get_read_file` collapsed to one implementation**, taking `ReadBackend`,
+  `DEFAULT_BACKEND` and `DEPICTION_IO_BACKEND` with it. The function stays: the choice it
+  makes for a vendor format on macOS is still real.
+
+**Kept, deliberately** — a successor should not "finish the job" by deleting these:
+`parser/parse_metadata.py` is how `ImzyReadFile` gets checksums and a pixel size that is
+`None` rather than `1` when the file declares none; `imzml_alignment_tracker.py` is still
+used by the writer.
+
+**What the differential suite lost.** It is no longer an A/B comparison, and its docstring
+says so. It keeps most of its value because `corpus.Case` carries the source arrays
+independently of any reader, so the assertions are backend-against-ground-truth, and
+`RamReadFile` still cross-checks. What is genuinely gone is a second *XML parser* to
+disagree with imzy: a bug shared symmetrically by this writer and this reader would no
+longer show up there. Only real acquisitions can catch that class of thing, which is what
+[`public-test-data.md`](public-test-data.md) and Phase G are for.
+
+**Not done, by decision:** the end-to-end `depiction_targeted_preproc` run diffed against a
+pre-refactor baseline. See the risk table.
 
 ---
 
@@ -236,13 +286,12 @@ Two pre-existing bugs surfaced while doing this; see *Known, still unfixed* belo
   `str(imzml_file.imzml_file.absolute())` whose result is discarded, leaving `@abs_path`
   undefined in the pandas query two lines below. Pre-existing; out of scope for the work
   above.
-- **`ImzmlReader.get_spectrum_n_points` returns bytes, not points.** It reports
-  `IMS:1000104`, the encoded length, so for an uncompressed float32 array its answer is
-  four times the truth. Found in Phase C, when the imzy backend implemented the method
-  correctly and the two disagreed. Left alone because the legacy reader is what Phase E
-  deletes, its only caller is `depiction.tools.experimental.msi_hdf5`, and the test that
-  would have caught it (`test_imzml_reader.py`) is `@unittest.skip`ped in its entirety.
-  Fixing it means plumbing `IMS:1000103` through the reader's constructor.
+- ~~**`ImzmlReader.get_spectrum_n_points` returns bytes, not points.**~~ **Fixed by
+  deletion in Phase E.** The legacy reader reported `IMS:1000104`, the encoded length, so
+  for an uncompressed float32 array its answer was four times the truth; the imzy backend
+  reports `IMS:1000103` and is correct. Note that this is a **behaviour change** for the
+  one caller, `depiction.tools.experimental.msi_hdf5`, which has been getting four times
+  the right number and is not covered by any test.
 - **`WriteSpectraParallel` does not propagate dtypes.** Its chunk files are opened with
   `ImzmlWriteFile`'s defaults, so a float64 intensity array comes back as float32 after a
   parallel round trip. Pre-existing, pinned by `tests/differential/test_writer.py` rather
@@ -258,13 +307,18 @@ Two pre-existing bugs surfaced while doing this; see *Known, still unfixed* belo
 them as issues first, with the failing case. All five are worked around in-tree today,
 behind `# upstream:` markers.
 
-1. **No zlib support — the one hard blocker.** `_read_spectrum` is a bare
-   `np.frombuffer(mz_bytes, dtype=self.mz_precision)`; nothing anywhere in imzy inspects
-   `MS:1000574`, and `byte_offsets` stores array lengths, not encoded lengths. A
-   zlib-compressed `.ibd` therefore **silently produces noise, not an error**. Reference
-   implementation: `imzml_reader.py`, `parse_spectra.py`, `compression.py`. Reader half
-   only — neither toolchain writes compressed output. Worth reporting the silent-corruption
-   behaviour as a bug in its own right, independent of the fix.
+1. **No zlib support — was the one hard blocker; now worked around in full.**
+   `_read_spectrum` is a bare `np.frombuffer(mz_bytes, dtype=self.mz_precision)`; nothing
+   anywhere in imzy inspects `MS:1000574`, and `byte_offsets` stores array lengths, not
+   encoded lengths. A zlib-compressed `.ibd` therefore **silently produces noise, not an
+   error**. Reader half only — neither toolchain writes compressed output.
+
+   Phase E closed this in-tree: `imzml_scan.py` collects `IMS:1000104` encoded lengths
+   keyed by offset during the walk it was already doing, and `zlib_reader.py` subclasses
+   `IMZMLReader` to inflate at the three places imzy turns bytes into floats. Upstream would
+   want it differently — `process_spectrum` parsing `IMS:1000104` and the cache format
+   carrying it — so the patch is not directly portable, but the failing case and the
+   silent-corruption behaviour are still worth reporting as a bug in their own right.
 2. **Readers are not picklable.** No `__getstate__`/`__setstate__`, and
    `WriteSpectraParallel` needs them. Note that `BaseReader._get_reader_kwargs()` returns
    `{}` and `IMZMLReader` does not override it, so for imzML this is simply "re-open by
@@ -303,33 +357,14 @@ behind `# upstream:` markers.
 Assume upstream review is slow. **Do not block on merge:** carry each fix in the adapter
 (or a pinned fork) and leave a `# upstream: <PR url>` marker at every carried patch.
 
-### Phase E — Flip the default, delete the custom parser (not started, blocked)
+### Phase E — done
 
-**Blocked on inputs only the maintainer can provide:** a real dataset plus pre-refactor
-baseline outputs. Without them there is no way to tell a writer regression from a
-legitimate difference.
+See [above](#phase-e--imzy-as-the-default-custom-parser-deleted-). One item from the
+original plan was **not** taken, and is still available:
 
-1. **Route the 46 `ImzmlReadFile(...)` call sites in `depiction` through
-   `get_read_file(...)`.** Mechanical, and behaviour-preserving while the default is legacy,
-   but it is what makes `DEPICTION_IO_BACKEND` mean anything outside the tests. Deliberately
-   not done in Phase C: it touches every tool, and there was no way to verify it against
-   real data. Watch for unit tests that patch `ImzmlReadFile` by module path.
-2. Make imzy the default backend; run the full suite, `system_tests`, and at least one
-   real end-to-end `depiction_targeted_preproc` run diffed against a baseline. Gap (1) —
-   zlib — must be closed first, or compressed inputs stop working entirely.
-3. **Delete** `depiction_io/imzml/parser/` (`parse_spectra.py`, `parse_metadata.py`,
-   `cv_params.py`), `imzml_reader.py`, `compression.py`, `imzml_alignment_tracker.py`, and
-   their tests. Retarget the integration tests under `tests/integration/imzml_parser/` at
-   the imzy backend rather than deleting them — they encode real cvParam edge cases
-   (cf. commit `46f3f56 "handle weird cvParam entries"`) worth keeping.
-4. **Keep** `ram/` (no imzy equivalent), `file_checksums.py`, `imzml_zip.py`,
-   `pixel_size.py`, `types.py`.
-5. *Optional, skippable:* `GenericReader.imzml_mode` / `ImzmlModeEnum` is imzML-specific
-   naming that becomes nonsense once Bruker `.d` readers exist. Renaming to `spectra_mode`
-   / `SpectraMode` is mechanical (33 sites) but pure churn.
-
-Net effect: roughly **−1,100 LOC of custom parsing** and Bruker `.d` support gained
-(`pyimzml` is already gone, dropped with the writer flip in Phase C).
+- *Optional, skippable:* `GenericReader.imzml_mode` / `ImzmlModeEnum` is imzML-specific
+  naming that becomes nonsense now that Bruker `.d` readers are reachable. Renaming to
+  `spectra_mode` / `SpectraMode` is mechanical (33 sites) but pure churn.
 
 ### Phase G — A downloadable public fixture for the system tests (not started)
 
@@ -343,7 +378,13 @@ it.
 
 The fix is a redistributable acquisition that the test suite fetches on demand:
 
-1. **Find a public imzML/ibd pair** that is small enough to download per CI run (target
+1. **Find a public imzML/ibd pair** — **done, 2026-08-07**: an MIT-licensed, DOI-stable
+   59 MB pair with checksums and measured geometry recorded in
+   [`public-test-data.md`](public-test-data.md), along with what was ruled out and why.
+   Steps 2–4 below are untouched; per step 3 the assertions remain the real work. The
+   criteria this had to meet are kept below as written.
+
+   Find a pair that is small enough to download per CI run (target
    well under 100 MB — a single small tissue section or a cropped acquisition), openly
    licensed, and served from a stable, citable location. Candidate sources, in rough order
    of how likely they are to give a permanent URL:
@@ -387,7 +428,7 @@ dependency.
 ```bash
 uv sync --extra testing --extra dev
 nox                                           # lint + both test suites + licensecheck + docs
-uv run pytest tests/differential -v           # reader parity over every registered backend
+uv run pytest tests/differential -v           # the reader against the corpus's ground truth
 uv run pytest tests/unit/parallel_ops -v      # pickling across process boundaries
 nox -s system_tests                           # real data, slow, skips without the local fixture
 depiction-tools --help
@@ -401,13 +442,9 @@ uv pip show depiction_io | grep -i 'bioio\|tifffile'  # must be empty
 uv pip list | grep -i pyimzml                         # must be empty since Phase C
 ```
 
-The A/B check that actually bites is `pytest tests/differential`, which parametrises over
-both readers directly. The environment variable below is *not* a substitute for it until
-Phase E routes the tools through `get_read_file`:
-
-```bash
-DEPICTION_IO_BACKEND=imzy uv run pytest tests -q   # only redirects get_read_file callers
-```
+`pytest tests/differential` was an A/B comparison between the two readers for the length of
+the migration. There is one reader now, so it compares against the corpus's independently
+held source arrays instead; see the note in Phase E about what that no longer catches.
 
 ---
 
@@ -415,11 +452,12 @@ DEPICTION_IO_BACKEND=imzy uv run pytest tests -q   # only redirects get_read_fil
 
 | Risk | Mitigation |
 |---|---|
-| Zlib-compressed input → imzy silently reads noise | Hard guard raising `NotImplementedError` before any default flip; zlib twins permanently in the differential corpus; upstream PR (1) |
+| Zlib-compressed input → imzy silently reads noise | **Closed.** `zlib_reader.py` inflates at every read site, `_ENCODED_READ_SITES` fails loudly if imzy grows another one, and the zlib twins run the whole parity suite. Mutation-checked both ways. Numpress still refuses rather than guesses |
 | imzy's writer silently drops empty spectra | Adapter-side guard that raises before delegating and on a `False` return; upstream PR (4) |
 | imzy PRs not merged quickly | Carry patches in-tree behind `# upstream: <url>` markers; never block a phase on review |
 | imzy's writer adds a z axis to 2D files | Removed again in `DepictionIMZMLWriter`, pinned by `test_z_is_written_only_for_3d_input`; upstream PR (5) |
 | `WriteSpectraParallel` chunk/merge breaks under the new writer | Flipped the writer while the reader was still known-good, so failures had one cause; a round-trip test now covers chunk-write → merge |
 | Bruker readers unavailable on macOS | Expected — `imzy/plugins.py` disables them there. Local dev is imzML-only; the `.d` path is plumbed but untested, and `get_read_file` says so rather than failing obscurely |
-| **The writer flip is unvalidatable against real data** | The one risk Phase C could not close. The corpus, the write round trip and the parallel merge test are all synthetic; only Phase E's baseline diff can tell a regression from a legitimate change. Recorded rather than mitigated |
-| The migration is abandoned mid-flight | Phases A, B, C and F are done and green. The legacy reader stays the default, so what remains is a documented gap list rather than a fourth half-finished refactoring — but note that the *writer* flip is not opt-in, so abandoning now leaves imzy writing every file |
+| **No end-to-end run diffed against a pre-refactor baseline** | **Open, and the largest remaining one.** Deliberately deferred rather than solved. What exists instead: the whole corpus asserted indistinguishable between the two readers before the parser was deleted, and reader parity on two real third-party acquisitions ([`public-test-data.md`](public-test-data.md)). Neither covers the *writer* end to end. The baselines have to come from a `depiction_targeted_preproc` run on real data |
+| `get_spectrum_n_points` now returns points rather than bytes | A deliberate behaviour change, not a regression — the old answer was four times too large. Its only caller, `depiction.tools.experimental.msi_hdf5`, has no test and was never checked against the old value |
+| The migration is abandoned mid-flight | No longer applicable. Phases A, B, C, E and F are done and green, there is one reader and one writer, and the parser that would have been the fourth half-finished refactoring is gone |

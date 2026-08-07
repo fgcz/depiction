@@ -9,11 +9,7 @@ from collections.abc import Callable
 import numpy as np
 
 from depiction.parallel_ops import ReadSpectraParallel
-from depiction_io import (
-    ImzmlReadFile,
-    ImzmlWriteFile,
-    ImzmlModeEnum,
-)
+from depiction_io import GenericReadFile, GenericReader, ImzmlModeEnum, ImzmlWriteFile, get_read_file
 from depiction.tools.merge_imzml import MergeImzml
 
 if TYPE_CHECKING:
@@ -189,7 +185,7 @@ class WriteSpectraParallel:
         merger = MergeImzml()
         for i_file, write_file in enumerate(write_files):
             merger.merge(
-                input_files=[ImzmlReadFile(f) for f in split_modes_and_paths[i_file][1]], output_file=write_file
+                input_files=[get_read_file(f) for f in split_modes_and_paths[i_file][1]], output_file=write_file
             )
 
     def map_chunked_to_file(

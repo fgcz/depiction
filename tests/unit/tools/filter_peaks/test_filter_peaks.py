@@ -3,7 +3,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from depiction.parallel_ops import WriteSpectraParallel, ParallelConfig
-from depiction_io import ImzmlReader, ImzmlWriter
+from depiction_io import GenericReader, ImzmlWriter
 from depiction.spectrum.peak_filtering import FilterNHighestIntensityPartitioned
 from depiction.tools.filter_peaks.config import (
     FilterPeaksConfig,
@@ -35,7 +35,7 @@ def test_filter_peaks_when_n_highest_intensity_partitioned(mocker: MockerFixture
 
 
 def test_filter_chunk(mocker: MockerFixture) -> None:
-    mock_reader = mocker.MagicMock(name="mock_reader", spec=ImzmlReader)
+    mock_reader = mocker.MagicMock(name="mock_reader", spec=GenericReader)
     mock_reader.get_spectrum_with_coords.side_effect = [("m1", "i1", "c1"), ("m2", "i2", "c2")]
     mock_peaks_filter = mocker.MagicMock(name="mock_peaks_filter", spec=FilterNHighestIntensityPartitioned)
     mock_peaks_filter.filter_peaks.side_effect = lambda mz_arr, int_arr, _1, _2: (mz_arr, int_arr)
@@ -53,7 +53,7 @@ def test_filter_chunk_drops_spectra_with_no_surviving_peaks(mocker: MockerFixtur
     # The writer refuses an empty spectrum rather than silently skipping it, so filtering a
     # noise pixel down to nothing would abort the whole run if it were passed on. `pick_peaks`
     # already drops such spectra with a warning; this keeps the two consistent.
-    mock_reader = mocker.MagicMock(name="mock_reader", spec=ImzmlReader)
+    mock_reader = mocker.MagicMock(name="mock_reader", spec=GenericReader)
     mock_reader.get_spectrum_with_coords.side_effect = [
         (np.array([100.0]), np.array([1.0]), "c1"),
         (np.array([200.0]), np.array([2.0]), "c2"),

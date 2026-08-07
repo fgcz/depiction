@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
-from depiction_io import ImzmlModeEnum
-from depiction_io import ImzmlWriteFile, ImzmlReadFile, ImzmlWriter, ImzmlReader
+from depiction_io import GenericReadFile, GenericReader, ImzmlModeEnum
+from depiction_io import ImzmlWriteFile, ImzmlWriter
 from depiction.spectrum.peak_filtering import PeakFilteringType
 from depiction.spectrum.peak_picking import BasicInterpolatedPeakPicker, BasicPeakPicker
 from depiction.spectrum.peak_picking.ms_peak_picker_wrapper import MSPeakPicker
@@ -25,7 +25,7 @@ class PickPeaks:
         self._peak_picker = peak_picker
         self._parallel_config = parallel_config
 
-    def evaluate_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile) -> None:
+    def evaluate_file(self, read_file: GenericReadFile, write_file: ImzmlWriteFile) -> None:
         parallel = WriteSpectraParallel.from_config(self._parallel_config)
         parallel.map_chunked_to_file(
             read_file=read_file,
@@ -37,7 +37,7 @@ class PickPeaks:
     @classmethod
     def _operation(
         cls,
-        reader: ImzmlReader,
+        reader: GenericReader,
         spectra_ids: list[int],
         writer: ImzmlWriter,
         peak_picker,
@@ -56,7 +56,7 @@ class PickPeaks:
 # def debug_diagnose_threshold_correspondence(
 #    peak_filtering: FilterByIntensity,
 #    peak_picker: BasicInterpolatedPeakPicker,
-#    input_imzml: ImzmlReadFile,
+#    input_imzml: GenericReadFile,
 #    n_points: int,
 # ) -> None:
 #    unfiltered_peak_picker = BasicInterpolatedPeakPicker(
@@ -121,7 +121,7 @@ def get_peak_picker_from_config(config: PickPeaksConfig) -> Any:
 
 def pick_peaks(
     config: PickPeaksConfig,
-    input_file: ImzmlReadFile,
+    input_file: GenericReadFile,
     output_file: ImzmlWriteFile,
 ) -> None:
     peak_picker = get_peak_picker_from_config(config)

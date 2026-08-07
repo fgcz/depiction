@@ -11,13 +11,7 @@ from depiction.spectrum.estimate_ppm_error import EstimatePPMError
 from depiction.spectrum.evaluate_bins import EvaluateBins
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.write_spectra_parallel import WriteSpectraParallel
-from depiction_io import (
-    ImzmlReadFile,
-    ImzmlModeEnum,
-    ImzmlWriteFile,
-    ImzmlReader,
-    ImzmlWriter,
-)
+from depiction_io import GenericReadFile, GenericReader, ImzmlModeEnum, ImzmlWriteFile, ImzmlWriter, get_read_file
 
 
 class AlignImzmlMethod(enum.Enum):
@@ -32,7 +26,7 @@ class AlignImzml:
 
     def __init__(
         self,
-        input_file: ImzmlReadFile,
+        input_file: GenericReadFile,
         output_file_path: str,
         method: AlignImzmlMethod,
         parallel_config: ParallelConfig = None,
@@ -42,7 +36,7 @@ class AlignImzml:
         self._method = method
         self._parallel_config = parallel_config
 
-    def evaluate(self) -> ImzmlReadFile:
+    def evaluate(self) -> GenericReadFile:
         # Check if the input file is already in "continuous" mode.
         if self._input_file.imzml_mode == ImzmlModeEnum.CONTINUOUS:
             logging.info('No binning required, input file is already in "continuous" mode.')
@@ -57,15 +51,15 @@ class AlignImzml:
             output_file=ImzmlWriteFile(self._output_file_path, imzml_mode=ImzmlModeEnum.CONTINUOUS),
             bin_eval=bin_eval,
         )
-        return ImzmlReadFile(self._output_file_path)
+        return get_read_file(self._output_file_path)
 
     def _apply_alignment(
         self,
-        input_file: ImzmlReadFile,
+        input_file: GenericReadFile,
         output_file: ImzmlWriteFile,
         bin_eval: EvaluateBins,
     ) -> None:
-        def chunk_operation(reader: ImzmlReader, spectra_ids: list[int], writer: ImzmlWriter) -> None:
+        def chunk_operation(reader: GenericReader, spectra_ids: list[int], writer: ImzmlWriter) -> None:
             mz_arr_new = bin_eval.mz_values
             for spectrum_id in tqdm(spectra_ids):
                 mz_arr_orig, int_arr_orig = reader.get_spectrum(spectrum_id)
@@ -75,7 +69,7 @@ class AlignImzml:
         parallelize = WriteSpectraParallel.from_config(self._parallel_config)
         parallelize.map_chunked_to_file(read_file=input_file, write_file=output_file, operation=chunk_operation)
 
-    def _get_bin_eval(self, input_file: ImzmlReadFile) -> EvaluateBins:
+    def _get_bin_eval(self, input_file: GenericReadFile) -> EvaluateBins:
         if self._method == AlignImzmlMethod.CARDINAL_ESTIMATE_PPM:
             print('Estimating PPM error and creating bins for "continuous" mode.')
             estimate_ppm = EstimatePPMError()
@@ -99,7 +93,7 @@ class AlignImzml:
 
 def main_align_imzml(input_imzml: str, output_imzml: str, method: str, n_jobs: int) -> Path:
     align = AlignImzml(
-        input_file=ImzmlReadFile(input_imzml),
+        input_file=get_read_file(input_imzml),
         output_file_path=output_imzml,
         method=AlignImzmlMethod(method),
         parallel_config=ParallelConfig(n_jobs=n_jobs),

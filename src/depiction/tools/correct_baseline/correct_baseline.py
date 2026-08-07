@@ -7,7 +7,7 @@ import numpy as np
 
 from depiction.parallel_ops.parallel_config import ParallelConfig
 from depiction.parallel_ops.write_spectra_parallel import WriteSpectraParallel
-from depiction_io import ImzmlWriteFile, ImzmlWriter, ImzmlReader, ImzmlReadFile
+from depiction_io import GenericReadFile, GenericReader, ImzmlWriteFile, ImzmlWriter, get_read_file
 from depiction.spectrum.baseline.local_medians_baseline import LocalMediansBaseline
 from depiction.spectrum.baseline.tophat_baseline import TophatBaseline
 from depiction.tools.correct_baseline.config import BaselineVariants, BaselineCorrectionConfig
@@ -41,7 +41,7 @@ class CorrectBaseline:
             raise ValueError(f"Unknown baseline variant: {variant}")
         return cls(parallel_config=parallel_config, baseline_correction=baseline_correction)
 
-    def evaluate_file(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile) -> None:
+    def evaluate_file(self, read_file: GenericReadFile, write_file: ImzmlWriteFile) -> None:
         """Evaluates the baseline correction for ``read_file`` and writes the results to ``write_file``."""
         parallel = WriteSpectraParallel.from_config(self._parallel_config)
         parallel.map_chunked_to_file(
@@ -62,7 +62,7 @@ class CorrectBaseline:
     @classmethod
     def _operation(
         cls,
-        reader: ImzmlReader,
+        reader: GenericReader,
         spectra_ids: list[int],
         writer: ImzmlWriter,
         baseline_correction,
@@ -89,7 +89,7 @@ class CorrectBaseline:
 def correct_baseline(config: BaselineCorrectionConfig, input_imzml: Path, output_imzml: Path) -> None:
     """Removes the baseline from the input imzML file and writes the result to the output imzML file."""
     output_imzml.parent.mkdir(parents=True, exist_ok=True)
-    input_file = ImzmlReadFile(input_imzml)
+    input_file = get_read_file(input_imzml)
     # TODO define some sane default for None and -1 n_jobs e.g. use all available up to a
     #      limit (None) or use all (1-r)
     n_jobs = 10 if config.n_jobs is None else config.n_jobs

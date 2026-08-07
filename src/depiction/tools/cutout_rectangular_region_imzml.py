@@ -3,7 +3,7 @@ import json
 
 import numpy as np
 
-from depiction_io import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import GenericReadFile, ImzmlWriteFile, get_read_file
 
 
 class CutoutRectangularRegionImzml:
@@ -12,7 +12,7 @@ class CutoutRectangularRegionImzml:
     def __init__(
         self,
         *,
-        read_file: ImzmlReadFile,
+        read_file: GenericReadFile,
         x_range_abs: tuple[int, int],
         y_range_abs: tuple[int, int],
         verbose: bool,
@@ -25,7 +25,7 @@ class CutoutRectangularRegionImzml:
     @classmethod
     def from_relative_ranges(
         cls,
-        read_file: ImzmlReadFile,
+        read_file: GenericReadFile,
         x_range_rel: tuple[float, float],
         y_range_rel: tuple[float, float],
         verbose: bool = True,
@@ -48,7 +48,7 @@ class CutoutRectangularRegionImzml:
     @classmethod
     def from_absolute_ranges(
         cls,
-        read_file: ImzmlReadFile,
+        read_file: GenericReadFile,
         x_range_abs: tuple[int, int],
         y_range_abs: tuple[int, int],
         verbose: bool = True,
@@ -69,7 +69,7 @@ class CutoutRectangularRegionImzml:
     @classmethod
     def _convert_relative_to_absolute(
         cls,
-        read_file: ImzmlReadFile,
+        read_file: GenericReadFile,
         x_range_rel: tuple[float, float],
         y_range_rel: tuple[float, float],
     ) -> tuple[tuple[int, int], tuple[int, int]]:
@@ -148,7 +148,7 @@ def main_cutout_rectangular_region_imzml(
     x_range = (xmin, xmax)
     y_range = (ymin, ymax)
 
-    read_file = ImzmlReadFile(input_imzml)
+    read_file = get_read_file(input_imzml)
     write_file = ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode)
 
     if relative:

@@ -1,18 +1,18 @@
-from depiction_io import ImzmlModeEnum, ImzmlReadFile, ImzmlWriteFile
+from depiction_io import GenericReadFile, ImzmlModeEnum, ImzmlWriteFile, get_read_file
 from tqdm import tqdm
 from collections.abc import Sequence
 import argparse
 
 
 class MergeImzml:
-    def merge(self, input_files: Sequence[ImzmlReadFile], output_file: ImzmlWriteFile) -> None:
+    def merge(self, input_files: Sequence[GenericReadFile], output_file: ImzmlWriteFile) -> None:
         with output_file.writer() as writer:
             for input_file in tqdm(input_files, desc=" input file", position=0):
                 with input_file.reader() as reader:
                     writer.copy_spectra(reader=reader, spectra_indices=range(input_file.n_spectra))
 
     def merge_paths(self, input_files: Sequence[str], output_file: str, imzml_mode: ImzmlModeEnum):
-        input_files = [ImzmlReadFile(f) for f in input_files]
+        input_files = [get_read_file(f) for f in input_files]
         output_file = ImzmlWriteFile(output_file, imzml_mode=imzml_mode)
         return self.merge(input_files=input_files, output_file=output_file)
 

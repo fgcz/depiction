@@ -1,8 +1,13 @@
 # Public imzML test data: verified candidates
 
-Status: **candidates identified and verified**, 2026-08-07. Author: Leonardo Schwarz.
-No repository code has been changed — this is the input-gathering step, done ahead of the
-work that consumes it.
+Status: **candidates identified, verified, and now fetched and asserted by the test suite**,
+2026-08-07. Author: Leonardo Schwarz.
+
+Both pairs are downloaded by [`tests/real_data/fetch.py`](../../tests/real_data/fetch.py)
+and every measured number below is pinned in
+[`tests/real_data/datasets.py`](../../tests/real_data/datasets.py) — see
+[How to fetch and check](#how-to-fetch-and-check). One number did not survive being turned
+into an assertion; it is corrected in Candidate 2's table.
 
 ## Why this exists
 
@@ -100,7 +105,7 @@ https://zenodo.org/records/1560646/files/mouse_kidney_cut.ibd?download=1
 | Mode | `continuous` + `profile spectrum` |
 | Spectra | 1581 |
 | m/z | 1220.0382 – 1624.9987, 9013 bins, **float32** m/z / float32 intensity |
-| Geometry | coordinate bbox 31 × 51 (x 20–50, y 25–75), 150 µm raster |
+| Geometry | coordinate bbox 31 × 51 (x 20–50, y 25–75); **the file declares no pixel size** |
 | Instrument | Applied Biosystems/MDS SCIEX 4800 MALDI TOF/TOF, reflector positive |
 
 **Why this one, beyond its size.** The deposit documents which calibrants were sprayed onto
@@ -110,6 +115,18 @@ rather than values recorded from one of our own runs.
 
 It is also **float32 m/z**. The differential corpus parametrises over that, but no real
 fixture currently covers it.
+
+**Correction: the 150 µm raster is not in the file.** This table said "150 µm raster" until
+the numbers were turned into assertions and `pixel_size` came back `None`. The file's
+`scanSettings` carries only `max count of pixel x` = 50 and `max count of pixel y` = 75 —
+no `IMS:1000046`/`IMS:1000047` anywhere. The 150 µm figure is the deposit's description of
+the acquisition, not something the imzML states, and the first version of this document
+conflated the two. Candidate 1 does declare `IMS:1000046` = 20, corroborated by its own
+`max dimension x` of 4800 µm over 240 pixels.
+
+For Phase G this is a live constraint, not trivia: anything deriving physical spacing from
+this fixture gets nothing, so a spatial assertion has to be written in pixels or carry the
+150 µm as an external constant with this caveat attached.
 
 ### Measured mass offset — read the caveat
 
@@ -143,10 +160,23 @@ Bruker-specific header handling. And it is pre-cropped (m/z 1220–1625, roughly
 kidney plus one control spot), so it is a trimmed export rather than a full acquisition.
 Good fixture, weak "real acquisition" evidence — hence Candidate 1.
 
-## Verification performed
+## How to fetch and check
 
-Both pairs were downloaded and read through both backends. `tests/differential/` was not
-modified; this was run directly against `ImzmlReadFile` and `ImzyReadFile`:
+```bash
+uv run python -m tests.real_data.fetch --list     # what is defined, and what is present
+uv run python -m tests.real_data.fetch --all      # both, 1.24 GB
+uv run pytest tests/real_data -v
+```
+
+The download goes to `.test-data/`, which is gitignored; `DEPICTION_TEST_DATA_DIR` points it
+somewhere else, and pointing it at an empty directory is how the tests are made to skip —
+which is what CI and a fresh clone do. Nothing is written under its final name until its
+SHA-256 matches, so a partial download cannot be mistaken for a complete file.
+
+### The original verification, and what replaced it
+
+Both pairs were first read through *both* backends, in a throwaway script, while the
+hand-rolled parser still existed:
 
 ```
 mouse_kidney_cut   mode CONTINUOUS | CONTINUOUS   n_spectra 1581 | 1581
@@ -155,12 +185,23 @@ rf1_ctrls          mode CONTINUOUS | CONTINUOUS   n_spectra 3887 | 3887
   spectra 0, 1, 17, 1000, 2500, 3886 → m/z and intensity arrays byte-equal, coordinates equal
 ```
 
-**This is the first time the imzy reader has been checked against a real third-party
-acquisition, which is the stated reason it is not the default.** It agrees exactly on both.
-That is evidence for Phase E, not a completion of it: Phase E also requires routing the 46
-`ImzmlReadFile(...)` call sites through `get_read_file`, and an end-to-end
-`depiction_targeted_preproc` run diffed against a baseline. Reader parity on two files does
-not substitute for either.
+That was the first check of the imzy reader against a real third-party acquisition, and it
+agreed exactly on both — but it was **not reproducible**: the script is gone, and so is the
+second reader. The tables above were its only surviving record.
+
+`tests/real_data/` is what that turned into. It asserts the recorded numbers rather than
+quoting them, and adds what the ad-hoc run did not cover: the declared `IMS:1000091`
+checksum validating (which exercises `parse_metadata.py`, the one piece of the deleted
+parser Phase E kept, against a file we did not write), `scan_imzml` finding no compression
+and collecting no encoded lengths, `coordinates` gaining a z column exactly when the XML
+declares `IMS:1000052`, the batched `get_spectra` agreeing with per-spectrum reads, and a
+`ReadSpectraParallel` round trip through worker processes. 38 tests, 8 s once the files are
+local.
+
+The values it pins came from two independent readers, which is the point: a disagreement is
+evidence about imzy, not about how the expectations were derived. It is not a substitute for
+the end-to-end baseline diff — that is still open, and the recipe is in
+[`ROADMAP.md`](ROADMAP.md)'s risk table.
 
 ## Other sources considered
 
@@ -185,10 +226,10 @@ Neither candidate closes these, and finding more data will not close them either
 
 - **Zlib-compressed imzML.** Still no *specimen* — neither candidate is compressed, and per
   Phase A nothing in either toolchain can *produce* one, so a real-world example likely has
-  to be hand-built rather than found. Note that the reader-side half of Phase D gap (1) was
-  in flight as uncommitted work (`imzy_backend/zlib_reader.py`) when this was written, so
-  check its state before assuming compressed input is unsupported. Data and code are
-  separate gaps; only the data one is this document's subject.
+  to be hand-built rather than found. The *code* gap is closed: `imzy_backend/zlib_reader.py`
+  landed in Phase E and `corpus.compress_case` builds synthetic zlib twins. What is missing
+  is a compressed file somebody else's software wrote, which is the only thing that would
+  test the assumption that they compress each binary array whole.
 - **`processed` mode.** Both candidates are `continuous`. Two of the three imzML variants
   remain fixture-free on real data.
 - **Bruker `.d` (TSF/TDF/NeoFlex).** Plumbed in Phase C, exercised by nothing, cannot run on
@@ -196,23 +237,25 @@ Neither candidate closes these, and finding more data will not close them either
 
 ## Suggested next steps
 
-Ordered by what unblocks the most for the least work:
+Both candidates are now fetched and read by `tests/real_data/`, which was step 2 of the list
+this section used to hold. What remains:
 
 1. **Take Candidate 2 as the Phase G fixture.** It meets every criterion Phase G lists —
-   under 100 MB, MIT, DOI-stable, checksum recorded above. The download fixture is the easy
-   half; per Phase G step 3 the real work is rewriting the `128 x 137` / 118-channel /
+   under 100 MB, MIT, DOI-stable, checksum recorded above — and the download half is done:
+   `tests/real_data/fetch.py` already caches it and `system_tests` can call the same
+   manifest. Per Phase G step 3 the real work is rewriting the `128 x 137` / 118-channel /
    10131-non-zero assertions so they derive from the input rather than from one recorded
    output.
    Note the fixture has **no PC-MT panel**, so `panel.csv` needs a companion target list —
    the calibrants above are the obvious basis for one. If a calibration assertion is built
    on them, give it a tolerance consistent with the ~30 ppm bin spacing rather than the
-   point estimates in the table.
-2. **Take Candidate 1 as the Phase E acquisition**, keeping the tonsil path working alongside
-   both, per Phase G's closing note. At 1.18 GB it is too large for CI, so it belongs in the
-   same on-demand cache, marked slow and kept off the fast path.
-3. **Do not read the parity result above as more than it is.** It covers the reader on two
-   files. The writer, the 46 call sites, and the end-to-end baseline diff are all still open.
+   point estimates in the table, and remember it declares no pixel size.
+2. **The end-to-end baseline diff is still open**, and is now the largest untested seam.
+   `tests/real_data/` covers the *reader* on these two files and nothing else — not the
+   writer, not the pipeline. `ROADMAP.md`'s risk table carries the recipe.
+3. **`processed` mode and Bruker `.d` remain fixture-free.** No amount of care with these
+   two files changes that; it needs different data.
 
 Everything cited here was checked on 2026-08-07. Licence fields and URLs come from the PRIDE
 and Zenodo APIs; sizes, checksums, geometry and spectral values were measured locally on the
-downloaded files.
+downloaded files and are now asserted by `tests/real_data/datasets.py`.

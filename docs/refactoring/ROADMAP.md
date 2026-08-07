@@ -3,7 +3,9 @@
 Status: **partially executed**, 2026-08-07. Author: Leonardo Schwarz.
 
 Phases A, B, C, E and F are done. Phase D is done on the reader side only; Phase G is
-**not started** and is described below as a plan for whoever picks it up; see
+**started, at step 2 of 4** — the public data is fetched and read by `tests/real_data/`,
+but the system tests still depend on the FGCZ-local acquisition. The rest is described
+below as a plan for whoever picks it up; see
 [What a successor needs](#what-a-successor-needs).
 
 ## Context
@@ -261,6 +263,30 @@ longer show up there. Only real acquisitions can catch that class of thing, whic
 **Not done, by decision:** the end-to-end `depiction_targeted_preproc` run diffed against a
 pre-refactor baseline. See the risk table.
 
+### Real-acquisition reader checks ✅ (PR #41)
+
+The gap the paragraph above names, partly closed. `tests/real_data/` fetches the two
+redistributable acquisitions from [`public-test-data.md`](public-test-data.md) into a
+gitignored `.test-data/` and asserts what they read as — 38 tests, 8 s once the files are
+local, skipped when they are not. Before this, the only check of imzy against third-party
+data was an ad-hoc script that no longer exists, run against a reader that no longer exists;
+its results survived only as a table in a Markdown file.
+
+The expectations came from *both* readers while both existed, so a future disagreement is
+evidence about imzy rather than about how the numbers were derived. Beyond re-asserting
+them, the tests cover the declared `IMS:1000091` checksum (the only real-file exercise
+`parse_metadata.py` has), `scan_imzml` on genuine vendor headers, the z-column decision
+checked against the XML rather than against the scan, batched reads, and a
+`ReadSpectraParallel` round trip.
+
+**One recorded number was wrong**: the mouse-kidney file declares no pixel size at all —
+its 150 µm raster is the deposit's description, not the imzML's. Corrected in
+`public-test-data.md`, and it constrains any spatial assertion Phase G builds on that
+fixture. Everything else reproduced exactly.
+
+This does not close Phase G, and it is not the baseline diff. It covers the reader on two
+files: not the writer, not the pipeline.
+
 ---
 
 ## What was deliberately not done
@@ -381,8 +407,8 @@ The fix is a redistributable acquisition that the test suite fetches on demand:
 1. **Find a public imzML/ibd pair** — **done, 2026-08-07**: an MIT-licensed, DOI-stable
    59 MB pair with checksums and measured geometry recorded in
    [`public-test-data.md`](public-test-data.md), along with what was ruled out and why.
-   Steps 2–4 below are untouched; per step 3 the assertions remain the real work. The
-   criteria this had to meet are kept below as written.
+   Step 2 is now done too (see below); steps 3 and 4 are untouched, and per step 3 the
+   assertions remain the real work. The criteria this had to meet are kept below as written.
 
    Find a pair that is small enough to download per CI run (target
    well under 100 MB — a single small tissue section or a cropped acquisition), openly
@@ -394,10 +420,19 @@ The fix is a redistributable acquisition that the test suite fetches on demand:
    changes underneath you.
    *If nothing suitable exists, cropping and re-publishing a slice of an in-house
    acquisition under CC-BY is a legitimate fallback, but it needs the data owner's sign-off.*
-2. **Add a cached download**, not a committed file: a session-scoped pytest fixture that
-   downloads into a cache directory (`XDG_CACHE_HOME`, overridable by env var), verifies
-   the checksum, and skips — never fails — when the network is unavailable. `system_tests/inputs/inputs.yml`
-   already lists fixtures declaratively and is the natural place for the URL and hash.
+2. **Add a cached download**, not a committed file — **done**: `tests/real_data/fetch.py`
+   downloads both public pairs into `.test-data/` (`DEPICTION_TEST_DATA_DIR` overrides it),
+   verifies SHA-256 before renaming anything into place, and `tests/real_data/conftest.py`
+   skips — never fails — when a file is absent.
+
+   Two deviations from this step as originally written, both deliberate. The manifest is a
+   typed module (`tests/real_data/datasets.py`) rather than an entry in
+   `system_tests/inputs/inputs.yml`, because it also carries the *expected reading* for each
+   file and nothing parses `inputs.yml` today; `system_tests` should import it rather than
+   duplicating the URLs. And the cache is repo-local rather than under `XDG_CACHE_HOME`, so
+   that 1.24 GB of fixtures is somewhere a person will find and delete. The system-test half
+   of this — wiring the fixture into `system_tests/calibration/` — is not done; only the
+   reader-level use in `tests/real_data/` is.
 3. **Rewrite the assertions** so they hold for the fixture. This is the real work, not the
    download: the current values are magic numbers copied from one output. Prefer assertions
    derived from the input (pixel count matches the coordinate list, channel count matches
@@ -458,6 +493,6 @@ held source arrays instead; see the note in Phase E about what that no longer ca
 | imzy's writer adds a z axis to 2D files | Removed again in `DepictionIMZMLWriter`, pinned by `test_z_is_written_only_for_3d_input`; upstream PR (5) |
 | `WriteSpectraParallel` chunk/merge breaks under the new writer | Flipped the writer while the reader was still known-good, so failures had one cause; a round-trip test now covers chunk-write → merge |
 | Bruker readers unavailable on macOS | Expected — `imzy/plugins.py` disables them there. Local dev is imzML-only; the `.d` path is plumbed but untested, and `get_read_file` says so rather than failing obscurely |
-| **No end-to-end run diffed against a pre-refactor baseline** | **Open, and the largest remaining one.** Deliberately deferred rather than solved. What exists instead: the whole corpus asserted indistinguishable between the two readers before the parser was deleted, and reader parity on two real third-party acquisitions ([`public-test-data.md`](public-test-data.md)). Neither covers the *writer* end to end. The baselines have to come from a `depiction_targeted_preproc` run on real data |
+| **No end-to-end run diffed against a pre-refactor baseline** | **Open, and now the largest remaining one by some distance.** Deliberately deferred rather than solved. What exists instead: the whole corpus asserted indistinguishable between the two readers before the parser was deleted, and `tests/real_data/` reading two real third-party acquisitions on every run ([`public-test-data.md`](public-test-data.md)). Neither touches the *writer* or the pipeline. **The recipe, for whoever does it:** `git worktree add ../depiction-baseline ed222b3` — the last commit before Phase A, still on `pyimzml` — then `uv sync` there, expecting resolution drift because that commit has no lockfile (record what resolves); run `process_chunk` on the tonsil fixture in both trees with the same `system_tests/calibration/configs/`; diff `images_default.ome.tiff` numerically, not byte-wise, since compression and tiling metadata will differ. Budget a day, most of it on the old environment |
 | `get_spectrum_n_points` now returns points rather than bytes | A deliberate behaviour change, not a regression — the old answer was four times too large. Its only caller, `depiction.tools.experimental.msi_hdf5`, has no test and was never checked against the old value |
 | The migration is abandoned mid-flight | No longer applicable. Phases A, B, C, E and F are done and green, there is one reader and one writer, and the parser that would have been the fourth half-finished refactoring is gone |

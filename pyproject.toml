@@ -163,6 +163,7 @@ exclude_also = [
 testpaths = ["tests"]
 markers = [
     "compressed_only: differential test that only applies to the zlib-compressed corpus cases",
+    "real_data: needs a public acquisition downloaded into .test-data/; skips when it is absent",
 ]
 
 [tool.codespell]

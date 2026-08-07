@@ -41,3 +41,10 @@ hold for synthetic input. Both are real work and neither was done; the intended
 route — a small, openly licensed acquisition downloaded and checksum-verified at test
 time — is written up as Phase G in
 [`docs/refactoring/ROADMAP.md`](../docs/refactoring/ROADMAP.md).
+
+**Half of that already exists.** [`tests/real_data/`](../tests/real_data/) fetches two
+redistributable acquisitions into `.test-data/` and reads them; one is MIT-licensed and
+59 MB, which is the Phase G candidate. What is missing here is the other half: pointing
+these tests at it, and rewriting the `128 x 137` / 118-channel / 10131-non-zero assertions
+so they derive from the input. Import the manifest from `tests/real_data/datasets.py`
+rather than copying the URLs.

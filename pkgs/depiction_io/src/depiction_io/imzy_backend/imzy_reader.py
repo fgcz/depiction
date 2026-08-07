@@ -21,28 +21,37 @@ class ImzyReader(GenericReader):
     opens the `.ibd` per read call and keeps the offsets on its own reader object.
     """
 
-    def __init__(self, path: str | Path, declares_z: bool = True) -> None:
+    def __init__(
+        self, path: str | Path, declares_z: bool = True, encoded_lengths: dict[int, int] | None = None
+    ) -> None:
         """
         Args:
             path: the .imzML (or Bruker .d) file to read.
             declares_z: whether `coordinates` should include the z column. imzy always
                 reports one; see `imzml_scan` for why it must not be passed on blindly.
+            encoded_lengths: the offset -> encoded length map of a zlib-compressed file, or
+                None when it is uncompressed. Its presence is what selects the decompressing
+                reader.
         """
         self._path = Path(path)
         self._declares_z = declares_z
+        self._encoded_lengths = encoded_lengths
         self._reader: BaseReader | None = None
 
     def __getstate__(self) -> dict[str, Any]:
         # imzy readers hold an offset table parsed from the file and are not picklable, so
-        # the state is the path and the one thing that cannot be recovered from it cheaply.
+        # the state is the path and the things that cannot be recovered from it cheaply.
         # `_get_reader_kwargs()` returns `{}` for imzML, so re-opening by path is lossless.
+        # The encoded lengths travel rather than being re-derived: recovering them means
+        # another walk of the XML, which is the expensive half of opening a large file.
         # upstream: imzy readers implement neither __getstate__ nor __setstate__; see
         # ROADMAP.md, Phase D gap (2).
-        return {"path": self._path, "declares_z": self._declares_z}
+        return {"path": self._path, "declares_z": self._declares_z, "encoded_lengths": self._encoded_lengths}
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         self._path = state["path"]
         self._declares_z = state["declares_z"]
+        self._encoded_lengths = state["encoded_lengths"]
         self._reader = None
 
     @property
@@ -54,13 +63,20 @@ class ImzyReader(GenericReader):
     def reader(self) -> BaseReader:
         """The underlying imzy reader, opened on first use."""
         if self._reader is None:
-            import imzy
-
             self._discard_stale_icache()
             # imzy writes an `.icache` sidecar next to the input, so a read-only input tree
             # silently degrades to a full re-parse on every open.
             # upstream: no cache_dir argument; see ROADMAP.md, Phase D gap (3).
-            self._reader = imzy.get_reader(self._path)
+            if self._encoded_lengths is None:
+                import imzy
+
+                self._reader = imzy.get_reader(self._path)
+            else:
+                # `get_reader` dispatches on the file suffix and would hand back the plain
+                # imzML reader, which cannot decompress.
+                from depiction_io.imzy_backend.zlib_reader import ZlibIMZMLReader
+
+                self._reader = ZlibIMZMLReader(self._path, encoded_lengths=self._encoded_lengths)
         return self._reader
 
     def _discard_stale_icache(self) -> None:

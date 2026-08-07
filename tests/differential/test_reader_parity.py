@@ -12,8 +12,8 @@ The file earns its keep four ways:
 3. A/B -- every assertion runs against both the legacy parser and the imzy backend, and
    they must be indistinguishable;
 4. compression -- a zlib file must read identically to the uncompressed file it was
-   derived from, which is the check that makes swapping in a backend without zlib
-   support fail loudly instead of silently returning noise.
+   derived from, which is the check that catches a backend reading a compressed .ibd as
+   raw floats and returning noise rather than raising.
 """
 
 from __future__ import annotations
@@ -25,7 +25,6 @@ import numpy as np
 import pytest
 
 from depiction_io import ImzmlModeEnum, ImzmlReadFile, ImzyReadFile, RamReadFile
-from depiction_io.imzy_backend import UnsupportedCompressionError
 from depiction_io.types import GenericReadFile
 from tests.differential.corpus import Case
 
@@ -36,9 +35,6 @@ READ_FILE_BACKENDS: dict[str, Callable[[Case], GenericReadFile]] = {
     "imzy": lambda case: ImzyReadFile(case.path),
 }
 
-#: Backends that refuse compressed input instead of reading it. See `TestCompression`.
-BACKENDS_WITHOUT_COMPRESSION = {"imzy"}
-
 
 @pytest.fixture(params=sorted(READ_FILE_BACKENDS))
 def backend(request: pytest.FixtureRequest) -> str:
@@ -47,14 +43,6 @@ def backend(request: pytest.FixtureRequest) -> str:
 
 @pytest.fixture
 def read_file(backend: str, case: Case) -> GenericReadFile:
-    """A read file the backend can actually read.
-
-    A backend that does not support compression is skipped for the compressed cases rather
-    than xfailed, because "it raises" is not a weaker form of "it reads" -- it is the
-    intended behaviour, and `TestCompression` asserts it directly.
-    """
-    if case.compressed and backend in BACKENDS_WITHOUT_COMPRESSION:
-        pytest.skip(f"{backend} refuses compressed input; see TestCompression")
     return READ_FILE_BACKENDS[backend](case)
 
 
@@ -168,16 +156,6 @@ class TestCompression:
     def test_ibd_is_actually_smaller_or_different(self, case: Case, corpus: dict[str, Case]) -> None:
         source = corpus[case.derived_from]
         assert case.path.with_suffix(".ibd").read_bytes() != source.path.with_suffix(".ibd").read_bytes()
-
-    def test_backends_without_compression_refuse_to_read(self, case: Case, backend: str) -> None:
-        # The point of the guard, and the reason the `read_file` fixture is allowed to skip
-        # these cases elsewhere: a backend that cannot decompress must say so rather than
-        # read the .ibd as raw floats and return noise.
-        if backend not in BACKENDS_WITHOUT_COMPRESSION:
-            pytest.skip(f"{backend} supports compressed input")
-        read_file = READ_FILE_BACKENDS[backend](case)
-        with pytest.raises(UnsupportedCompressionError):
-            read_file.n_spectra
 
     def test_reads_identically_to_uncompressed_twin(
         self, read_file: GenericReadFile, case: Case, corpus: dict[str, Case], backend: str

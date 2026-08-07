@@ -77,7 +77,7 @@ class ImzyReadFile(GenericReadFile):
     def get_reader(self) -> ImzyReader:
         if self.scan is not None:
             self.scan.raise_if_unsupported_compression(self._path)
-            return ImzyReader(self._path, declares_z=self.scan.declares_z)
+            return ImzyReader(self._path, declares_z=self.scan.declares_z, encoded_lengths=self.scan.encoded_lengths)
         # A vendor format: there is no imzML to scan, and z always exists.
         return ImzyReader(self._path, declares_z=True)
 

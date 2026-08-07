@@ -331,7 +331,8 @@ before any fixture can skip — meaning Phase F's *"the tests now skip with a me
 what is missing"* had quietly stopped being true on a cold clone. Fixed by pinning the
 declaration to the revision the lockfile already recorded; the relock changed two lines and
 nothing else. **A repository intended to go dormant cannot carry an unpinned VCS dependency**,
-and this is the only one.
+and this is the only one. (It carries no VCS dependency at all now — the package was
+subsequently vendored; see [below](#dependencies-the-repository-could-not-rebuild-from-itself-).)
 
 **What the run still is not.** One calibration method, one artifact (`CALIB_IMAGES`), one
 acquisition in CI, and no comparison against any earlier version of this code. It shows the
@@ -386,6 +387,54 @@ Two side findings worth keeping:
 `process_spectra` with no steps, no compressed input, no vendor format, two continuous 2D
 acquisitions. And it says the current code agrees with the code it replaced — not that either
 is correct.
+
+### Dependencies the repository could not rebuild from itself ✅
+
+Two dependencies would have outlived their own installability, which for an archive is the
+same as not being there.
+
+**`snakemake_invoke` is vendored** into `pkgs/snakemake_invoke/`, a third workspace member,
+from the revision `pyproject.toml` already pinned (`e7e3c33`). It was a
+`git+https://github.com/leoschwarz/…` dependency on a personal account: not on PyPI, so
+nothing else could serve it, and reachable only for as long as that repository exists. Phase G
+had already fixed the acute version of this — the declaration carried no revision at all — but
+pinning a URL only fixes *which* commit you cannot reach later. It is 215 lines used at two
+call sites, Apache-2.0, same author. Its own 13 tests came with it and run as
+`nox -s tests_snakemake_invoke`; the import name is unchanged, so `process_chunk.py` did not
+have to be touched.
+
+The copy is two commits on purpose: byte-identical first (`diff -r` against the upstream
+checkout is empty), reformatted to this repo's conventions second. That is the only way a
+reader a year from now can tell "the same code, moved" from "the same code, edited".
+
+**`findmfpy` is now the `findmf` extra.** It is a C++ extension with a single 2024 release
+and cp313-only wheels (macOS arm64, manylinux/musllinux x86-64), so requiring it required a
+compiler on every other platform — and will on every later interpreter — for a peak picker
+that two dev presets use and the pipeline's default path does not. `get_peak_picker` turns
+the missing import into a message naming the extra, at picker construction rather than inside
+a `WriteSpectraParallel` worker. The `testing` extra still pulls it in, so CI keeps covering
+that branch rather than skipping it into oblivion.
+
+**The clean-install check that verified all this found a third thing**, and it is the reason
+that check was worth running rather than trusting `.venv`. Installing the result into an empty
+environment produced a `depiction` wheel containing a *second, obsolete* copy of
+`snakemake_invoke` — one with a `snakemake_invoke/snakemake_invoke.py` module that upstream
+removed long ago, which is exactly the module `run_cluster_sandbox.py` used to import. The
+root `pyproject.toml` had no `[tool.setuptools.packages.find]`, so setuptools packaged
+whatever was in a gitignored `build/lib` left over from November 2024, and it shadowed the
+real package. A clone is unaffected; a long-lived working copy is not. Now declared
+explicitly, as the two packages under `pkgs/` already did.
+
+Two more things a successor should know:
+
+- **`system_tests/baseline/constraints.txt` now has a hand-maintained line.** The baseline
+  tree at `ed222b3` genuinely needs upstream `snakemake_invoke`, but here it is a workspace
+  member, so re-running the documented `uv export --no-emit-workspace` recipe drops the pin
+  without failing. Both the file's header and `system_tests/baseline/README.md` say so.
+- **`uv sync --all-extras` does not work on macOS arm64**, and did not before this change:
+  `ms-peak-picker` has no wheel and its sdist build fails against the current numpy. Use
+  `uv sync --extra dev`. That extra is the other optional peak picker, and it is untouched
+  here.
 
 ---
 
@@ -619,5 +668,5 @@ held source arrays instead; see the note in Phase E about what that no longer ca
 | Bruker readers unavailable on macOS | Expected — `imzy/plugins.py` disables them there. Local dev is imzML-only; the `.d` path is plumbed but untested, and `get_read_file` says so rather than failing obscurely |
 | **No end-to-end run diffed against a pre-refactor baseline** | **Closed.** Both fixtures run through the `CALIB_IMAGES` chain in both trees produce identical output, with no tolerance, and the `.ibd` files differ only in their 16-byte UUID header. Two deviations from the recipe this row used to give made the result far stronger than it planned for: the baseline environment was pinned to this tree's lockfile instead of accepting resolution drift (198 shared packages, zero mismatches), and the imzML pairs were compared under *both* readers rather than only the new one. See [`baseline-diff.md`](baseline-diff.md) and [`system_tests/baseline/`](../../system_tests/baseline/README.md); the estimate of a day was about right |
 | `get_spectrum_n_points` now returns points rather than bytes | A deliberate behaviour change, not a regression — the old answer was four times too large. Its only caller, `depiction.tools.experimental.msi_hdf5`, has no test and was never checked against the old value |
-| `uv.lock` does not cover what CI actually installs | **Known, partly mitigated.** Every `nox` session installs with `uv pip install`, which resolves fresh rather than reading the lockfile, so the committed lock reproduces `.venv` but not CI. The only dependency where that could drift silently was the unpinned `snakemake_invoke`, now pinned to a revision (see Phase G); everything else is on PyPI with a version floor, so the exposure is ordinary upstream churn rather than an arbitrary git HEAD. Switching the sessions to `uv sync --frozen` would close it properly and was not done |
+| `uv.lock` does not cover what CI actually installs | **Known, partly mitigated.** Every `nox` session installs with `uv pip install`, which resolves fresh rather than reading the lockfile, so the committed lock reproduces `.venv` but not CI. The only dependency where that could drift silently was the unpinned `snakemake_invoke`; it is now a workspace member (see [Dependencies the repository could not rebuild from itself](#dependencies-the-repository-could-not-rebuild-from-itself-)), so every remaining dependency is on PyPI with a version floor and the exposure is ordinary upstream churn rather than an arbitrary git HEAD. Switching the sessions to `uv sync --frozen` would close it properly and was not done |
 | The migration is abandoned mid-flight | No longer applicable. Phases A, B, C, E and F are done and green, there is one reader and one writer, and the parser that would have been the fourth half-finished refactoring is gone |

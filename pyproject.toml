@@ -119,6 +119,13 @@ typing = [
 requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
+# Explicit rather than left to auto-discovery, which is what the two workspace members under
+# `pkgs/` already do. Without it, a working copy that still has a stale `build/lib` from an
+# old build ships whatever is in there: a two-year-old one here put a second, obsolete copy
+# of `snakemake_invoke` inside the `depiction` wheel, where it shadowed the real package.
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.setuptools.package-data]
 depiction_targeted_preproc = ["**/*.smk", "**/Snakefile", "**/*.yml", "**/*.yaml"]
 

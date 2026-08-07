@@ -9,6 +9,10 @@ and every measured number below is pinned in
 [How to fetch and check](#how-to-fetch-and-check). One number did not survive being turned
 into an assertion; it is corrected in Candidate 2's table.
 
+**Candidate 2 is now the Phase G fixture**, not only a reader fixture: `system_tests` runs
+the whole `depiction_targeted_preproc` pipeline on it in CI, against a panel derived from its
+own mean spectrum. See [`system_tests/README.md`](../../system_tests/README.md).
+
 ## Why this exists
 
 Two phases of [`ROADMAP.md`](ROADMAP.md) are waiting on redistributable data, for different
@@ -20,8 +24,8 @@ reasons:
   What Phase E needs is a **real acquisition**, and it may be large.
 - **Phase G** ("a downloadable public fixture for the system tests") needs the opposite: a
   pair **well under 100 MB**, openly licensed, at a stable citable URL, with a recorded
-  checksum, because `system_tests/` currently has exactly one fixture — a 1.26 GB
-  FGCZ-local file — so the suite skips everywhere except one laptop.
+  checksum, because `system_tests/` had exactly one fixture — a 1.26 GB FGCZ-local file — so
+  the suite skipped everywhere except one laptop.
 
 No single file is good at both jobs. The two below split them. Both were downloaded and read
 through this repository's own readers; the numbers in the tables are measured locally, not
@@ -113,6 +117,13 @@ the section — Angiotensin I, Substance P, [Glu1]-Fibrinopeptide B, ACTH 18-39,
 digestion-control spots — so there is an externally known set of masses to test against
 rather than values recorded from one of our own runs.
 
+The `system_tests` panel is *not* built from those calibrants, for the reason in
+[Measured mass offset](#measured-mass-offset--read-the-caveat): the peaks sit consistently
+below their theoretical values, so a panel of theoretical masses would be testing that offset
+rather than the pipeline. It uses the twenty strongest peaks of the fixture's own mean
+spectrum instead — see `system_tests/panels/make_mouse_kidney_panel.py`. The calibrants remain
+the better basis for a *calibration-accuracy* assertion, which is not what that test makes.
+
 It is also **float32 m/z**. The differential corpus parametrises over that, but no real
 fixture currently covers it.
 
@@ -124,9 +135,12 @@ the acquisition, not something the imzML states, and the first version of this d
 conflated the two. Candidate 1 does declare `IMS:1000046` = 20, corroborated by its own
 `max dimension x` of 4800 µm over 240 pixels.
 
-For Phase G this is a live constraint, not trivia: anything deriving physical spacing from
-this fixture gets nothing, so a spatial assertion has to be written in pixels or carry the
-150 µm as an external constant with this caveat attached.
+This turned out to be a live constraint rather than trivia. Every spatial assertion in
+`system_tests` is written in pixels, and running the pipeline on this fixture surfaced a
+second consequence: `Metadata.pixel_size` is not optional, so `proc_export_raw_metadata`
+rejects the parsed metadata outright and substitutes a dummy 1 µm that reaches the OME-TIFF.
+Recorded under "Known, still unfixed" in [`ROADMAP.md`](ROADMAP.md); the tonsil never reaches
+that branch, which is why it went unnoticed until there was a file declaring no pixel size.
 
 ### Measured mass offset — read the caveat
 
@@ -237,23 +251,14 @@ Neither candidate closes these, and finding more data will not close them either
 
 ## Suggested next steps
 
-Both candidates are now fetched and read by `tests/real_data/`, which was step 2 of the list
-this section used to hold. What remains:
+Both candidates are fetched and read by `tests/real_data/`, and Candidate 2 additionally runs
+the pipeline in `system_tests/`. What remains:
 
-1. **Take Candidate 2 as the Phase G fixture.** It meets every criterion Phase G lists —
-   under 100 MB, MIT, DOI-stable, checksum recorded above — and the download half is done:
-   `tests/real_data/fetch.py` already caches it and `system_tests` can call the same
-   manifest. Per Phase G step 3 the real work is rewriting the `128 x 137` / 118-channel /
-   10131-non-zero assertions so they derive from the input rather than from one recorded
-   output.
-   Note the fixture has **no PC-MT panel**, so `panel.csv` needs a companion target list —
-   the calibrants above are the obvious basis for one. If a calibration assertion is built
-   on them, give it a tolerance consistent with the ~30 ppm bin spacing rather than the
-   point estimates in the table, and remember it declares no pixel size.
-2. **The end-to-end baseline diff is still open**, and is now the largest untested seam.
-   `tests/real_data/` covers the *reader* on these two files and nothing else — not the
-   writer, not the pipeline. `ROADMAP.md`'s risk table carries the recipe.
-3. **`processed` mode and Bruker `.d` remain fixture-free.** No amount of care with these
+1. **The end-to-end baseline diff is still open**, and is the largest untested seam. The
+   `system_tests` run shows the pipeline's output is consistent with its input; it says
+   nothing about whether that output matches what this code produced before the migration.
+   `ROADMAP.md`'s risk table carries the recipe.
+2. **`processed` mode and Bruker `.d` remain fixture-free.** No amount of care with these
    two files changes that; it needs different data.
 
 Everything cited here was checked on 2026-08-07. Licence fields and URLs come from the PRIDE

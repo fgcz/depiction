@@ -2,11 +2,13 @@
 
 Status: **partially executed**, 2026-08-07. Author: Leonardo Schwarz.
 
-Phases A, B, C, E, F and G are done. **Phase D — the upstream contributions to `imzy` — is
-the only phase not started**, and all five of its gaps are worked around in-tree today. The
-largest remaining *risk*, separately, is that no end-to-end run has been diffed against a
-pre-refactor baseline; see the risk table for the recipe. Both are described below as a plan
-for whoever picks them up; see [What a successor needs](#what-a-successor-needs).
+Phases A, B, C, E, F and G are done, and so is the baseline diff that used to be the largest
+open risk: the pipeline produces **identical output** before and after the migration, on two
+real acquisitions, with the `.ibd` files byte-identical past their UUID header — see
+[`baseline-diff.md`](baseline-diff.md). **Phase D — the upstream contributions to `imzy` — is
+now the only work not started**, and all five of its gaps are worked around in-tree today. It
+is described below as a plan for whoever picks it up; see
+[What a successor needs](#what-a-successor-needs).
 
 ## Context
 
@@ -260,8 +262,9 @@ disagree with imzy: a bug shared symmetrically by this writer and this reader wo
 longer show up there. Only real acquisitions can catch that class of thing, which is what
 [`public-test-data.md`](public-test-data.md) and Phase G are for.
 
-**Not done, by decision:** the end-to-end `depiction_targeted_preproc` run diffed against a
-pre-refactor baseline. See the risk table.
+**Not done at the time, by decision:** the end-to-end `depiction_targeted_preproc` run diffed
+against a pre-refactor baseline. Done since — see
+[The pre-refactor baseline diff](#the-pre-refactor-baseline-diff-).
 
 ### Real-acquisition reader checks ✅ (PR #41)
 
@@ -333,7 +336,56 @@ and this is the only one.
 **What the run still is not.** One calibration method, one artifact (`CALIB_IMAGES`), one
 acquisition in CI, and no comparison against any earlier version of this code. It shows the
 pipeline runs and that its output is consistent with its input; it does not show the output
-is the same as it was before the migration. That is the baseline diff, still open.
+is the same as it was before the migration. That is the baseline diff, immediately below.
+
+### The pre-refactor baseline diff ✅
+
+The risk this table used to call *"open, and now the largest remaining one by some
+distance"*. Full write-up in [`baseline-diff.md`](baseline-diff.md); harness in
+[`system_tests/baseline/`](../../system_tests/baseline/README.md).
+
+**The migration changed nothing in the data.** The `CALIB_IMAGES` chain was run on both
+fixtures in this tree and in the tree at `ed222b3`, and every artifact matches exactly, with
+no tolerance: all 10131 spectra's m/z and intensity arrays, the coordinates, the image
+values, the channel names, the calibration coefficients, the OME-TIFF and the SpatialData
+zarr. The `.ibd` files are **byte-identical after their 16-byte UUID header** — `cmp -l`
+reports exactly 16 differing bytes in a 3.8 GB file.
+
+Three things made this a controlled experiment rather than a fishing trip, and they are what
+a successor should copy if they ever repeat it:
+
+- **There is one variable.** `git diff ed222b3 HEAD` over the whole chain — the `Snakefile`,
+  every rule file, `artifacts_mapping.py`, `process_spectra`, `calibrate`,
+  `generate_ion_image`, `ome_tiff.py`, `multi_channel_image.py` — is imports, annotations and
+  comment rewrapping. The rule files are byte-identical. So a difference in the output could
+  only have come from the reader or the writer.
+- **The baseline environment is pinned to this tree's lockfile.** `ed222b3` predates
+  `uv.lock`, and the recipe below anticipated "resolution drift, record what resolves".
+  Exporting the current lock as a constraints file instead removed the drift entirely: 198
+  shared packages, **zero version mismatches**, with `pyimzml` the only meaningful package
+  unique to the baseline. A difference would have had nowhere else to come from.
+- **The imzML pairs were compared under both readers**, imzy's and the deleted parser's.
+  Phase E recorded that the differential suite had lost the ability to catch *"a bug shared
+  symmetrically by this writer and this reader"*; a single-reader comparison here would have
+  reproduced that blind spot rather than closed it. Both readers report identical.
+
+Two side findings worth keeping:
+
+- **The baseline tree does not install as written**, for the reason Phase G found: its
+  `snakemake_invoke` has no revision and today resolves to a HEAD that moved `SnakemakeInvoke`
+  out of `__init__.py`. The constraints file pins it. Anyone reconstructing a pre-Phase-A
+  environment will hit this first.
+- **pyimzml wrote a dangling reference in every imzML this pipeline ever produced**:
+  `instrumentConfigurationRef="instrumentConfiguration0"` on every spectrum, while the only
+  `<instrumentConfiguration>` it declared had `id="IC1"`. It also used `cvRef="IMS"` without
+  declaring the IMS ontology in `cvList`. imzy is correct on both counts. The one thing imzy
+  does *worse* is writing the pixel count into `IMS:1000044`/`1000045` (max dimension x/y),
+  which should be a physical length; nothing here reads them.
+
+**What it does not cover** is in the report: one artifact, one calibration method,
+`process_spectra` with no steps, no compressed input, no vendor format, two continuous 2D
+acquisitions. And it says the current code agrees with the code it replaced — not that either
+is correct.
 
 ---
 
@@ -565,7 +617,7 @@ held source arrays instead; see the note in Phase E about what that no longer ca
 | imzy's writer adds a z axis to 2D files | Removed again in `DepictionIMZMLWriter`, pinned by `test_z_is_written_only_for_3d_input`; upstream PR (5) |
 | `WriteSpectraParallel` chunk/merge breaks under the new writer | Flipped the writer while the reader was still known-good, so failures had one cause; a round-trip test now covers chunk-write → merge |
 | Bruker readers unavailable on macOS | Expected — `imzy/plugins.py` disables them there. Local dev is imzML-only; the `.d` path is plumbed but untested, and `get_read_file` says so rather than failing obscurely |
-| **No end-to-end run diffed against a pre-refactor baseline** | **Open, and now the largest remaining one by some distance.** Deliberately deferred rather than solved. What exists instead: the whole corpus asserted indistinguishable between the two readers before the parser was deleted, and `tests/real_data/` reading two real third-party acquisitions on every run ([`public-test-data.md`](public-test-data.md)). Neither touches the *writer* or the pipeline. **The recipe, for whoever does it:** `git worktree add ../depiction-baseline ed222b3` — the last commit before Phase A, still on `pyimzml` — then `uv sync` there, expecting resolution drift because that commit has no lockfile (record what resolves); run `process_chunk` on the tonsil fixture in both trees with the same `system_tests/calibration/configs/`; diff `images_default.ome.tiff` numerically, not byte-wise, since compression and tiling metadata will differ. Budget a day, most of it on the old environment |
+| **No end-to-end run diffed against a pre-refactor baseline** | **Closed.** Both fixtures run through the `CALIB_IMAGES` chain in both trees produce identical output, with no tolerance, and the `.ibd` files differ only in their 16-byte UUID header. Two deviations from the recipe this row used to give made the result far stronger than it planned for: the baseline environment was pinned to this tree's lockfile instead of accepting resolution drift (198 shared packages, zero mismatches), and the imzML pairs were compared under *both* readers rather than only the new one. See [`baseline-diff.md`](baseline-diff.md) and [`system_tests/baseline/`](../../system_tests/baseline/README.md); the estimate of a day was about right |
 | `get_spectrum_n_points` now returns points rather than bytes | A deliberate behaviour change, not a regression — the old answer was four times too large. Its only caller, `depiction.tools.experimental.msi_hdf5`, has no test and was never checked against the old value |
 | `uv.lock` does not cover what CI actually installs | **Known, partly mitigated.** Every `nox` session installs with `uv pip install`, which resolves fresh rather than reading the lockfile, so the committed lock reproduces `.venv` but not CI. The only dependency where that could drift silently was the unpinned `snakemake_invoke`, now pinned to a revision (see Phase G); everything else is on PyPI with a version floor, so the exposure is ordinary upstream churn rather than an arbitrary git HEAD. Switching the sessions to `uv sync --frozen` would close it properly and was not done |
 | The migration is abandoned mid-flight | No longer applicable. Phases A, B, C, E and F are done and green, there is one reader and one writer, and the parser that would have been the fourth half-finished refactoring is gone |

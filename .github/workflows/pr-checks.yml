@@ -23,5 +23,30 @@ jobs:
         run: pip install nox[uv]
       - name: Run unit tests
         run: nox
-  # There is deliberately no system_tests job: the only fixture is a 1.26 GB acquisition
-  # that cannot be committed, and the assertions are pinned to it. See system_tests/README.md.
+  # A separate job rather than another `nox` session in the one above, so that a pipeline run
+  # measured in minutes never sits in front of the lint and unit-test feedback.
+  system_tests:
+    name: System Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      # Keyed on the manifest itself, so changing a URL or a checksum invalidates the cache
+      # rather than silently reusing the file it used to describe.
+      - name: Restore the public acquisition
+        uses: actions/cache@v4
+        with:
+          path: .test-data
+          key: test-data-${{ hashFiles('tests/real_data/datasets.py') }}
+      # Stdlib only, so this runs before anything is installed. Only the 59 MB public pair --
+      # the 1.26 GB FGCZ acquisition is not fetchable here and its case skips.
+      - name: Fetch the public acquisition
+        run: python -m tests.real_data.fetch mouse_kidney
+      - name: Install nox
+        shell: bash
+        run: pip install nox[uv]
+      - name: Run system tests
+        run: nox -s system_tests

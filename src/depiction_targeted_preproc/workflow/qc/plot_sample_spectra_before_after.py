@@ -2,7 +2,7 @@ import cyclopts
 import polars as pl
 from pathlib import Path
 
-from depiction_io import ImzmlReadFile
+from depiction_io import get_read_file
 from depiction.visualize.plot_mass_spectrum import PlotMassSpectrum
 
 app = cyclopts.App()
@@ -19,8 +19,8 @@ def qc_plot_sample_spectra_before_after(
 
     hv.extension("matplotlib")  # <- todo where to handle this nicely?
 
-    baseline = ImzmlReadFile(imzml_baseline)
-    calib = ImzmlReadFile(imzml_calib)
+    baseline = get_read_file(imzml_baseline)
+    calib = get_read_file(imzml_calib)
     # TODO this could be improved in the future
     spectra_indices = range(0, baseline.n_spectra, baseline.n_spectra // 5)
 

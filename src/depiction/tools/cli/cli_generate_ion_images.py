@@ -4,7 +4,7 @@ import cyclopts
 import polars as pl
 
 from depiction.parallel_ops import ParallelConfig
-from depiction_io import ImzmlReadFile
+from depiction_io import get_read_file
 from depiction.tools.generate_ion_image import GenerateIonImage
 
 app = cyclopts.App()
@@ -27,7 +27,7 @@ def generate_ion_images(
     mass_list_df = pl.read_csv(mass_list_path)
 
     image = gen_image.generate_ion_images_for_file(
-        input_file=ImzmlReadFile(imzml_path),
+        input_file=get_read_file(imzml_path),
         mz_values=mass_list_df["mass"],
         tol=mass_list_df["tol"],
         channel_names=mass_list_df["label"],

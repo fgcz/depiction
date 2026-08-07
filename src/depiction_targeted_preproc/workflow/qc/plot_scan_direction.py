@@ -5,7 +5,7 @@ import numpy as np
 from pathlib import Path
 from skimage.transform import resize_local_mean
 
-from depiction_io import ImzmlReadFile
+from depiction_io import get_read_file
 
 app = cyclopts.App()
 
@@ -17,7 +17,7 @@ def qc_plot_scan_direction(
 ) -> None:
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
-    imzml = ImzmlReadFile(input_imzml_path)
+    imzml = get_read_file(input_imzml_path)
     visualize_coordinates_direction(
         coordinates=imzml.coordinates_2d,
         ax=ax,

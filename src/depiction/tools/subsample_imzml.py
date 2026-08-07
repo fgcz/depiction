@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 import numpy as np
-from depiction_io import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import GenericReadFile, ImzmlWriteFile, get_read_file
 
 
 class SubsampleMode(enum.Enum):
@@ -38,20 +38,20 @@ class SubsampleImzml:
         self._mode = mode
         self._seed = seed
 
-    def determine_spectra_to_keep(self, read_file: ImzmlReadFile):
+    def determine_spectra_to_keep(self, read_file: GenericReadFile):
         """Determines which spectra to keep."""
         all_spectra = np.arange(read_file.n_spectra)
         n_keep = int(read_file.n_spectra * self._ratio)
         return self._mode.sample(all_spectra, n_keep, seed=self._seed)
 
-    def subsample(self, read_file: ImzmlReadFile, write_file: ImzmlWriteFile) -> None:
+    def subsample(self, read_file: GenericReadFile, write_file: ImzmlWriteFile) -> None:
         spectra_to_keep = self.determine_spectra_to_keep(read_file)
         with read_file.reader() as reader, write_file.writer() as writer:
             writer.copy_spectra(reader=reader, spectra_indices=spectra_to_keep)
 
     def dump_subsample_info(
         self,
-        read_file: ImzmlReadFile,
+        read_file: GenericReadFile,
         output_imzml: str,
     ) -> None:
         """
@@ -80,7 +80,7 @@ def main_subsample_imzml(input_imzml: str, output_imzml: str, ratio: float, mode
     :param ratio: The ratio of spectra to keep.
     :param mode: The mode to use for subsampling.
     """
-    read_file = ImzmlReadFile(input_imzml)
+    read_file = get_read_file(input_imzml)
     write_file = ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode)
 
     subsampler = SubsampleImzml(ratio=ratio, mode=mode)

@@ -4,7 +4,7 @@ import polars as pl
 from loguru import logger
 from pathlib import Path
 
-from depiction_io import ImzmlReadFile
+from depiction_io import get_read_file
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
 from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
 from depiction_targeted_preproc.workflow.qc.plot_peak_counts_per_spectrum import get_peak_counts
@@ -20,7 +20,7 @@ def qc_plot_peak_counts_per_mass_range(
     n_groups: int = 10,
 ) -> None:
     config = PipelineParameters.parse_yaml(config_path)
-    read_peaks = ImzmlReadFile(imzml_peaks)
+    read_peaks = get_read_file(imzml_peaks)
     with read_peaks.reader() as reader:
         mass_min, mass_max = reader.get_spectrum_mz(0)[[0, -1]]
     mass_groups = get_mass_groups(mass_min=mass_min, mass_max=mass_max, n_bins=n_groups, add_group_number=False)

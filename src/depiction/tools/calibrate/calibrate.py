@@ -16,7 +16,7 @@ from depiction.calibration.methods.calibration_method_constant_global_shift impo
 from depiction.calibration.methods.calibration_method_mcc import CalibrationMethodMassClusterCenterModel
 from depiction.calibration.methods.calibration_method_regress_shift import CalibrationMethodRegressShift
 from depiction.parallel_ops import ParallelConfig
-from depiction_io import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import GenericReadFile, ImzmlWriteFile
 from depiction.tools.calibrate.config import (
     CalibrationRegressShiftConfig,
     CalibrationChemicalPeptideNoiseConfig,
@@ -79,7 +79,7 @@ def get_calibration_instance(config: CalibrationConfig, mass_list: Path | None):
 
 def calibrate(
     config: CalibrationConfig,
-    input_file: ImzmlReadFile,
+    input_file: GenericReadFile,
     output_file: ImzmlWriteFile,
     mass_list: Path | None = None,
     coefficient_output_path: Path | None = None,

@@ -5,7 +5,7 @@ import yaml
 from loguru import logger
 from pathlib import Path
 
-from depiction_io import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
+from depiction_io import ImzmlModeEnum, ImzmlWriteFile, get_read_file
 from depiction.tools.pick_peaks.config import PickPeaksConfig, PeakPickerFindMFPyConfig, PeakPickerMSPeakPickerConfig
 from depiction.tools.pick_peaks.pick_peaks import pick_peaks
 
@@ -22,12 +22,12 @@ def run_config(
     raw_config = yaml.safe_load(config.read_text())
     if raw_config is None:
         logger.info("Peak picking deactivated, copying input to output.")
-        ImzmlReadFile(input_imzml).copy_to(output_imzml)
+        get_read_file(input_imzml).copy_to(output_imzml)
     else:
         config = PickPeaksConfig.model_validate(raw_config)
         pick_peaks(
             config=config,
-            input_file=ImzmlReadFile(input_imzml),
+            input_file=get_read_file(input_imzml),
             output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
         )
 
@@ -44,7 +44,7 @@ def run_findmf(
     picker_config = PeakPickerFindMFPyConfig(resolution=resolution)
     pick_peaks(
         config=PickPeaksConfig(peak_picker=picker_config, peak_filtering=None, n_jobs=n_jobs),
-        input_file=ImzmlReadFile(input_imzml),
+        input_file=get_read_file(input_imzml),
         output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
     )
 
@@ -62,7 +62,7 @@ def run_mspeak(
         config=PickPeaksConfig(
             peak_picker=PeakPickerMSPeakPickerConfig(fit_type=fit_type), peak_filtering=None, n_jobs=n_jobs
         ),
-        input_file=ImzmlReadFile(input_imzml),
+        input_file=get_read_file(input_imzml),
         output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
     )
 

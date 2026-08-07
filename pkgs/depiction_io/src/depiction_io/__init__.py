@@ -8,8 +8,11 @@ from depiction_io.imzy_backend.imzy_read_file import ImzyReadFile
 from depiction_io.imzy_backend.imzy_reader import ImzyReader
 from depiction_io.ram.ram_read_file import RamReadFile
 from depiction_io.ram.ram_reader import RamReader
+from depiction_io.types import GenericReader, GenericReadFile
 
 __all__ = [
+    "GenericReadFile",
+    "GenericReader",
     "ImzmlModeEnum",
     "ImzmlReadFile",
     "ImzmlReader",

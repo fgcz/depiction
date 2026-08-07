@@ -6,7 +6,7 @@ import cyclopts
 import yaml
 from loguru import logger
 
-from depiction_io import ImzmlReadFile, ImzmlWriteFile, ImzmlModeEnum
+from depiction_io import ImzmlModeEnum, ImzmlWriteFile, get_read_file
 from depiction.tools.calibrate.calibrate import calibrate
 from depiction.tools.calibrate.config import CalibrationConfig, CalibrationConstantGlobalShiftConfig
 
@@ -25,10 +25,10 @@ def run_config(
     raw_config = yaml.safe_load(config.read_text())
     if raw_config is None:
         logger.info("Calibration deactivated, copying input to output.")
-        ImzmlReadFile(input_imzml).copy_to(output_imzml)
+        get_read_file(input_imzml).copy_to(output_imzml)
     else:
         parsed = CalibrationConfig.model_validate(raw_config)
-        input_file = ImzmlReadFile(input_imzml)
+        input_file = get_read_file(input_imzml)
         output_file = ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED)
         calibrate(
             config=parsed,
@@ -51,7 +51,7 @@ def run_global_constant_shift(
         method=CalibrationConstantGlobalShiftConfig(),
         n_jobs=n_jobs,
     )
-    input_file = ImzmlReadFile(input_imzml)
+    input_file = get_read_file(input_imzml)
     output_file = ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED)
     calibrate(
         config=config,

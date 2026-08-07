@@ -4,14 +4,14 @@ import polars as pl
 from pathlib import Path
 
 from depiction.parallel_ops import ParallelConfig
-from depiction_io import ImzmlReadFile
+from depiction_io import GenericReadFile, get_read_file
 from depiction.spectrum.evaluate_bins import EvaluateBins
 from depiction.spectrum.evaluate_mean_spectrum import EvaluateMeanSpectrum
 
 app = cyclopts.App()
 
 
-def get_mean_spectrum(read_file: ImzmlReadFile, parallel_config: ParallelConfig) -> pl.DataFrame:
+def get_mean_spectrum(read_file: GenericReadFile, parallel_config: ParallelConfig) -> pl.DataFrame:
     with read_file.reader() as reader:
         mz_arr_first = reader.get_spectrum_mz(0)
     eval_bins = EvaluateBins.from_mz_values(mz_arr_first)
@@ -20,7 +20,7 @@ def get_mean_spectrum(read_file: ImzmlReadFile, parallel_config: ParallelConfig)
     return pl.DataFrame({"mz": mean_mz_arr, "intensity": mean_int_arr})
 
 
-def get_sample_spec_data(read_file: ImzmlReadFile, n_specs: int):
+def get_sample_spec_data(read_file: GenericReadFile, n_specs: int):
     spec_indices = set(sorted(range(0, read_file.n_spectra, read_file.n_spectra // n_specs)))
     if len(spec_indices) > n_specs:
         spec_indices = sorted(spec_indices)[:n_specs]
@@ -36,7 +36,7 @@ def get_sample_spec_data(read_file: ImzmlReadFile, n_specs: int):
 
 @app.default
 def cli(input_imzml: Path, output_pdf: str, n_jobs: int = 20) -> None:
-    read_file = ImzmlReadFile(input_imzml)
+    read_file = get_read_file(input_imzml)
     parallel_config = ParallelConfig(n_jobs=n_jobs)
     mean_data = get_mean_spectrum(read_file, parallel_config=parallel_config)
     n_specs = 3

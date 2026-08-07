@@ -6,13 +6,13 @@ from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 
-from depiction_io import ImzmlReadFile, ImzmlWriteFile
+from depiction_io import GenericReadFile, ImzmlWriteFile, get_read_file
 
 
 class ImzmlSplitter:
     def __init__(
         self,
-        read_file: ImzmlReadFile,
+        read_file: GenericReadFile,
         n_parts: int | None,
         n_spectra_per_part: int | None,
     ) -> None:
@@ -66,7 +66,7 @@ def main_split_imzml(input_imzml: str, output_dir: str, n_parts: int, n_spectra:
     If n_spectra is provided, the file is split into parts of size n_spectra.
     :return: The paths to the created files.
     """
-    read_file = ImzmlReadFile(input_imzml)
+    read_file = get_read_file(input_imzml)
     splitter = ImzmlSplitter(read_file, n_parts=n_parts, n_spectra_per_part=n_spectra)
     result = splitter.write_splits(output_dir)
     return result["output_files"]

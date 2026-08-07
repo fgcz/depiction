@@ -6,7 +6,7 @@ import numpy as np
 import xarray
 
 from depiction.misc.integration_test_utils import IntegrationTestUtils
-from depiction_io import ImzmlReadFile, ImzmlModeEnum, ImzmlWriteFile
+from depiction_io import ImzmlModeEnum, ImzmlWriteFile, get_read_file
 from depiction.tools.merge_imzml import MergeImzml
 
 
@@ -33,12 +33,12 @@ class TestMergeImzmlIntegration(unittest.TestCase):
             imzml_mode=ImzmlModeEnum.CONTINUOUS,
             coordinates_list=[(5, 1)],
         )
-        file_1 = ImzmlReadFile(self.mock_input_file_1_path)
-        file_2 = ImzmlReadFile(self.mock_input_file_2_path)
+        file_1 = get_read_file(self.mock_input_file_1_path)
+        file_2 = get_read_file(self.mock_input_file_2_path)
         output_file = ImzmlWriteFile(path=self.mock_output_file_path, imzml_mode=ImzmlModeEnum.CONTINUOUS)
         MergeImzml().merge(input_files=[file_1, file_2], output_file=output_file)
 
-        with ImzmlReadFile(self.mock_output_file_path).reader() as reader:
+        with get_read_file(self.mock_output_file_path).reader() as reader:
             spectra = reader.get_spectra([0, 1, 2])
             coordinates = reader.coordinates_array_2d
             self.assertEqual(ImzmlModeEnum.CONTINUOUS, reader.imzml_mode)
@@ -64,13 +64,13 @@ class TestMergeImzmlIntegration(unittest.TestCase):
             imzml_mode=ImzmlModeEnum.PROCESSED,
             coordinates_list=[(5, 1)],
         )
-        file_1 = ImzmlReadFile(self.mock_input_file_1_path)
-        file_2 = ImzmlReadFile(self.mock_input_file_2_path)
+        file_1 = get_read_file(self.mock_input_file_1_path)
+        file_2 = get_read_file(self.mock_input_file_2_path)
         output_file = ImzmlWriteFile(path=self.mock_output_file_path, imzml_mode=ImzmlModeEnum.PROCESSED)
 
         MergeImzml().merge(input_files=[file_1, file_2], output_file=output_file)
 
-        with ImzmlReadFile(self.mock_output_file_path).reader() as reader:
+        with get_read_file(self.mock_output_file_path).reader() as reader:
             spectra = reader.get_spectra([0, 1, 2])
             coordinates = reader.coordinates_array_2d
             self.assertEqual(ImzmlModeEnum.PROCESSED, reader.imzml_mode)

@@ -7,7 +7,7 @@ import cyclopts
 import yaml
 from loguru import logger
 
-from depiction_io import ImzmlReadFile
+from depiction_io import get_read_file
 from depiction.tools.correct_baseline.correct_baseline import correct_baseline
 from depiction.tools.correct_baseline.config import BaselineVariants, BaselineCorrectionConfig
 
@@ -23,7 +23,7 @@ def run_config(
     raw_data = yaml.safe_load(config.read_text())
     if raw_data is None:
         logger.info("Baseline correction deactivated, copying input to output.")
-        ImzmlReadFile(input_imzml).copy_to(output_imzml)
+        get_read_file(input_imzml).copy_to(output_imzml)
     else:
         parsed = BaselineCorrectionConfig.model_validate(raw_data)
         correct_baseline(config=parsed, input_imzml=input_imzml, output_imzml=output_imzml)

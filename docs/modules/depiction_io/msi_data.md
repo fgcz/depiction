@@ -29,12 +29,16 @@ In general the idea is that creating the file should be quick, whereas additiona
 
 ## Format: ImzML
 
-Currently, we parse imzML ourselves with a simple etree-based parser, whereas writing is performed by pyImzML.
-This is expected to be replaced by [imzy](https://github.com/vandeplaslab/imzy) behind the protocols above;
-see `docs/refactoring/ROADMAP.md`.
+Both reading and writing go through [imzy](https://github.com/vandeplaslab/imzy), behind the protocols above.
+The hand-rolled etree parser that used to do the reading, and the pyImzML writer, are gone;
+see `docs/refactoring/ROADMAP.md` for what imzy still gets wrong and how those gaps are worked around.
+
+Construct read files with `get_read_file` rather than naming a class: it is the seam that picks an
+implementation, and it reports plainly when a vendor format cannot be read on this platform.
 
 ```{eval-rst}
-.. autoclass:: depiction_io.ImzmlReadFile
+.. autofunction:: depiction_io.get_read_file
+.. autoclass:: depiction_io.ImzyReadFile
     :members: reader, get_reader
 .. autoclass:: depiction_io.ImzmlWriteFile
     :members: writer

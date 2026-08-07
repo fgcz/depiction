@@ -27,7 +27,20 @@ from depiction_io.imzy_backend import raise_if_unsupported_compression, scan_imz
 
 @pytest.fixture
 def spectra_path() -> Path:
+    """The full excerpt: param groups declaring zlib, plus three spectra."""
     return Path(__file__).parent / "chunks" / "spectra_resolve.xml"
+
+
+@pytest.fixture
+def param_groups_only_path() -> Path:
+    """Only the `referenceableParamGroupList`, with no spectra under it."""
+    return Path(__file__).parent / "chunks" / "referenceable_param_groups.xml"
+
+
+@pytest.fixture
+def spectra_without_param_groups_path() -> Path:
+    """Only the spectra, with the param groups that declare compression removed."""
+    return Path(__file__).parent / "chunks" / "spectra_static.xml"
 
 
 def test_detects_zlib(spectra_path: Path) -> None:
@@ -58,3 +71,19 @@ def test_declares_no_z(spectra_path: Path) -> None:
     # The acquisition is 2D: its scans declare position x and y only. imzy reports z = 1
     # regardless, so this is the input to a correction rather than a formality.
     assert not scan_imzml(spectra_path).declares_z
+
+
+def test_zlib_without_any_binary_arrays(param_groups_only_path: Path) -> None:
+    # Compression declared, nothing to collect. The map must come back empty rather than
+    # absent -- absent is how the reader is told the file is uncompressed, and reading a
+    # compressed file as uncompressed is the failure this whole path exists to prevent.
+    scan = scan_imzml(param_groups_only_path)
+    assert scan.encoded_lengths == {}
+
+
+def test_binary_arrays_without_a_compression_param(spectra_without_param_groups_path: Path) -> None:
+    # The same spectra with the param groups stripped, so nothing declares compression.
+    # A real file shaped like this must scan as uncompressed and collect nothing.
+    scan = scan_imzml(spectra_without_param_groups_path)
+    assert scan.unsupported_compression is None
+    assert scan.encoded_lengths is None

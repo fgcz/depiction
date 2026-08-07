@@ -1,7 +1,5 @@
 from depiction_io.backend import get_read_file
 from depiction_io.imzml.imzml_mode_enum import ImzmlModeEnum
-from depiction_io.imzml.imzml_read_file import ImzmlReadFile
-from depiction_io.imzml.imzml_reader import ImzmlReader
 from depiction_io.imzml.imzml_write_file import ImzmlWriteFile
 from depiction_io.imzml.imzml_writer import ImzmlWriter
 from depiction_io.imzy_backend.imzy_read_file import ImzyReadFile
@@ -14,8 +12,6 @@ __all__ = [
     "GenericReadFile",
     "GenericReader",
     "ImzmlModeEnum",
-    "ImzmlReadFile",
-    "ImzmlReader",
     "ImzmlWriteFile",
     "ImzmlWriter",
     "ImzyReadFile",

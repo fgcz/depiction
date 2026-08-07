@@ -35,9 +35,9 @@ class ImzyReadFile(GenericReadFile):
     correct but not free on a multi-GB acquisition.
 
     Checksums and pixel size are read with `ParseMetadata`, not with imzy: imzy parses no
-    checksums at all, and reports a pixel size of 1 where the file declares none, whereas
-    `ImzmlReadFile` reports `None`. Both classes are already backend-independent, so reusing
-    them is both less code and exact parity.
+    checksums at all, and reports a pixel size of 1 where the file declares none rather than
+    saying it does not know. `ParseMetadata` is the one piece of the old parser that outlived
+    it, for exactly that reason.
     """
 
     def __init__(self, path: str | Path) -> None:

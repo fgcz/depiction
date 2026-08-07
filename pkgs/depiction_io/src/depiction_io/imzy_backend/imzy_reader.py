@@ -17,8 +17,8 @@ if TYPE_CHECKING:
 class ImzyReader(GenericReader):
     """Reads spectra through `imzy`, behind the `GenericReader` protocol.
 
-    Unlike `ImzmlReader` this holds no file handle and no offset table of its own: imzy
-    opens the `.ibd` per read call and keeps the offsets on its own reader object.
+    This holds no file handle and no offset table of its own: imzy opens the `.ibd` per
+    read call and keeps the offsets on its own reader object.
     """
 
     def __init__(
@@ -108,8 +108,9 @@ class ImzyReader(GenericReader):
     def imzml_mode(self) -> ImzmlModeEnum:
         """Returns the mode of the imzML file.
 
-        imzy has no notion of continuous vs processed, so the mode is derived exactly the way
-        `ImzmlReader` derives it -- all spectra sharing one m/z offset means continuous.
+        imzy has no notion of continuous vs processed, so the mode is inferred from the offset
+        table: all spectra sharing one m/z offset means continuous. This is what the parser
+        this backend replaced did, which is why the swap did not change any tool's behaviour.
         Reading `IMS:1000030`/`IMS:1000031` instead would disagree on a single-spectrum file,
         which the corpus pins down deliberately.
         """
@@ -151,11 +152,12 @@ class ImzyReader(GenericReader):
     def get_spectrum_n_points(self, i_spectrum: int) -> int:
         """Returns the number of data points in the i-th spectrum, without reading it.
 
-        NOTE: `ImzmlReader` disagrees here. It returns `IMS:1000104`, the *encoded length* in
-        bytes, so for an uncompressed float32 array its answer is four times this one. That
-        is a pre-existing bug in the legacy reader (its only caller is
-        `depiction.tools.experimental.msi_hdf5`, and the test that would have caught it is
-        `@unittest.skip`ped); this backend does not reproduce it.
+        This is `IMS:1000103`, the element count. The parser this backend replaced returned
+        `IMS:1000104` instead -- the *encoded length* in bytes, four times larger for an
+        uncompressed float32 array. That was a long-standing bug: its only caller is
+        `depiction.tools.experimental.msi_hdf5`, and the test that would have caught it was
+        skipped in its entirety. So this method now returns something different from what it
+        used to, on purpose.
         """
         byte_offsets = getattr(self.reader, "byte_offsets", None)
         if byte_offsets is None:
@@ -169,7 +171,7 @@ class ImzyReader(GenericReader):
 
         Routed onto imzy's batched read, which opens the `.ibd` once for the whole chunk
         rather than once per spectrum. That is the difference that shows up under
-        `ReadSpectraParallel`: imzy seek/reads where `ImzmlReader` mmaps, so the default
+        `ReadSpectraParallel`: imzy seek/reads rather than mmapping, so the protocol's default
         implementation of this method would pay one `open()` per spectrum.
         """
         # `_read_spectra` is private; a public batched read is what imzy is missing here.

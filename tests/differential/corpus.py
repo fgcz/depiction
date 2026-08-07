@@ -254,9 +254,9 @@ class Spec:
     int_dtype: np.typing.DTypeLike = np.float32
     #: When True, a zlib-compressed twin named ``f"{name}_zlib"`` is also built.
     compress_twin: bool = False
-    #: Override when a reader cannot recover the written mode. ``ImzmlReader`` derives the
-    #: mode from whether all spectra share one m/z offset, so a one-spectrum file is
-    #: always reported as continuous regardless of what the imzML declares. That heuristic
+    #: Override when a reader cannot recover the written mode. The mode is inferred from
+    #: whether all spectra share one m/z offset, so a one-spectrum file is always reported
+    #: as continuous regardless of what the imzML declares. That heuristic
     #: is worth pinning down: a backend that reads the IMS:1000030/31 cvParam instead
     #: would disagree here, and this is where that shows up.
     expected_read_mode: ImzmlModeEnum | None = None

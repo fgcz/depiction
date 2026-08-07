@@ -125,7 +125,7 @@ class GenericReadFile(Protocol):
     """Encodes a container file handle, from which we can obtain GenericReader instances."""
 
     def reader(self) -> Generator[GenericReader]:
-        """Returns a context manager that yields an `ImzmlReader` instance."""
+        """Returns a context manager that yields a `GenericReader` instance."""
         raise NotImplementedError
 
     def get_reader(self) -> GenericReader:

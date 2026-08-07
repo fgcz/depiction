@@ -9,28 +9,29 @@ I/O layer has a boundary of its own.
   `GenericWriteFile` protocols. This is the seam: everything else in `depiction` talks to
   these rather than to a file format, so a backend can be swapped underneath without the
   callers noticing.
-- `imzml/` — the legacy imzML reader (memory-mapped, picklable), the writer, and the
-  XML/cvParam parser.
-- `imzy_backend/` — the same protocols implemented on top of
+- `imzy_backend/` — the protocols implemented on top of
   [`imzy`](https://github.com/vandeplaslab/imzy), plus the corrections imzy needs before it
   can be trusted with this data. Each carries an `# upstream:` marker.
+- `imzml/` — the writer, the mode enum, and `parser/parse_metadata.py`. The last is what is
+  left of a hand-rolled parser that used to do the reading: imzy parses no checksums and
+  reports a pixel size of `1` where a file declares none, so metadata still comes from here.
 - `ram/` — in-memory implementations of the same protocols, used heavily in tests.
 - `backend.py`, `imzml_zip.py`, `file_checksums.py`, `pixel_size.py` — supporting pieces.
 
-## Which backend reads, which backend writes
+## Reading and writing
 
-**Writing** goes through imzy unconditionally: `pyimzml` is gone.
+Both go through imzy. `pyimzml` and the hand-rolled parser are gone.
 
-**Reading** defaults to the legacy parser. `get_read_file(path)` returns an
-`ImzmlReadFile` unless `DEPICTION_IO_BACKEND=imzy` is set or a backend is passed
-explicitly, and a non-imzML path (a Bruker `.d`) always goes to imzy because nothing else
-can open one. The default stays legacy because the imzy reader has not been checked against
-a real acquisition, and because it cannot read zlib-compressed files at all — it refuses
-them rather than returning the noise it would otherwise produce.
+Construct read files with **`get_read_file(path)`** rather than naming a class. There is one
+implementation behind it today, but it is the seam that made replacing the parser a one-line
+change, and the choice it makes is still real: a non-imzML path (a Bruker `.d`) can only be
+served by imzy, and imzy disables its Bruker readers on macOS — which `get_read_file` says
+plainly instead of failing somewhere further in.
 
-Note that the tools in `depiction` still construct `ImzmlReadFile` directly instead of
-calling `get_read_file`, so the environment variable does not currently redirect them.
-Routing those call sites through the seam is the first step of the roadmap's Phase E.
+zlib-compressed files are read. imzy cannot do this on its own — it has the block offsets
+but never parses `IMS:1000104`, so it would read a compressed `.ibd` as raw floats and
+return noise — so `imzml_scan.py` collects the encoded lengths and `zlib_reader.py` inflates.
+Numpress is refused rather than guessed at.
 
 ## What is deliberately not here
 
@@ -42,7 +43,10 @@ and return `MultiChannelImage`, so putting them here would make `depiction_io` d
 ## Status
 
 See [`docs/refactoring/ROADMAP.md`](../../docs/refactoring/ROADMAP.md) in the repository
-root. The writer has been replaced and the reader exists but is not the default; deleting
-the hand-rolled parser is Phase E and is blocked on a real dataset. The differential tests
-in `tests/differential/` run every assertion against both readers, which is what makes the
-remaining half of the swap verifiable.
+root. The migration to imzy is complete: one reader, one writer, and roughly 1,900 lines of
+custom parsing removed across Phases C and E.
+
+The differential tests in `tests/differential/` were an A/B comparison between the two
+readers for the length of that migration and are what made it safe. With one reader left
+they assert against the corpus's independently held source arrays instead — still useful,
+but no longer a second opinion. The roadmap says what that stops catching.

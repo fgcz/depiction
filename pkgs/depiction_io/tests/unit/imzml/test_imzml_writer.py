@@ -1,129 +1,106 @@
-import unittest
-from functools import cached_property
+from __future__ import annotations
+
 from pathlib import Path
-from tempfile import TemporaryDirectory
-from unittest.mock import MagicMock, patch, call
 
-from depiction_io import ImzmlWriter, ImzmlModeEnum
+import numpy as np
+import pytest
+from pytest_mock import MockerFixture
 
+from depiction_io import ImzmlModeEnum, ImzmlWriter
 
-class TestImzmlWriter(unittest.TestCase):
-    def setUp(self) -> None:
-        # test setup
-        self.mock_wrapped_imzml_writer = MagicMock(name="mock_wrapped_imzml_writer")
-        self.mock_imzml_alignment_tracker = MagicMock(name="mock_imzml_alignment_tracker")
-
-        # common variables
-        self.mock_mz_arr = MagicMock(name="mock_mz_arr")
-        self.mock_int_arr = MagicMock(name="mock_int_arr")
-        self.mock_coordinates = MagicMock(name="mock_coordinates")
-
-    @cached_property
-    def mock_imzml_writer(self) -> ImzmlWriter:
-        return ImzmlWriter(
-            wrapped_imzml_writer=self.mock_wrapped_imzml_writer,
-            imzml_alignment_tracker=self.mock_imzml_alignment_tracker,
-        )
-
-    def test_open_when_continuous(self) -> None:
-        with TemporaryDirectory() as tmpdir:
-            mock_path = str(Path(tmpdir) / "test.imzML")
-            writer = ImzmlWriter.open(path=mock_path, imzml_mode=ImzmlModeEnum.CONTINUOUS)
-            self.assertEqual(Path(mock_path), writer.imzml_path)
-            self.assertEqual(ImzmlModeEnum.CONTINUOUS, writer.imzml_mode)
-
-    def test_open_when_processed(self) -> None:
-        with TemporaryDirectory() as tmpdir:
-            mock_path = str(Path(tmpdir) / "test.imzML")
-            writer = ImzmlWriter.open(path=mock_path, imzml_mode=ImzmlModeEnum.PROCESSED)
-            self.assertEqual(Path(mock_path), writer.imzml_path)
-            self.assertEqual(ImzmlModeEnum.PROCESSED, writer.imzml_mode)
-
-    def test_close(self) -> None:
-        self.mock_imzml_writer.close()
-        self.mock_wrapped_imzml_writer.close.assert_called_once_with()
-
-    def test_deactivate_alignment_tracker(self) -> None:
-        self.mock_imzml_writer.deactivate_alignment_tracker()
-        self.assertIsNone(self.mock_imzml_writer._imzml_alignment_tracker)
-
-    @patch.object(ImzmlModeEnum, "from_pyimzml_str")
-    def test_imzml_mode(self, mock_from_pyimzml_str) -> None:
-        mode = self.mock_imzml_writer.imzml_mode
-        mock_from_pyimzml_str.assert_called_once_with(self.mock_wrapped_imzml_writer.mode)
-        self.assertEqual(mock_from_pyimzml_str.return_value, mode)
-
-    def test_imzml_path(self) -> None:
-        self.mock_wrapped_imzml_writer.filename = "test.imzML"
-        self.assertEqual(Path("test.imzML"), self.mock_imzml_writer.imzml_path)
-
-    def test_ibd_path(self) -> None:
-        self.mock_wrapped_imzml_writer.ibd_filename = "test.ibd"
-        self.assertEqual(Path("test.ibd"), self.mock_imzml_writer.ibd_path)
-
-    def test_is_aligned(self) -> None:
-        self.assertEqual(self.mock_imzml_alignment_tracker.is_aligned, self.mock_imzml_writer.is_aligned)
-
-    @patch.object(ImzmlWriter, "imzml_mode", new=ImzmlModeEnum.CONTINUOUS)
-    def test_add_spectrum_when_continuous_when_no_tracker(self) -> None:
-        self.mock_imzml_alignment_tracker = None
-        self.mock_imzml_writer.add_spectrum(
-            mz_arr=self.mock_mz_arr, int_arr=self.mock_int_arr, coordinates=self.mock_coordinates
-        )
-        self.mock_wrapped_imzml_writer.addSpectrum.assert_called_once_with(
-            self.mock_mz_arr, self.mock_int_arr, self.mock_coordinates
-        )
-
-    @patch.object(ImzmlWriter, "imzml_mode", new=ImzmlModeEnum.CONTINUOUS)
-    def test_add_spectrum_when_continuous_when_with_tracker(self) -> None:
-        self.mock_mz_arr = MagicMock(name="self.mock_mz_arr")
-        self.mock_imzml_writer.add_spectrum(
-            mz_arr=self.mock_mz_arr, int_arr=self.mock_int_arr, coordinates=self.mock_coordinates
-        )
-        self.mock_wrapped_imzml_writer.addSpectrum.assert_called_once_with(
-            self.mock_mz_arr, self.mock_int_arr, self.mock_coordinates
-        )
-        self.mock_imzml_alignment_tracker.track_mz_array.assert_called_once_with(self.mock_mz_arr)
-
-    @patch.object(ImzmlWriter, "imzml_mode", new=ImzmlModeEnum.PROCESSED)
-    def test_add_spectrum_when_processed_when_no_tracker(self) -> None:
-        self.mock_imzml_alignment_tracker = None
-        self.mock_imzml_writer.add_spectrum(
-            mz_arr=self.mock_mz_arr, int_arr=self.mock_int_arr, coordinates=self.mock_coordinates
-        )
-        self.mock_wrapped_imzml_writer.addSpectrum.assert_called_once_with(
-            self.mock_mz_arr, self.mock_int_arr, self.mock_coordinates
-        )
-
-    @patch.object(ImzmlWriter, "imzml_mode", new=ImzmlModeEnum.PROCESSED)
-    def test_add_spectrum_when_processed_when_with_tracker(self) -> None:
-        self.mock_imzml_writer.add_spectrum(
-            mz_arr=self.mock_mz_arr, int_arr=self.mock_int_arr, coordinates=self.mock_coordinates
-        )
-        self.mock_wrapped_imzml_writer.addSpectrum.assert_called_once_with(
-            self.mock_mz_arr, self.mock_int_arr, self.mock_coordinates
-        )
-        self.mock_imzml_alignment_tracker.track_mz_array.assert_called_once_with(self.mock_mz_arr)
-
-    @patch.object(ImzmlWriter, "imzml_mode", new=ImzmlModeEnum.CONTINUOUS)
-    def test_add_spectrum_when_alignment_not_satisfied(self) -> None:
-        self.mock_imzml_alignment_tracker.is_aligned = False
-        with self.assertRaises(ValueError) as error:
-            self.mock_imzml_writer.add_spectrum(
-                mz_arr=self.mock_mz_arr, int_arr=self.mock_int_arr, coordinates=self.mock_coordinates
-            )
-        self.assertIn(
-            "The m/z array of the first spectrum must be identical to the m/z array of all other spectra!",
-            str(error.exception),
-        )
-
-    @patch.object(ImzmlWriter, "add_spectrum")
-    def test_copy_spectra(self, mock_add_spectrum) -> None:
-        mock_reader = MagicMock(name="mock_reader", spec=["get_spectrum_with_coords"])
-        mock_reader.get_spectrum_with_coords.side_effect = [("a", "b", "C1"), ("c", "d", "C2")]
-        self.mock_imzml_writer.copy_spectra(reader=mock_reader, spectra_indices=[10, 20])
-        self.assertListEqual([call("a", "b", "C1"), call("c", "d", "C2")], mock_add_spectrum.mock_calls)
+MZ_ARR = np.array([100.0, 200.0])
+INT_ARR = np.array([1.0, 2.0])
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.fixture
+def writer(tmp_path: Path) -> ImzmlWriter:
+    """A writer over a real, if tiny, file: the imzy writer validates what it is handed and
+    writes as it goes, so a MagicMock in its place tests nothing that matters."""
+    return ImzmlWriter.open(path=tmp_path / "test.imzML", imzml_mode=ImzmlModeEnum.PROCESSED)
+
+
+def test_open_when_continuous(tmp_path: Path) -> None:
+    path = tmp_path / "test.imzML"
+    writer = ImzmlWriter.open(path=path, imzml_mode=ImzmlModeEnum.CONTINUOUS)
+    assert writer.imzml_path == path
+    assert writer.ibd_path == path.with_suffix(".ibd")
+    assert writer.imzml_mode == ImzmlModeEnum.CONTINUOUS
+
+
+def test_open_when_processed(tmp_path: Path) -> None:
+    writer = ImzmlWriter.open(path=tmp_path / "test.imzML", imzml_mode=ImzmlModeEnum.PROCESSED)
+    assert writer.imzml_mode == ImzmlModeEnum.PROCESSED
+
+
+def test_close(writer: ImzmlWriter, mocker: MockerFixture) -> None:
+    mock_close = mocker.patch.object(writer._imzml_writer, "close")
+    writer.close()
+    mock_close.assert_called_once_with()
+
+
+def test_close_without_any_spectrum_raises(writer: ImzmlWriter) -> None:
+    # Documents a behaviour change from the pyimzml writer, which produced a malformed file
+    # in this situation instead.
+    with pytest.raises(ValueError, match="without any spectra"):
+        writer.close()
+
+
+def test_deactivate_alignment_tracker(writer: ImzmlWriter) -> None:
+    writer.deactivate_alignment_tracker()
+    assert writer._imzml_alignment_tracker is None
+
+
+def test_add_spectrum(writer: ImzmlWriter) -> None:
+    writer.add_spectrum(MZ_ARR, INT_ARR, (1, 2))
+    writer.close()
+    assert writer.imzml_path.exists()
+    assert writer.ibd_path.exists()
+
+
+def test_add_spectrum_when_lengths_differ(writer: ImzmlWriter) -> None:
+    with pytest.raises(ValueError, match="must be equal"):
+        writer.add_spectrum(MZ_ARR, np.array([1.0]), (1, 2))
+
+
+def test_add_spectrum_when_empty(writer: ImzmlWriter) -> None:
+    # The guard that stops imzy from warning and silently skipping the pixel, which would
+    # leave n_spectra out of step with the coordinates the caller thinks it wrote.
+    with pytest.raises(ValueError, match="empty spectrum"):
+        writer.add_spectrum(np.array([]), np.array([]), (1, 2))
+
+
+def test_add_spectrum_when_declined(writer: ImzmlWriter, mocker: MockerFixture) -> None:
+    # Nothing should be able to reach a silent skip, so a False return is an error even
+    # though no known input produces one once the empty case is caught above.
+    mocker.patch.object(writer._imzml_writer, "add_spectrum", return_value=False)
+    with pytest.raises(RuntimeError, match="declined"):
+        writer.add_spectrum(MZ_ARR, INT_ARR, (1, 2))
+
+
+def test_add_spectrum_tracks_alignment(writer: ImzmlWriter, mocker: MockerFixture) -> None:
+    mock_track = mocker.patch.object(writer._imzml_alignment_tracker, "track_mz_array")
+    writer.add_spectrum(MZ_ARR, INT_ARR, (1, 2))
+    mock_track.assert_called_once()
+
+
+def test_add_spectrum_when_alignment_not_satisfied(tmp_path: Path) -> None:
+    writer = ImzmlWriter.open(path=tmp_path / "test.imzML", imzml_mode=ImzmlModeEnum.CONTINUOUS)
+    writer.add_spectrum(MZ_ARR, INT_ARR, (1, 1))
+    with pytest.raises(ValueError, match="must be identical to the m/z array of all other spectra"):
+        writer.add_spectrum(np.array([100.0, 300.0]), INT_ARR, (2, 1))
+
+
+def test_is_aligned(writer: ImzmlWriter) -> None:
+    # A fresh tracker reports False until it has seen a spectrum, which is why the
+    # continuous-mode check in `add_spectrum` only fires once one has been tracked.
+    assert not writer.is_aligned
+    writer.add_spectrum(MZ_ARR, INT_ARR, (1, 2))
+    assert writer.is_aligned
+
+
+def test_copy_spectra(writer: ImzmlWriter, mocker: MockerFixture) -> None:
+    mock_add_spectrum = mocker.patch.object(ImzmlWriter, "add_spectrum")
+    mock_reader = mocker.MagicMock(name="mock_reader", spec=["get_spectrum_with_coords"])
+    mock_reader.get_spectrum_with_coords.side_effect = [("a", "b", "C1"), ("c", "d", "C2")]
+    writer.copy_spectra(reader=mock_reader, spectra_indices=[10, 20])
+    assert mock_add_spectrum.mock_calls == [mocker.call("a", "b", "C1"), mocker.call("c", "d", "C2")]

@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 from pytest_mock import MockerFixture
 
@@ -46,6 +47,26 @@ def test_filter_chunk(mocker: MockerFixture) -> None:
         mocker.call("m2", "i2", "m2", "i2"),
     ]
     assert mock_writer.add_spectrum.mock_calls == [mocker.call("m1", "i1", "c1"), mocker.call("m2", "i2", "c2")]
+
+
+def test_filter_chunk_drops_spectra_with_no_surviving_peaks(mocker: MockerFixture) -> None:
+    # The writer refuses an empty spectrum rather than silently skipping it, so filtering a
+    # noise pixel down to nothing would abort the whole run if it were passed on. `pick_peaks`
+    # already drops such spectra with a warning; this keeps the two consistent.
+    mock_reader = mocker.MagicMock(name="mock_reader", spec=ImzmlReader)
+    mock_reader.get_spectrum_with_coords.side_effect = [
+        (np.array([100.0]), np.array([1.0]), "c1"),
+        (np.array([200.0]), np.array([2.0]), "c2"),
+    ]
+    mock_peaks_filter = mocker.MagicMock(name="mock_peaks_filter", spec=FilterNHighestIntensityPartitioned)
+    mock_peaks_filter.filter_peaks.side_effect = [
+        (np.array([]), np.array([])),
+        (np.array([200.0]), np.array([2.0])),
+    ]
+    mock_writer = mocker.MagicMock(name="mock_writer", spec=ImzmlWriter)
+    _filter_chunk(mock_reader, [5, 6], mock_writer, mock_peaks_filter)
+    assert len(mock_writer.add_spectrum.mock_calls) == 1
+    assert mock_writer.add_spectrum.mock_calls[0].args[2] == "c2"
 
 
 if __name__ == "__main__":

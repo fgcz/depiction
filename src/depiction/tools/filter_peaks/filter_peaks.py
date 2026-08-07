@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from loguru import logger
+
 from depiction.spectrum.peak_filtering.filter_by_snr_threshold import FilterBySnrThresholdConfig, FilterBySnrThreshold
 
 from depiction.parallel_ops import ParallelConfig, WriteSpectraParallel
@@ -35,6 +37,12 @@ def _filter_chunk(
     for spectrum_id in indices:
         mz_arr, int_arr, coords = reader.get_spectrum_with_coords(spectrum_id)
         mz_arr, int_arr = peaks_filter.filter_peaks(mz_arr, int_arr, mz_arr, int_arr)
+        if len(mz_arr) == 0:
+            # The writer refuses an empty spectrum rather than dropping it silently, so the
+            # decision to drop has to be taken -- and logged -- here. `pick_peaks` does the
+            # same for the same reason.
+            logger.warning(f"Dropped spectrum {spectrum_id} as no peaks survived filtering")
+            continue
         writer.add_spectrum(mz_arr, int_arr, coords)
 
 

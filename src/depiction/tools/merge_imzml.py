@@ -26,7 +26,7 @@ def main_merge_imzml(output_imzml: str, input_imzml: list[str], mode: str) -> No
     :param input_imzml: The paths to the input imzml files.
     :param mode: The mode to write the output file in.
     """
-    MergeImzml().merge_paths(input_imzml, output_imzml, ImzmlModeEnum.from_pyimzml_str(mode))
+    MergeImzml().merge_paths(input_imzml, output_imzml, ImzmlModeEnum.from_imzml_str(mode))
 
 
 def main() -> None:

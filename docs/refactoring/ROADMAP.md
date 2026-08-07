@@ -287,7 +287,7 @@ fixture. Everything else reproduced exactly.
 This does not close Phase G, and it is not the baseline diff. It covers the reader on two
 files: not the writer, not the pipeline.
 
-### Phase G — a public fixture the system tests actually run on ✅ (PR #42)
+### Phase G — a public fixture the system tests actually run on ✅ (PR #43)
 
 The system tests ran on one 1.26 GB non-redistributable acquisition and asserted four
 constants copied from one of its outputs, so they skipped everywhere except one laptop.
@@ -452,7 +452,7 @@ original plan was **not** taken, and is still available:
 
 ### Phase G — done
 
-See [above](#phase-g--a-public-fixture-the-system-tests-actually-run-on--pr-42). The four
+See [above](#phase-g--a-public-fixture-the-system-tests-actually-run-on--pr-43). The four
 steps as originally written are kept below, each annotated with what actually happened,
 because the gap between the plan and the execution is the useful part.
 

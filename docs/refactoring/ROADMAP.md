@@ -2,11 +2,11 @@
 
 Status: **partially executed**, 2026-08-07. Author: Leonardo Schwarz.
 
-Phases A, B, C, E and F are done. Phase D is done on the reader side only; Phase G is
-**started, at step 2 of 4** — the public data is fetched and read by `tests/real_data/`,
-but the system tests still depend on the FGCZ-local acquisition. The rest is described
-below as a plan for whoever picks it up; see
-[What a successor needs](#what-a-successor-needs).
+Phases A, B, C, E, F and G are done. **Phase D — the upstream contributions to `imzy` — is
+the only phase not started**, and all five of its gaps are worked around in-tree today. The
+largest remaining *risk*, separately, is that no end-to-end run has been diffed against a
+pre-refactor baseline; see the risk table for the recipe. Both are described below as a plan
+for whoever picks them up; see [What a successor needs](#what-a-successor-needs).
 
 ## Context
 
@@ -287,6 +287,54 @@ fixture. Everything else reproduced exactly.
 This does not close Phase G, and it is not the baseline diff. It covers the reader on two
 files: not the writer, not the pipeline.
 
+### Phase G — a public fixture the system tests actually run on ✅ (PR #42)
+
+The system tests ran on one 1.26 GB non-redistributable acquisition and asserted four
+constants copied from one of its outputs, so they skipped everywhere except one laptop.
+Both halves of that are fixed: the assertions now derive from the inputs, and the 59 MB
+public pair from [`public-test-data.md`](public-test-data.md) runs the whole
+`CALIB_IMAGES` chain on every PR — **31 s in a warm environment, 65 s in a fresh one** where
+numba still has to compile, against 104 s for the tonsil.
+
+- **`system_tests/fixtures.py`** describes both acquisitions and is the only file to touch
+  to swap one. It imports the public manifest from `tests/real_data/datasets.py` instead of
+  repeating its URLs, which is what `system_tests/README.md` had been telling a successor to
+  do since Phase F.
+- **The panel is generated, and says so.** The FGCZ panel is B-Fabric dataset `53798` and is
+  not ours to publish, so the public fixture uses the twenty strongest well-separated peaks
+  of its own mean spectrum, regenerable by `system_tests/panels/make_mouse_kidney_panel.py`.
+  It identifies nothing; it exists because
+  `CalibrationMethodConstantGlobalShift.preprocess_image_features` takes `np.nanmedian` over
+  per-reference peak distances, so a panel that finds no peaks yields a NaN shift, NaN m/z
+  arrays, and an output that is quietly all background.
+- **Three assertions the old test could not make**, and they are the ones that earn the run:
+  the foreground mask equals the acquisition's coordinate set exactly; `calibrated.imzML`
+  keeps `raw.imzML`'s spectrum count and coordinates; and no `IMS:1000052` appears in the
+  output that was not in the input. That last one is the Phase C z-axis risk — *"one round
+  trip would have made the change permanent"* — checked on a real end-to-end pipeline run
+  rather than on the synthetic corpus, for the first time.
+
+**And it immediately found something, which is the argument for having done it.** The first
+run in a clean `nox` environment failed at import: `snakemake_invoke` was declared as
+`git+https://github.com/leoschwarz/snakemake_invoke` with **no revision**. `uv.lock` pinned
+commit `e7e3c33`, but the nox sessions install with `uv pip install .`, which does not consult
+the lockfile — so every fresh environment resolved the git HEAD instead, and upstream had
+since moved `SnakemakeInvoke` out of `__init__.py`.
+
+The effect was invisible in three ways at once. The committed lockfile kept `.venv` working,
+so it never reproduced locally. Nothing under `tests/` imports `process_chunk`, so the default
+`nox` stayed green. And because the failure is an *import* error it happens at collection,
+before any fixture can skip — meaning Phase F's *"the tests now skip with a message naming
+what is missing"* had quietly stopped being true on a cold clone. Fixed by pinning the
+declaration to the revision the lockfile already recorded; the relock changed two lines and
+nothing else. **A repository intended to go dormant cannot carry an unpinned VCS dependency**,
+and this is the only one.
+
+**What the run still is not.** One calibration method, one artifact (`CALIB_IMAGES`), one
+acquisition in CI, and no comparison against any earlier version of this code. It shows the
+pipeline runs and that its output is consistent with its input; it does not show the output
+is the same as it was before the migration. That is the baseline diff, still open.
+
 ---
 
 ## What was deliberately not done
@@ -322,6 +370,16 @@ files: not the writer, not the pipeline.
   `ImzmlWriteFile`'s defaults, so a float64 intensity array comes back as float32 after a
   parallel round trip. Pre-existing, pinned by `tests/differential/test_writer.py` rather
   than fixed.
+- **A file with no declared pixel size silently gets 1 µm.** `Metadata.pixel_size` is a
+  required `PixelSize`, but `ParseMetadata.pixel_size` returns `None` when the file declares
+  no `IMS:1000046` — deliberately, since that was the whole reason Phase E kept the parser.
+  So `proc_export_raw_metadata` takes its `ValidationError` branch, logs *"Failed to extract
+  metadata"* (an overstatement: only the pixel size was missing), and substitutes a dummy
+  1 µm that reaches the OME-TIFF. Found in Phase G, because the public fixture is the first
+  file in this repository that declares no pixel size; the tonsil never reaches the branch.
+  Pinned by `test_pixel_size_matches_the_exported_raw_metadata` rather than fixed — the fix
+  is `PixelSize | None` through `Metadata`, `OmeTiff.write_image` and `OmeTiff.write`, which
+  is a `depiction_io` API change and was outside Phase G.
 
 ---
 
@@ -392,7 +450,11 @@ original plan was **not** taken, and is still available:
   naming that becomes nonsense now that Bruker `.d` readers are reachable. Renaming to
   `spectra_mode` / `SpectraMode` is mechanical (33 sites) but pure churn.
 
-### Phase G — A downloadable public fixture for the system tests (not started)
+### Phase G — done
+
+See [above](#phase-g--a-public-fixture-the-system-tests-actually-run-on--pr-42). The four
+steps as originally written are kept below, each annotated with what actually happened,
+because the gap between the plan and the execution is the useful part.
 
 Last, because it is independent of everything above and only worth doing once the I/O
 layer has stopped moving. Phase F established that the system tests
@@ -407,8 +469,7 @@ The fix is a redistributable acquisition that the test suite fetches on demand:
 1. **Find a public imzML/ibd pair** — **done, 2026-08-07**: an MIT-licensed, DOI-stable
    59 MB pair with checksums and measured geometry recorded in
    [`public-test-data.md`](public-test-data.md), along with what was ruled out and why.
-   Step 2 is now done too (see below); steps 3 and 4 are untouched, and per step 3 the
-   assertions remain the real work. The criteria this had to meet are kept below as written.
+   The criteria this had to meet are kept below as written.
 
    Find a pair that is small enough to download per CI run (target
    well under 100 MB — a single small tissue section or a cropped acquisition), openly
@@ -430,17 +491,28 @@ The fix is a redistributable acquisition that the test suite fetches on demand:
    `system_tests/inputs/inputs.yml`, because it also carries the *expected reading* for each
    file and nothing parses `inputs.yml` today; `system_tests` should import it rather than
    duplicating the URLs. And the cache is repo-local rather than under `XDG_CACHE_HOME`, so
-   that 1.24 GB of fixtures is somewhere a person will find and delete. The system-test half
-   of this — wiring the fixture into `system_tests/calibration/` — is not done; only the
-   reader-level use in `tests/real_data/` is.
-3. **Rewrite the assertions** so they hold for the fixture. This is the real work, not the
-   download: the current values are magic numbers copied from one output. Prefer assertions
-   derived from the input (pixel count matches the coordinate list, channel count matches
-   the panel, output geometry matches the acquisition's bounding box) so a future fixture
-   swap does not mean re-deriving constants by hand.
+   that 1.24 GB of fixtures is somewhere a person will find and delete. `system_tests`
+   imports that manifest rather than repeating its URLs.
+3. **Rewrite the assertions** so they hold for the fixture — **done**, and it was the
+   smaller half rather than "the real work" this step predicted. All four constants turned
+   out to be readable out of the work directory: `tonsil.imzML` declares
+   `<spectrumList count="10131">`, which is `n_nonzero` exactly, because
+   `SparseRepresentation.flat_to_spatial` derives `is_foreground` from the coordinate list
+   and not from the values; `118` is the panel row count and `128 x 137` the coordinate
+   bounding box.
+
+   One deviation, in the direction of a stronger test. The pixel *count* became a set
+   comparison — the foreground mask must equal the acquisition's coordinate set — because a
+   count is satisfied by the right number of wrong pixels, a transposed or shifted image
+   among them. Doing that surfaced a detail worth knowing: the OME-TIFF round trip drops the
+   x/y coordinate labels (`OmeTiff.read` assigns only `c`), so the mask comes back indexed
+   from zero and the acquisition's origin has to be added back.
 4. **Enable the CI job** that Phase F replaced with a comment in
-   `.github/workflows/pr-checks.yml`, with the download cached across runs
-   (`actions/cache` keyed on the checksum) and the job kept off the fast path if it is slow.
+   `.github/workflows/pr-checks.yml` — **done**, as a separate job rather than another `nox`
+   session, so a pipeline run never sits in front of the lint and unit-test feedback. The
+   download is cached on `hashFiles('tests/real_data/datasets.py')`: keying on the manifest
+   rather than on a checksum copied into the workflow means a URL change invalidates the
+   cache too, not only a content change.
 
 Keep the FGCZ tonsil path working alongside it — a large real acquisition is still the
 better regression test, it just cannot be the *only* one.
@@ -495,4 +567,5 @@ held source arrays instead; see the note in Phase E about what that no longer ca
 | Bruker readers unavailable on macOS | Expected — `imzy/plugins.py` disables them there. Local dev is imzML-only; the `.d` path is plumbed but untested, and `get_read_file` says so rather than failing obscurely |
 | **No end-to-end run diffed against a pre-refactor baseline** | **Open, and now the largest remaining one by some distance.** Deliberately deferred rather than solved. What exists instead: the whole corpus asserted indistinguishable between the two readers before the parser was deleted, and `tests/real_data/` reading two real third-party acquisitions on every run ([`public-test-data.md`](public-test-data.md)). Neither touches the *writer* or the pipeline. **The recipe, for whoever does it:** `git worktree add ../depiction-baseline ed222b3` — the last commit before Phase A, still on `pyimzml` — then `uv sync` there, expecting resolution drift because that commit has no lockfile (record what resolves); run `process_chunk` on the tonsil fixture in both trees with the same `system_tests/calibration/configs/`; diff `images_default.ome.tiff` numerically, not byte-wise, since compression and tiling metadata will differ. Budget a day, most of it on the old environment |
 | `get_spectrum_n_points` now returns points rather than bytes | A deliberate behaviour change, not a regression — the old answer was four times too large. Its only caller, `depiction.tools.experimental.msi_hdf5`, has no test and was never checked against the old value |
+| `uv.lock` does not cover what CI actually installs | **Known, partly mitigated.** Every `nox` session installs with `uv pip install`, which resolves fresh rather than reading the lockfile, so the committed lock reproduces `.venv` but not CI. The only dependency where that could drift silently was the unpinned `snakemake_invoke`, now pinned to a revision (see Phase G); everything else is on PyPI with a version floor, so the exposure is ordinary upstream churn rather than an arbitrary git HEAD. Switching the sessions to `uv sync --frozen` would close it properly and was not done |
 | The migration is abandoned mid-flight | No longer applicable. Phases A, B, C, E and F are done and green, there is one reader and one writer, and the parser that would have been the fourth half-finished refactoring is gone |

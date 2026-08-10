@@ -3,6 +3,30 @@
 Reading and writing mass-spectrometry imaging data, split out of `depiction` so that the
 I/O layer has a boundary of its own.
 
+## Depending on it from another application
+
+Depend on this package rather than on `depiction`, unless you also need the processing,
+image and pipeline code. `depiction` carries the Snakemake orchestration and the B-Fabric
+integration, which is the difference between a ~50-package install and a ~200-package one.
+
+```toml
+[tool.uv.sources]
+depiction_io = { git = "https://github.com/fgcz/depiction.git", subdirectory = "pkgs/depiction_io", rev = "..." }
+```
+
+Pin a `rev`. Without one the dependency tracks the default branch, and the only thing
+between you and a surprise is your own lockfile.
+
+Code written before the split imports from `depiction.persistence`, which no longer exists.
+The reading side changed shape at the same time, so it is not only a rename:
+
+| was | now |
+|---|---|
+| `ImzmlReadFile(path)` | `get_read_file(path)` |
+| `read_file.get_reader()` | `with read_file.reader() as reader:` |
+| `ImzmlReader` (as a type) | `GenericReader` |
+| `ImzmlWriteFile` | unchanged |
+
 ## What is here
 
 - `types.py` — the `GenericReader` / `GenericReadFile` / `GenericWriter` /

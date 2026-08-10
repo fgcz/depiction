@@ -4,7 +4,7 @@ This package provides functionality to process and visualize mass-spectrometry i
 Currently, it requires your data to be available in the `imzML` format.
 The full pipeline is also in the process of being developed.
 
-The repository is a [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/) with two
+The repository is a [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/) with three
 packages:
 
 - `depiction` (in `src/`): implements the whole functionality to process the data. It also contains
@@ -12,8 +12,12 @@ packages:
   a qc report and .ome.tiff files.
 - `depiction_io` (in `pkgs/depiction_io/`): reading and writing MSI data. Everything else talks to
   the protocols in `depiction_io.types` rather than to a file format, so the storage backend can be
-  changed without touching the callers. See
+  changed without touching the callers. **If reading and writing MSI files is all you need, depend
+  on this package rather than on `depiction`** — see
   [`pkgs/depiction_io/README.md`](pkgs/depiction_io/README.md).
+- `snakemake_invoke` (in `pkgs/snakemake_invoke/`): a small wrapper for invoking the pipeline's
+  Snakemake workflow from Python, vendored from its own repository so that this one has no git
+  dependencies. See [`pkgs/snakemake_invoke/README.md`](pkgs/snakemake_invoke/README.md).
 
 This project is in an early state of development. If you are interested, it's best to reach out to us.
 

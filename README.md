@@ -34,6 +34,11 @@ uv sync --extra dev
 ```
 
 This creates the virtual environment in the `.venv` directory.
+
+Add `--extra findmf` if you need the FindMF peak picker (the `dev_presets` and
+`dev_no_calibration` pipeline presets use it). It is optional because `findmfpy` is a C++
+extension that ships wheels only for CPython 3.13 on macOS arm64 and x86-64 Linux; anywhere
+else, installing it means compiling it.
 To activate the environment in your shell, you need to `source` the correct activation script from `.venv/bin`, e.g. `.venv/bin/activate` for bash.
 
 If you use an IDE you may want to point the IDE to the Python interpreter at `.venv/bin/python`.

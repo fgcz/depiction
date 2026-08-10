@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from snakemake_invoke.snakemake_invoke import SnakemakeInvoke
+from snakemake_invoke import SnakemakeInvoke
+from snakemake_invoke.config import SnakemakeInvokeConfig
 
 work_dir = Path(__file__).parent / "data-sandbox"
 
@@ -29,7 +30,14 @@ def main():
 
     result_files = [work_dir / "work" / sample / artifact for sample in samples for artifact in cluster_artifacts]
 
-    snakemake = SnakemakeInvoke(continue_on_error=False, snakefile_name=snakefile_path, n_cores=4)
+    # Neither the import above nor this call has matched `snakemake_invoke` for some time:
+    # it was `snakemake_invoke.snakemake_invoke`, a module that does not exist at the pinned
+    # revision, and the keywords here predate the move to a config object. Fixed while
+    # vendoring rather than left as the only import in the tree that cannot resolve; the
+    # sandbox itself is still unsupported and untested.
+    snakemake = SnakemakeInvoke(
+        config=SnakemakeInvokeConfig(snakefile_path=snakefile_path, continue_on_error=False, n_cores=4)
+    )
     snakemake.invoke(
         work_dir=work_dir,
         result_files=result_files,

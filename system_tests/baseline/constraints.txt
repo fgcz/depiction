@@ -7,6 +7,13 @@
 #
 # Regenerate with:
 #   uv export --no-hashes --no-emit-workspace --all-extras | grep -v "^#" | grep -v "^ " > system_tests/baseline/constraints.txt
+#
+# Then put the `snakemake-invoke @ git+...` line back by hand. That package is now vendored
+# into pkgs/, so it is a workspace member and --no-emit-workspace drops it -- but the
+# baseline tree at ed222b3 still declares the upstream git dependency, with no revision, and
+# without this pin it resolves a HEAD where SnakemakeInvoke is no longer importable from
+# `__init__.py`. Losing the line does not fail the export; it fails the baseline install,
+# later, somewhere else.
 accessible-pygments==0.0.5
 aiobotocore==3.2.0
 aiohappyeyeballs==2.6.1

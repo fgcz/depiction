@@ -14,6 +14,7 @@ resolution-markers = [
 members = [
     "depiction",
     "depiction-io",
+    "snakemake-invoke",
 ]
 
 [[package]]
@@ -1103,7 +1104,6 @@ dependencies = [
     { name = "bioio-ome-zarr" },
     { name = "cyclopts" },
     { name = "depiction-io" },
-    { name = "findmfpy" },
     { name = "h5netcdf" },
     { name = "h5py" },
     { name = "kdepy" },
@@ -1142,6 +1142,7 @@ apps = [
 dev = [
     { name = "bokeh" },
     { name = "coverage" },
+    { name = "findmfpy" },
     { name = "hdbscan" },
     { name = "hvplot" },
     { name = "hypothesis" },
@@ -1170,11 +1171,15 @@ doc = [
     { name = "sphinx-autobuild" },
     { name = "sphinx-book-theme" },
 ]
+findmf = [
+    { name = "findmfpy" },
+]
 ms-peak-picker = [
     { name = "ms-peak-picker" },
 ]
 testing = [
     { name = "coverage" },
+    { name = "findmfpy" },
     { name = "hypothesis" },
     { name = "logot" },
     { name = "pytest" },
@@ -1202,9 +1207,10 @@ requires-dist = [
     { name = "bokeh", marker = "extra == 'dev'", specifier = ">=3.3.2" },
     { name = "coverage", marker = "extra == 'testing'", specifier = ">=7.4.3" },
     { name = "cyclopts" },
+    { name = "depiction", extras = ["findmf"], marker = "extra == 'testing'" },
     { name = "depiction", extras = ["testing"], marker = "extra == 'dev'" },
     { name = "depiction-io", editable = "pkgs/depiction_io" },
-    { name = "findmfpy" },
+    { name = "findmfpy", marker = "extra == 'findmf'" },
     { name = "h5netcdf" },
     { name = "h5py", specifier = ">=3.10.0" },
     { name = "hdbscan", marker = "extra == 'dev'" },
@@ -1247,7 +1253,7 @@ requires-dist = [
     { name = "scipy-stubs", marker = "extra == 'typing'" },
     { name = "seaborn", specifier = ">=0.13.0" },
     { name = "snakemake", specifier = ">=9.1" },
-    { name = "snakemake-invoke", git = "https://github.com/leoschwarz/snakemake_invoke?rev=e7e3c337a022fe4d65894d88b99167fa5bbab67e" },
+    { name = "snakemake-invoke", editable = "pkgs/snakemake_invoke" },
     { name = "sparse", specifier = ">=0.15.4" },
     { name = "spatialdata", specifier = ">=0.7.2" },
     { name = "spatialdata-plot", marker = "extra == 'dev'", specifier = ">=0.2.1" },
@@ -1265,7 +1271,7 @@ requires-dist = [
     { name = "xarray" },
     { name = "xmltodict", marker = "extra == 'dev'" },
 ]
-provides-extras = ["ms-peak-picker", "testing", "dev", "doc", "apps", "typing"]
+provides-extras = ["ms-peak-picker", "findmf", "testing", "dev", "doc", "apps", "typing"]
 
 [[package]]
 name = "depiction-io"
@@ -5448,12 +5454,28 @@ wheels = [
 [[package]]
 name = "snakemake-invoke"
 version = "0.1.1"
-source = { git = "https://github.com/leoschwarz/snakemake_invoke?rev=e7e3c337a022fe4d65894d88b99167fa5bbab67e#e7e3c337a022fe4d65894d88b99167fa5bbab67e" }
+source = { editable = "pkgs/snakemake_invoke" }
 dependencies = [
     { name = "loguru" },
     { name = "pydantic" },
     { name = "snakemake" },
 ]
+
+[package.optional-dependencies]
+testing = [
+    { name = "pytest" },
+    { name = "pytest-mock" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "loguru" },
+    { name = "pydantic", specifier = ">=2.9" },
+    { name = "pytest", marker = "extra == 'testing'" },
+    { name = "pytest-mock", marker = "extra == 'testing'" },
+    { name = "snakemake", specifier = ">=8.24" },
+]
+provides-extras = ["testing"]
 
 [[package]]
 name = "snowballstemmer"

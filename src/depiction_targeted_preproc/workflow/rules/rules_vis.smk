@@ -5,11 +5,14 @@ rule vis_images:
         mass_list="{sample}/panels/full_visualize.csv",
     output:
         hdf5="{sample}/images_default.hdf5",
-    # TODO how can i pass n-jobs nicely here
+    # This is the answer to "how can i pass n-jobs nicely here": snakemake substitutes
+    # `{threads}`, so the tool is told the same budget the scheduler reserved for it, instead
+    # of a hardcoded 10 that was right only when the workflow happened to get ten cores.
+    threads: workflow.cores
     shell:
         "python -m depiction.tools.cli.cli_generate_ion_images"
         " --imzml-path {input.imzml[0]} --mass-list-path {input.mass_list}"
-        " --output-hdf5-path {output.hdf5} --n-jobs 10"
+        " --output-hdf5-path {output.hdf5} --n-jobs {threads}"
 
 
 rule vis_images_norm:

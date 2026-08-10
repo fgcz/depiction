@@ -14,6 +14,10 @@ rule process_spectra_run:
         config="{sample}/config/process_spectra.yml",
     output:
         imzml=multiext("{sample}/processed", ".imzML", ".ibd"),
+    # The tool parallelises internally over `n_jobs`, which is the same number this workflow
+    # is given as `--cores`. Claiming all of them stops snakemake from starting another heavy
+    # rule alongside it and oversubscribing the machine.
+    threads: workflow.cores
     shell:
         "python -m depiction.tools.process_spectra"
         " --config-file {input.config} --input-imzml-file {input.imzml[0]} --output-imzml-file {output.imzml[0]}"
@@ -37,6 +41,8 @@ rule proc_calibrate:
     output:
         imzml=multiext("{sample}/calibrated", ".imzML", ".ibd"),
         calib_data="{sample}/calib_data.hdf5",
+    # As above: parallelises internally over `n_jobs`.
+    threads: workflow.cores
     shell:
         "python -m depiction.tools.calibrate "
         " run-config --config {input.config} "

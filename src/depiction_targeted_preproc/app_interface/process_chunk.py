@@ -24,6 +24,10 @@ def process_chunk(chunk_dir: Path) -> Path:
     # TODO should we generate the report_file again? before it was broken due to jinja2 update
     snakemake_config = SnakemakeInvokeConfig(
         snakefile_path=Path(__file__).parents[1] / "workflow" / "Snakefile",
+        # The same number the tools parallelise over. Left unset it defaulted to 1, so
+        # snakemake scheduled as if it had a single core while `process_spectra`,
+        # `proc_calibrate` and `vis_images` each forked `n_jobs` workers underneath it.
+        n_cores=params.n_jobs,
     )
     SnakemakeInvoke(snakemake_config).invoke(work_dir=chunk_dir.parent, result_files=result_files)
 

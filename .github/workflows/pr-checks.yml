@@ -13,9 +13,9 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       - name: Install nox
@@ -29,15 +29,15 @@ jobs:
     name: System Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       # Keyed on the manifest itself, so changing a URL or a checksum invalidates the cache
       # rather than silently reusing the file it used to describe.
       - name: Restore the public acquisition
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .test-data
           key: test-data-${{ hashFiles('tests/real_data/datasets.py') }}

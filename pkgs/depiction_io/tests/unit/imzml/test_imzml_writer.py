@@ -38,6 +38,18 @@ def test_close(writer: ImzmlWriter, mocker: MockerFixture) -> None:
     mock_close.assert_called_once_with()
 
 
+def test_discard(writer: ImzmlWriter, mocker: MockerFixture) -> None:
+    mock_discard = mocker.patch.object(writer._imzml_writer, "discard")
+    writer.discard()
+    mock_discard.assert_called_once_with()
+
+
+def test_discard_leaves_nothing_behind(writer: ImzmlWriter) -> None:
+    writer.add_spectrum(MZ_ARR, INT_ARR, (1, 2))
+    writer.discard()
+    assert list(writer.imzml_path.parent.iterdir()) == []
+
+
 def test_close_without_any_spectrum_raises(writer: ImzmlWriter) -> None:
     # Documents a behaviour change from the pyimzml writer, which produced a malformed file
     # in this situation instead.

@@ -21,7 +21,9 @@ class ImzmlWriteFile(GenericWriteFile):
         path: The path to the .imzML file.
         imzml_mode: The mode of the .imzML file.
         write_mode: The write mode. If "x", the file must not exist. If "w", the file will be overwritten if it exists.
-            Other values are not supported.
+            Other values are not supported. "w" truncates on open, as it does for a builtin file, so a write that
+            fails or turns out to have no spectra leaves no file behind at all -- not the old one, and not a
+            half-written new one.
     """
 
     def __init__(
@@ -67,11 +69,11 @@ class ImzmlWriteFile(GenericWriteFile):
             if self.imzml_file.exists():
                 raise ValueError(f"File {self.imzml_file} already exists.")
         elif self._write_mode == "w":
-            if self.imzml_file.exists():
-                # TODO this unlinks before checking that the writer can be opened, so a failure
-                #      here leaves neither the old file nor a new one.
-                self.imzml_file.unlink()
-                self.ibd_file.unlink()
+            # Truncate on open, as "w" does for a builtin file. `missing_ok` because an .imzML
+            # whose .ibd has gone missing is still a file this mode is meant to clear out of
+            # the way, not a reason to fail after having already removed the .imzML.
+            self.imzml_file.unlink(missing_ok=True)
+            self.ibd_file.unlink(missing_ok=True)
         else:
             raise ValueError(f"Invalid write mode: {self._write_mode!r}")
 
@@ -87,20 +89,21 @@ class ImzmlWriteFile(GenericWriteFile):
             imzml_mode=self._imzml_mode,
             mz_dtype=self._mz_dtype,
             intensity_dtype=self._intensity_dtype,
-            # The checks above already cleared the way; this only stops imzy from refusing
+            # The truncation above already cleared the way; this only stops imzy from refusing
             # to start over a leftover .ibd whose .imzML was removed.
             overwrite=self._write_mode == "w",
         )
         try:
             yield writer
-        except BaseException:
-            # Closing an empty writer raises, which would replace whatever went wrong in
-            # the body with a misleading "no spectra" error.
-            with suppress(Exception):
-                writer.close()
-            raise
-        else:
             writer.close()
+        except BaseException:
+            # Discard rather than close: closing would rename a half-written output into
+            # place. `close()` is inside the `try` because it cleans up after an `Exception`
+            # but not after a Ctrl-C landing mid-rename, and because the "no spectra" error it
+            # raises must not replace whatever went wrong in the body.
+            with suppress(Exception):
+                writer.discard()
+            raise
 
     def __repr__(self) -> str:
         return f"ImzmlWriteFile(path={self._path!r}, imzml_mode={self._imzml_mode!r}, write_mode={self._write_mode!r})"

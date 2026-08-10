@@ -36,7 +36,7 @@ _SCAN_PATH = f"{{{MZML_NAMESPACE}}}scanList/{{{MZML_NAMESPACE}}}scan"
 
 
 class DepictionIMZMLWriter(IMZMLWriter):
-    """An `imzy.IMZMLWriter` that keeps a 2D acquisition 2D."""
+    """An `imzy.IMZMLWriter` that keeps a 2D acquisition 2D, and can be told to give up."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -56,6 +56,12 @@ class DepictionIMZMLWriter(IMZMLWriter):
         if written and len(coords) == 3:
             self._wrote_3d_coordinates = True
         return written
+
+    def discard(self) -> None:
+        """Closes the writer and removes its temporary files, so nothing is renamed into place."""
+        # imzy discards only through the exception arm of its context manager; the exception
+        # handed in is neither raised nor stored, it just selects that arm.
+        self.__exit__(RuntimeError, RuntimeError("discarded"), None)
 
     def _add_scan_list(self, spectrum_element: ET.Element, spectrum: Any) -> None:
         super()._add_scan_list(spectrum_element, spectrum)

@@ -73,6 +73,15 @@ class ImzmlWriter(GenericWriter):
         """
         self._imzml_writer.close()
 
+    def discard(self) -> None:
+        """Closes the writer, throwing away everything written so far.
+
+        The way out for a caller that cannot finish: `close()` renames whatever was written so
+        far into place, which for an abandoned write means a truncated file sitting where a
+        complete one is expected.
+        """
+        self._imzml_writer.discard()
+
     def deactivate_alignment_tracker(self) -> None:
         self._imzml_alignment_tracker = None
 

@@ -66,7 +66,7 @@ def test_writer_when_mode_w_file_exists(mocker: MockerFixture) -> None:
     with mock_write_file.writer() as writer:
         assert writer == mock_open.return_value
     # .imzML, .ibd, then imzy's stale offset cache.
-    assert mock_unlink.mock_calls == [mocker.call(), mocker.call(), mocker.call(missing_ok=True)]
+    assert mock_unlink.mock_calls == [mocker.call(missing_ok=True)] * 3
     mock_open.assert_called_once_with(
         path=mock_write_file.imzml_file,
         imzml_mode=mock_imzml_mode,

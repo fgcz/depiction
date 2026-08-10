@@ -453,46 +453,6 @@ wheels = [
 ]
 
 [[package]]
-name = "bfabric"
-version = "1.16.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "annotated-types" },
-    { name = "httpx" },
-    { name = "loguru" },
-    { name = "polars", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
-    { name = "polars-lts-cpu", marker = "platform_machine == 'x86_64' and sys_platform == 'darwin'" },
-    { name = "pydantic" },
-    { name = "python-dateutil" },
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "rich" },
-    { name = "suds" },
-    { name = "zeep" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b0/39/cc068189967b3e4ff17de3689de0e00ac79f07551b363613c1d4ccaed56f/bfabric-1.16.2.tar.gz", hash = "sha256:ebb2147538ab8c054f1d62883080c3838b5458c4951ed160e80ed0218d8c0697", size = 69726, upload-time = "2026-03-02T14:15:02.162Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d0/4b/7cf319279b9168331f57cc107ca9a84c49a0ba2a897843e03cfd0b5d3db6/bfabric-1.16.2-py3-none-any.whl", hash = "sha256:7599a07f4382dbd75ad8e8ec17cb57ea238f338b12762bcc56dbf6c5dd5603c5", size = 81892, upload-time = "2026-03-02T14:15:00.539Z" },
-]
-
-[[package]]
-name = "bfabric-app-runner"
-version = "0.5.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "bfabric" },
-    { name = "cyclopts" },
-    { name = "glom" },
-    { name = "mako" },
-    { name = "pandera", extra = ["polars"] },
-    { name = "pydantic" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/67/99/9cdb8892fe101fd8ca8aed4633accf2b2a7c6f6c27dc76ff49a69d8e5cba/bfabric_app_runner-0.5.1.tar.gz", hash = "sha256:2df7bd2f2e5c1f094b27e70be70ac41c68a44cbc23fea15324962b264a9bf88e", size = 44186, upload-time = "2026-03-02T14:27:37.136Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c0/8e/a0f254f7c1086634376852f855a31b611cebda61c8586625c3465e09954b/bfabric_app_runner-0.5.1-py3-none-any.whl", hash = "sha256:db242949dd65e13114335ed238cd72f778b6f9ba0d6ac0d05c76d935c8635eb3", size = 79833, upload-time = "2026-03-02T14:27:35.891Z" },
-]
-
-[[package]]
 name = "bioio"
 version = "3.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -610,15 +570,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e4/31/7ee0c4dfd0255631b0624ce01be178704f91f763f02a1879368eb109befd/bokeh-3.8.2.tar.gz", hash = "sha256:8e7dcacc21d53905581b54328ad2705954f72f2997f99fc332c1de8da53aa3cc", size = 6529251, upload-time = "2026-01-06T00:20:06.568Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f6/a8/877f306720bc114c612579c5af36bcb359026b83d051226945499b306b1a/bokeh-3.8.2-py3-none-any.whl", hash = "sha256:5e2c0d84f75acb25d60efb9e4d2f434a791c4639b47d685534194c4e07bd0111", size = 7207131, upload-time = "2026-01-06T00:20:04.917Z" },
-]
-
-[[package]]
-name = "boltons"
-version = "25.0.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/63/54/71a94d8e02da9a865587fb3fff100cb0fc7aa9f4d5ed9ed3a591216ddcc7/boltons-25.0.0.tar.gz", hash = "sha256:e110fbdc30b7b9868cb604e3f71d4722dd8f4dcb4a5ddd06028ba8f1ab0b5ace", size = 246294, upload-time = "2025-02-03T05:57:59.129Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/45/7f/0e961cf3908bc4c1c3e027de2794f867c6c89fb4916fc7dba295a0e80a2d/boltons-25.0.0-py3-none-any.whl", hash = "sha256:dc9fb38bf28985715497d1b54d00b62ea866eca3938938ea9043e254a3a6ca62", size = 194210, upload-time = "2025-02-03T05:57:56.705Z" },
 ]
 
 [[package]]
@@ -1110,8 +1061,6 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "altair" },
-    { name = "bfabric" },
-    { name = "bfabric-app-runner" },
     { name = "bioio" },
     { name = "bioio-ome-tiff" },
     { name = "bioio-ome-zarr" },
@@ -1149,9 +1098,6 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-apps = [
-    { name = "bfabric" },
-]
 dev = [
     { name = "bokeh" },
     { name = "coverage" },
@@ -1209,9 +1155,6 @@ typing = [
 requires-dist = [
     { name = "altair", specifier = ">=5.5.0" },
     { name = "autodoc-pydantic", marker = "extra == 'doc'" },
-    { name = "bfabric" },
-    { name = "bfabric", marker = "extra == 'apps'" },
-    { name = "bfabric-app-runner", specifier = ">=0.5.1" },
     { name = "bioio" },
     { name = "bioio-ome-tiff", specifier = ">=1.4.0" },
     { name = "bioio-ome-zarr" },
@@ -1280,7 +1223,7 @@ requires-dist = [
     { name = "xarray" },
     { name = "xmltodict", marker = "extra == 'dev'" },
 ]
-provides-extras = ["ms-peak-picker", "findmf", "testing", "dev", "doc", "apps", "typing"]
+provides-extras = ["ms-peak-picker", "findmf", "testing", "dev", "doc", "typing"]
 
 [[package]]
 name = "depiction-io"
@@ -1421,18 +1364,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/cc/28/c14e053b6762b1044f34a13aab6859bbf40456d37d23aa286ac24cfd9a5d/executing-2.2.1.tar.gz", hash = "sha256:3632cc370565f6648cc328b32435bd120a1e4ebb20c77e3fdde9a13cd1e533c4", size = 1129488, upload-time = "2025-09-01T09:48:10.866Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c1/ea/53f2148663b321f21b5a606bd5f191517cf40b7072c0497d3c92c4a13b1e/executing-2.2.1-py2.py3-none-any.whl", hash = "sha256:760643d3452b4d777d295bb167ccc74c64a81df23fb5e08eff250c425a4b2017", size = 28317, upload-time = "2025-09-01T09:48:08.5Z" },
-]
-
-[[package]]
-name = "face"
-version = "26.0.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "boltons" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/24/4e/0e106b0ba486cc38c858fb5efe899002f2ec4765e0808b298d8e19a16efb/face-26.0.0.tar.gz", hash = "sha256:ae12136ff0052f124811f5319670a8d9d29b7d2caaaabe542813690967cc6bca", size = 49862, upload-time = "2026-02-14T00:17:12.576Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/63/1d/c2f7a4334f7501a3474766b5bc0948e8e0b0916217a54d092dd700a5ed3c/face-26.0.0-py3-none-any.whl", hash = "sha256:6ec9cf271d8ee2447f04b14264209a09ec9cbe8252255e61fb7ab6b154e300f9", size = 54825, upload-time = "2026-02-14T00:17:11.519Z" },
 ]
 
 [[package]]
@@ -1682,20 +1613,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/26/d6/5f358ff283325580c2003a6d953aea18cfe10ae87b46f5ebc80fa3a386dc/gitpython-3.1.58.tar.gz", hash = "sha256:621416df10ef3fd0e19fabf9172ddeed0fa704d353d04f194eec56a625a95b22", size = 228498, upload-time = "2026-08-04T15:05:49.47Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ec/0c/9d8752098bc442f0726e64aa6135940b3a96809915d1aa4206c1bb97881d/gitpython-3.1.58-py3-none-any.whl", hash = "sha256:d331e722577f0fd7fc1f857419b3ecc07af66282b933d2a4d95f84a042fdd50f", size = 220183, upload-time = "2026-08-04T15:05:48.025Z" },
-]
-
-[[package]]
-name = "glom"
-version = "24.11.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "attrs" },
-    { name = "boltons" },
-    { name = "face" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/05/89/b57cfbc448189426f2e01b244fbe9226b059ef5423a9d49c1d335a1f1026/glom-24.11.0.tar.gz", hash = "sha256:4325f96759a912044af7b6c6bd0dba44ad8c1eb6038aab057329661d2021bb27", size = 195120, upload-time = "2024-11-02T23:17:50.405Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9c/a2/75fd80784ec33da8d39cf885e8811a4fbc045a90db5e336b8e345e66dbb2/glom-24.11.0-py3-none-any.whl", hash = "sha256:991db7fcb4bfa9687010aa519b7b541bbe21111e70e58fdd2d7e34bbaa2c1fbd", size = 102690, upload-time = "2024-11-02T23:17:46.468Z" },
 ]
 
 [[package]]
@@ -2083,15 +2000,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/4c/ae/c5ce1edc1afe042eadb445e95b0671b03cee61895264357956e61c0d2ac0/ipywidgets-8.1.8.tar.gz", hash = "sha256:61f969306b95f85fba6b6986b7fe45d73124d1d9e3023a8068710d47a22ea668", size = 116739, upload-time = "2025-11-01T21:18:12.393Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/56/6d/0d9848617b9f753b87f214f1c682592f7ca42de085f564352f10f0843026/ipywidgets-8.1.8-py3-none-any.whl", hash = "sha256:ecaca67aed704a338f88f67b1181b58f821ab5dc89c1f0f5ef99db43c1c2921e", size = 139808, upload-time = "2025-11-01T21:18:10.956Z" },
-]
-
-[[package]]
-name = "isodate"
-version = "0.7.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/54/4d/e940025e2ce31a8ce1202635910747e5a87cc3a6a6bb2d00973375014749/isodate-0.7.2.tar.gz", hash = "sha256:4cd1aa0f43ca76f4a6c6c0292a85f40b35ec2e43e315b59f06e6d32171a953e6", size = 29705, upload-time = "2024-10-08T23:04:11.5Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/aa/0aca39a37d3c7eb941ba736ede56d689e7be91cab5d9ca846bde3999eba6/isodate-0.7.2-py3-none-any.whl", hash = "sha256:28009937d8031054830160fce6d409ed342816b543597cece116d966c6d99e15", size = 22320, upload-time = "2024-10-08T23:04:09.501Z" },
 ]
 
 [[package]]
@@ -2725,18 +2633,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ce/68/b30e913340c380ddac9580c6e6230991fc37240ec4f64704833e4f3e2769/lxml-6.1.1-cp314-cp314t-win32.whl", hash = "sha256:649dda677cf3bd6ac9ae14007ba0c824ded8ce5808b53fc7431d9140399118c1", size = 3897345, upload-time = "2026-05-18T19:17:33.562Z" },
     { url = "https://files.pythonhosted.org/packages/3c/4e/9eb2af5335545f9fbcd7af57bcf87c6025d31eaa31b14ec184a6c8675328/lxml-6.1.1-cp314-cp314t-win_amd64.whl", hash = "sha256:793033d6c5cdf33a573f910d9bea14ef8f5771820411d118da8e1182edb53d5e", size = 4393350, upload-time = "2026-05-18T19:18:10.076Z" },
     { url = "https://files.pythonhosted.org/packages/7f/2c/0f1e93c636720e8a3eb59af2bfda99d98b55891e1c53bc30c2e0e865f01b/lxml-6.1.1-cp314-cp314t-win_arm64.whl", hash = "sha256:58bb955caba94e467d2a96da17660d2d704e0675894cba21ab8a775b8621fd1c", size = 3817223, upload-time = "2026-05-19T19:22:56.823Z" },
-]
-
-[[package]]
-name = "mako"
-version = "1.4.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "markupsafe" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/2a/12/b5fa2353e2754cd67fb9f83793fa48ff42c213a5da7e719869d2301f6ab8/mako-1.4.1.tar.gz", hash = "sha256:d7904710b662996425a21627710c4777c45053146942cf8a7aebf757c92b8c27", size = 410165, upload-time = "2026-08-05T06:10:56.611Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a5/54/12ed58d458474aaab5c3d180173e745a4fe131bb330370596876d19ff60f/mako-1.4.1-py3-none-any.whl", hash = "sha256:a359d9a94a541213958742b2698d0a7757bb83551767bc468a74b9905aba9617", size = 80010, upload-time = "2026-08-05T06:10:58.248Z" },
 ]
 
 [[package]]
@@ -3695,7 +3591,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess" },
+    { name = "ptyprocess", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [
@@ -3820,15 +3716,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c6/5e/208a24471a433bcd0e9a6889ac49025fd4daad2815c8220c5bd2576e5f1b/polars-1.38.1.tar.gz", hash = "sha256:803a2be5344ef880ad625addfb8f641995cfd777413b08a10de0897345778239", size = 717667, upload-time = "2026-02-06T18:13:23.013Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0a/49/737c1a6273c585719858261753da0b688454d1b634438ccba8a9c4eb5aab/polars-1.38.1-py3-none-any.whl", hash = "sha256:a29479c48fed4984d88b656486d221f638cba45d3e961631a50ee5fdde38cb2c", size = 810368, upload-time = "2026-02-06T18:11:55.819Z" },
-]
-
-[[package]]
-name = "polars-lts-cpu"
-version = "1.33.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f4/93/a0c4200a5e0af2eee31ea79330cb1f5f4c58f604cb3de352f654e2010c81/polars_lts_cpu-1.33.1.tar.gz", hash = "sha256:0a5426d95ec9eec937a56d3e7cf7911a4b5486c42f4dbbcc9512aa706039322c", size = 4822741, upload-time = "2025-09-09T08:37:51.491Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f1/9b/75916636b33724afabe820b0993f60dc243793421d6f680d5fcb531fe170/polars_lts_cpu-1.33.1-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:5db75d1b424bd8aa34c9a670a901592f1931cc94d9fb32bdd428dbaad8c33761", size = 38908638, upload-time = "2025-09-09T08:37:02.258Z" },
 ]
 
 [[package]]
@@ -4594,30 +4481,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ac/c3/e2a2b89f2d3e2179abd6d00ebd70bff6273f37fb3e0cc209f48b39d00cbf/requests-2.34.2.tar.gz", hash = "sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed", size = 142856, upload-time = "2026-05-14T19:25:27.735Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl", hash = "sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0", size = 73075, upload-time = "2026-05-14T19:25:26.443Z" },
-]
-
-[[package]]
-name = "requests-file"
-version = "3.0.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "requests" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/3c/f8/5dc70102e4d337063452c82e1f0d95e39abfe67aa222ed8a5ddeb9df8de8/requests_file-3.0.1.tar.gz", hash = "sha256:f14243d7796c588f3521bd423c5dea2ee4cc730e54a3cac9574d78aca1272576", size = 6967, upload-time = "2025-10-20T18:56:42.279Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e1/d5/de8f089119205a09da657ed4784c584ede8381a0ce6821212a6d4ca47054/requests_file-3.0.1-py2.py3-none-any.whl", hash = "sha256:d0f5eb94353986d998f80ac63c7f146a307728be051d4d1cd390dbdb59c10fa2", size = 4514, upload-time = "2025-10-20T18:56:41.184Z" },
-]
-
-[[package]]
-name = "requests-toolbelt"
-version = "1.0.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "requests" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/f3/61/d7545dafb7ac2230c70d38d31cbfe4cc64f7144dc41f6e4e4b78ecd9f5bb/requests-toolbelt-1.0.0.tar.gz", hash = "sha256:7681a0a3d047012b5bdc0ee37d7f8f07ebe76ab08caeccfc3921ce23c88d5bc6", size = 206888, upload-time = "2023-05-01T04:11:33.229Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3f/51/d4db610ef29373b879047326cbf6fa98b6c1969d6f6dc423279de2b1be2c/requests_toolbelt-1.0.0-py2.py3-none-any.whl", hash = "sha256:cccfdd665f0a24fcf4726e690f65639d272bb0637b9b92dfd91a5568ccf6bd06", size = 54481, upload-time = "2023-05-01T04:11:28.427Z" },
 ]
 
 [[package]]
@@ -5611,15 +5474,6 @@ wheels = [
 ]
 
 [[package]]
-name = "suds"
-version = "1.2.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/3e/a1/c3783be8de318678c822d6edf9855729c528ba06ac9004398c225ecf2dbd/suds-1.2.0.tar.gz", hash = "sha256:83b162c3d2355374e11d8b9acf15eeaa158b416b4625821844f9f628d679deaf", size = 271331, upload-time = "2024-08-24T20:07:28.95Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c4/43/658bd1825a5f58c1182269eaa6165084d8d95e031cd7e34a2a1bcf773579/suds-1.2.0-py3-none-any.whl", hash = "sha256:2cf8ed43ed8a0df350027c741f5295d6be8443d4e820cb36f2c17b033e331d5b", size = 145151, upload-time = "2024-08-24T20:07:27.206Z" },
-]
-
-[[package]]
 name = "tabulate"
 version = "0.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -6493,24 +6347,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/fc/76/7fa87f57c112c7b9c82f0a730f8b6f333e792574812872e2cd45ab604199/zarr-3.1.5.tar.gz", hash = "sha256:fbe0c79675a40c996de7ca08e80a1c0a20537bd4a9f43418b6d101395c0bba2b", size = 366825, upload-time = "2025-11-21T14:06:01.492Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/44/15/bb13b4913ef95ad5448490821eee4671d0e67673342e4d4070854e5fe081/zarr-3.1.5-py3-none-any.whl", hash = "sha256:29cd905afb6235b94c09decda4258c888fcb79bb6c862ef7c0b8fe009b5c8563", size = 284067, upload-time = "2025-11-21T14:05:59.235Z" },
-]
-
-[[package]]
-name = "zeep"
-version = "4.3.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "attrs" },
-    { name = "isodate" },
-    { name = "lxml" },
-    { name = "platformdirs" },
-    { name = "requests" },
-    { name = "requests-file" },
-    { name = "requests-toolbelt" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/7e/c2/e06e5f177d818d0fc34fcbe2f98c175af2cba63b7d90f4bfcb6fe360d343/zeep-4.3.3.tar.gz", hash = "sha256:99d5059f92f721020998695fd9c85289ccb03ec5a2398ad49c6dbe43f19cfb94", size = 167372, upload-time = "2026-06-18T17:17:58.994Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b5/87/5c1d29f52fc32da98b75dc8a681cd0de78c9cfd5c10493cd7fb730e1d4b0/zeep-4.3.3-py3-none-any.whl", hash = "sha256:5adfae35582848819f8bb97b6ea9f1a34a2d4851a539f830e14dbab09961dd18", size = 102054, upload-time = "2026-06-18T17:17:57.223Z" },
 ]
 
 [[package]]

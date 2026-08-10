@@ -42,9 +42,6 @@ dependencies = [
     "perlin-noise==1.13",
     "pandera[polars]",
     "spatialdata>=0.7.2",
-    # TODO demote to optional again later, but necessary for pycharm right now
-    "bfabric",
-    "bfabric_app_runner >= 0.5.1",
     # Vendored into `pkgs/`; see that package's README for the upstream revision and why.
     "snakemake_invoke",
 ]
@@ -106,9 +103,6 @@ doc = [
     "autodoc_pydantic",
     "sphinx-book-theme",
     "sphinx-autobuild",
-]
-apps = [
-    "bfabric"
 ]
 typing = [
     "mypy",

@@ -436,6 +436,29 @@ Two more things a successor should know:
   `uv sync --extra dev`. That extra is the other optional peak picker, and it is untouched
   here.
 
+### The B-Fabric app interface left the library ✅
+
+`depiction` no longer knows what a workunit is. The app-runner glue for
+A355_MSI_Targeted_PreprocBatch — `app_interface/dispatch_app.py`,
+`app_interface/collect_chunk.py`, `pipeline/prepare_inputs.py`, `parse_params`, three stale
+app-spec YAMLs, and the long-dead `app/workunit_config.py` — was removed, and with it the
+`bfabric` and `bfabric_app_runner` dependencies and the `apps` extra. Twelve packages left
+the lock file, `zeep` and `suds` among them.
+
+It belongs with the app, not with the library: `slurmworker/config/A404_timsconvert_split`
+already keeps its B-Fabric integration in the app package and depends on `depiction` as a
+plain library. A355 is the last one that did it the other way round.
+
+**Where it went:** nowhere yet, deliberately. The code is preserved at
+[`fgcz/depiction@043390f`](https://github.com/fgcz/depiction/tree/043390f99d39cb7a9e850876da5ca1ab93ca7741/src/depiction_targeted_preproc/app_interface),
+and the file-by-file map of what moves where is tracked as an issue in the internal
+slurmworker repository. Production A355 is unaffected — its pinned `0.1.12` installs a wheel
+built before this — but the `devel` version of `app_A355.yml` points at a live checkout and
+breaks until that move is done.
+
+`app_interface/process_chunk.py` **stayed**. It imports no `bfabric` module; it is the
+snakemake entry point, and the system tests drive the pipeline through it.
+
 ---
 
 ## What was deliberately not done

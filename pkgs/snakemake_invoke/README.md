@@ -33,7 +33,8 @@ separable in the history.
 
 ## Callers
 
-`depiction_targeted_preproc/app_interface/process_chunk.py` — the B-Fabric app entry point,
-which turns a chunk directory into a zip of pipeline artifacts. Also
+`depiction_targeted_preproc/app_interface/process_chunk.py` — the pipeline entry point, which
+turns a chunk directory into a zip of pipeline artifacts. The B-Fabric app calls it from
+outside the repository. Also
 `depiction_cluster_sandbox/run_cluster_sandbox.py`, which is a sandbox rather than a
 supported entry point.

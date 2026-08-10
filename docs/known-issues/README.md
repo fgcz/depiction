@@ -67,7 +67,7 @@ ever has to be renumbered.
 
 | # | Issue | Fixed in |
 |---|---|---|
-| 002 | Peak filters emit non-monotonic m/z | PENDING_PR |
+| 002 | Peak filters emit non-monotonic m/z | #57 |
 
 ## Tracked as GitHub issues instead
 

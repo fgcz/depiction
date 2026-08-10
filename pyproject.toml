@@ -71,7 +71,10 @@ testing = [
     "depiction[findmf]",
     "coverage>=7.4.3",
     "hypothesis>=6.99.11",
-    "pytype>=2023.12.18",
+    # `pytype` was here and in `dev`, and nothing ran it: no nox session, no CI step, no
+    # pre-commit hook. It is one of the few dependencies with no wheels, so every cold CI
+    # environment compiled 26 MB of it before running a test suite that never called it.
+    # `mypy` in the `typing` extra is the type checker this repo actually has.
     "logot",
     "pytest",
     "pytest-mock",
@@ -94,7 +97,6 @@ dev = [
     "spatialdata-plot>=0.2.1",
     "types-tqdm",
     "rpy2",
-    "pytype",
     "streamlit",
     "quarto-cli",
 ]

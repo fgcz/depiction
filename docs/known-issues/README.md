@@ -44,6 +44,7 @@ Each is well under an hour, most under fifteen minutes.
 | [016](016-stale-xfail-marker.md) | Stale `xfail` marker hides a passing test | `tests/unit/tools/pick_peaks/test_pick_peaks.py` |
 | [017](017-stale-branches-and-worktrees.md) | 19 stale branches and 2 stale worktrees | repo metadata |
 | [018](018-evaluate-bins-always-computes-in-float32.md) | `evaluate_bins` float64 guard can never be true | `spectrum/evaluate_bins.py:41` |
+| [023](023-open-dependabot-alerts-in-the-lockfile.md) | Two open Dependabot alerts pinned in the lockfile | `uv.lock` |
 
 018 is cheap to change but not cheap to *decide* — read the file before touching it.
 
@@ -90,3 +91,7 @@ refute rather than confirm. 46 claims survived that pass; they were then dedupli
 re-checked by hand, which removed three refuted claims and corrected two others that were
 directionally right but wrong in their specifics. Corrections are noted inline in the files
 that carry them (006, 011, 022).
+
+Known blind spot: the sweep checked declared dependencies, version floors and CI configuration
+but never queried the security advisory surface. 023 was found afterwards, by accident, from a
+`git push` warning. Re-run `gh api repos/fgcz/depiction/dependabot/alerts` before archiving.

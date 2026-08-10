@@ -10,9 +10,13 @@ from depiction.parallel_ops import ParallelConfig
 
 @pytest.fixture
 def model_coefficients():
-    """Fixture for sample model coefficients."""
-    data = np.array([[[0.1]], [[0.2]], [[0.3]]])  # 3 spectra, 1 coefficient each
-    return MultiChannelImage.from_spatial(DataArray(data, dims=("y", "x", "c"), coords={"c": ["shift"]}), bg_value=0)
+    """Fixture for sample model coefficients: a 2x2 image, one distinguishable coefficient per pixel.
+
+    The coefficient of pixel (x, y) is (0, 0) -> 10, (1, 0) -> 20, (0, 1) -> 30, (1, 1) -> 40.
+    """
+    coordinates = DataArray([[0, 0], [1, 0], [0, 1], [1, 1]], dims=("i", "d"), coords={"d": ["x", "y"]})
+    values = DataArray([[10.0], [20.0], [30.0], [40.0]], dims=("i", "c"), coords={"c": ["shift"]})
+    return MultiChannelImage.from_flat(values, coordinates=coordinates)
 
 
 @pytest.fixture
@@ -20,8 +24,28 @@ def sample_spectrum_data():
     """Fixture for sample spectrum data."""
     mz_arr = np.array([100.0, 200.0])
     int_arr = np.array([1000.0, 2000.0])
-    coords = {"id": 0}
+    coords = np.array([0, 0])
     return mz_arr, int_arr, coords
+
+
+def apply_coefficients(mocker, model_coefficients, coordinates):
+    """Calibrates a file whose spectra come in the given (x, y) order, returning the coefficient applied to each."""
+    mz_arr = np.array([100.0, 200.0])
+    int_arr = np.array([1000.0, 2000.0])
+    mock_reader = mocker.Mock()
+    mock_reader.get_spectrum_with_coords.side_effect = lambda i: (mz_arr, int_arr, np.array(coordinates[i]))
+    mock_calibration = mocker.Mock(spec=CalibrationMethod)
+    mock_calibration.apply_spectrum_model.return_value = (mz_arr, int_arr)
+
+    ApplyModels.calibrate_spectra(
+        reader=mock_reader,
+        spectra_indices=list(range(len(coordinates))),
+        writer=mocker.Mock(),
+        calibration=mock_calibration,
+        all_model_coefs=model_coefficients,
+    )
+
+    return [call.kwargs["model_coef"].values.item() for call in mock_calibration.apply_spectrum_model.call_args_list]
 
 
 def test_write_to_file(mocker, model_coefficients, sample_spectrum_data):
@@ -89,6 +113,24 @@ def test_calibrate_spectra(mocker, model_coefficients, sample_spectrum_data):
     assert mock_reader.get_spectrum_with_coords.call_count == len(spectra_indices)
     assert mock_writer.add_spectrum.call_count == len(spectra_indices)
     assert mock_calibration.apply_spectrum_model.call_count == len(spectra_indices)
+
+
+def test_calibrate_spectra_uses_the_model_of_the_matching_pixel(mocker, model_coefficients):
+    """Each spectrum gets the model fitted for its own pixel, also when the file is not row-major."""
+    applied = apply_coefficients(mocker, model_coefficients, [(0, 1), (0, 0), (1, 0), (1, 1)])
+    assert applied == [30.0, 10.0, 20.0, 40.0]
+
+
+def test_calibrate_spectra_matches_positional_order_for_a_row_major_file(mocker, model_coefficients):
+    """For a row-major file the assignment is the flat model order, i.e. unchanged for such acquisitions."""
+    applied = apply_coefficients(mocker, model_coefficients, [(0, 0), (1, 0), (0, 1), (1, 1)])
+    assert applied == model_coefficients.data_flat.values.ravel().tolist()
+
+
+def test_calibrate_spectra_when_pixel_outside_model_image(mocker, model_coefficients):
+    """A pixel without a fitted model fails loudly instead of silently borrowing another pixel's model."""
+    with pytest.raises(KeyError):
+        apply_coefficients(mocker, model_coefficients, [(5, 5)])
 
 
 def test_error_handling(mocker, model_coefficients):

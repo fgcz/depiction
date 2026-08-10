@@ -23,7 +23,7 @@ These either produce silently wrong scientific output or block a clean install.
 | [005](005-readme-status-and-missing-run-instructions.md) | README claims active development; no doc says how to run the pipeline | medium | `README.md:5,22` |
 | [006](006-ram-backend-does-not-implement-protocols.md) | `Ram*` classes do not implement the advertised protocols | medium | `depiction_io/ram/ram_reader.py:14` |
 
-001, calibration models assigned to the wrong pixels, has been fixed and its entry removed:
+001, calibration models assigned to the wrong pixels, was fixed in #58 and its entry removed:
 `ApplyModels.calibrate_spectra` now indexes the coefficient image by pixel coordinate instead of
 by position. 002 is the remaining entry that corrupts output silently; if only one thing gets
 fixed, fix that.

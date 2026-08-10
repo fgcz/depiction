@@ -15,7 +15,7 @@ app = cyclopts.App()
 
 @app.default
 def vis_test_mass_shifts(
-    calib_hdf5_path: Path, mass_list_path: Path, config_path: Path, output_hdf5_path: Path
+    calib_hdf5_path: Path, mass_list_path: Path, config_path: Path, output_hdf5_path: Path, n_test_masses: int = 3
 ) -> None:
     # load inputs
     model_coefs = MultiChannelImage.read_hdf5(calib_hdf5_path, group="model_coefs")
@@ -24,9 +24,11 @@ def vis_test_mass_shifts(
     mass_list = pl.read_csv(mass_list_path)
     calibration = get_calibration_instance(config=config, mass_list=mass_list_path)
 
-    # define test masses
-    # to keep it simple for now only 1
-    test_masses = np.array([(mass_list["mass"].max() + mass_list["mass"].min()) / 2])
+    # define test masses, spread evenly over the panel so a shift that only affects one end of the
+    # mass range is still visible. these become the channel names below, formatted to 2 decimals, so
+    # round and deduplicate here: a panel spanning less than that would otherwise yield duplicate
+    # names, which write out fine but raise on read back.
+    test_masses = np.unique(np.round(np.linspace(mass_list["mass"].min(), mass_list["mass"].max(), n_test_masses), 2))
     test_masses_int = np.ones_like(test_masses)
 
     # compute the shifts

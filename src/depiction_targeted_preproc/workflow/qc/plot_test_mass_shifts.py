@@ -10,48 +10,60 @@ app = cyclopts.App()
 
 
 @app.default
-def qc_plot_calibration_map_v2(
+def qc_plot_test_mass_shifts(
     input_mass_shifts: Path,
     output_pdf: Path,
 ) -> None:
     mass_shifts_img = MultiChannelImage.read_hdf5(input_mass_shifts)
     mass_shifts = mass_shifts_img.data_spatial
 
-    fig, axs = plt.subplots(3, 1, figsize=(10, 20))
+    # one row per test mass, so a shift affecting only one end of the mass range stays visible
+    fig, axs = plt.subplots(mass_shifts_img.n_channels, 3, figsize=(30, 10 * mass_shifts_img.n_channels), squeeze=False)
 
-    # show the map
-    vmax = np.percentile(np.abs(mass_shifts.isel(c=0).values.ravel()), 0.99)
-    mass_shifts.isel(c=0).plot.imshow(x="x", y="y", ax=axs[0], cmap="RdBu_r", vmin=-vmax, vmax=+vmax, yincrease=False)
-    axs[0].set_aspect("equal")
-    test_mass_label = mass_shifts_img.channel_names[0]
-    axs[0].set_title(f"Computed shift for test mass {test_mass_label} (linear)")
+    # one scale for every row, otherwise each map autoscales to its own shift and a row with a
+    # negligible shift looks identical to one with a large shift -- which is the comparison the
+    # per-test-mass rows exist to make
+    vmax = np.percentile(np.abs(mass_shifts.values), 99)
 
-    # show a more qualitative map
-    mass_shifts.isel(c=0).plot.imshow(
-        x="x",
-        y="y",
-        ax=axs[1],
-        cmap="RdBu_r",
-        yincrease=False,
-        norm=colors.SymLogNorm(linthresh=0.001, vmin=-1, vmax=1),
-        interpolation="nearest",
-    )
-    # contour
-    mass_shifts.isel(c=0).plot.contour(x="x", y="y", ax=axs[1], colors="black", yincrease=False, alpha=0.3)
-    axs[1].set_aspect("equal")
-    axs[1].set_title(f"Computed shift for test mass {test_mass_label} (symlog)")
+    for i_mass, test_mass_label in enumerate(mass_shifts_img.channel_names):
+        shifts = mass_shifts.isel(c=i_mass)
+        ax_linear, ax_symlog, ax_hist = axs[i_mass]
 
-    # show the histogram
-    # TODO the clipping could be misleading (as it's not indicated)
-    num_nans = np.sum(np.isnan(mass_shifts.isel(c=0)).values)
-    if num_nans:
-        raise ValueError("nans detected")
-    mz_min, mz_max = -0.5, 0.5
-    sns.histplot(
-        mass_shifts_img.data_flat.isel(c=0).clip(mz_min, mz_max).values, bins=100, color="gray", ax=axs[2], kde=True
-    )
-    axs[2].set_xlabel(r"$\Delta \frac{m}{z}$")
-    axs[2].set_title("Histogram of computed shifts")
+        # show the map
+        shifts.plot.imshow(x="x", y="y", ax=ax_linear, cmap="RdBu_r", vmin=-vmax, vmax=+vmax, yincrease=False)
+        ax_linear.set_aspect("equal")
+        ax_linear.set_title(f"Computed shift for test mass {test_mass_label} (linear)")
+
+        # show a more qualitative map
+        shifts.plot.imshow(
+            x="x",
+            y="y",
+            ax=ax_symlog,
+            cmap="RdBu_r",
+            yincrease=False,
+            norm=colors.SymLogNorm(linthresh=0.001, vmin=-1, vmax=1),
+            interpolation="nearest",
+        )
+        # contour
+        shifts.plot.contour(x="x", y="y", ax=ax_symlog, colors="black", yincrease=False, alpha=0.3)
+        ax_symlog.set_aspect("equal")
+        ax_symlog.set_title(f"Computed shift for test mass {test_mass_label} (symlog)")
+
+        # show the histogram
+        # TODO the clipping could be misleading (as it's not indicated)
+        num_nans = np.sum(np.isnan(shifts).values)
+        if num_nans:
+            raise ValueError(f"nans detected for test mass {test_mass_label}")
+        mz_min, mz_max = -0.5, 0.5
+        sns.histplot(
+            mass_shifts_img.data_flat.isel(c=i_mass).clip(mz_min, mz_max).values,
+            bins=100,
+            color="gray",
+            ax=ax_hist,
+            kde=True,
+        )
+        ax_hist.set_xlabel(r"$\Delta \frac{m}{z}$")
+        ax_hist.set_title(f"Histogram of computed shifts for test mass {test_mass_label}")
 
     plt.savefig(output_pdf, bbox_inches="tight")
 

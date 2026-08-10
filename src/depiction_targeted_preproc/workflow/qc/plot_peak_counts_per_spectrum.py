@@ -8,7 +8,7 @@ from loguru import logger
 from depiction.parallel_ops import ParallelConfig, ReadSpectraParallel
 from depiction_io import GenericReadFile, GenericReader, get_read_file
 from depiction_targeted_preproc.pipeline_config.model import PipelineParameters
-from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
+from depiction_targeted_preproc.workflow.qc.mass_groups import get_mass_groups
 
 
 def _get_chunk_counts(reader: GenericReader, spectra_ids: list[int], mass_groups: pl.DataFrame) -> pl.DataFrame:

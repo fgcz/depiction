@@ -5,7 +5,7 @@ import cyclopts
 import polars as pl
 from KDEpy import FFTKDE
 
-from depiction_targeted_preproc.workflow.qc.plot_calibration_map import get_mass_groups
+from depiction_targeted_preproc.workflow.qc.mass_groups import get_mass_groups
 
 
 def subsample_dataframe(df: pl.DataFrame) -> pl.DataFrame:

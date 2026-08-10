@@ -79,20 +79,6 @@ rule qc_plot_peak_density_grouped:
         " --output-pdf {output.pdf}"
 
 
-# TODO this plot has the advantage of showing 3 mass ranges, which could indicate some problems which are missed
-#      when rendering just one plot
-rule qc_plot_calibration_map:
-    input:
-        calib_data="{sample}/calib_data.hdf5",
-        mass_list="{sample}/panels/full.csv",
-    output:
-        pdf="{sample}/qc/plot_calibration_map.pdf",
-    shell:
-        "python -m depiction_targeted_preproc.workflow.qc.plot_calibration_map"
-        " --calib-data {input.calib_data} --mass-list {input.mass_list}"
-        " --output-pdf {output.pdf}"
-
-
 rule qc_export_model_coefs:
     input:
         calib_data="{sample}/calib_data.hdf5",

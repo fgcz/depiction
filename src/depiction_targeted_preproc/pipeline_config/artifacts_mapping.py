@@ -18,11 +18,6 @@ ARTIFACT_FILES_MAPPING = {
     ],
     # PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff", "images_default.ome.zarr"],
     PipelineArtifact.CALIB_IMAGES: ["images_default.ome.tiff", "images_default.sd.zarr"],
-    # PipelineArtifact.CALIB_HEATMAP: ["images_calib_heatmap.ome.tiff"],
-    # TODO
-    PipelineArtifact.CALIB_HEATMAP: [
-        "qc/plot_calibration_map.pdf",
-    ],
     PipelineArtifact.RAW_TIC: ["tic_image.ome.tiff", "tic_image.sd.zarr"],
     PipelineArtifact.DEBUG: [
         "qc/plot_marker_presence_cv.pdf",

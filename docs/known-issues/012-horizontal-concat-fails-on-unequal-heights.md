@@ -54,15 +54,24 @@ which will turn this into a different error in a future xarray.
 
 ## Fix
 
-Re-label the y axis after padding:
+Re-label the y axis after padding, and pad by height rather than by largest y label:
 
 ```python
-data = data.pad(y=(0, ymax - data.y.values.max()), constant_values=0)
+ymax = max(image.data_spatial.sizes["y"] for image in images)  # was: y.values.max()
+...
+data = data.pad(y=(0, ymax - data.sizes["y"]), constant_values=0)
 data = data.assign_coords(y=np.arange(data.sizes["y"]))
 ```
 
-Add a test with unequal heights — the existing tests all use equal-height inputs, which is why
-this survived.
+The `sizes` change was not in the original finding. Re-labelling alone fixes the crash, but
+leaves the padding amount derived from the largest y *label*, and the two only agree for
+0-based contiguous coordinates. Given an image with an offset y origin the old expression
+invents rows that no pixel occupies — with the relabel in place that produced a silently wrong
+result instead of the previous crash, which is worse. `sizes` is identical for every input
+this repo actually produces and coherent for the rest.
+
+Tests cover unequal heights and an offset y origin; the pre-existing tests all used
+equal-height 0-based inputs, which is why this survived.
 
 ## Notes
 

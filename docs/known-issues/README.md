@@ -8,8 +8,8 @@ with a hedge. This is a record of what is **known to be wrong**, not a backlog â
 entries are deliberately marked won't-fix, with the reasoning in the file.
 
 Test baseline at the time of the audit: `721 passed, 25 skipped, 1 xpassed`, at `38d90ff`.
-It is now **`736 passed, 25 skipped`** for `pytest tests` plus `90 passed, 1 skipped` for
-`pytest pkgs/depiction_io/tests`: `+6` from #56, `+8` from the fixes below, and the `xpassed`
+It is now **`737 passed, 25 skipped`** for `pytest tests` plus `90 passed, 1 skipped` for
+`pytest pkgs/depiction_io/tests`: `+6` from #56, `+9` from the fixes below, and the `xpassed`
 turned into a pass. Both need the real-data fixtures, or 38 of those passes become skips â€”
 point `DEPICTION_TEST_DATA_DIR` at a directory that has them.
 

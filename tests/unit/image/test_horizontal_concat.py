@@ -47,6 +47,15 @@ def test_horizontal_concat_when_add_index(sample_image):
     ]
 
 
+def _image(height: int, value: float, y_origin: int = 0) -> MultiChannelImage:
+    data = xr.DataArray(
+        np.full((1, height, 2), value),
+        dims=["c", "y", "x"],
+        coords={"c": ["red"], "y": np.arange(y_origin, y_origin + height), "x": np.arange(2)},
+    )
+    return MultiChannelImage(data, is_foreground=xr.ones_like(data.isel(c=0), dtype=bool))
+
+
 def test_horizontal_concat_when_unequal_heights():
     """Shorter images are padded up to the tallest one.
 
@@ -55,15 +64,7 @@ def test_horizontal_concat_when_unequal_heights():
     then aligns on an index with duplicate values.
     """
 
-    def image(height: int, value: float) -> MultiChannelImage:
-        data = xr.DataArray(
-            np.full((1, height, 2), value),
-            dims=["c", "y", "x"],
-            coords={"c": ["red"], "y": np.arange(height), "x": np.arange(2)},
-        )
-        return MultiChannelImage(data, is_foreground=xr.ones_like(data.isel(c=0), dtype=bool))
-
-    result = horizontal_concat([image(3, 1.0), image(5, 2.0)])
+    result = horizontal_concat([_image(3, 1.0), _image(5, 2.0)])
 
     assert result.data_spatial.shape == (5, 4, 1)  # y, x, c
     assert list(result.data_spatial.y.values) == [0, 1, 2, 3, 4]
@@ -72,6 +73,19 @@ def test_horizontal_concat_when_unequal_heights():
     assert result.data_spatial.sel(c="red").values[:, 0].tolist() == [1.0, 1.0, 1.0, 0.0, 0.0]
     assert result.data_spatial.sel(c="red").values[:, 2].tolist() == [2.0] * 5
     assert result.fg_mask.values[:, 0].tolist() == [True, True, True, False, False]
+
+
+def test_horizontal_concat_when_offset_y_origin():
+    """Padding is by height, not by largest y label.
+
+    The two agree for the 0-based contiguous coordinates every producer here emits. They do
+    not for an image whose y origin is offset, where padding to the largest label would invent
+    rows that no pixel occupies.
+    """
+    result = horizontal_concat([_image(3, 1.0), _image(3, 2.0, y_origin=5)])
+
+    assert result.data_spatial.shape == (3, 4, 1)  # y, x, c
+    assert result.fg_mask.values.all()
 
 
 def test_horizontal_concat_single_image(sample_image):

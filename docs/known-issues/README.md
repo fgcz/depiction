@@ -17,14 +17,13 @@ These either produce silently wrong scientific output or block a clean install.
 
 | # | Issue | Severity | Where |
 |---|---|---|---|
-| [001](001-calibration-models-indexed-by-spectrum-id.md) | Calibration models are assigned to the wrong pixels | **critical** | `calibration/apply/apply_models.py:63` |
 | [003](003-pixel-size-fabricated-on-export.md) | Pixel size dropped on write, fabricated as 1 µm on export | high | `depiction_io/imzml/metadata.py:7` |
 | [004](004-debug-artifact-requires-dev-only-hdbscan.md) | `DEBUG` artifact needs `hdbscan`, a dev-only extra | medium | `pipeline_config/artifacts_mapping.py:36` |
 | [005](005-readme-status-and-missing-run-instructions.md) | README claims active development; no doc says how to run the pipeline | medium | `README.md:5,22` |
 | [006](006-ram-backend-does-not-implement-protocols.md) | `Ram*` classes do not implement the advertised protocols | medium | `depiction_io/ram/ram_reader.py:14` |
 
-001 corrupts output silently, and is now the only one left that does. If only one thing gets
-fixed, fix it.
+001 and 002 were the two entries that corrupted output silently. Both are now fixed — see
+*Fixed since the audit* below.
 
 ## Cheap
 
@@ -67,6 +66,7 @@ ever has to be renumbered.
 
 | # | Issue | Fixed in |
 |---|---|---|
+| 001 | Calibration models are assigned to the wrong pixels | #58 |
 | 002 | Peak filters emit non-monotonic m/z | #57 |
 
 ## Tracked as GitHub issues instead
@@ -87,10 +87,11 @@ Filed before this audit, still open, not duplicated here:
 
 ## Before changing numeric output
 
-001, 007 and 018 all change pipeline output on at least some inputs. The pre-refactor
+007 and 018 both change pipeline output on at least some inputs. The pre-refactor
 baseline in [`../refactoring/baseline-diff.md`](../refactoring/baseline-diff.md) is the only
 thing distinguishing an intended change from a regression — re-run it after any of them, and
-record the new expected output.
+record the new expected output. 001's fix did not need it: coordinate and positional indexing
+agree on any acquisition whose spectra are in row-major order, which both baseline fixtures are.
 
 ## Method
 

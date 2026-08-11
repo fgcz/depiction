@@ -29,7 +29,9 @@ class CreateImzmlPool:
         collect = defaultdict(list)
         for file_id, (imzml_file, indices) in enumerate(zip(self._source_files, spectra_indices)):
             collect["file_id"].append(file_id)
-            collect["abs_path"].append(imzml_file.imzml_file.absolute())
+            # str, not Path: `_write_metadata` puts this frame through `DataFrame.to_json`,
+            # which segfaults (pandas 2.3.3) on a column of Path objects.
+            collect["abs_path"].append(str(imzml_file.imzml_file.absolute()))
             collect["rel_path"].append(imzml_file.imzml_file.name)
             collect["source_spectrum_id"].append(indices)
             collect["n_spectra"].append(imzml_file.n_spectra)
@@ -64,8 +66,15 @@ class CreateImzmlPool:
         with write_file.writer() as writer:
             for imzml_file in tqdm(self._source_files, desc="Copying file"):
                 with imzml_file.reader() as reader:
-                    str(imzml_file.imzml_file.absolute())
-                    spectrum_ids = self.pool_source_df.query("abs_path == @abs_path").iloc[0]["source_spectrum_id"]
+                    # Not `query("abs_path == @abs_path")`: pandas resolves `@abs_path` inside
+                    # a string, where ruff's F841 cannot see it, so the autofix stripped the
+                    # assignment and left the method raising UndefinedVariableError. It has
+                    # done that twice (c2aa60f, 50a1456). A boolean mask keeps the reference
+                    # visible to the linter.
+                    abs_path = str(imzml_file.imzml_file.absolute())
+                    spectrum_ids = self.pool_source_df.loc[
+                        self.pool_source_df["abs_path"] == abs_path, "source_spectrum_id"
+                    ].iloc[0]
                     writer.copy_spectra(reader, spectrum_ids)
 
     def _sample_spectra_indices(self) -> list[NDArray[np.int64]]:

@@ -58,9 +58,10 @@ class ApplyModels:
         :param all_model_coefs: Model coefficients for all spectra
         """
         for spectrum_id in spectra_indices:
-            # TODO sanity check the usage of i as spectrum_id (i.e. check the coords!)
             mz_arr, int_arr, coords = reader.get_spectrum_with_coords(spectrum_id)
-            features = all_model_coefs.data_flat.isel(i=spectrum_id)
+            # Index by coordinate: the flat model order is (y, x) row-major, which is not the
+            # spectrum order unless the file happens to be acquired that way.
+            features = all_model_coefs.data_spatial.sel(x=coords[0], y=coords[1])
             calib_mz_arr, calib_int_arr = calibration.apply_spectrum_model(
                 spectrum_mz_arr=mz_arr, spectrum_int_arr=int_arr, model_coef=features
             )

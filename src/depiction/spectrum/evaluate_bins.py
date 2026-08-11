@@ -38,6 +38,14 @@ class EvaluateBins:
         :param int_arr: The intensity values of the spectrum.
         :return: The binned intensities.
         """
+        # This guard is inert and deliberately left that way: `mz_arr.dtype` is a `numpy.dtype`
+        # object, never an instance of `float` or `np.float64`, so `is_f64` is always False and
+        # every binning runs in float32 -- including for float64 input, where preserving precision
+        # was clearly the intent. Correcting it to `np.issubdtype(mz_arr.dtype, np.float64)` would
+        # change every mean spectrum and every binned intensity in the pipeline, which is exactly
+        # what docs/refactoring/baseline-diff.md pinned to show the imzy migration was
+        # output-identical. Fixing it means re-running that baseline and recording the new expected
+        # output; see docs/known-issues/018-evaluate-bins-always-computes-in-float32.md.
         is_f64 = isinstance(mz_arr.dtype, (float, np.float64)) or isinstance(int_arr.dtype, (float, np.float64))
         dtype = np.float64 if is_f64 else np.float32
         return self._compute_evaluate(

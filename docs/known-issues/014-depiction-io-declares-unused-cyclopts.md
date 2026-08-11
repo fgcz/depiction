@@ -1,6 +1,6 @@
 # `depiction_io` declares `cyclopts` for an entry point that no longer exists
 
-Severity: **low** | Status: open | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `pkgs/depiction_io/pyproject.toml:20`
 
 ## Symptom
@@ -28,7 +28,7 @@ Both hits are generated metadata, not code.
 applications should depend on. Carrying a CLI framework for a deleted debugging script pulls
 extra transitive packages into every consumer's environment and undercuts that claim.
 
-## Fix sketch
+## Fix
 
 Delete the two lines. Then re-run whatever import scan backs the "deliberately minimal" claim
 so the assertion and the manifest agree again.

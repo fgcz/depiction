@@ -28,7 +28,10 @@ ARTIFACT_FILES_MAPPING = {
         "cluster_default_kmeans.hdf5",
         #        "cluster_default_stats_kmeans.csv",
         "cluster_default_kmeans.png",
-        "cluster_default_hdbscan.png",
+        # No cluster_default_hdbscan.png: `proc/cluster_hdbscan.py` imports `hdbscan`, which is
+        # declared only in the `dev` extra, so requesting DEBUG on a clean install died with a
+        # ModuleNotFoundError after calibration and image generation had already run. The rule and
+        # the script are still here and still work; nothing asks for them by default.
         "qc/plot_intensity_threshold_all.pdf",
         "qc/plot_intensity_threshold_fg.pdf",
         "images_default_norm.ome.tiff",

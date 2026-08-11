@@ -1,6 +1,6 @@
 # `horizontal_concat` crashes on images of different heights — the case it documents supporting
 
-Severity: **low** | Status: open | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `src/depiction/image/horizontal_concat.py:27`
 
 ## Symptom
@@ -52,23 +52,33 @@ horizontal_concat([img(3, 2, 1.0), img(5, 2, 2.0)])  # ValueError
 xarray also emits a `FutureWarning` here about `join` defaulting from `outer` to `exact`,
 which will turn this into a different error in a future xarray.
 
-## Fix sketch
+## Fix
 
-Re-label the y axis after padding:
+Re-label the y axis after padding, and pad by height rather than by largest y label:
 
 ```python
-data = data.pad(y=(0, ymax - data.y.values.max()), constant_values=0)
+ymax = max(image.data_spatial.sizes["y"] for image in images)  # was: y.values.max()
+...
+data = data.pad(y=(0, ymax - data.sizes["y"]), constant_values=0)
 data = data.assign_coords(y=np.arange(data.sizes["y"]))
 ```
 
-Add a test with unequal heights — the existing tests all use equal-height inputs, which is why
-this survived.
+The `sizes` change was not in the original finding. Re-labelling alone fixes the crash, but
+leaves the padding amount derived from the largest y *label*, and the two only agree for
+0-based contiguous coordinates. Given an image with an offset y origin the old expression
+invents rows that no pixel occupies — with the relabel in place that produced a silently wrong
+result instead of the previous crash, which is worse. `sizes` is identical for every input
+this repo actually produces and coherent for the rest.
+
+Tests cover unequal heights and an offset y origin; the pre-existing tests all used
+equal-height 0-based inputs, which is why this survived.
 
 ## Notes
 
-The only in-repo caller is `depiction_cluster_sandbox`, which is broken for other reasons
-(see `019-clustering-surface-is-dead.md`), so this matters for library users rather than for
-the pipeline.
+An earlier draft of this file claimed the only in-repo caller is `depiction_cluster_sandbox`.
+That is wrong: `image/multi_channel_image_concatenation.py:88` calls it too, from
+`MultiChannelImageConcatenation.concat_images`. Every test of that path passes images of
+equal height, which is why the crash stayed hidden.
 
 Images built with bare `from_spatial` and no `y`/`x` coordinate labels concatenate fine; the
 crash needs labelled coordinates, which is what `from_flat` and `read_hdf5` produce.

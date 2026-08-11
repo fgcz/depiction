@@ -1,3 +1,4 @@
+import shutil
 from functools import cached_property
 from pathlib import Path
 from zipfile import ZipFile
@@ -38,18 +39,28 @@ class ImzmlZip:
                 return None
             return str(imzml_file), str(ibd_file)
 
-    def extract(self, directory: Path | str, imzml_filename: Path | None = None) -> Path:
-        """Extracts the .imzML and .ibd file to the given directory and returns the path to the .imzML file.
-        If a filename is passed it will be used instead of the one determined by imzml_filename.
+    def extract(self, directory: Path | str, imzml_filename: Path | str | None = None) -> Path:
+        """Extracts the .imzML and .ibd file into the given directory and returns the path to the .imzML file.
+
+        If a filename is passed it replaces the one taken from the archive; it is resolved
+        relative to `directory`. The two files are always written side by side, whatever
+        layout the archive uses internally.
         """
+        if self._entry_name is None:
+            raise ValueError(f"Expected exactly one .imzML/.ibd pair in {self.path}")
         directory = Path(directory)
-        directory.mkdir(parents=True, exist_ok=True)
+        name = Path(self.imzml_filename).name if imzml_filename is None else imzml_filename
+        imzml_path = directory / name
+        ibd_path = imzml_path.with_suffix(".ibd")
+        imzml_path.parent.mkdir(parents=True, exist_ok=True)
+        # Not `ZipFile.extract`, whose second argument is the directory to extract *into*, not
+        # the destination filename -- it would create a directory named `<something>.imzML`
+        # and write the member inside it under its archive-internal path.
         with ZipFile(self.path, "r") as file:
-            if imzml_filename is None:
-                imzml_filename = directory / Path(self.imzml_filename).name
-            file.extract(self.imzml_filename, directory / imzml_filename)
-            file.extract(self.ibd_filename, directory / imzml_filename.with_suffix(".ibd"))
-        return imzml_filename
+            for member, destination in ((self.imzml_filename, imzml_path), (self.ibd_filename, ibd_path)):
+                with file.open(member) as source, destination.open("wb") as target:
+                    shutil.copyfileobj(source, target)
+        return imzml_path
 
     def __repr__(self) -> str:
         return f"ImzmlZip({self.path})"

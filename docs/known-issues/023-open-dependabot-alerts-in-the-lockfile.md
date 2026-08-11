@@ -1,6 +1,6 @@
 # Two open Dependabot alerts are pinned in `uv.lock`
 
-Severity: **low** | Status: open | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `uv.lock`
 
 ## Symptom
@@ -29,21 +29,28 @@ untrusted input here. They are recorded because of what happens next, not what t
    repository accumulates an unread security backlog, and a future reader cannot tell the
    ignored-because-irrelevant alerts from the ignored-because-abandoned ones.
 
-## Fix sketch
-
-Before closing the lid:
+## Fix
 
 ```bash
 uv lock --upgrade-package setuptools --upgrade-package pygments
 ```
 
-then clear the two alerts. That leaves the archive with a clean slate, so any future alert is
-unambiguously new.
+setuptools 82.0.0 → 84.0.0, pygments 2.19.2 → 2.20.0. That also settles the internal
+disagreement in (1): the lock now satisfies the `setuptools>=83.0.0` the build system already
+required.
 
-Then decide explicitly what Dependabot should do afterwards, and record the decision in
-`README.md` next to the dormancy note. Either disable it in `.github/dependabot.yml` (honest:
-nobody is reading the PRs) or leave it on deliberately so a serious future advisory is at least
+By the time this was run, `gh api repos/fgcz/depiction/dependabot/alerts` reported **only the
+setuptools alert still open** — the pygments one had been closed upstream. pygments was bumped
+anyway, since it costs nothing and leaves the lock unambiguously clean.
+
+## Still open
+
+What Dependabot should do after dormancy. Either disable it in `.github/dependabot.yml`
+(honest: nobody is reading the PRs) or leave it on deliberately so a serious future advisory is
 visible to whoever inherits this. Silently leaving it on is the option that ages worst.
+
+Deferred to `005-readme-status-and-missing-run-instructions.md`, because the decision belongs
+next to the dormancy note in `README.md`, and that note does not exist yet.
 
 ## Notes
 

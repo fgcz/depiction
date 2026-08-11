@@ -38,8 +38,8 @@ def cluster_dbscan(input_netcdf_path: Path, output_netcdf_path: Path) -> None:
 
     cluster_data = xarray.DataArray(clusters, dims=("i",), coords={"i": image.data_flat.coords["i"]}).expand_dims("c")
     cluster_data.coords["c"] = ["cluster"]
-    cluster_data.attrs["bg_value"] = np.nan
-    cluster_image = MultiChannelImage(cluster_data.unstack("i"))
+    # See the note in cluster_kmeans.py on why this is not the constructor.
+    cluster_image = MultiChannelImage.from_flat(cluster_data, coordinates=None, bg_value=np.nan)
     cluster_image.write_hdf5(output_netcdf_path)
 
 

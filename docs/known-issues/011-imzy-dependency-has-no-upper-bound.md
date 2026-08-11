@@ -1,6 +1,6 @@
 # `depiction_io` depends on `imzy` with no upper bound while overriding its private methods
 
-Severity: **low** | Status: open | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `pkgs/depiction_io/pyproject.toml:24`
 
 ## Symptom
@@ -34,7 +34,7 @@ the monkeypatching was unguarded; that was wrong.
 So the residual issue is narrow: the guard converts a silent-wrongness failure into a loud one,
 but a dormant package still cannot *fix* the loud one.
 
-## Fix sketch
+## Fix
 
 A judgment call, one line:
 

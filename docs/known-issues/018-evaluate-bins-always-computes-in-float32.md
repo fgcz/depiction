@@ -1,7 +1,7 @@
 # `evaluate_bins` always computes in float32 — the float64 guard can never be true
 
-Severity: **low** (but see the warning below) | Status: open | Found: 2026-08-10
-File: `src/depiction/spectrum/evaluate_bins.py:41`
+Severity: **low** (but see the warning below) | Status: **accepted — documented in the code**, 2026-08-11
+File: `src/depiction/spectrum/evaluate_bins.py`, the `is_f64` guard in `EvaluateBins.evaluate`
 
 ## Symptom
 
@@ -32,12 +32,20 @@ established that the imzy migration was output-identical. Correcting the guard w
 equivalence for a reason unrelated to the migration, and there would be nobody around to
 explain the difference.
 
-## Fix sketch — pick one, do not half-do it
+## Decision taken
 
-- **Fix and re-baseline:** correct the guard, re-run the baseline diff on both acquisitions,
-  and record the new expected output in `baseline-diff.md` with a note saying why it changed.
-- **Leave and document:** add a comment at line 41 stating that the guard is inert, that
-  binning is float32 in practice, and that this is deliberate for baseline stability.
+Of the two arms this file originally offered — fix and re-baseline, or leave and document — the
+**second was taken**, on 2026-08-11. The guard is unchanged and now carries a comment at the
+`is_f64` line saying that it never fires, that binning is float32 in practice, and that correcting
+it means re-running `docs/refactoring/baseline-diff.md` and recording the new expected output.
+
+Nothing about the analysis below has changed; this entry stays open in the sense that the
+precision question is still live. What is closed is the risk the file was written about: a reader
+of `evaluate_bins.py` no longer has to rediscover that the guard is dead.
+
+Whoever picks up the first arm should: correct the test to
+`np.issubdtype(mz_arr.dtype, np.float64)`, re-run the baseline diff on both acquisitions, and
+record the new expected output in `baseline-diff.md` with a note saying why it changed.
 
 The one thing to avoid is fixing it quietly, which turns a known quirk into an unexplained
 regression in the archive.

@@ -1,2 +1,5 @@
-This module contains the Python based imzML parser.
-The goal is to set it up as quickly as possible, with the latter optimization using a streaming parser being implemented in Rust.
+Only `parse_metadata.py` is left of the hand-rolled imzML parser that used to do the reading;
+imzy replaced the rest in Phase E of the refactoring. It survives because imzy parses no
+checksums and reports a pixel size of `1` where a file declares none, so metadata still comes
+from here. The streaming Rust rewrite an earlier version of this file described was never
+started.

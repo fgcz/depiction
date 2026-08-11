@@ -184,6 +184,9 @@ exclude_also = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# An xpass is a marker that has outlived its reason, and a silently reported one means a real
+# regression in that path would be filed as an expected failure and stay invisible.
+xfail_strict = true
 markers = [
     "compressed_only: differential test that only applies to the zlib-compressed corpus cases",
     "real_data: needs a public acquisition downloaded into .test-data/; skips when it is absent",

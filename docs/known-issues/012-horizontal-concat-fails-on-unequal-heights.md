@@ -1,6 +1,6 @@
 # `horizontal_concat` crashes on images of different heights — the case it documents supporting
 
-Severity: **low** | Status: open | Found: 2026-08-10
+Severity: **low** | Status: **fixed** | Found: 2026-08-10
 File: `src/depiction/image/horizontal_concat.py:27`
 
 ## Symptom
@@ -52,7 +52,7 @@ horizontal_concat([img(3, 2, 1.0), img(5, 2, 2.0)])  # ValueError
 xarray also emits a `FutureWarning` here about `join` defaulting from `outer` to `exact`,
 which will turn this into a different error in a future xarray.
 
-## Fix sketch
+## Fix
 
 Re-label the y axis after padding:
 
@@ -66,9 +66,10 @@ this survived.
 
 ## Notes
 
-The only in-repo caller is `depiction_cluster_sandbox`, which is broken for other reasons
-(see `019-clustering-surface-is-dead.md`), so this matters for library users rather than for
-the pipeline.
+An earlier draft of this file claimed the only in-repo caller is `depiction_cluster_sandbox`.
+That is wrong: `image/multi_channel_image_concatenation.py:88` calls it too, from
+`MultiChannelImageConcatenation.concat_images`. Every test of that path passes images of
+equal height, which is why the crash stayed hidden.
 
 Images built with bare `from_spatial` and no `y`/`x` coordinate labels concatenate fine; the
 crash needs labelled coordinates, which is what `from_flat` and `read_hdf5` produce.

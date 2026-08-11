@@ -1,6 +1,6 @@
 # Stale `build/lib` trees can resurrect deleted modules into an in-tree install
 
-Severity: **low** | Status: open | Found: 2026-08-10
+Severity: **low** | Status: **partly fixed** | Found: 2026-08-10
 Files: `build/`, `pkgs/depiction_io/build/`, `pkgs/snakemake_invoke/build/`
 (untracked); note at `pyproject.toml:118-121`
 
@@ -36,11 +36,15 @@ problem, but not this one.
 `uv build` is clean. The exposure is confined to installs made from this working copy — i.e.
 to you, and to anyone you hand a tarball of the directory.
 
-## Fix sketch
+## Fix
+
+**Done:** the assurance at `pyproject.toml:118-121` has been softened. It read as though the
+packages-find setting closed this off, and it did not; the comment now says which half it
+covers, and names the command below as the fix.
+
+**Still open**, because it is a local filesystem action on untracked directories and cannot
+live in a commit:
 
 ```bash
 rm -rf build/ pkgs/*/build/
 ```
-
-While there, soften the assurance at `pyproject.toml:118-121` — it currently reads as though
-the packages-find setting closed this off, and it did not.

@@ -1,6 +1,6 @@
 # A stale `xfail` marker hides a passing test
 
-Severity: **low** | Status: open | Found: 2026-08-10
+Severity: **low** | Status: **fixed** | Found: 2026-08-10
 File: `tests/unit/tools/pick_peaks/test_pick_peaks.py::test_get_peak_picker_when_ms_peak_picker`
 
 ## Symptom
@@ -17,17 +17,17 @@ XPASS tests/unit/tools/pick_peaks/test_pick_peaks.py::test_get_peak_picker_when_
 The test now passes, but the `xfail` marker means a future *real* regression in that path
 would be reported as an expected failure and stay invisible.
 
-## Fix sketch
+## Fix
 
-Remove the marker. If it was guarding an optional dependency (`ms-peak-picker` lives in its own
-extra), replace it with an explicit skip condition on that import so the intent is legible:
+The marker is gone and `xfail_strict = true` is set under `[tool.pytest.ini_options]`, so an
+xpass now fails the run rather than being reported and ignored. That is the setting that stops
+this recurring; it was the only `xfail` in the repo, so nothing else was affected.
 
-```python
-pytest.importorskip("ms_peak_picker")
-```
-
-Consider `xfail_strict = true` under `[tool.pytest.ini_options]` so an xpass fails the run
-rather than being reported and ignored — that is the setting that stops this recurring.
+The `pytest.importorskip("ms_peak_picker")` this file originally suggested would have been
+**wrong**: `ms_peak_picker` is not installed in a default `--extra testing` environment, yet
+the test passes there, because `MSPeakPicker` defers that import into `pick_peaks`
+(`spectrum/peak_picking/ms_peak_picker_wrapper.py:28`) and the test only constructs one. An
+`importorskip` would have turned a passing test into a skipped one.
 
 ## Notes
 

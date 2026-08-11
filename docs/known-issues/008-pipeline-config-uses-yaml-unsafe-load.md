@@ -1,6 +1,6 @@
 # Pipeline config is parsed with `yaml.unsafe_load`
 
-Severity: **low** | Status: open | Found: 2026-08-10
+Severity: **low** | Status: **fixed** | Found: 2026-08-10
 File: `src/depiction_targeted_preproc/pipeline_config/model.py:20`
 
 ## Symptom
@@ -32,7 +32,7 @@ app_interface/process_chunk.py:20:              yaml.safe_load(...)
 
 The asymmetry suggests `unsafe_load` was a leftover from debugging, not a decision.
 
-## Fix sketch
+## Fix
 
 Change `unsafe_load` to `safe_load`, then run the four shipped presets under
 `pipeline_config/config_presets/` plus the system tests. All presets are plain YAML and

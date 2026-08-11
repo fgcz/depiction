@@ -25,10 +25,13 @@ def run_config(
         get_read_file(input_imzml).copy_to(output_imzml)
     else:
         config = PickPeaksConfig.model_validate(raw_config)
+        input_file = get_read_file(input_imzml)
         pick_peaks(
             config=config,
-            input_file=get_read_file(input_imzml),
-            output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
+            input_file=input_file,
+            output_file=ImzmlWriteFile(
+                output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED, pixel_size=input_file.pixel_size
+            ),
         )
 
 
@@ -42,10 +45,11 @@ def run_findmf(
 ) -> None:
     """Runs FindMF peak picker on input imzml file and writes the output to output imzml file."""
     picker_config = PeakPickerFindMFPyConfig(resolution=resolution)
+    input_file = get_read_file(input_imzml)
     pick_peaks(
         config=PickPeaksConfig(peak_picker=picker_config, peak_filtering=None, n_jobs=n_jobs),
-        input_file=get_read_file(input_imzml),
-        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
+        input_file=input_file,
+        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED, pixel_size=input_file.pixel_size),
     )
 
 
@@ -58,12 +62,13 @@ def run_mspeak(
     fit_type: str = "quadratic",
 ) -> None:
     """Runs MSPeakPicker on input imzml file and writes the output to output imzml file."""
+    input_file = get_read_file(input_imzml)
     pick_peaks(
         config=PickPeaksConfig(
             peak_picker=PeakPickerMSPeakPickerConfig(fit_type=fit_type), peak_filtering=None, n_jobs=n_jobs
         ),
-        input_file=get_read_file(input_imzml),
-        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
+        input_file=input_file,
+        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED, pixel_size=input_file.pixel_size),
     )
 
 

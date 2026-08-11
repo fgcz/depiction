@@ -71,7 +71,7 @@ def main_normalize_intensities(
     parallel_config = ParallelConfig(n_jobs=n_jobs)
     with (
         get_read_file(input_imzml) as read_file,
-        ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode) as write_file,
+        ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode, pixel_size=read_file.pixel_size) as write_file,
     ):
         normalize_intensities = NormalizeSpectraIntensities(variant=variant)
         normalize_intensities.process_file(read_file=read_file, write_file=write_file, parallel_config=parallel_config)

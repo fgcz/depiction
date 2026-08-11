@@ -494,16 +494,17 @@ snakemake entry point, and the system tests drive the pipeline through it.
   `ImzmlWriteFile`'s defaults, so a float64 intensity array comes back as float32 after a
   parallel round trip. Pre-existing, pinned by `tests/differential/test_writer.py` rather
   than fixed.
-- **A file with no declared pixel size silently gets 1 µm.** `Metadata.pixel_size` is a
-  required `PixelSize`, but `ParseMetadata.pixel_size` returns `None` when the file declares
+- ~~**A file with no declared pixel size silently gets 1 µm.**~~ **Fixed.** `Metadata.pixel_size`
+  was a required `PixelSize`, but `ParseMetadata.pixel_size` returns `None` when the file declares
   no `IMS:1000046` — deliberately, since that was the whole reason Phase E kept the parser.
-  So `proc_export_raw_metadata` takes its `ValidationError` branch, logs *"Failed to extract
-  metadata"* (an overstatement: only the pixel size was missing), and substitutes a dummy
-  1 µm that reaches the OME-TIFF. Found in Phase G, because the public fixture is the first
-  file in this repository that declares no pixel size; the tonsil never reaches the branch.
-  Pinned by `test_pixel_size_matches_the_exported_raw_metadata` rather than fixed — the fix
-  is `PixelSize | None` through `Metadata`, `OmeTiff.write_image` and `OmeTiff.write`, which
-  is a `depiction_io` API change and was outside Phase G.
+  So `proc_export_raw_metadata` took its `ValidationError` branch, logged *"Failed to extract
+  metadata"* (an overstatement: only the pixel size was missing), and substituted a dummy
+  1 µm that reached the OME-TIFF. Found in Phase G, because the public fixture is the first
+  file in this repository that declares no pixel size; the tonsil never reached the branch.
+  The field is now `PixelSize | None`, `OmeTiff` omits the physical size rather than inventing
+  one, and `ImzmlWriter` writes `IMS:1000046`/`IMS:1000047` so a round trip no longer loses a
+  declared raster. `test_pixel_size_matches_the_acquisition` pins the fix in place of the
+  behaviour.
 
 ---
 

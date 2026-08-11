@@ -55,3 +55,17 @@ def test_pixel_size(parse_metadata: ParseMetadata, xml_path: Path) -> None:
         assert parse_metadata.pixel_size is None
     else:
         raise NotImplementedError
+
+
+@pytest.mark.parametrize("xml_path", ["pixel_size_2d", "pixel_size_none"], indirect=True)
+def test_parse_carries_the_pixel_size_through(parse_metadata: ParseMetadata, xml_path: Path) -> None:
+    """`parse()` over the same two files as above, which is where the missing case used to break.
+
+    `Metadata.pixel_size` was a required field, so a file declaring no `IMS:1000046` raised a
+    `ValidationError` here. Only the property above was covered, so the exception surfaced in the
+    pipeline rather than in this suite.
+    """
+    metadata = parse_metadata.parse()
+    assert metadata.pixel_size == parse_metadata.pixel_size
+    if xml_path.stem == "pixel_size_none":
+        assert metadata.pixel_size is None

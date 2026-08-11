@@ -15,6 +15,8 @@ import pytest
 from pytest_mock import MockerFixture
 
 from depiction_io import ImzmlModeEnum, ImzmlWriteFile, ImzyReadFile
+from depiction_io.imzml.parser.parse_metadata import ParseMetadata
+from depiction_io.pixel_size import PixelSize
 
 MZ_ARR = np.array([100.0, 200.0, 300.0])
 INT_ARR = np.array([1.0, 2.0, 3.0])
@@ -128,3 +130,18 @@ def test_invalid_write_mode_creates_nothing(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="Invalid write mode"), write_file.writer():
         pass
     assert _contents(tmp_path) == {}
+
+
+@pytest.mark.parametrize("pixel_size", [None, PixelSize(size_x=50.0, size_y=20.0, unit="micrometer")])
+def test_pixel_size_survives_a_round_trip(tmp_path: Path, pixel_size: PixelSize | None) -> None:
+    """What the write half of the pixel-size fix is for.
+
+    Nothing this package wrote used to declare `IMS:1000046`, so reading back a file it had just
+    written always reported no pixel size -- a read/write round trip lost the raster silently.
+    """
+    path = tmp_path / "out.imzML"
+    write_file = ImzmlWriteFile(path, imzml_mode=ImzmlModeEnum.PROCESSED, pixel_size=pixel_size)
+    with write_file.writer() as writer:
+        writer.add_spectrum(MZ_ARR, INT_ARR, (1, 1))
+
+    assert ParseMetadata.from_file(path).pixel_size == pixel_size

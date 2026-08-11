@@ -96,6 +96,16 @@ reported, each naming its artifact, and both scripts exited non-zero; the two un
 `calib_data` groups were correctly reported as unchanged. The single flipped `.ibd` byte
 surfaced as `spectrum 1580 int: 1/9013 values differ, max abs diff 1.4013e-45`.
 
+**Superseded for two artifacts since this run.** The pixel-size fix changed the output on
+purpose, so re-running this comparison against the recorded baseline will report:
+
+- `raw_metadata.json` — `"pixel_size"` is now `null` for a file that declares no
+  `IMS:1000046` (the mouse kidney), where the baseline holds the fabricated
+  `{"size_x": 1.0, "size_y": 1.0, ...}`. This is a *text* artifact, described above as the
+  control that means "the two runs were not given the same input" — here it does not.
+- `calibrated.imzML` / `processed.imzML` — the XML now carries `IMS:1000046`/`IMS:1000047`
+  when the input declared them, which it previously dropped. The arrays are unaffected.
+
 ## The differences that do exist
 
 None of these are differences in the data. They are listed because "identical" above means

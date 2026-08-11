@@ -94,7 +94,7 @@ def correct_baseline(config: BaselineCorrectionConfig, input_imzml: Path, output
     #      limit (None) or use all (1-r)
     n_jobs = 10 if config.n_jobs is None else config.n_jobs
     parallel_config = ParallelConfig(n_jobs=n_jobs)
-    output_file = ImzmlWriteFile(output_imzml, imzml_mode=input_file.imzml_mode)
+    output_file = ImzmlWriteFile(output_imzml, imzml_mode=input_file.imzml_mode, pixel_size=input_file.pixel_size)
     correct_baseline = CorrectBaseline.from_variant(
         parallel_config=parallel_config,
         variant=config.baseline_variant,

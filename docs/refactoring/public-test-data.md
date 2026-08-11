@@ -137,10 +137,11 @@ conflated the two. Candidate 1 does declare `IMS:1000046` = 20, corroborated by 
 
 This turned out to be a live constraint rather than trivia. Every spatial assertion in
 `system_tests` is written in pixels, and running the pipeline on this fixture surfaced a
-second consequence: `Metadata.pixel_size` is not optional, so `proc_export_raw_metadata`
-rejects the parsed metadata outright and substitutes a dummy 1 µm that reaches the OME-TIFF.
-Recorded under "Known, still unfixed" in [`ROADMAP.md`](ROADMAP.md); the tonsil never reaches
-that branch, which is why it went unnoticed until there was a file declaring no pixel size.
+second consequence: `Metadata.pixel_size` was not optional, so `proc_export_raw_metadata`
+rejected the parsed metadata outright and substituted a dummy 1 µm that reached the OME-TIFF.
+The tonsil never reached that branch, which is why it went unnoticed until there was a file
+declaring no pixel size. Since fixed — the field is `PixelSize | None` and the exporters omit
+a physical size they do not have; see "Known, still unfixed" in [`ROADMAP.md`](ROADMAP.md).
 
 ### Measured mass offset — read the caveat
 

@@ -81,7 +81,7 @@ def main_subsample_imzml(input_imzml: str, output_imzml: str, ratio: float, mode
     :param mode: The mode to use for subsampling.
     """
     read_file = get_read_file(input_imzml)
-    write_file = ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode)
+    write_file = ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode, pixel_size=read_file.pixel_size)
 
     subsampler = SubsampleImzml(ratio=ratio, mode=mode)
     subsampler.subsample(read_file=read_file, write_file=write_file)

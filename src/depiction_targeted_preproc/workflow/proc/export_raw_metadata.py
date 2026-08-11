@@ -1,11 +1,7 @@
 import cyclopts
-from loguru import logger
 from pathlib import Path
-from pydantic import ValidationError
 
-from depiction_io.imzml.metadata import Metadata
 from depiction_io.imzml.parser.parse_metadata import ParseMetadata
-from depiction_io.pixel_size import PixelSize
 
 app = cyclopts.App()
 
@@ -15,18 +11,12 @@ def proc_export_raw_metadata(
     input_imzml_path: Path,
     output_json_path: Path,
 ) -> None:
-    try:
-        metadata = ParseMetadata.from_file(input_imzml_path).parse()
-    except ValidationError:
-        logger.error("Failed to extract metadata from {input_imzml_path}", input_imzml_path=input_imzml_path)
-        logger.info("Using dummy metadata instead!")
-        # TODO maybe this should be revisited in the future and handled as `None`
-        metadata = Metadata(
-            pixel_size=PixelSize(size_x=1, size_y=1, unit="micrometer"),
-            data_processing=[],
-            software=[],
-            ibd_checksums={},
-        )
+    # A file that declares no pixel size exports `"pixel_size": null`, and every consumer of this
+    # JSON is expected to handle that. There used to be a fallback here that substituted a dummy
+    # 1 um -- which the OME-TIFF then stated as the image's physical size, indistinguishable from
+    # a genuine 1 um acquisition -- and discarded the software and checksum fields that had parsed
+    # fine. Anything the parser now refuses outright is a file we do not understand; let it raise.
+    metadata = ParseMetadata.from_file(input_imzml_path).parse()
     with output_json_path.open("w") as file:
         file.write(metadata.model_dump_json())
 

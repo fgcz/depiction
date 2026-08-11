@@ -19,7 +19,6 @@ These either produce silently wrong scientific output or block a clean install.
 |---|---|---|---|
 | [001](001-calibration-models-indexed-by-spectrum-id.md) | Calibration models are assigned to the wrong pixels | **critical** | `calibration/apply/apply_models.py:63` |
 | [002](002-peak-filters-emit-non-monotonic-mz.md) | Peak filters emit non-monotonic m/z | high | `peak_filtering/filter_n_highest_intensity.py:27` |
-| [003](003-pixel-size-fabricated-on-export.md) | Pixel size dropped on write, fabricated as 1 µm on export | high | `depiction_io/imzml/metadata.py:7` |
 | [004](004-debug-artifact-requires-dev-only-hdbscan.md) | `DEBUG` artifact needs `hdbscan`, a dev-only extra | medium | `pipeline_config/artifacts_mapping.py:36` |
 | [005](005-readme-status-and-missing-run-instructions.md) | README claims active development; no doc says how to run the pipeline | medium | `README.md:5,22` |
 | [006](006-ram-backend-does-not-implement-protocols.md) | `Ram*` classes do not implement the advertised protocols | medium | `depiction_io/ram/ram_reader.py:14` |

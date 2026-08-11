@@ -87,9 +87,11 @@ def compare_ome_tiff(baseline_dir: Path, current_dir: Path) -> list[str]:
         OmeTiff.read_image(baseline_dir / name, bg_value=0.0),
         OmeTiff.read_image(current_dir / name, bg_value=0.0),
     )
+    # `PixelSize` is a frozen dataclass, so this compares by value and stays right when either
+    # side is `None` -- which is what a file declaring no raster now produces.
     left = OmeTiff.read(baseline_dir / name).attrs["pixel_size"]
     right = OmeTiff.read(current_dir / name).attrs["pixel_size"]
-    if (left.size_x, left.size_y, left.unit) != (right.size_x, right.size_y, right.unit):
+    if left != right:
         problems.append(f"{name}: pixel size baseline={left} current={right}")
     return problems
 

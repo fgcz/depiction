@@ -23,7 +23,9 @@ def align_profile_data(input_imzml_path: str, output_imzml_path: str) -> None:
 @app.default
 def cli(input_imzml_path: Path, output_imzml_path: Path, ppm_res: int = 100, n_jobs: int = 20) -> None:
     input_imzml = get_read_file(input_imzml_path)
-    output_imzml = ImzmlWriteFile(output_imzml_path, imzml_mode=ImzmlModeEnum.CONTINUOUS)
+    output_imzml = ImzmlWriteFile(
+        output_imzml_path, imzml_mode=ImzmlModeEnum.CONTINUOUS, pixel_size=input_imzml.pixel_size
+    )
     parallel_config = ParallelConfig(n_jobs=n_jobs)
 
     # TODO this method should be moved to a nicer place

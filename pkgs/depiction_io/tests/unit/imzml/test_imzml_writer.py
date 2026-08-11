@@ -7,6 +7,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from depiction_io import ImzmlModeEnum, ImzmlWriter
+from depiction_io.pixel_size import PixelSize
 
 MZ_ARR = np.array([100.0, 200.0])
 INT_ARR = np.array([1.0, 2.0])
@@ -30,6 +31,30 @@ def test_open_when_continuous(tmp_path: Path) -> None:
 def test_open_when_processed(tmp_path: Path) -> None:
     writer = ImzmlWriter.open(path=tmp_path / "test.imzML", imzml_mode=ImzmlModeEnum.PROCESSED)
     assert writer.imzml_mode == ImzmlModeEnum.PROCESSED
+
+
+def test_open_forwards_the_pixel_size(tmp_path: Path) -> None:
+    writer = ImzmlWriter.open(
+        path=tmp_path / "test.imzML",
+        imzml_mode=ImzmlModeEnum.PROCESSED,
+        pixel_size=PixelSize(size_x=50.0, size_y=20.0, unit="micrometer"),
+    )
+    assert writer._imzml_writer.pixel_size == (50.0, 20.0)
+
+
+def test_open_without_a_pixel_size(writer: ImzmlWriter) -> None:
+    assert writer._imzml_writer.pixel_size is None
+
+
+def test_open_when_pixel_size_is_not_in_micrometer(tmp_path: Path) -> None:
+    # imzy writes `IMS:1000046`/`IMS:1000047` with no unit attribute and the parser reads them back
+    # as micrometer, so writing anything else would relabel the number rather than convert it.
+    with pytest.raises(ValueError, match="micrometer"):
+        ImzmlWriter.open(
+            path=tmp_path / "test.imzML",
+            imzml_mode=ImzmlModeEnum.PROCESSED,
+            pixel_size=PixelSize(size_x=1.0, size_y=1.0, unit="millimeter"),
+        )
 
 
 def test_close(writer: ImzmlWriter, mocker: MockerFixture) -> None:

@@ -9,6 +9,7 @@ import numpy as np
 
 if TYPE_CHECKING:
     from depiction_io import ImzmlModeEnum
+    from depiction_io.pixel_size import PixelSize
     from collections.abc import Generator
     from numpy.typing import NDArray
 
@@ -61,3 +62,12 @@ class RamReadFile:
     @property
     def coordinates_2d(self) -> NDArray[np.int64]:
         return self._coordinates[:, :2]
+
+    @property
+    def pixel_size(self) -> PixelSize | None:
+        """Always `None` -- spectra held in memory carry no declared raster.
+
+        Present so a tool can forward `read_file.pixel_size` to its output without caring which
+        backend it was handed. The rest of the protocol gap is known issue 006.
+        """
+        return None

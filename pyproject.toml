@@ -119,6 +119,14 @@ build-backend = "setuptools.build_meta"
 # `pkgs/` already do. Without it, a working copy that still has a stale `build/lib` from an
 # old build ships whatever is in there: a two-year-old one here put a second, obsolete copy
 # of `snakemake_invoke` inside the `depiction` wheel, where it shadowed the real package.
+#
+# This closes the package-*discovery* half of that problem only. setuptools copies `src/`
+# into `build/lib` without pruning files that no longer have a source, so an in-tree
+# `pip install .` can still ship modules deleted from `src/` months ago -- as of this writing
+# `build/` and `pkgs/*/build/` here hold the entire hand-rolled imzML parser removed by the
+# imzy migration. `build/` is gitignored, so CI, a fresh clone and `uv build` are unaffected;
+# the exposure is to installs made from a working copy. `rm -rf build/ pkgs/*/build/` is the
+# fix, and there is no way to express it here.
 [tool.setuptools.packages.find]
 where = ["src"]
 

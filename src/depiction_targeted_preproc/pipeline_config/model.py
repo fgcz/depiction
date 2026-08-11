@@ -17,7 +17,7 @@ class Model(BaseModel):
     def parse_yaml(cls, path: Path) -> Self:
         # TODO consider in the future a better mechanism for passing step configurations, maybe using
         #  json and pydantic but in a more granular way. for now this sort of works
-        return cls.model_validate(yaml.unsafe_load(path.read_text()))
+        return cls.model_validate(yaml.safe_load(path.read_text()))
 
 
 class SimulateParameters(Model):

@@ -1,6 +1,6 @@
 # `depiction_io` depends on `imzy` with no upper bound while overriding its private methods
 
-Severity: **low** | Status: **fixed** | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `pkgs/depiction_io/pyproject.toml:24`
 
 ## Symptom

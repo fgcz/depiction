@@ -1,6 +1,6 @@
 # `ImzmlZip.extract` extracts into directories and returns a path that does not exist
 
-Severity: **low** | Status: **fixed** | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `pkgs/depiction_io/src/depiction_io/imzml_zip.py:41`
 
 ## Symptom

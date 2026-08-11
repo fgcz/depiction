@@ -1,6 +1,6 @@
 # Pipeline config is parsed with `yaml.unsafe_load`
 
-Severity: **low** | Status: **fixed** | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `src/depiction_targeted_preproc/pipeline_config/model.py:20`
 
 ## Symptom

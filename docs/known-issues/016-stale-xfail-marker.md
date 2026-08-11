@@ -1,6 +1,6 @@
 # A stale `xfail` marker hides a passing test
 
-Severity: **low** | Status: **fixed** | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `tests/unit/tools/pick_peaks/test_pick_peaks.py::test_get_peak_picker_when_ms_peak_picker`
 
 ## Symptom

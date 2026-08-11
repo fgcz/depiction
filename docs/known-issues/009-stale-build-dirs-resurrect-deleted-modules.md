@@ -1,6 +1,6 @@
 # Stale `build/lib` trees can resurrect deleted modules into an in-tree install
 
-Severity: **low** | Status: **partly fixed** | Found: 2026-08-10
+Severity: **low** | Status: **partly fixed** (#59) | Found: 2026-08-10
 Files: `build/`, `pkgs/depiction_io/build/`, `pkgs/snakemake_invoke/build/`
 (untracked); note at `pyproject.toml:118-121`
 

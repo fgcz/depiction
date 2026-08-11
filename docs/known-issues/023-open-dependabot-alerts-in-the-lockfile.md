@@ -1,6 +1,6 @@
 # Two open Dependabot alerts are pinned in `uv.lock`
 
-Severity: **low** | Status: **fixed** | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `uv.lock`
 
 ## Symptom

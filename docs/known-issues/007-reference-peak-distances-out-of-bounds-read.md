@@ -1,6 +1,6 @@
 # Out-of-bounds read in the numba kernel fabricates calibration distances
 
-Severity: **medium** | Status: **fixed** | Found: 2026-08-10
+Severity: **medium** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `src/depiction/calibration/spectrum/reference_peak_distances.py:45`
 
 ## Symptom

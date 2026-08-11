@@ -1,6 +1,6 @@
 # Four documents describe code that no longer exists
 
-Severity: **low** | Status: **fixed** | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 Files: `pkgs/depiction_io/README.md:9`,
 `pkgs/depiction_io/src/depiction_io/imzml/parser/README.md`,
 `src/depiction_targeted_preproc/README-old.md`,

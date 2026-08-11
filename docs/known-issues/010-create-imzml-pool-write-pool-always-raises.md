@@ -1,6 +1,6 @@
 # `CreateImzmlPool.write_pool` always raises — a lint autofix ate a local, twice
 
-Severity: **low** | Status: **fixed** | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `src/depiction/tools/create_imzml_pool.py:67`
 
 ## Symptom

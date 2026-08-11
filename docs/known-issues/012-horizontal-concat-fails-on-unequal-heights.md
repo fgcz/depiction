@@ -1,6 +1,6 @@
 # `horizontal_concat` crashes on images of different heights — the case it documents supporting
 
-Severity: **low** | Status: **fixed** | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `src/depiction/image/horizontal_concat.py:27`
 
 ## Symptom

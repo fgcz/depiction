@@ -51,8 +51,8 @@ pinned. Read the file before touching it.
 
 ## Cheap — fixed
 
-Closed as one batch. Each entry now records what was actually done, which in three cases
-differs from what the entry originally proposed.
+Closed as one batch in **#59**. Each entry now records what was actually done, which in three
+cases differs from what the entry originally proposed.
 
 | # | Issue |
 |---|---|

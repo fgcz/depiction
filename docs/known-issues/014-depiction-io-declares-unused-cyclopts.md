@@ -1,6 +1,6 @@
 # `depiction_io` declares `cyclopts` for an entry point that no longer exists
 
-Severity: **low** | Status: **fixed** | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `pkgs/depiction_io/pyproject.toml:20`
 
 ## Symptom

@@ -17,16 +17,13 @@ These either produce silently wrong scientific output or block a clean install.
 
 | # | Issue | Severity | Where |
 |---|---|---|---|
-| [002](002-peak-filters-emit-non-monotonic-mz.md) | Peak filters emit non-monotonic m/z | high | `peak_filtering/filter_n_highest_intensity.py:27` |
 | [003](003-pixel-size-fabricated-on-export.md) | Pixel size dropped on write, fabricated as 1 µm on export | high | `depiction_io/imzml/metadata.py:7` |
 | [004](004-debug-artifact-requires-dev-only-hdbscan.md) | `DEBUG` artifact needs `hdbscan`, a dev-only extra | medium | `pipeline_config/artifacts_mapping.py:36` |
 | [005](005-readme-status-and-missing-run-instructions.md) | README claims active development; no doc says how to run the pipeline | medium | `README.md:5,22` |
 | [006](006-ram-backend-does-not-implement-protocols.md) | `Ram*` classes do not implement the advertised protocols | medium | `depiction_io/ram/ram_reader.py:14` |
 
-001, calibration models assigned to the wrong pixels, was fixed in #58 and its entry removed:
-`ApplyModels.calibrate_spectra` now indexes the coefficient image by pixel coordinate instead of
-by position. 002 is the remaining entry that corrupts output silently; if only one thing gets
-fixed, fix that.
+001 and 002 were the two entries that corrupted output silently. Both are now fixed — see
+*Fixed since the audit* below.
 
 ## Cheap
 
@@ -62,6 +59,16 @@ returns for an unmaintained repo.
 | [021](021-ci-does-not-install-from-the-lockfile.md) | CI never installs from `uv.lock`; two default sessions need the network |
 | [022](022-alphapept-and-msi-hdf5-dead-coverage.md) | `alphapept`- and `awkward`-gated code has no coverage |
 
+## Fixed since the audit
+
+An entry's file is deleted when its fix merges, and the numbering keeps the gap so nothing above
+ever has to be renumbered.
+
+| # | Issue | Fixed in |
+|---|---|---|
+| 001 | Calibration models are assigned to the wrong pixels | #58 |
+| 002 | Peak filters emit non-monotonic m/z | #57 |
+
 ## Tracked as GitHub issues instead
 
 Filed before this audit, still open, not duplicated here:
@@ -80,7 +87,7 @@ Filed before this audit, still open, not duplicated here:
 
 ## Before changing numeric output
 
-002, 007 and 018 all change pipeline output on at least some inputs. The pre-refactor
+007 and 018 both change pipeline output on at least some inputs. The pre-refactor
 baseline in [`../refactoring/baseline-diff.md`](../refactoring/baseline-diff.md) is the only
 thing distinguishing an intended change from a regression — re-run it after any of them, and
 record the new expected output. 001's fix did not need it: coordinate and positional indexing

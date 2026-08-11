@@ -42,6 +42,35 @@ class TestfilterNHighestIntensity(unittest.TestCase):
         np.testing.assert_array_equal([2, 8, 13], mz_arr)
         np.testing.assert_array_equal([2, 8, 7], int_arr)
 
+    def test_filter_index_peaks_returns_ascending_indices(self) -> None:
+        # the three highest intensities sit at indices 1, 3, 4, but in ascending intensity order
+        # they are 4, 3, 1 -- so the selection's own order is not the m/z order
+        spectrum_int_arr = np.array([1, 9, 2, 8, 3])
+        peak_idx_array = np.array([0, 1, 2, 3, 4])
+        remaining_indices = self.mock_filter.filter_index_peaks(
+            spectrum_mz_arr=self.mock_spectrum_mz_arr,
+            spectrum_int_arr=spectrum_int_arr,
+            peak_idx_arr=peak_idx_array,
+        )
+        np.testing.assert_array_equal([1, 3, 4], remaining_indices)
+        assert np.all(np.diff(remaining_indices) > 0)
+
+    def test_filter_peaks_returns_ascending_mz(self) -> None:
+        # the same spectrum as above, through the other method: both must agree on the order
+        mock_spectrum_mz_arr = MagicMock(name="mock_spectrum_mz_arr", spec=[])
+        mock_spectrum_int_arr = MagicMock(name="mock_spectrum_int_arr", spec=[])
+        peak_mz_arr = np.array([100.0, 110.0, 120.0, 130.0, 140.0])
+        peak_int_arr = np.array([1, 9, 2, 8, 3])
+        mz_arr, int_arr = self.mock_filter.filter_peaks(
+            spectrum_mz_arr=mock_spectrum_mz_arr,
+            spectrum_int_arr=mock_spectrum_int_arr,
+            peak_mz_arr=peak_mz_arr,
+            peak_int_arr=peak_int_arr,
+        )
+        np.testing.assert_array_equal([110.0, 130.0, 140.0], mz_arr)
+        np.testing.assert_array_equal([9, 8, 3], int_arr)
+        assert np.all(np.diff(mz_arr) > 0)
+
     def test_filter_index_peaks_when_exactly_all_peaks_are_valid(self) -> None:
         self.mock_max_count = 4
         spectrum_int_arr = np.array([1, 2, 0, 3, 4])

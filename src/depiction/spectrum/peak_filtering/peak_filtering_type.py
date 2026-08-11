@@ -5,6 +5,12 @@ import numpy as np
 
 
 class PeakFilteringType(Protocol):
+    """Selects a subset of already-picked peaks.
+
+    Both methods return the surviving peaks in ascending m/z order -- the order they were passed
+    in. Callers write the result straight to imzML, which requires it.
+    """
+
     def filter_index_peaks(
         self,
         spectrum_mz_arr: NDArray[np.float64],

@@ -7,9 +7,15 @@ what was actually run. Findings that could not be reproduced were dropped rather
 with a hedge. This is a record of what is **known to be wrong**, not a backlog — several
 entries are deliberately marked won't-fix, with the reasoning in the file.
 
-Test baseline at the time of the audit: `721 passed, 25 skipped, 1 xpassed`.
-Line numbers are as of `38d90ff` on `dev`; where a pending change would move them, the entry
-names the symbol as well.
+Test baseline at the time of the audit: `721 passed, 25 skipped, 1 xpassed`, at `38d90ff`.
+It is now **`737 passed, 25 skipped`** for `pytest tests` plus `90 passed, 1 skipped` for
+`pytest pkgs/depiction_io/tests`: `+6` from #56, `+9` from the fixes below, and the `xpassed`
+turned into a pass. Both need the real-data fixtures, or 38 of those passes become skips —
+point `DEPICTION_TEST_DATA_DIR` at a directory that has them.
+
+Line numbers are as of `38d90ff` on `dev`; where a change would move them, the entry names the
+symbol as well. Entries closed since then say so in their `Status:` line and describe what was
+actually done rather than what was proposed.
 
 ## Fix first
 
@@ -25,27 +31,52 @@ These either produce silently wrong scientific output or block a clean install.
 001 and 002 were the two entries that corrupted output silently. Both are now fixed — see
 *Fixed since the audit* below.
 
-## Cheap
-
-Each is well under an hour, most under fifteen minutes.
+## Cheap — still open
 
 | # | Issue | Where |
 |---|---|---|
-| [007](007-reference-peak-distances-out-of-bounds-read.md) | Out-of-bounds numba read fabricates calibration distances | `calibration/spectrum/reference_peak_distances.py:45` |
-| [008](008-pipeline-config-uses-yaml-unsafe-load.md) | `yaml.unsafe_load` on a pipeline config | `pipeline_config/model.py:20` |
 | [009](009-stale-build-dirs-resurrect-deleted-modules.md) | Stale `build/lib` can resurrect the deleted imzML parser | `build/`, `pkgs/*/build/` |
-| [010](010-create-imzml-pool-write-pool-always-raises.md) | `CreateImzmlPool.write_pool` always raises — ruff ate a local, twice | `tools/create_imzml_pool.py:67` |
-| [011](011-imzy-dependency-has-no-upper-bound.md) | `imzy` dependency has no upper bound | `pkgs/depiction_io/pyproject.toml:24` |
-| [012](012-horizontal-concat-fails-on-unequal-heights.md) | `horizontal_concat` crashes on unequal heights | `image/horizontal_concat.py:27` |
-| [013](013-imzml-zip-extract-returns-a-path-that-does-not-exist.md) | `ImzmlZip.extract` returns a path that does not exist | `depiction_io/imzml_zip.py:41` |
-| [014](014-depiction-io-declares-unused-cyclopts.md) | `depiction_io` declares `cyclopts` for a deleted entry point | `pkgs/depiction_io/pyproject.toml:20` |
-| [015](015-stale-documentation-claims.md) | Four documents describe code that no longer exists | various |
-| [016](016-stale-xfail-marker.md) | Stale `xfail` marker hides a passing test | `tests/unit/tools/pick_peaks/test_pick_peaks.py` |
 | [017](017-stale-branches-and-worktrees.md) | 19 stale branches and 2 stale worktrees | repo metadata |
 | [018](018-evaluate-bins-always-computes-in-float32.md) | `evaluate_bins` float64 guard can never be true | `spectrum/evaluate_bins.py:41` |
-| [023](023-open-dependabot-alerts-in-the-lockfile.md) | Two open Dependabot alerts pinned in the lockfile | `uv.lock` |
 
-018 is cheap to change but not cheap to *decide* — read the file before touching it.
+009 and 017 are not code: one is `rm -rf` on untracked directories, the other deletes branches
+and worktrees. Neither can live in a commit, which is why they outlived the batch that closed
+the rest. The documentation half of 009 — a `pyproject.toml` comment that claimed more than it
+delivered — is done.
+
+018 is cheap to change but not cheap to *decide*: correcting the guard changes the numeric
+output of every mean spectrum and every binned intensity, which is what `baseline-diff.md`
+pinned. Read the file before touching it.
+
+## Cheap — fixed
+
+Closed as one batch in **#59**. Each entry now records what was actually done, which in three
+cases differs from what the entry originally proposed.
+
+| # | Issue |
+|---|---|
+| [007](007-reference-peak-distances-out-of-bounds-read.md) | Out-of-bounds numba read fabricated calibration distances |
+| [008](008-pipeline-config-uses-yaml-unsafe-load.md) | `yaml.unsafe_load` on a pipeline config |
+| [010](010-create-imzml-pool-write-pool-always-raises.md) | `CreateImzmlPool.write_pool` always raised — ruff ate a local, twice |
+| [011](011-imzy-dependency-has-no-upper-bound.md) | `imzy` dependency had no upper bound |
+| [012](012-horizontal-concat-fails-on-unequal-heights.md) | `horizontal_concat` crashed on unequal heights |
+| [013](013-imzml-zip-extract-returns-a-path-that-does-not-exist.md) | `ImzmlZip.extract` returned a path that did not exist |
+| [014](014-depiction-io-declares-unused-cyclopts.md) | `depiction_io` declared `cyclopts` for a deleted entry point |
+| [015](015-stale-documentation-claims.md) | Four documents described code that no longer exists |
+| [016](016-stale-xfail-marker.md) | Stale `xfail` marker hid a passing test |
+| [023](023-open-dependabot-alerts-in-the-lockfile.md) | Open Dependabot alerts pinned in the lockfile |
+
+Three entries were wrong in their specifics, and the corrections are in the files:
+
+- **010** proposed a fix that would not have worked, and the finding was incomplete. The
+  `str()` in its sketch had no matching change to `pool_source_df`, whose `abs_path` column
+  held `Path` objects — so the comparison would have matched nothing. And repairing the query
+  only moved the crash one line: `_write_metadata` **segfaults** in pandas 2.3.3 on a `Path`
+  column. `write_pool` had never run to completion, for two reasons rather than one.
+- **012** named the wrong caller. `multi_channel_image_concatenation.py:88` calls
+  `horizontal_concat` too.
+- **016** proposed `pytest.importorskip("ms_peak_picker")`, which would have turned a passing
+  test into a skipped one — the import is deferred, so the test does not need the package.
 
 ## Accepted — documented, not fixed
 
@@ -71,14 +102,12 @@ ever has to be renumbered.
 
 ## Tracked as GitHub issues instead
 
-Filed before this audit, still open, not duplicated here:
+Filed before this audit, not duplicated here:
 
-- **#50** — `CALIB_HEATMAP` fails on any non-square acquisition. `plot_calibration_map.py:37`
-  stacks the two axis coordinate vectors instead of building a meshgrid, so `np.stack` requires
-  them to be equal length. Unexercised because `CALIB_HEATMAP` is not in the default
-  `requested_artifacts`. **Fix in draft PR #56**, which replaces the plot rather than repairing
-  it and removes the `CALIB_HEATMAP` artifact entirely. When that merges, the line numbers in
-  004 and 020 shift — both entries are anchored on symbol names for this reason.
+- ~~**#50**~~ — `CALIB_HEATMAP` failed on any non-square acquisition. **Closed by #56**, which
+  replaced the plot rather than repairing it and removed the `CALIB_HEATMAP` artifact
+  entirely. That shifted the line numbers in 004 and 020; both entries are anchored on symbol
+  names for this reason.
 - **#51** — two QC plots are not reproducible run-to-run (`vl-convert` emits the PDF
   `/XObject` dictionary in a different order each time), which makes QC output unusable as a
   regression check. The underlying data is byte-identical.
@@ -93,6 +122,13 @@ thing distinguishing an intended change from a regression — re-run it after an
 record the new expected output. 001's fix did not need it: coordinate and positional indexing
 agree on any acquisition whose spectra are in row-major order, which both baseline fixtures are.
 
+**007 was fixed without re-running it.** The recorded baseline therefore predates that change.
+The argument for not re-running was that the fix only alters output where a fabricated
+distance previously passed the `max_distance_mz` gate, which the entry describes as occasional
+spurious observations rather than a biased fit — but that is an argument, not a measurement.
+Anyone re-running the baseline should expect 007 to be a possible source of difference, and
+both prerequisites still exist locally: the tree pinned at `ed222b3` and the two fixtures.
+
 ## Method
 
 Six parallel audits (core correctness, `depiction_io`, pipeline, dead code, packaging/CI,
@@ -102,6 +138,12 @@ re-checked by hand, which removed three refuted claims and corrected two others 
 directionally right but wrong in their specifics. Corrections are noted inline in the files
 that carry them (006, 011, 022).
 
+Fixing the batch above found three more errors of the same kind (010, 012, 016, listed under
+*Cheap — fixed*), which is the honest lesson about the method: a claim that survives an
+adversarial read can still be wrong in the way that only shows up when someone writes the
+patch. Every entry still open should be read as a lead, not a specification.
+
 Known blind spot: the sweep checked declared dependencies, version floors and CI configuration
 but never queried the security advisory surface. 023 was found afterwards, by accident, from a
-`git push` warning. Re-run `gh api repos/fgcz/depiction/dependabot/alerts` before archiving.
+`git push` warning. `gh api repos/fgcz/depiction/dependabot/alerts` was re-run on 2026-08-11
+and reported one open alert (setuptools), now cleared. Run it again before archiving.

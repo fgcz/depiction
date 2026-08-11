@@ -46,8 +46,9 @@ def test_get_peak_picker_when_basic_interpolated(mock_filtering: MagicMock) -> N
     assert picker.peak_filtering == mock_filtering
 
 
-@pytest.mark.xfail
 def test_get_peak_picker_when_ms_peak_picker(mock_filtering: MagicMock) -> None:
+    # No `importorskip("ms_peak_picker")`: MSPeakPicker defers that import into `pick_peaks`,
+    # so constructing one works whether or not the optional extra is installed.
     config = PickPeaksConfig(
         peak_picker=PeakPickerMSPeakPickerConfig(fit_type="quadratic", peak_filtering=mock_filtering),
         n_jobs=1,

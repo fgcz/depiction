@@ -16,12 +16,14 @@ dependencies = [
     "pydantic>=2.6.0",
     "tqdm>=4.66.1",
     "loguru",
-    # only for the `parse_spectra` debugging entry point
-    "cyclopts",
     # the imzy backend (`depiction_io.imzy_backend`). It pulls ~40 transitive packages,
     # which is a real cost for a package that is otherwise deliberately minimal; the
-    # justification is in docs/refactoring/ROADMAP.md.
-    "imzy>=0.3.0",
+    # justification is in docs/refactoring/ROADMAP.md. Capped because
+    # `imzy_backend/zlib_reader.py` overrides three *private* IMZMLReader methods to add the
+    # zlib support imzy lacks: it asserts they exist at import, so a future imzy that renames
+    # one turns into an ImportError for every downstream consumer, with nobody here to cut a
+    # release. Lift the cap once someone has verified a newer imzy.
+    "imzy>=0.3.0,<0.4",
     # not imported here: imzy depends on `numba` without any lower bound, and a fresh
     # resolve then satisfies "some numba compatible with the newest numpy" by walking back
     # to numba 0.53 (2021), whose setup.py refuses to build on Python 3.13. 0.61 is the

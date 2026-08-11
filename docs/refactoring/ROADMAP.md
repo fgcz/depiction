@@ -480,10 +480,6 @@ snakemake entry point, and the system tests drive the pipeline through it.
 
 ### Known, still unfixed
 
-- `src/depiction/tools/create_imzml_pool.py:67` has an orphaned
-  `str(imzml_file.imzml_file.absolute())` whose result is discarded, leaving `@abs_path`
-  undefined in the pandas query two lines below. Pre-existing; out of scope for the work
-  above.
 - ~~**`ImzmlReader.get_spectrum_n_points` returns bytes, not points.**~~ **Fixed by
   deletion in Phase E.** The legacy reader reported `IMS:1000104`, the encoded length, so
   for an uncompressed float32 array its answer was four times the truth; the imzy backend
@@ -668,7 +664,7 @@ depiction-tools --help
 Dependency isolation — the check that proves the split is real, not cosmetic:
 
 ```bash
-uv pip show depiction    | grep -i 'pyimzml\|bioio'   # must be empty
+uv pip show depiction    | grep -i pyimzml            # must be empty
 uv pip show depiction_io | grep -i 'bioio\|tifffile'  # must be empty
 uv pip list | grep -i pyimzml                         # must be empty since Phase C
 ```

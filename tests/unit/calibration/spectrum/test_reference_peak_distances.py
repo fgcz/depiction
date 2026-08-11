@@ -53,6 +53,33 @@ def test_get_distances_max_peak_in_window_when_ppm(peak_data_mz_window):
     np.testing.assert_array_almost_equal(expected, distances, decimal=8)
 
 
+@pytest.mark.parametrize("max_distance_unit,max_distance", [("mz", 0.9), ("ppm", 9e3)])
+def test_get_distances_max_peak_in_window_when_window_empty(max_distance_unit, max_distance):
+    """A reference with no peak in its window reports nan, whichever side it falls on.
+
+    `peak_mz_arr` is a view into a longer array whose next element sits exactly on the
+    out-of-range reference, which makes the old failure deterministic: for a reference above
+    the last peak the code indexed one past the end, and with bounds checking off under njit
+    that read the 200.0 and reported a distance of 0.0 instead of nan. With a standalone
+    array the same read returns whatever is adjacent in memory, which the distance gate
+    usually -- but not always -- rejects.
+    """
+    backing = np.array([100.0, 100.5, 101.0, 200.0])
+    peak_mz_arr = backing[:3]
+    peak_int_arr = np.array([5.0, 5.0, 5.0])
+    ref_mz_arr = np.array([90.0, 100.0, 200.0])
+
+    distances = ReferencePeakDistances.get_distances_max_peak_in_window(
+        peak_mz_arr=peak_mz_arr,
+        peak_int_arr=peak_int_arr,
+        ref_mz_arr=ref_mz_arr,
+        max_distance=max_distance,
+        max_distance_unit=max_distance_unit,
+    )
+
+    np.testing.assert_array_almost_equal(np.array([np.nan, 0.0, np.nan]), distances, decimal=8)
+
+
 def test_get_distances_max_peak_in_window_when_invalid():
     """Test get_distances_max_peak_in_window with invalid unit."""
     mock_peak_mz_arr = np.array([10.0, 20, 30])

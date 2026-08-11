@@ -1,6 +1,6 @@
 # `ImzmlZip.extract` extracts into directories and returns a path that does not exist
 
-Severity: **low** | Status: open | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 File: `pkgs/depiction_io/src/depiction_io/imzml_zip.py:41`
 
 ## Symptom
@@ -31,16 +31,21 @@ return imzml_filename
    `Path` semantics; with a **relative** one it produces `out/out/x.imzML`, so the returned
    `out/x.imzML` does not exist at all.
 
-## Fix sketch
+## Fix
 
-The module has **zero callers**, is not exported from `depiction_io/__init__.py`, and the
-pipeline already has a working inline implementation. Deleting it — and its bullet in
-`pkgs/depiction_io/README.md` — is the cheapest correct action.
+Deletion was considered — the module has zero in-repo callers, is not exported from
+`depiction_io/__init__.py`, and the pipeline has a working inline implementation — and
+rejected, because `depiction_io` is published for downstream applications that may call it.
 
-If you would rather keep it, the fix is `ZipFile.open` + `shutil.copyfileobj` to write to an
-explicit destination path, and dropping the double join. Add a test covering both zip layouts
-the docstring claims to support (imzML at the root, and in a subdirectory) with a relative
-output directory.
+`extract` now uses `ZipFile.open` + `shutil.copyfileobj` to write to an explicit destination
+and joins `directory` once. `imzml_filename`, if given, is documented as resolved relative to
+`directory`. It also raises `ValueError` when the archive holds no single .imzML/.ibd pair,
+where it previously died on `Path(None)` with a bare `TypeError` — `_entry_name` has already
+logged the real reason by then.
+
+Tests cover both layouts the docstring claims (imzML at the archive root and in a
+subdirectory) with a **relative** output directory, which is the case that produced
+`out/out/x.imzML` while returning `out/x.imzML`.
 
 ## Notes
 

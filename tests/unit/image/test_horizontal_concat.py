@@ -47,6 +47,33 @@ def test_horizontal_concat_when_add_index(sample_image):
     ]
 
 
+def test_horizontal_concat_when_unequal_heights():
+    """Shorter images are padded up to the tallest one.
+
+    `ymax` is computed across all inputs, so this is the case the function is written for;
+    it used to raise because `pad` leaves the new y coordinates labelled NaN and the concat
+    then aligns on an index with duplicate values.
+    """
+
+    def image(height: int, value: float) -> MultiChannelImage:
+        data = xr.DataArray(
+            np.full((1, height, 2), value),
+            dims=["c", "y", "x"],
+            coords={"c": ["red"], "y": np.arange(height), "x": np.arange(2)},
+        )
+        return MultiChannelImage(data, is_foreground=xr.ones_like(data.isel(c=0), dtype=bool))
+
+    result = horizontal_concat([image(3, 1.0), image(5, 2.0)])
+
+    assert result.data_spatial.shape == (5, 4, 1)  # y, x, c
+    assert list(result.data_spatial.y.values) == [0, 1, 2, 3, 4]
+    assert list(result.data_spatial.x.values) == [0, 1, 2, 3]
+    # the padded rows of the shorter image are zero-filled and not foreground
+    assert result.data_spatial.sel(c="red").values[:, 0].tolist() == [1.0, 1.0, 1.0, 0.0, 0.0]
+    assert result.data_spatial.sel(c="red").values[:, 2].tolist() == [2.0] * 5
+    assert result.fg_mask.values[:, 0].tolist() == [True, True, True, False, False]
+
+
 def test_horizontal_concat_single_image(sample_image):
     with pytest.raises(ValueError, match="At least two images are required for concatenation."):
         horizontal_concat([sample_image])

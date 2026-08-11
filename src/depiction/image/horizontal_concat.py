@@ -1,3 +1,4 @@
+import numpy as np
 import xarray
 
 from depiction.image.container.alpha_channel import AlphaChannel
@@ -25,6 +26,9 @@ def horizontal_concat(
     for i_image, image in enumerate(images):
         data = alpha_channel.stack(image.data_spatial, image.fg_mask)
         data = data.pad(y=(0, ymax - data.y.values.max()), constant_values=0)
+        # `constant_values` fills the padded data, but xarray labels the new coordinates NaN.
+        # The concat below aligns on `y`, where repeated NaNs are duplicate index values.
+        data = data.assign_coords(y=np.arange(data.sizes["y"]))
         x_extent = data.x.values.max() - data.x.values.min() + 1
         data_shifted = data.assign_coords(x=data.x - data.x.values.min() + xoffset)
         if add_index:

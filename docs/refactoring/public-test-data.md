@@ -214,8 +214,8 @@ local.
 
 The values it pins came from two independent readers, which is the point: a disagreement is
 evidence about imzy, not about how the expectations were derived. It is not a substitute for
-the end-to-end baseline diff — that is still open, and the recipe is in
-[`ROADMAP.md`](ROADMAP.md)'s risk table.
+the end-to-end baseline diff — that was run separately and passed; see
+[`baseline-diff.md`](baseline-diff.md).
 
 ## Other sources considered
 
@@ -254,10 +254,10 @@ Neither candidate closes these, and finding more data will not close them either
 Both candidates are fetched and read by `tests/real_data/`, and Candidate 2 additionally runs
 the pipeline in `system_tests/`. What remains:
 
-1. **The end-to-end baseline diff is still open**, and is the largest untested seam. The
-   `system_tests` run shows the pipeline's output is consistent with its input; it says
-   nothing about whether that output matches what this code produced before the migration.
-   `ROADMAP.md`'s risk table carries the recipe.
+1. ~~**The end-to-end baseline diff is still open**, and is the largest untested seam.~~
+   **Done.** It was run on 2026-08-07 against `ed222b3` and found the migration changed
+   nothing in the data; see [`baseline-diff.md`](baseline-diff.md). The recipe is in
+   [`system_tests/baseline/`](../../system_tests/baseline/README.md).
 2. **`processed` mode and Bruker `.d` remain fixture-free.** No amount of care with these
    two files changes that; it needs different data.
 

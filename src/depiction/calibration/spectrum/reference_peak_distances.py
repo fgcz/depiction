@@ -38,11 +38,13 @@ class ReferencePeakDistances:
             else:
                 raise ValueError(f"Unknown unit={max_distance_unit}")
 
-            if i_left < i_right:
-                i_max = i_left + np.argmax(peak_int_arr[i_left:i_right])
-                s_dist_mz = peak_mz_arr[i_max] - mz_ref
-            else:
-                s_dist_mz = peak_mz_arr[i_left] - mz_ref
+            if i_left >= i_right:
+                # No peak in the window. The entry stays nan; indexing `peak_mz_arr[i_left]`
+                # here would read past the end for a reference above the last peak, and with
+                # bounds checking off under njit that fabricates a plausible distance.
+                continue
+            i_max = i_left + np.argmax(peak_int_arr[i_left:i_right])
+            s_dist_mz = peak_mz_arr[i_max] - mz_ref
 
             if max_distance_unit == "mz":
                 max_distance_mz = max_distance

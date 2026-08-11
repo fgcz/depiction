@@ -24,7 +24,9 @@ class FilterNHighestIntensity:
             # sort by intensity and return the indices of the max_count highest peaks
             int_arr = spectrum_int_arr[peak_idx_arr]
             sorted_idx = np.argsort(int_arr)
-            return peak_idx_arr[sorted_idx[-self.max_count :]]
+            # sorting the selection back into index order is what keeps the returned peaks in
+            # ascending m/z, as `filter_peaks` does and every consumer of the result assumes
+            return np.sort(peak_idx_arr[sorted_idx[-self.max_count :]])
 
     def filter_peaks(
         self,

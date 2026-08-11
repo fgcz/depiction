@@ -1,6 +1,6 @@
 # Four documents describe code that no longer exists
 
-Severity: **low** | Status: open | Found: 2026-08-10
+Severity: **low** | Status: **fixed** (#59) | Found: 2026-08-10
 Files: `pkgs/depiction_io/README.md:9`,
 `pkgs/depiction_io/src/depiction_io/imzml/parser/README.md`,
 `src/depiction_targeted_preproc/README-old.md`,
@@ -32,7 +32,7 @@ who follows any of these ends up hunting for code that was deleted.
 5. **`public-test-data.md:217,257`** still calls the pre-refactor baseline diff "still open"
    and "the largest untested seam". It was run and passed — see `baseline-diff.md`.
 
-## Fix sketch
+## Fix
 
 - (1) drop the clause naming the B-Fabric integration.
 - (2) replace the file with one sentence: only `parse_metadata.py` remains, and why.

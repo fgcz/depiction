@@ -48,7 +48,11 @@ class AlignImzml:
         # Apply the alignment.
         self._apply_alignment(
             input_file=self._input_file,
-            output_file=ImzmlWriteFile(self._output_file_path, imzml_mode=ImzmlModeEnum.CONTINUOUS),
+            output_file=ImzmlWriteFile(
+                self._output_file_path,
+                imzml_mode=ImzmlModeEnum.CONTINUOUS,
+                pixel_size=self._input_file.pixel_size,
+            ),
             bin_eval=bin_eval,
         )
         return get_read_file(self._output_file_path)

@@ -89,7 +89,13 @@ def cmd_imzml_concat(
         logger.warning(f"The inputs declare different pixel sizes ({pixel_sizes}), the output grid mixes them.")
 
     imzml_mode = resolve_output_mode(read_files, mode)
-    write_file = ImzmlWriteFile(output_imzml, imzml_mode=imzml_mode, write_mode="w" if overwrite else "x")
+    write_file = ImzmlWriteFile(
+        output_imzml,
+        imzml_mode=imzml_mode,
+        write_mode="w" if overwrite else "x",
+        # A grid that mixes rasters has no one pixel size, so declare one only when the inputs agree.
+        pixel_size=next(iter(pixel_sizes)) if len(pixel_sizes) == 1 else None,
+    )
     placements = concat_spatial(read_files, write_file, axis=axis, spacing=spacing)
 
     info_path = output_imzml.with_suffix(".concat.json")

@@ -149,7 +149,7 @@ def main_cutout_rectangular_region_imzml(
     y_range = (ymin, ymax)
 
     read_file = get_read_file(input_imzml)
-    write_file = ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode)
+    write_file = ImzmlWriteFile(output_imzml, imzml_mode=read_file.imzml_mode, pixel_size=read_file.pixel_size)
 
     if relative:
         cutout = CutoutRectangularRegionImzml.from_relative_ranges(

@@ -47,6 +47,7 @@ def test_writer_when_success(mocker: MockerFixture, mock_write_file: ImzmlWriteF
         imzml_mode=mock_imzml_mode,
         mz_dtype=np.float64,
         intensity_dtype=np.float32,
+        pixel_size=None,
         overwrite=False,
     )
     mock_open.return_value.close.assert_called_once_with()
@@ -72,6 +73,7 @@ def test_writer_when_mode_w_file_exists(mocker: MockerFixture) -> None:
         imzml_mode=mock_imzml_mode,
         mz_dtype=np.float64,
         intensity_dtype=np.float32,
+        pixel_size=None,
         overwrite=True,
     )
     mock_open.return_value.close.assert_called_once_with()

@@ -24,18 +24,24 @@ class OmeTiff:
     @classmethod
     def write(cls, image: xarray.DataArray, path: Path) -> None:
         """Writes the image to a OME-TIFF file at the specified path.
-        The image must have the dimensions c, y, x and an attribute "pixel_size" with the pixel size information.
+        The image must have the dimensions c, y, x and an attribute "pixel_size" holding the pixel size information,
+        or `None` when the acquisition declared none -- bioio then omits `PhysicalSizeX`/`PhysicalSizeY` rather than
+        stating a size that was never measured.
         """
         channel_names = list(image.coords["c"].values)
         image_export = image.transpose("c", "y", "x")
-        ps_x, ps_y = image.attrs["pixel_size"].size_x, image.attrs["pixel_size"].size_y
-        pixel_sizes = PhysicalPixelSizes(Z=None, Y=ps_y, X=ps_x)
+        pixel_size = image.attrs["pixel_size"]
+        pixel_sizes = PhysicalPixelSizes(
+            Z=None,
+            Y=None if pixel_size is None else pixel_size.size_y,
+            X=None if pixel_size is None else pixel_size.size_x,
+        )
         OmeTiffWriter.save(
             image_export.data, path, channel_names=channel_names, physical_pixel_sizes=[pixel_sizes], dim_order="CYX"
         )
 
     @classmethod
-    def write_image(cls, image: MultiChannelImage, path: Path, pixel_size: PixelSize) -> None:
+    def write_image(cls, image: MultiChannelImage, path: Path, pixel_size: PixelSize | None) -> None:
         """Writes the image to an OME-TIFF file at the specified path."""
         # TODO make possible to attach metadata to MultiChannelImage
         data = image.data_spatial.copy()
@@ -52,8 +58,12 @@ class OmeTiff:
             coords={"c": image.channel_names},
         )
         data = data.squeeze(["t", "z"])
-        data.attrs["pixel_size"] = PixelSize(
-            size_x=image.physical_pixel_sizes.X, size_y=image.physical_pixel_sizes.Y, unit="micrometer"
+        # ome-types leaves both attributes `None` when the file declares no physical size, so a
+        # partially declared one is the only case where anything is thrown away here -- and a
+        # `PixelSize` with a `None` side is worse than admitting the size is unknown.
+        sizes = image.physical_pixel_sizes
+        data.attrs["pixel_size"] = (
+            None if sizes.X is None or sizes.Y is None else PixelSize(size_x=sizes.X, size_y=sizes.Y, unit="micrometer")
         )
         return data
 

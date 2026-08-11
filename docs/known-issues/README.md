@@ -23,11 +23,10 @@ These either produce silently wrong scientific output or block a clean install.
 
 | # | Issue | Severity | Where |
 |---|---|---|---|
-| [003](003-pixel-size-fabricated-on-export.md) | Pixel size dropped on write, fabricated as 1 µm on export | high | `depiction_io/imzml/metadata.py:7` |
 | [005](005-readme-status-and-missing-run-instructions.md) | README claims active development; no doc says how to run the pipeline | medium | `README.md:5,22` |
 
-001 and 002 were the two entries that corrupted output silently. Both are now fixed — see
-*Fixed since the audit* below.
+001, 002 and 003 were the entries that corrupted output silently. All three are now fixed — see
+*Fixed since the audit* below. 005 is documentation, and is what is left of this section.
 
 ## Cheap — still open
 
@@ -96,6 +95,7 @@ ever has to be renumbered.
 |---|---|---|
 | 001 | Calibration models are assigned to the wrong pixels | #58 |
 | 002 | Peak filters emit non-monotonic m/z | #57 |
+| 003 | Pixel size dropped on write, fabricated as 1 µm on export | #61 |
 | 004 | `DEBUG` artifact needed `hdbscan`, a dev-only extra — and `cluster_kmeans.py` was broken too, which the audit missed, so the whole cluster branch of `DEBUG` was dead | #60 |
 | 006 | `Ram*` classes did not implement the advertised protocols — plus `to_read_file` handed `RamReadFile` a list where it declares an array, which the audit also missed | #60 |
 

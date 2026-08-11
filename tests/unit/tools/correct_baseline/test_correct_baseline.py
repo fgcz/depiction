@@ -9,8 +9,10 @@ from depiction.tools.correct_baseline.config import BaselineVariants
 
 def test_run_when_other_variant(mocker: MockerFixture) -> None:
     mock_imzml_mode = mocker.MagicMock(name="mock_imzml_mode", spec=[])
+    mock_pixel_size = mocker.MagicMock(name="mock_pixel_size", spec=[])
     construct_imzml_read_file = mocker.patch("depiction.tools.correct_baseline.correct_baseline.get_read_file")
     construct_imzml_read_file.return_value.imzml_mode = mock_imzml_mode
+    construct_imzml_read_file.return_value.pixel_size = mock_pixel_size
     construct_imzml_write_file = mocker.patch("depiction.tools.correct_baseline.correct_baseline.ImzmlWriteFile")
     construct_correct_baseline = mocker.patch(
         "depiction.tools.correct_baseline.correct_baseline.CorrectBaseline.from_variant"
@@ -27,7 +29,10 @@ def test_run_when_other_variant(mocker: MockerFixture) -> None:
         construct_imzml_read_file.return_value, construct_imzml_write_file.return_value
     )
     construct_imzml_read_file.assert_called_once_with(mock_input_imzml)
-    construct_imzml_write_file.assert_called_once_with(mock_output_imzml, imzml_mode=mock_imzml_mode)
+    # The input's pixel size has to reach the output, or baseline correction drops the raster.
+    construct_imzml_write_file.assert_called_once_with(
+        mock_output_imzml, imzml_mode=mock_imzml_mode, pixel_size=mock_pixel_size
+    )
     mock_output_imzml.parent.mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
 

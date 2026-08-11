@@ -42,7 +42,11 @@ class ImzmlSplitter:
                 output_spectra_indices.append(indices)
                 filename = str(Path(output_dir) / f"part_{i_part}.imzML")
                 output_files.append(filename)
-                with ImzmlWriteFile(path=filename, imzml_mode=self._read_file.imzml_mode).writer() as writer:
+                with ImzmlWriteFile(
+                    path=filename,
+                    imzml_mode=self._read_file.imzml_mode,
+                    pixel_size=self._read_file.pixel_size,
+                ).writer() as writer:
                     # writer.deactivate_alignment_tracker()
                     writer.copy_spectra(reader, spectra_indices=indices, tqdm_position=1)
                     mz_is_unique = mz_is_unique and writer.is_aligned

@@ -12,6 +12,7 @@ from depiction_io.types import GenericWriteFile
 
 if TYPE_CHECKING:
     from depiction_io.imzml.imzml_mode_enum import ImzmlModeEnum
+    from depiction_io.pixel_size import PixelSize
 
 
 class ImzmlWriteFile(GenericWriteFile):
@@ -24,6 +25,8 @@ class ImzmlWriteFile(GenericWriteFile):
             Other values are not supported. "w" truncates on open, as it does for a builtin file, so a write that
             fails or turns out to have no spectra leaves no file behind at all -- not the old one, and not a
             half-written new one.
+        pixel_size: The raster to declare in the output, if it is known. A transformation of an existing acquisition
+            should pass the source file's, or the pixel size is lost at this step and cannot be recovered later.
     """
 
     def __init__(
@@ -33,12 +36,14 @@ class ImzmlWriteFile(GenericWriteFile):
         write_mode: str = "x",
         mz_dtype: np.typing.DTypeLike = np.float64,
         intensity_dtype: np.typing.DTypeLike = np.float32,
+        pixel_size: PixelSize | None = None,
     ) -> None:
         self._path = Path(path)
         self._imzml_mode = imzml_mode
         self._write_mode = write_mode
         self._mz_dtype = mz_dtype
         self._intensity_dtype = intensity_dtype
+        self._pixel_size = pixel_size
 
     @property
     def imzml_file(self) -> Path:
@@ -89,6 +94,7 @@ class ImzmlWriteFile(GenericWriteFile):
             imzml_mode=self._imzml_mode,
             mz_dtype=self._mz_dtype,
             intensity_dtype=self._intensity_dtype,
+            pixel_size=self._pixel_size,
             # The truncation above already cleared the way; this only stops imzy from refusing
             # to start over a leftover .ibd whose .imzML was removed.
             overwrite=self._write_mode == "w",

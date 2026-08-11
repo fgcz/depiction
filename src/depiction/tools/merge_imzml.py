@@ -13,7 +13,14 @@ class MergeImzml:
 
     def merge_paths(self, input_files: Sequence[str], output_file: str, imzml_mode: ImzmlModeEnum):
         input_files = [get_read_file(f) for f in input_files]
-        output_file = ImzmlWriteFile(output_file, imzml_mode=imzml_mode)
+        # Only when every input agrees: inputs with different rasters have no common pixel size,
+        # and picking one of them would be a guess stated as a measurement.
+        pixel_sizes = {input_file.pixel_size for input_file in input_files}
+        output_file = ImzmlWriteFile(
+            output_file,
+            imzml_mode=imzml_mode,
+            pixel_size=next(iter(pixel_sizes)) if len(pixel_sizes) == 1 else None,
+        )
         return self.merge(input_files=input_files, output_file=output_file)
 
 

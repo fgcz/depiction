@@ -13,6 +13,8 @@ from depiction_io.types import GenericWriter
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
+    from depiction_io.pixel_size import PixelSize
+
 
 class ImzmlWriter(GenericWriter):
     """Writes .imzML files through `imzy`.
@@ -40,20 +42,30 @@ class ImzmlWriter(GenericWriter):
         mz_dtype: np.typing.DTypeLike = np.float64,
         intensity_dtype: np.typing.DTypeLike = np.float32,
         overwrite: bool = False,
+        pixel_size: PixelSize | None = None,
     ) -> ImzmlWriter:
-        """Opens an imzML file."""
+        """Opens an imzML file.
+
+        `pixel_size` is written as `IMS:1000046`/`IMS:1000047`; without it the output declares no
+        raster, and a reader has no way to recover one.
+        """
         imzml_alignment_tracker = ImzmlAlignmentTracker() if imzml_alignment_tracking else None
         # imzy rewrites the suffix to `.imzML` rather than using the path it was given, so on
         # a case-sensitive filesystem a caller who asked for `out.imzml` would find nothing
         # there and the data in `out.imzML`. pyimzml wrote the name verbatim.
         if Path(path).suffix != ".imzML":
             raise ValueError(f"Expected a path ending in '.imzML', got {path!r}; imzy would write elsewhere.")
+        # imzy emits the two cvParams without a unit attribute, and `ParseMetadata.pixel_size`
+        # hardcodes micrometer on read, so anything else would come back relabelled.
+        if pixel_size is not None and pixel_size.unit != "micrometer":
+            raise ValueError(f"Only a pixel size in micrometer can be written, got {pixel_size.unit!r}.")
         return cls(
             wrapped_imzml_writer=DepictionIMZMLWriter(
                 str(path),
                 mz_dtype=mz_dtype,
                 intensity_dtype=intensity_dtype,
                 ibd_mode=ImzmlModeEnum.as_imzml_str(imzml_mode),
+                pixel_size=None if pixel_size is None else (pixel_size.size_x, pixel_size.size_y),
                 # depiction's coordinates are 1-based already, so imzy must not shift them.
                 coordinate_origin="one",
                 # Made explicit because the empty-spectrum guard below exists precisely

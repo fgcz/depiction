@@ -29,7 +29,7 @@ def run_config(
     else:
         parsed = CalibrationConfig.model_validate(raw_config)
         input_file = get_read_file(input_imzml)
-        output_file = ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED)
+        output_file = ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED, pixel_size=input_file.pixel_size)
         calibrate(
             config=parsed,
             input_file=input_file,
@@ -52,7 +52,7 @@ def run_global_constant_shift(
         n_jobs=n_jobs,
     )
     input_file = get_read_file(input_imzml)
-    output_file = ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED)
+    output_file = ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED, pixel_size=input_file.pixel_size)
     calibrate(
         config=config,
         input_file=input_file,

@@ -158,17 +158,30 @@ def test_image_values_are_finite(image: MultiChannelImage) -> None:
     assert np.isfinite(image.data_spatial.values).all()
 
 
-def test_pixel_size_matches_the_exported_raw_metadata(work_dir: Path) -> None:
-    """The OME-TIFF's physical pixel size against what `proc_export_raw_metadata` wrote.
+def test_pixel_size_matches_the_acquisition(work_dir: Path, acquisition: GenericReadFile) -> None:
+    """The exported metadata and the OME-TIFF against the raster the input actually declares.
 
-    For the mouse kidney this pins a fallback nothing else exercises: the file declares no
-    `IMS:1000046`, `Metadata.pixel_size` is not optional, so the export step takes its
-    `ValidationError` branch and substitutes a dummy 1 um. See ROADMAP, "Known, still
-    unfixed" -- this asserts the current behaviour rather than endorsing it.
+    For the mouse kidney that raster is `None` -- the file declares no `IMS:1000046` -- and the
+    point of the assertion is that nothing along the way invents one. The export step used to
+    substitute a dummy 1 um here, which the OME-TIFF then stated as a physical size
+    indistinguishable from a genuine 1 um acquisition.
     """
-    expected = Metadata.model_validate(json.loads((work_dir / "raw_metadata.json").read_text())).pixel_size
+    exported = Metadata.model_validate(json.loads((work_dir / "raw_metadata.json").read_text())).pixel_size
     written = OmeTiff.read(work_dir / "images_default.ome.tiff").attrs["pixel_size"]
-    assert (written.size_x, written.size_y) == (expected.size_x, expected.size_y)
+    assert exported == acquisition.pixel_size
+    assert written == exported
+
+
+def test_the_pipeline_does_not_drop_a_declared_pixel_size(work_dir: Path, acquisition: GenericReadFile) -> None:
+    """The raster has to survive `raw` -> `processed` -> `calibrated`, each a real write.
+
+    `ImzmlWriter` emitted no `IMS:1000046` at all until this was fixed, so every imzML the
+    pipeline produced declared no raster whatever its input said -- and because the exported
+    images read their metadata from `raw.imzML`, nothing downstream of here noticed. Trivially
+    true for the mouse kidney, which declares none to begin with; the tonsil is the real case.
+    """
+    for name in ("processed.imzML", "calibrated.imzML"):
+        assert get_read_file(work_dir / name).pixel_size == acquisition.pixel_size, name
 
 
 def test_calibration_preserves_the_pixel_grid(work_dir: Path, acquisition: GenericReadFile) -> None:

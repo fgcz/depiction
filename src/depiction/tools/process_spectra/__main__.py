@@ -22,7 +22,7 @@ def run(input_imzml_file: Path, output_imzml_file: Path, config_file: Path) -> N
     config = validate(config_file)
     read_file = get_read_file(input_imzml_file)
     # TODO in the future we might implement logic to determine when this can still be set to CONTINUOUS
-    write_file = ImzmlWriteFile(output_imzml_file, ImzmlModeEnum.PROCESSED)
+    write_file = ImzmlWriteFile(output_imzml_file, ImzmlModeEnum.PROCESSED, pixel_size=read_file.pixel_size)
     process_spectra(read_file=read_file, write_file=write_file, config=config)
 
 

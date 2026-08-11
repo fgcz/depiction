@@ -19,10 +19,11 @@ def run_config(
     output_imzml: Path,
 ) -> None:
     parsed = FilterPeaksConfig.model_validate(yaml.safe_load(config.read_text()))
+    input_file = get_read_file(input_imzml)
     filter_peaks(
         config=parsed,
-        input_file=get_read_file(input_imzml),
-        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
+        input_file=input_file,
+        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED, pixel_size=input_file.pixel_size),
     )
 
 
@@ -36,10 +37,11 @@ def run(
     # TODO this is hardcoded like before in the workflow
     peaks_filter = FilterNHighestIntensityPartitionedConfig(max_count=500, n_partitions=8)
     config = FilterPeaksConfig(filters=[peaks_filter], n_jobs=n_jobs)
+    input_file = get_read_file(input_imzml)
     filter_peaks(
         config=config,
-        input_file=get_read_file(input_imzml),
-        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED),
+        input_file=input_file,
+        output_file=ImzmlWriteFile(output_imzml, imzml_mode=ImzmlModeEnum.PROCESSED, pixel_size=input_file.pixel_size),
     )
 
 

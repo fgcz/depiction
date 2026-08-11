@@ -37,20 +37,37 @@ class RamWriteFile:
 
     @contextmanager
     def writer(self) -> Generator[_Writer]:
-        yield _Writer(self)
+        # Closed on the way out, as `ImzmlWriteFile.writer` does. A no-op here, but a caller that
+        # swaps one backend for the other should not have to know which of the two bothers.
+        writer = _Writer(self)
+        try:
+            yield writer
+        finally:
+            writer.close()
 
     def to_read_file(self) -> RamReadFile:
         # TODO this method is not really part of the general interface, but is required for this class to be useful
         return RamReadFile(
             mz_arr_list=self._mz_arr_list.copy(),
             int_arr_list=self._int_arr_list.copy(),
-            coordinates=self._coordinates_list.copy(),
+            # `add_spectrum` appends one coordinate array per spectrum, but `RamReadFile` slices
+            # `coordinates[:, :2]`, which a list of arrays does not support. The m/z and intensity
+            # lists stay lists: processed-mode spectra are ragged and cannot be one array.
+            coordinates=np.asarray(self._coordinates_list),
         )
 
 
 class _Writer:
     def __init__(self, file: RamWriteFile) -> None:
         self._file = file
+
+    @property
+    def imzml_mode(self) -> ImzmlModeEnum:
+        return self._file.imzml_mode
+
+    def close(self) -> None:
+        # Nothing to release: the spectra live on the RamWriteFile that outlives this writer.
+        pass
 
     def add_spectrum(
         self, mz_arr: NDArray[np.float64], int_arr: NDArray[np.float64], coordinates: NDArray[np.int64]

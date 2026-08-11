@@ -5,13 +5,14 @@ from typing import Any, NoReturn, TYPE_CHECKING
 import numpy as np
 
 from depiction_io import ImzmlModeEnum
+from depiction_io.types import GenericReader
 
 if TYPE_CHECKING:
     from types import TracebackType
     from numpy.typing import NDArray
 
 
-class RamReader:
+class RamReader(GenericReader):
     def __init__(
         self,
         mz_arr_list: list[NDArray[np.float64]],
@@ -104,6 +105,9 @@ class RamReader:
     def get_spectra_metadata(self, i_spectra: list[int]) -> list[dict]:
         return [self.get_spectrum_metadata(i) for i in i_spectra]
 
-    def get_spectra_mz_range(self, i_spectra: list[int]) -> tuple[float, float]:
+    def get_spectra_mz_range(self, i_spectra: list[int] | None) -> tuple[float, float]:
+        # `None` means every spectrum, as in the protocol default this overrides.
+        if i_spectra is None:
+            i_spectra = range(self.n_spectra)
         mz_arr_list = [self._mz_arr_list[i] for i in i_spectra]
         return min([mz_arr.min() for mz_arr in mz_arr_list]), max([mz_arr.max() for mz_arr in mz_arr_list])

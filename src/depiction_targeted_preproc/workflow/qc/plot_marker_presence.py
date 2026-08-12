@@ -5,6 +5,24 @@ import polars as pl
 from pathlib import Path
 
 
+def sorted_label_order(df: pl.DataFrame, cutoff: float) -> list[str]:
+    """The y-axis category order: markers by detection fraction at the tightest cutoff, best first.
+
+    The second sort key is what makes this reproducible. `fraction` alone is not a total order --
+    markers tie routinely, and at the tightest cutoff a great many tie at zero -- and the frame
+    reaching this function comes out of `group_by`, which hands its rows back in a different order
+    on every run. The tie-break, and with it the entire category order of the plot, was therefore
+    effectively random: two runs on byte-identical input produced visibly different figures, which
+    is what made this QC output useless as a regression check. `label` is unique within the
+    filtered frame, so adding it as a tie-break makes the order total.
+    """
+    return (
+        df.filter(detection_dist=cutoff, variant="calibrated")
+        .sort(["fraction", "label"], descending=[True, False])["label"]
+        .to_list()
+    )
+
+
 def plot_marker_presence(df_peak_dist: pl.DataFrame, n_spectra: int, out_path: Path, layout_vertical: bool) -> None:
     # Add a `max_dist` column to the dataframe, that indicates the first bin a particular item falls into
     df = df_peak_dist.with_columns(abs_dist=pl.col("dist").abs()).sort("abs_dist")
@@ -21,9 +39,11 @@ def plot_marker_presence(df_peak_dist: pl.DataFrame, n_spectra: int, out_path: P
     print(df)
 
     # sort labels by the calibrated image's detection_dist
-    sorted_labels = df.filter(detection_dist=df_cutoffs["max_dist"][0], variant="calibrated").sort(
-        "fraction", descending=True
-    )["label"]
+    sorted_labels = sorted_label_order(df, cutoff=df_cutoffs["max_dist"][0])
+
+    # Same reason as in `sorted_label_order`, for the frame itself: the segments of each bar are
+    # stacked in the order the rows arrive, and `group_by` does not fix that order.
+    df = df.sort(["label", "variant", "detection_dist"])
 
     layout_config = (
         {"column": alt.Column("variant:N", title=None)}
@@ -36,7 +56,7 @@ def plot_marker_presence(df_peak_dist: pl.DataFrame, n_spectra: int, out_path: P
         .mark_bar()
         .encode(
             x=alt.X("sum(fraction):Q", scale=alt.Scale(domain=[0, 1]), title="Fraction of spectra with peaks detected"),
-            y=alt.Y("label:N", sort=list(sorted_labels), title=None),
+            y=alt.Y("label:N", sort=sorted_labels, title=None),
             color=alt.Color("detection_dist:N", legend=alt.Legend(title="Max distance cutoff", orient="top")),
             **layout_config,
         )

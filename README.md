@@ -11,18 +11,18 @@ packages:
 - `depiction_io` (in `pkgs/depiction_io/`): reading and writing MSI data. Everything else talks to
   the protocols in `depiction_io.types` rather than to a file format. **If reading and writing MSI
   files is all you need, depend on this package rather than on `depiction`** — see
-  [`pkgs/depiction_io/README.md`](pkgs/depiction_io/README.md).
+  [`pkgs/depiction_io/README.md`](https://github.com/fgcz/depiction/blob/dev/pkgs/depiction_io/README.md).
 - `snakemake_invoke` (in `pkgs/snakemake_invoke/`): a small wrapper for invoking the pipeline's
   Snakemake workflow from Python — see
-  [`pkgs/snakemake_invoke/README.md`](pkgs/snakemake_invoke/README.md).
+  [`pkgs/snakemake_invoke/README.md`](https://github.com/fgcz/depiction/blob/dev/pkgs/snakemake_invoke/README.md).
 
 ## Scope
 
 Two things are tested and exercised end to end: **`depiction_io`**, which has its own test suite, a
 protocol conformance test per backend and a differential corpus; and **the targeted preprocessing
-pipeline**, which is covered by [system tests](system_tests/README.md) against two real
+pipeline**, which is covered by [system tests](https://github.com/fgcz/depiction/blob/dev/system_tests/README.md) against two real
 acquisitions and whose output is pinned against the pre-migration implementation in
-[`docs/refactoring/baseline-diff.md`](docs/refactoring/baseline-diff.md).
+[`docs/refactoring/baseline-diff.md`](https://github.com/fgcz/depiction/blob/dev/docs/refactoring/baseline-diff.md).
 
 The following are in the tree but do not work:
 
@@ -38,7 +38,7 @@ The following are in the tree but do not work:
   is declared in no extra.
 - A handful of Snakemake rules that no artifact can reach, and the one-off scripts under
   `workflow/exp/`. Both are listed in
-  [`src/depiction_targeted_preproc/README.md`](src/depiction_targeted_preproc/README.md).
+  [`src/depiction_targeted_preproc/README.md`](https://github.com/fgcz/depiction/blob/dev/src/depiction_targeted_preproc/README.md).
 
 ## Setup dev environment
 
@@ -117,18 +117,18 @@ configuration for it — and builds whatever that configuration asks for:
 python -m depiction_targeted_preproc.app_interface.process_chunk /path/to/work/my_sample
 ```
 
-[`src/depiction_targeted_preproc/README.md`](src/depiction_targeted_preproc/README.md) describes
+[`src/depiction_targeted_preproc/README.md`](https://github.com/fgcz/depiction/blob/dev/src/depiction_targeted_preproc/README.md) describes
 the directory layout, `params.yml`, the available artifacts and how to add one.
-[`system_tests/`](system_tests/README.md) is a worked example that runs on a public 59 MB
+[`system_tests/`](https://github.com/fgcz/depiction/blob/dev/system_tests/README.md) is a worked example that runs on a public 59 MB
 acquisition a fresh clone can fetch.
 
 ## Documentation
 
-- [`docs/`](docs) — API documentation, built with `nox -s docs`. The dimension and geometry
+- [`docs/`](https://github.com/fgcz/depiction/tree/dev/docs) — API documentation, built with `nox -s docs`. The dimension and geometry
   conventions the image classes follow, including which way the y axis points, are described in
-  [`docs/modules/image/multi_channel_image.md`](docs/modules/image/multi_channel_image.md).
-- [`src/depiction_targeted_preproc/README.md`](src/depiction_targeted_preproc/README.md) — the
+  [`docs/modules/image/multi_channel_image.md`](https://github.com/fgcz/depiction/blob/dev/docs/modules/image/multi_channel_image.md).
+- [`src/depiction_targeted_preproc/README.md`](https://github.com/fgcz/depiction/blob/dev/src/depiction_targeted_preproc/README.md) — the
   pipeline: how to run it, what it produces, and which rules are known to be dead.
-- [`system_tests/README.md`](system_tests/README.md) — the end-to-end recipe and its fixtures.
-- [`docs/refactoring/ROADMAP.md`](docs/refactoring/ROADMAP.md) — what was migrated to `imzy`, what
+- [`system_tests/README.md`](https://github.com/fgcz/depiction/blob/dev/system_tests/README.md) — the end-to-end recipe and its fixtures.
+- [`docs/refactoring/ROADMAP.md`](https://github.com/fgcz/depiction/blob/dev/docs/refactoring/ROADMAP.md) — what was migrated to `imzy`, what
   was deliberately left undone, and why.

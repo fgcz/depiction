@@ -67,8 +67,8 @@ and return `MultiChannelImage`, so putting them here would make `depiction_io` d
 
 ## Status
 
-See [`docs/refactoring/ROADMAP.md`](../../docs/refactoring/ROADMAP.md) in the repository
-root. The migration to imzy is complete: one reader, one writer, and roughly 1,900 lines of
+See [`docs/refactoring/ROADMAP.md`](https://github.com/fgcz/depiction/blob/dev/docs/refactoring/ROADMAP.md)
+in the repository root. The migration to imzy is complete: one reader, one writer, and roughly 1,900 lines of
 custom parsing removed across Phases C and E.
 
 The differential tests in `tests/differential/` were an A/B comparison between the two

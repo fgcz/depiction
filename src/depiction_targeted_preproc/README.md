@@ -23,6 +23,8 @@ construction with a missing input rather than producing anything wrong.
 
 `workflow/exp/` is a different case: those are one-off experiment scripts that are not wired
 to any rule at all. They are kept as reference for what was tried, not as something to run.
+One of them, `exp/compare_cluster_stats.py`, reads `cluster_default_stats_*.csv`, which nothing
+in the tree produces any more — the rule that wrote it is among the deletions below.
 
 Three modules that were dead in the same way have been **deleted** rather than documented,
 because nothing referenced them and they could not be imported at all: `workflow/experimental.smk`

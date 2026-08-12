@@ -670,7 +670,8 @@ dependency.
 
 ```bash
 uv sync --extra testing --extra dev
-nox                                           # lint + both test suites + licensecheck + docs
+nox                                           # lint + both test suites
+nox -s docs licensecheck                      # off the default run; both need the network
 uv run pytest tests/differential -v           # the reader against the corpus's ground truth
 uv run pytest tests/unit/parallel_ops -v      # pickling across process boundaries
 nox -s system_tests                           # real data, slow, skips without the local fixture

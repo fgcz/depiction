@@ -23,6 +23,50 @@ jobs:
         run: pip install nox[uv]
       - name: Run unit tests
         run: nox
+  # Every nox session installs with `session.install(".[testing]")`, which is a fresh PyPI
+  # resolve -- so without this job the committed uv.lock is never exercised anywhere and
+  # reproduces nothing. Its value is diagnostic: when this is green and `Unit Tests` is red,
+  # an upstream release broke the build rather than a commit here.
+  locked_install:
+    name: Locked Install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install uv
+        shell: bash
+        run: pip install uv
+      # `--locked` fails rather than silently re-resolving when uv.lock has drifted from
+      # pyproject.toml, which is the whole point of committing the lock.
+      - name: Install from the lockfile
+        run: uv sync --locked --extra testing
+      # `--no-sync` so this runs against exactly what the step above installed. The
+      # `real_data` cases skip here, because `.test-data/` is deliberately not fetched: this
+      # job exists to show the locked resolution installs and runs, not to duplicate the
+      # coverage `Unit Tests` and `System Tests` already provide.
+      - name: Run the test suite
+        run: uv run --no-sync pytest tests
+  # `docs` and `licensecheck` both reach the network -- sphinx via intersphinx, licensecheck
+  # by resolving the full dependency tree -- so both can go red for reasons unrelated to any
+  # commit. They are non-default nox sessions for that reason, and run here instead, where a
+  # failure is legible as "an upstream thing moved" rather than as a failing test suite.
+  docs_and_licenses:
+    name: Docs and licenses
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install nox
+        shell: bash
+        run: pip install nox[uv]
+      - name: Build the docs and check licenses
+        run: nox -s docs licensecheck
   # A separate job rather than another `nox` session in the one above, so that a pipeline run
   # measured in minutes never sits in front of the lint and unit-test feedback.
   system_tests:

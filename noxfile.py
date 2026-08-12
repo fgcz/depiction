@@ -52,7 +52,7 @@ def tests_snakemake_invoke(session) -> None:
     session.run("pytest", "--durations=10", "--durations-min=1.0", *testfiles)
 
 
-@nox.session
+@nox.session(default=False)
 def docs(session) -> None:
     """Builds the Sphinx documentation, treating warnings as errors.
 
@@ -60,14 +60,24 @@ def docs(session) -> None:
     been deleted months earlier survived unnoticed. `-W` is what makes that impossible to
     repeat. Note that intersphinx fetches remote inventories, so this session needs network
     access and will fail if one of the referenced sites is unreachable.
+
+    Not a default session for exactly that reason: a moved `objects.inv` upstream would
+    otherwise turn a bare `nox` red on a commit that changed nothing. CI still runs it, in
+    the separate `Docs and licenses` job, so the autodoc guard is not lost -- a failure
+    there just no longer looks like a failing test suite.
     """
     session.install(".[doc]")
     session.run("sphinx-build", "-W", "-b", "html", "docs", "docs/_build/html", *session.posargs)
 
 
-@nox.session
+@nox.session(default=False)
 def licensecheck(session) -> None:
-    """Runs the license check."""
+    """Runs the license check.
+
+    Non-default for the same reason as `docs`: it resolves the whole dependency tree from
+    PyPI, so an upstream package changing its license classifier turns this red without any
+    commit here being involved. CI runs it in the `Docs and licenses` job.
+    """
     session.install("licensecheck")
     # depiction_io and snakemake_invoke are skipped because they are our own workspace
     # members (same license as the root) and because licensecheck's resolver cannot parse

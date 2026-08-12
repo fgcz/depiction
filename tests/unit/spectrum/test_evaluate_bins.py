@@ -32,6 +32,23 @@ class TestEvaluateBins(unittest.TestCase):
     #    binned = self.mock_evaluate_bins.evaluate_all(mz_values, int_values, n_jobs=1)
     #    np.testing.assert_array_equal(np.array([[1.0, 3], [0, 6]]), binned)
 
+    def test_evaluate_preserves_float64(self) -> None:
+        """float64 in, float64 out.
+
+        The dtype selection used to be `isinstance(mz_arr.dtype, (float, np.float64))`, which is
+        False for every array that exists -- a `numpy.dtype` is an instance of neither -- so this
+        returned float32 and quietly cost ~9 significant digits on m/z.
+        """
+        mz_values = np.array([1.5, 2.5, 3.5], dtype=np.float64)
+        int_values = np.array([1.0, 2.0, 3.0], dtype=np.float64)
+        assert self.mock_evaluate_bins.evaluate(mz_values, int_values).dtype == np.float64
+
+    def test_evaluate_stays_float32(self) -> None:
+        """float32 in, float32 out -- the branch is a widening, not an unconditional upcast."""
+        mz_values = np.array([1.5, 2.5, 3.5], dtype=np.float32)
+        int_values = np.array([1.0, 2.0, 3.0], dtype=np.float32)
+        assert self.mock_evaluate_bins.evaluate(mz_values, int_values).dtype == np.float32
+
     def test_mz_values(self) -> None:
         np.testing.assert_array_equal(np.array([1.5, 2.5, 3.5]), self.mock_evaluate_bins.mz_values)
 

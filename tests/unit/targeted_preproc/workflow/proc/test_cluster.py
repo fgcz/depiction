@@ -5,10 +5,11 @@ been a required argument for long enough that neither could ever have run: reque
 died with `TypeError: MultiChannelImage.__init__() missing 1 required positional argument`, after
 calibration and image generation had already been paid for. There was no test on either script.
 
-`known-issues/019` reads as though the whole clustering surface is one problem. It is not: these
-two scripts call sklearn and hdbscan directly and never touch `depiction.tools.clustering` or
+It is tempting to read the clustering surface as one problem. It is not: these two scripts call
+sklearn and hdbscan directly and never touch `depiction.tools.clustering` or
 `clustering/maxmin_sampling.py`, so they are repairable without reviving anything of doubtful
-correctness. That is why they are tested here and 019's own three call sites are not.
+correctness. That is why they are tested here while the clustering *tools* stay broken and
+unsupported -- see the repository README, which says so on the front page.
 
 Nothing asserts particular labels -- neither script sets a `random_state`, so the partition
 differs run to run. The assertions are on the shape of the result and on the foreground mask,

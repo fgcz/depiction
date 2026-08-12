@@ -122,11 +122,12 @@ build-backend = "setuptools.build_meta"
 #
 # This closes the package-*discovery* half of that problem only. setuptools copies `src/`
 # into `build/lib` without pruning files that no longer have a source, so an in-tree
-# `pip install .` can still ship modules deleted from `src/` months ago -- as of this writing
-# `build/` and `pkgs/*/build/` here hold the entire hand-rolled imzML parser removed by the
-# imzy migration. `build/` is gitignored, so CI, a fresh clone and `uv build` are unaffected;
-# the exposure is to installs made from a working copy. `rm -rf build/ pkgs/*/build/` is the
-# fix, and there is no way to express it here.
+# `pip install .` can still ship modules deleted from `src/` months ago. It has happened here:
+# a `build/` left over from before the imzy migration still held the entire hand-rolled imzML
+# parser. `build/` is gitignored, so CI, a fresh clone and `uv build` are unaffected; the
+# exposure is to installs made from a working copy that has one. `rm -rf build/ pkgs/*/build/`
+# before building from a tree that is not freshly cloned is the fix, and there is no way to
+# express it here.
 [tool.setuptools.packages.find]
 where = ["src"]
 

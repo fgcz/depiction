@@ -85,9 +85,12 @@ nox -s tests_depiction_io
 `tests_depiction_io` deliberately installs only `depiction_io`, so an accidental dependency on
 `depiction` fails there rather than being masked by the parent environment.
 
-`nox` also builds the Sphinx documentation (`nox -s docs`) with warnings treated as errors, so a
-broken autodoc reference fails the build rather than silently dropping a page. The slow end-to-end
-`system_tests` session is not part of the default run; see [system_tests/README.md](system_tests/README.md).
+`nox -s docs` builds the Sphinx documentation with warnings treated as errors, so a broken autodoc
+reference fails the build rather than silently dropping a page. It is not part of the default run:
+intersphinx fetches remote inventories, so an upstream site moving one would fail a bare `nox` on a
+commit that changed nothing. `nox -s licensecheck` is non-default for the same reason. CI runs both
+in their own job. The slow end-to-end `system_tests` session is not a default either; see
+[system_tests/README.md](system_tests/README.md).
 
 However, you can also run the tests with `pytest` or from your IDE if you are in the virtual environment.
 

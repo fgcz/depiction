@@ -154,10 +154,13 @@ class ImzyReader(GenericReader):
 
         This is `IMS:1000103`, the element count. The parser this backend replaced returned
         `IMS:1000104` instead -- the *encoded length* in bytes, four times larger for an
-        uncompressed float32 array. That was a long-standing bug: its only caller is
-        `depiction.tools.experimental.msi_hdf5`, and the test that would have caught it was
-        skipped in its entirety. So this method now returns something different from what it
-        used to, on purpose.
+        uncompressed float32 array. That was a long-standing bug, and it survived because the
+        method's only caller was `depiction.tools.experimental.msi_hdf5`, which could not be
+        imported at all, and the test that would have caught it was skipped in its entirety.
+        That caller has since been deleted. So this method now returns something different
+        from what it used to, on purpose, and nothing outside this package depends on either
+        answer -- it is protocol surface, pinned by `tests/real_data/` against the array it
+        describes.
         """
         byte_offsets = getattr(self.reader, "byte_offsets", None)
         if byte_offsets is None:

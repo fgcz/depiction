@@ -26,7 +26,6 @@ ARTIFACT_FILES_MAPPING = {
         # "qc/plot_spectra_for_marker.pdf",
         # "qc/plot_sample_spectra_before_after.pdf",
         "cluster_default_kmeans.hdf5",
-        #        "cluster_default_stats_kmeans.csv",
         "cluster_default_kmeans.png",
         # No cluster_default_hdbscan.png: `proc/cluster_hdbscan.py` imports `hdbscan`, which is
         # declared only in the `dev` extra, so requesting DEBUG on a clean install died with a
@@ -35,8 +34,6 @@ ARTIFACT_FILES_MAPPING = {
         "qc/plot_intensity_threshold_all.pdf",
         "qc/plot_intensity_threshold_fg.pdf",
         "images_default_norm.ome.tiff",
-        # "exp_plot_map_comparison.pdf",
-        # "qc/plot_marker_presence_mini.pdf",
     ],
 }
 

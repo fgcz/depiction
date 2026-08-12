@@ -78,13 +78,3 @@ rule proc_cluster_hdbscan:
     shell:
         "python -m depiction_targeted_preproc.workflow.proc.cluster_hdbscan "
         " --input-netcdf-path {input.netcdf} --output-netcdf-path {output.netcdf}"
-
-
-rule proc_cluster_stats:
-    input:
-        netcdf="{sample}/cluster_default_{variant}.hdf5",
-    output:
-        csv="{sample}/cluster_default_stats_{variant}.csv",
-    shell:
-        "python -m depiction_targeted_preproc.workflow.proc.cluster_stats"
-        " --input-netcdf-path {input.netcdf} --output-csv-path {output.csv}"

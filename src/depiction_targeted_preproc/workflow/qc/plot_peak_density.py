@@ -81,19 +81,38 @@ def density_by_group(df: pl.DataFrame) -> pl.DataFrame:
     """
     collect = []
     for (variant, mass_group), group in df.group_by(["variant", "mass_group"]):
-        dist, density = FFTKDE(bw=_DENSITY_BANDWIDTH).fit(group["dist"].to_numpy()).evaluate(_DENSITY_STEPS)
-        collect.append(pl.DataFrame({"dist": dist, "density": density, "variant": variant, "mass_group": mass_group}))
+        values = group["dist"].to_numpy()
+        dist, density = FFTKDE(bw=_DENSITY_BANDWIDTH).fit(values).evaluate(_DENSITY_STEPS)
+        # `FFTKDE` pads its grid past the data range and `transform_density` did not, so without
+        # this the curve grows a decaying tail either side that the plot never used to have.
+        # `plot_density_combined_full` clips for the same reason, per group here because Vega
+        # took the extent per group too.
+        keep = (dist >= values.min()) & (dist <= values.max())
+        collect.append(
+            pl.DataFrame({"dist": dist[keep], "density": density[keep], "variant": variant, "mass_group": mass_group})
+        )
     return pl.concat(collect).sort(["mass_group", "variant", "dist"])
+
+
+def grouped_peak_distances(df_peak_dist: pl.DataFrame, mass_groups: pl.DataFrame) -> pl.DataFrame:
+    """Assigns each distance to its mass group, then subsamples to what the chart can carry.
+
+    Sorting on `mz_target` alone is not a total order -- one target has a row per surrounding peak
+    per spectrum -- and `subsample_dataframe` samples by position, so a tie coming back the other
+    way round changes *which* rows are drawn once the frame exceeds the 200_000 cap, not just their
+    order. The remaining keys make it total: within one spectrum and target, each surrounding peak
+    appears once. `mz_target` stays leftmost because `join_asof` needs it sorted on that.
+    """
+    return (
+        df_peak_dist.sort(["mz_target", "variant", "i_spectrum", "mz_peak"])
+        .join_asof(mass_groups, left_on="mz_target", right_on="mz_min", strategy="backward")
+        .pipe(subsample_dataframe)
+    )
 
 
 def plot_density_groups(df_peak_dist: pl.DataFrame, mass_groups: pl.DataFrame, out_peak_density_ranges: Path) -> None:
     # TODO merge these two functions
-    df_peak_dist_grouped = df_peak_dist.sort("mz_target").join_asof(
-        mass_groups, left_on="mz_target", right_on="mz_min", strategy="backward"
-    )
-    df_peak_dist_grouped = subsample_dataframe(df_peak_dist_grouped)
-
-    df_density = density_by_group(df_peak_dist_grouped)
+    df_density = density_by_group(grouped_peak_distances(df_peak_dist, mass_groups))
 
     chart = (
         alt.Chart(df_density)

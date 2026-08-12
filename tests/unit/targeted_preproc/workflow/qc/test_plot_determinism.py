@@ -24,9 +24,13 @@ import numpy as np
 import polars as pl
 
 from depiction_targeted_preproc.workflow.qc.plot_marker_presence import sorted_label_order
-from depiction_targeted_preproc.workflow.qc.plot_peak_density import density_by_group
+from depiction_targeted_preproc.workflow.qc.plot_peak_density import density_by_group, grouped_peak_distances
 
 N_REPEATS = 25
+
+#: Above `subsample_dataframe`'s 200_000 cap, which is the only regime where the sort order of
+#: `grouped_peak_distances` decides which rows survive rather than merely which order they are in.
+N_OVER_CAP = 250_000
 
 
 def _marker_frame() -> pl.DataFrame:
@@ -86,6 +90,35 @@ def test_density_by_group_is_deterministic() -> None:
         }
     )
     frames = [density_by_group(_shuffled(df, rng)) for _ in range(5)]
+    for other in frames[1:]:
+        assert frames[0].equals(other)
+
+
+def test_grouped_peak_distances_samples_the_same_rows() -> None:
+    """Over the subsampling cap, the sort has to decide the row *set*, not just its order.
+
+    `mz_target` repeats once per (spectrum, surrounding peak), so sorting on it alone leaves the
+    tied block in whatever order the input happened to arrive in, and `sample(..., shuffle=True)`
+    then takes a positional slice of it. Two runs keep different rows and the drawn curve moves.
+    """
+    rng = np.random.default_rng(2)
+    n = N_OVER_CAP
+    df = (
+        pl.DataFrame(
+            {
+                "i_spectrum": rng.integers(0, 500, n),
+                "dist": rng.normal(0, 0.1, n),
+                # only 20 distinct targets across 250_000 rows: every sort key tie is a real one
+                "mz_target": rng.choice(np.linspace(1000.0, 2000.0, 20), n),
+                "variant": rng.choice(["calibrated", "baseline_adj"], n),
+            }
+        )
+        .with_columns(mz_peak=pl.col("mz_target") + pl.col("dist"))
+        .unique(subset=["mz_target", "variant", "i_spectrum", "mz_peak"])
+    )
+    mass_groups = pl.DataFrame({"mz_min": [1000.0, 1500.0], "mass_group": ["group_0", "group_1"]})
+
+    frames = [grouped_peak_distances(_shuffled(df, rng), mass_groups) for _ in range(5)]
     for other in frames[1:]:
         assert frames[0].equals(other)
 

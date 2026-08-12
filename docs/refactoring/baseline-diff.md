@@ -96,15 +96,50 @@ reported, each naming its artifact, and both scripts exited non-zero; the two un
 `calib_data` groups were correctly reported as unchanged. The single flipped `.ibd` byte
 surfaced as `spectrum 1580 int: 1/9013 values differ, max abs diff 1.4013e-45`.
 
-**Superseded for two artifacts since this run.** The pixel-size fix changed the output on
-purpose, so re-running this comparison against the recorded baseline will report:
+## Re-run 2026-08-12 — still identical
 
-- `raw_metadata.json` — `"pixel_size"` is now `null` for a file that declares no
-  `IMS:1000046` (the mouse kidney), where the baseline holds the fabricated
-  `{"size_x": 1.0, "size_y": 1.0, ...}`. This is a *text* artifact, described above as the
-  control that means "the two runs were not given the same input" — here it does not.
-- `calibrated.imzML` / `processed.imzML` — the XML now carries `IMS:1000046`/`IMS:1000047`
-  when the input declared them, which it previously dropped. The arrays are unaffected.
+Re-run in full, both fixtures, both readers, after the `evaluate_bins` float32 fix. **Every
+cell in the table above came back identical again, and both comparison scripts exited 0.**
+
+| | mouse_kidney | tonsil |
+|---|---|---|
+| `processed.imzML`, under imzy and under the pre-refactor parser | ✅ 1581 spectra | ✅ 10131 spectra |
+| `calibrated.imzML`, under both readers | ✅ | ✅ |
+| `compare_outputs` — 7 text artifacts, `images_default.hdf5`, 3 calibration groups, the OME-TIFF, the SpatialData zarr | ✅ | ✅ |
+
+Three things this settles.
+
+**The `evaluate_bins` fix does not touch this chain, measured rather than argued.**
+`EvaluateBins` never ran in the pipeline at all: it is unreachable from all 92 modules the
+workflow scripts import, and from `process_chunk`. Its only consumers — `EvaluateMeanSpectrum`,
+`align_imzml`, `align_profile_data`, `plot_mean_spectrum`, `visualize_calibration_targets` —
+are reachable from tests or from nothing. So correcting the dtype guard could not have moved a
+pipeline output, and this run is what establishes that instead of the reasoning being taken on
+trust.
+
+**The 007 caveat is retired.** The out-of-bounds numba read in `ReferencePeakDistances` was
+fixed without re-running this comparison, so the recorded baseline predated it and the argument
+for not re-running was explicitly "an argument, not a measurement". The fix is in
+`get_distances_max_peak_in_window`, which is exactly what `CalibrationMethodConstantGlobalShift`
+calls, and that is the method this comparison runs. It is now covered, and it changed nothing on
+either acquisition.
+
+**The two artifacts this document expected to differ do not.** An earlier note here predicted
+that a re-run would report `raw_metadata.json` and the imzML pixel-size cvParams as changed,
+because of the pixel-size fix. Neither shows up, and the prediction was wrong about which tree
+held the defect. Measured today:
+
+- `raw_metadata.json` — `"pixel_size"` is `null` in **both** trees for the mouse kidney, and
+  `{"size_x": 50.0, "size_y": 50.0, "unit": "micrometer"}` in both for the tonsil. The
+  fabricated 1 µm was never the baseline's behaviour; it was introduced into *this* tree by
+  `export_raw_metadata`'s `ValidationError` fallback and removed again by the fix. Between
+  those two commits the current tree disagreed with the baseline; it no longer does.
+- `calibrated.imzML` / `processed.imzML` — `IMS:1000046`/`IMS:1000047` are present in both
+  trees for the tonsil and absent from both for the mouse kidney, which declares neither.
+  Dropping them was likewise a transient state of this tree, not a difference from the baseline.
+
+The lesson is the same one this repository keeps relearning: a predicted diff is not a diff.
+Both bullets were written while the fix was in flight and read as though they had been observed.
 
 ## The differences that do exist
 

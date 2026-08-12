@@ -495,6 +495,16 @@ snakemake entry point, and the system tests drive the pipeline through it.
   `ImzmlWriteFile`'s defaults, so a float64 intensity array comes back as float32 after a
   parallel round trip. Pre-existing, pinned by `tests/differential/test_writer.py` rather
   than fixed.
+- **Some pipeline steps use a lot of RAM.** Most operations need very little, so the peak is
+  worth knowing about rather than designing around. Two places account for it. The sparse-aware
+  spatial smoothing (`image/smoothing/spatial_smoothing_sparse_aware.py`) works one channel at a
+  time, but needs that channel's whole image resident while it does — `scipy.signal.convolve`
+  over a float64 copy, twice — and there is no offloading. For a large acquisition that is the
+  high-water mark of a run. The other is
+  parsing the input file's metadata. Never profiled: this is the reported shape of the problem,
+  not a measurement, and anyone who wants to fix it should start by measuring rather than by
+  trusting this entry. Filed as #32, which is closed on the way into dormancy because it was a
+  diagnosis request with no acceptance criterion, not because the RAM use went away.
 - ~~**A file with no declared pixel size silently gets 1 µm.**~~ **Fixed.** `Metadata.pixel_size`
   was a required `PixelSize`, but `ParseMetadata.pixel_size` returns `None` when the file declares
   no `IMS:1000046` — deliberately, since that was the whole reason Phase E kept the parser.

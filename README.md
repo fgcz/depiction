@@ -203,6 +203,24 @@ decides how much of the rule graph runs. The mapping from artifact to output fil
 Outputs are written into the chunk directory alongside the inputs, and every requested file is
 also collected into `outputs/<sample_name>.zip`.
 
+### Editing the workflow
+
+The rules live in
+[`workflow/`](src/depiction_targeted_preproc/workflow), split by stage —
+`rules/rules_proc.smk` for processing and calibration, `rules_vis.smk` for images,
+`rules_qc.smk` for the QC plots — and `workflow/Snakefile` is the list of what is included.
+Every rule is a thin wrapper: it declares inputs and outputs and shells out to
+`python -m depiction_targeted_preproc.workflow.<stage>.<script>`, so the code you want to change
+is almost always the script, not the rule.
+
+Adding an output means three edits, in this order: the script, a rule that produces its file,
+and an entry in `ARTIFACT_FILES_MAPPING` so that some `PipelineArtifact` asks for it. Nothing
+runs that no artifact requests — a rule with no path to a requested file is simply never
+scheduled, which is worth knowing before debugging why a new rule "does nothing".
+
+`src/depiction_targeted_preproc/README.md` lists the rules that are known to be dead, so you
+do not copy one as a template.
+
 ### A worked example
 
 [`system_tests/`](system_tests/README.md) is the end-to-end recipe, and it runs on a public

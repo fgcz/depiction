@@ -28,11 +28,11 @@ extensions = [
 # a fresh clone is a warning -- which `nox -s docs` turns into an error. Re-add either setting
 # together with the file that justifies it.
 # `refactoring/` is repository documentation, not published API docs; the archive under it
-# is also kept byte-identical on purpose and must not be reformatted or parsed. `known-issues/`
-# is the same kind of thing -- a maintenance record read in the repository, not on the docs
-# site. Without the exclusion, `nox -s docs` fails: every file in it is a document that no
-# toctree references, and that warning is an error under `-W`.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "refactoring", "known-issues"]
+# is also kept byte-identical on purpose and must not be reformatted or parsed. Without the
+# exclusion, `nox -s docs` fails: every file in it is a document that no toctree references,
+# and that warning is an error under `-W`. Anything else added under `docs/` for readers of the
+# repository rather than of the docs site needs the same treatment.
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "refactoring"]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

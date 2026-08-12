@@ -201,6 +201,14 @@ class IsotopePatternMatcher:
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """Computes the averagine isotope pattern for the specified mass value and returns the mz and intensity arrays.
         If possible, use get_averagine_pattern method which will invoke a cached version of this function.
+
+        `alphapept` is declared in no extra, here or anywhere else in the workspace, so this
+        function cannot run in any environment the repository can build. The import is deliberately
+        deferred, which is why the module still imports fine and only this call fails; the tests
+        for it guard with `pytest.importorskip("alphapept")` and therefore skip everywhere, so this
+        path has no coverage at all. Left as is rather than declared, because it is a heavy
+        dependency for a surface with no callers -- but not silently: declaring it in an
+        `isotopes` extra is what would make the two test files run somewhere.
         """
         import alphapept.chem
         import alphapept.constants

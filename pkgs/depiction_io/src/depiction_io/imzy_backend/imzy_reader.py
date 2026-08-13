@@ -45,7 +45,7 @@ class ImzyReader(GenericReader):
         # The encoded lengths travel rather than being re-derived: recovering them means
         # another walk of the XML, which is the expensive half of opening a large file.
         # upstream: imzy readers implement neither __getstate__ nor __setstate__; see
-        # ROADMAP.md, Phase D gap (2).
+        # docs/modules/depiction_io/imzy_backend.md, gap (2).
         return {"path": self._path, "declares_z": self._declares_z, "encoded_lengths": self._encoded_lengths}
 
     def __setstate__(self, state: dict[str, Any]) -> None:
@@ -66,7 +66,7 @@ class ImzyReader(GenericReader):
             self._discard_stale_icache()
             # imzy writes an `.icache` sidecar next to the input, so a read-only input tree
             # silently degrades to a full re-parse on every open.
-            # upstream: no cache_dir argument; see ROADMAP.md, Phase D gap (3).
+            # upstream: no cache_dir argument; see docs/modules/depiction_io/imzy_backend.md, gap (3).
             if self._encoded_lengths is None:
                 import imzy
 
@@ -91,7 +91,7 @@ class ImzyReader(GenericReader):
         Deleting a cache that was in fact valid costs a re-parse, so the comparison
         deliberately errs towards deleting. A cache that cannot be removed is left to raise:
         reading through a stale one is the outcome this exists to prevent.
-        # upstream: the cache carries no provenance; see ROADMAP.md, Phase D gap (3).
+        # upstream: the cache carries no provenance; see docs/modules/depiction_io/imzy_backend.md, gap (3).
         """
         icache = self._path.with_suffix(".icache")
         if not icache.exists():

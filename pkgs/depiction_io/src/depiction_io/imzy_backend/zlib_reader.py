@@ -12,7 +12,7 @@ that turn bytes into floats are overridden, and `_ENCODED_READ_SITES` pins that 
 imzy upgrade that adds a fourth fails loudly here rather than silently returning noise
 again.
 
-# upstream: no compression support in imzy. See ROADMAP.md, Phase D gap (1).
+# upstream: no compression support in imzy. See docs/modules/depiction_io/imzy_backend.md, gap (1).
 """
 
 from __future__ import annotations

@@ -21,8 +21,8 @@ packages:
 Two things are tested and exercised end to end: **`depiction_io`**, which has its own test suite, a
 protocol conformance test per backend and a differential corpus; and **the targeted preprocessing
 pipeline**, which is covered by [system tests](https://github.com/fgcz/depiction/blob/dev/system_tests/README.md) against two real
-acquisitions and whose output is pinned against the pre-migration implementation in
-[`docs/refactoring/baseline-diff.md`](https://github.com/fgcz/depiction/blob/dev/docs/refactoring/baseline-diff.md).
+acquisitions and whose output is pinned against the pre-migration implementation by
+[`system_tests/baseline/`](https://github.com/fgcz/depiction/blob/dev/system_tests/baseline/README.md).
 
 The following are in the tree but do not work:
 
@@ -130,5 +130,10 @@ acquisition a fresh clone can fetch.
 - [`src/depiction_targeted_preproc/README.md`](https://github.com/fgcz/depiction/blob/dev/src/depiction_targeted_preproc/README.md) — the
   pipeline: how to run it, what it produces, and which rules are known to be dead.
 - [`system_tests/README.md`](https://github.com/fgcz/depiction/blob/dev/system_tests/README.md) — the end-to-end recipe and its fixtures.
-- [`docs/refactoring/ROADMAP.md`](https://github.com/fgcz/depiction/blob/dev/docs/refactoring/ROADMAP.md) — what was migrated to `imzy`, what
-  was deliberately left undone, and why.
+- [`docs/modules/depiction_io/imzy_backend.md`](https://github.com/fgcz/depiction/blob/dev/docs/modules/depiction_io/imzy_backend.md) — the
+  five gaps in `imzy` this repository works around, what the written imzML looks like as a
+  result, and which remnants of the old parser must not be deleted.
+- [`docs/test-data.md`](https://github.com/fgcz/depiction/blob/dev/docs/test-data.md) — the two public acquisitions the tests fetch: their
+  licences, checksums, measured values and known quirks.
+- [`docs/refactoring/REMAINING.md`](https://github.com/fgcz/depiction/blob/dev/docs/refactoring/REMAINING.md) — what is still open, what was
+  deliberately left undone, and why.

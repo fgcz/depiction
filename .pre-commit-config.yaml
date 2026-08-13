@@ -1,9 +1,6 @@
 ci:
   autoupdate_commit_msg: "chore: update pre-commit hooks"
   autofix_commit_msg: "style: pre-commit fixes"
-# Rescued artefacts of the aborted refactorings, kept byte-identical to their
-# originals on purpose. Reformatting them would destroy the thing being archived.
-exclude: ^docs/refactoring/archive/
 repos:
   - repo: https://github.com/psf/black
     rev: "24.8.0"

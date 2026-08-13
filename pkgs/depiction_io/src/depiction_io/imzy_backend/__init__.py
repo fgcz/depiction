@@ -1,9 +1,10 @@
 """Adapter exposing `imzy <https://github.com/vandeplaslab/imzy>`_ behind the protocols in
 ``depiction_io.types``.
 
-The adapter exists so that the hand-rolled imzML parser can eventually be deleted (see
-``docs/refactoring/ROADMAP.md``). Until then imzy has gaps that this package works around;
-every workaround carries an ``# upstream:`` marker naming the gap.
+The adapter replaced a hand-rolled imzML parser, which has since been deleted. imzy has five
+gaps that this package works around; every workaround carries an ``# upstream:`` marker naming
+the gap by its number in ``docs/modules/depiction_io/imzy_backend.md``, which is also where the
+kept remnants of that parser are explained.
 """
 
 from depiction_io.imzy_backend.imzml_scan import (

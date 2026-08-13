@@ -18,7 +18,7 @@ dependencies = [
     "loguru",
     # the imzy backend (`depiction_io.imzy_backend`). It pulls ~40 transitive packages,
     # which is a real cost for a package that is otherwise deliberately minimal; the
-    # justification is in docs/refactoring/ROADMAP.md. Capped because
+    # justification is in docs/modules/depiction_io/imzy_backend.md. Capped because
     # `imzy_backend/zlib_reader.py` overrides three *private* IMZMLReader methods to add the
     # zlib support imzy lacks: it asserts they exist at import, so a future imzy that renames
     # one turns into an ImportError for every downstream consumer, with nobody here to cut a

@@ -17,7 +17,7 @@ rather than through `pyimzml`. Two of its choices are still wrong for this codeb
    desynchronise the spectrum count from the coordinate list. Handled in `ImzmlWriter`,
    which refuses an empty array up front and treats a `False` return as an error.
 
-# upstream: both are worth reporting; see ROADMAP.md, Phase D gaps (4) and (5).
+# upstream: both are worth reporting; see docs/modules/depiction_io/imzy_backend.md, gaps (4) and (5).
 """
 
 from __future__ import annotations

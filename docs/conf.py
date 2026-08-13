@@ -27,12 +27,13 @@ extensions = [
 # git never tracked them, and `html_static_path` pointing at a directory that does not exist in
 # a fresh clone is a warning -- which `nox -s docs` turns into an error. Re-add either setting
 # together with the file that justifies it.
-# `refactoring/` is repository documentation, not published API docs; the archive under it
-# is also kept byte-identical on purpose and must not be reformatted or parsed. Without the
-# exclusion, `nox -s docs` fails: every file in it is a document that no toctree references,
+# `refactoring/` and `test-data.md` are repository documentation, not published API docs.
+# Without the exclusion, `nox -s docs` fails: each is a document that no toctree references,
 # and that warning is an error under `-W`. Anything else added under `docs/` for readers of the
-# repository rather than of the docs site needs the same treatment.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "refactoring"]
+# repository rather than of the docs site needs the same treatment. Note that the reverse also
+# holds: `modules/depiction_io/index.md` globs `*`, so a new page dropped beside it is picked
+# up with no toctree edit.
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "refactoring", "test-data.md"]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

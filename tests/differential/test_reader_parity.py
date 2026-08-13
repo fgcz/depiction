@@ -16,7 +16,7 @@ backend-against-ground-truth. ``TestCrossImplementation`` additionally cross-che
 
 What was genuinely lost is a second *XML parser* to disagree with imzy. A bug that the
 writer and the reader share symmetrically would now go unseen here; only real acquisitions
-(``docs/refactoring/public-test-data.md``) can catch that class of thing.
+(``docs/test-data.md``) can catch that class of thing.
 
 The file earns its keep three ways:
 

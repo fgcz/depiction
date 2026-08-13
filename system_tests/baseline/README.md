@@ -3,8 +3,17 @@
 Runs the `depiction_targeted_preproc` pipeline twice on the same acquisition — once in this
 tree, once in the tree as it was before the `imzy` migration — and compares the outputs.
 
-The result is written up in [`docs/refactoring/baseline-diff.md`](../../docs/refactoring/baseline-diff.md).
-This directory is how to reproduce it.
+**The result, twice: the migration changed nothing in the data.** Run on 2026-08-07 and
+re-run in full on 2026-08-12 after the `evaluate_bins` float32 fix, on both fixtures, with
+the imzML pairs read under *both* imzy and the pre-refactor parser. Every artifact matched
+exactly, with no tolerance — every spectrum's m/z and intensity array, every coordinate,
+every image value, every channel name, the calibration coefficients, the OME-TIFF and the
+SpatialData zarr. The `.ibd` files are **byte-identical after their 16-byte UUID header**:
+`cmp -l` reports exactly 16 differing bytes in a 3.8 GB file.
+
+This directory is how to reproduce it. The differences that do exist are all in the imzML
+XML rather than the data, and are catalogued in
+[`docs/modules/depiction_io/imzy_backend.md`](../../docs/modules/depiction_io/imzy_backend.md).
 
 Nothing runs it automatically. It needs two environments, a second checkout, and (for the
 tonsil) a 1.26 GB fixture, none of which belong in `nox` or in CI.

@@ -7,7 +7,7 @@ inspects the compression cvParam, and ``byte_offsets`` stores *array* lengths
 therefore does not fail -- it yields plausible-looking noise.
 
 # upstream: no compression support in imzy; report the silent-corruption behaviour as a bug
-# in its own right, independent of the fix. See ROADMAP.md, Phase D gap (1).
+# in its own right, independent of the fix. See docs/modules/depiction_io/imzy_backend.md, gap (1).
 
 **The encoded lengths a decompressor needs.** zlib is read rather than refused, because it
 is what real acquisitions arrive in. The only thing missing to decompress a block is its

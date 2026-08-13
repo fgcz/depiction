@@ -31,7 +31,8 @@ In general the idea is that creating the file should be quick, whereas additiona
 
 Both reading and writing go through [imzy](https://github.com/vandeplaslab/imzy), behind the protocols above.
 The hand-rolled etree parser that used to do the reading, and the pyImzML writer, are gone;
-see `docs/refactoring/ROADMAP.md` for what imzy still gets wrong and how those gaps are worked around.
+see [the imzy backend](imzy_backend.md) for what imzy still gets wrong, how those gaps are
+worked around, and what the written imzML looks like as a result.
 
 Construct read files with `get_read_file` rather than naming a class: it is the seam that picks an
 implementation, and it reports plainly when a vendor format cannot be read on this platform.

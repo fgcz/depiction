@@ -67,11 +67,12 @@ and return `MultiChannelImage`, so putting them here would make `depiction_io` d
 
 ## Status
 
-See [`docs/refactoring/ROADMAP.md`](https://github.com/fgcz/depiction/blob/dev/docs/refactoring/ROADMAP.md)
-in the repository root. The migration to imzy is complete: one reader, one writer, and roughly 1,900 lines of
-custom parsing removed across Phases C and E.
+The migration to imzy is complete: one reader, one writer, and roughly 1,900 lines of custom
+parsing removed. The gaps imzy still has, the workarounds they get here, and the pieces of the
+old parser that were kept on purpose are documented in
+[`docs/modules/depiction_io/imzy_backend.md`](https://github.com/fgcz/depiction/blob/dev/docs/modules/depiction_io/imzy_backend.md).
 
 The differential tests in `tests/differential/` were an A/B comparison between the two
 readers for the length of that migration and are what made it safe. With one reader left
 they assert against the corpus's independently held source arrays instead — still useful,
-but no longer a second opinion. The roadmap says what that stops catching.
+but no longer a second opinion. That page says what it stops catching.

@@ -1,14 +1,14 @@
 """The public imzML acquisitions this repository tests against, and what they must read as.
 
 Two redistributable imzML/`.ibd` pairs, identified and measured in
-[`public-test-data.md`](../../docs/refactoring/public-test-data.md). Together they are
-1.24 GB, so they are not in the repository: `fetch.py` downloads them into a gitignored
-cache and the tests skip when it is empty.
+[`test-data.md`](../../docs/test-data.md). Together they are 1.24 GB, so they are not in the
+repository: `fetch.py` downloads them into a gitignored cache and the tests skip when it is
+empty.
 
 `ExpectedReading` is the part that earns its keep. Those numbers were measured on
 2026-08-07 through *both* the hand-rolled imzML parser and imzy, which agreed on all of
-them; the parser was deleted shortly afterwards in Phase E. Pinning them here is what
-survives of that comparison. It is a different kind of evidence from `tests/differential/`,
+them; the parser was deleted shortly afterwards. Pinning them here is what survives of that
+comparison. It is a different kind of evidence from `tests/differential/`,
 which checks imzy against files imzy's own writer produced -- these are third-party vendor
 exports, and their expected values predate the migration that would have to be wrong for
 them to be wrong.
